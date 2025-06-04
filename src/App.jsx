@@ -1,23 +1,42 @@
-import { Layout } from "antd";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./component/header/Header";
-import Movie from "./pages/movie/Movie";
-import Home from "./pages/home/Home";
-import Footer from "./component/footer/Footer";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { AuthProvider } from "./constants/AuthContext";
 
-const App = () => {
-    return (
-        <BrowserRouter>
-            <Layout>
-                <Header />
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/movie" element={<Movie />} />
-                </Routes>
-                <Footer />
-            </Layout>
-        </BrowserRouter>
-    );
-};
+import Footer from "./component/footer/Footer";
+import Header from "./component/header/Header";
+import LoginPage from "./pages/LoginPage/Login.jsx";
+import StaffHomePage from "./pages/Staff/SHomePage.jsx";
+import HomePage from "./pages/home/Home.jsx";
+import Movie from "./pages/movie/Movie";
+import DateTimeSelection from "./pages/Staff/DateTimeSelection.jsx";
+function Layout() {
+  const isAdmin = location.pathname.startsWith("/admin");
+  const isLoginRegister = location.pathname.startsWith("/login");
+  return (
+    <div className="app-container">
+      {!isLoginRegister && !isAdmin && <Header />}
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/staffHP" element={<StaffHomePage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/dateTimeSelection" element={<DateTimeSelection />} />
+          <Route path="/movie" element={<Movie />} />
+        </Routes>
+      </main>
+      {!isLoginRegister && !isAdmin && <Footer />}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Layout />
+      </Router>
+    </AuthProvider>
+  );
+}
 
 export default App;
