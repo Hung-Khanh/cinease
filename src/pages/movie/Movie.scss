@@ -1,4 +1,4 @@
-$primary-color: #219150;
+$primary-color: #044824;
 $secondary-color: #1da1f2;
 $dark-bg: #1c262b;
 $text-light: #fff;
@@ -11,9 +11,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   min-height: 100vh;
   background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
   color: $text-light;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
-
 
 .movie-title {
   font-size: 2rem;
@@ -30,7 +29,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   border-radius: 8px;
   padding: 14px 18px;
   margin: 0 16px 20px 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .movie-search-input {
@@ -52,7 +51,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   }
 }
 
-.movie-filter-select, .movie-sort-select {
+.movie-filter-select,
+.movie-sort-select {
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   padding: 8px 14px;
@@ -92,7 +92,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border 0.15s;
-    &.active, &:hover {
+    &.active,
+    &:hover {
       background: $primary-color;
       color: $text-light;
       border: 1px solid $primary-color;
@@ -105,7 +106,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 18px;
   margin: 0 16px 18px 16px;
-  
+
   &::after {
     content: "";
     flex: auto;
@@ -126,7 +127,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   width: 100%;
   max-width: 280px;
   margin: 0 auto;
-  
+
   &--empty {
     visibility: hidden;
     pointer-events: none;
@@ -168,7 +169,6 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   font-size: 1.1rem;
   font-weight: 600;
   color: $text-light;
-
 }
 
 .movie-rating-row {
@@ -255,7 +255,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     font-size: 1rem;
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border 0.15s;
-    &.active, &:hover {
+    &.active,
+    &:hover {
       background: $primary-color;
       color: $text-light;
       border: 1.5px solid $primary-color;
@@ -349,18 +350,18 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 .movie-genre {
-    display: inline-block;
-    background: #e6f0ff;
-    color: #1976d2;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 2px 12px;
-    border-radius: 8px;
-    margin-top: 4px;
-    transition: background 0.2s, color 0.2s;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+  display: inline-block;
+  background: #e6f0ff;
+  color: #1976d2;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 2px 12px;
+  border-radius: 8px;
+  margin-top: 4px;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
 }
 
 .coming-soon-badge {

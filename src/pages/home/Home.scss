@@ -1,4 +1,4 @@
-$primary-color: #219150;
+$primary-color: #044824;
 $secondary-color: #1da1f2;
 $dark-bg: #1c262b;
 $text-light: #fff;
@@ -46,7 +46,11 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, rgba(10, 24, 31, 0.78) 40%, rgba(10, 24, 31, 0.12) 100%);
+        background: linear-gradient(
+          90deg,
+          rgba(10, 24, 31, 0.78) 40%,
+          rgba(10, 24, 31, 0.12) 100%
+        );
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -125,7 +129,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         height: 160px;
       }
 
-      .slide-item, .slide-overlay {
+      .slide-item,
+      .slide-overlay {
         height: 160px;
         padding: 18px;
       }
@@ -178,33 +183,34 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     padding-bottom: 8px;
     justify-content: space-between;
     overflow-x: auto;
-    }
+  }
 
-.coming-img-wrap {
-  position: relative;
-  border-radius: 14px 14px 0 0;
-  overflow: hidden;
-}
+  .coming-img-wrap {
+    position: relative;
+    border-radius: 14px 14px 0 0;
+    overflow: hidden;
+  }
 
-.coming-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #e53935;
-  color: #fff;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 8px 8px 8px 0;
-  padding: 4px 14px;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-  letter-spacing: 0.5px;
-  border: none;
-  min-width: 80px;
-  text-align: center;
-}
+  .coming-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e53935;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 8px 8px 8px 0;
+    padding: 4px 14px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    letter-spacing: 0.5px;
+    border: none;
+    min-width: 80px;
+    text-align: center;
+  }
 
-  .coming-soon-card, .movie-card {
+  .coming-soon-card,
+  .movie-card {
     @extend .movie-list;
     flex: 0 0 19%;
     max-width: 19%;
@@ -223,28 +229,32 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       box-shadow: $hover-shadow;
     }
 
-    .movie-img, .coming-img {
+    .movie-img,
+    .coming-img {
       width: 100%;
       height: 240px;
       object-fit: cover;
       border-radius: 14px 14px 0 0;
     }
 
-    .movie-info, .coming-info {
+    .movie-info,
+    .coming-info {
       padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
 
-    .movie-title, .coming-title {
+    .movie-title,
+    .coming-title {
       font-size: 16px;
       font-weight: 600;
       color: $text-light;
       margin-bottom: 2px;
     }
 
-    .movie-genre-btn, .coming-genre-btn {
+    .movie-genre-btn,
+    .coming-genre-btn {
       background: #e6f0ff;
       color: #1976d2;
       font-size: 13px;
@@ -320,14 +330,18 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 // Ẩn thanh scroll cho các vùng scroll chính của trang Home
-.home, .home-content, .slide-container, .movie-list, .promo-list {
-    scrollbar-width: none; // Firefox
-    -ms-overflow-style: none; // IE & Edge
-  }
-  .home::-webkit-scrollbar,
-  .home-content::-webkit-scrollbar,
-  .slide-container::-webkit-scrollbar,
-  .movie-list::-webkit-scrollbar,
-  .promo-list::-webkit-scrollbar {
-    display: none; // Chrome, Safari, Opera
-  }
+.home,
+.home-content,
+.slide-container,
+.movie-list,
+.promo-list {
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE & Edge
+}
+.home::-webkit-scrollbar,
+.home-content::-webkit-scrollbar,
+.slide-container::-webkit-scrollbar,
+.movie-list::-webkit-scrollbar,
+.promo-list::-webkit-scrollbar {
+  display: none; // Chrome, Safari, Opera
+}

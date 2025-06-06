@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { Carousel, Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
-import "./SHomePage.scss";
+import "../SCSS/SHomePage.scss";
 
 const { Meta } = Card;
 
 const SHomePage = () => {
   const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
-  const apiUrl = "https://3a21-183-91-25-219.ngrok-free.app/api";
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const token = localStorage.getItem("token");
 
   const fetchMovies = async () => {
     try {
-      const response = await fetch(`${apiUrl}/public/movies`, {
+      const response = await fetch(`${apiUrl}/public/movie/now-showing`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -29,12 +29,16 @@ const SHomePage = () => {
       console.log("Movies data:", data);
 
       // Lọc dữ liệu chỉ lấy movieNameEnglish và largeImage
-      const extractedMovies = data.map((movie) => ({
+      const extractedMovies = data.content.map((movie) => ({
         movieNameEnglish: movie.movieNameEnglish,
         largeImage: movie.largeImage,
+        movieId: movie.movieId,
       }));
-
       setMovies(extractedMovies);
+      console.log(
+        "movieID: ",
+        extractedMovies.map((movie) => movie.movieId)
+      );
     } catch (error) {
       console.error("Error fetching movies:", error);
     }
@@ -56,7 +60,7 @@ const SHomePage = () => {
           arrows
           infinite
           autoplay={true}
-          autoplaySpeed={3000}
+          autoplaySpeed={2500}
           className="movie-carousel"
         >
           {movies.map((movie, index) => (
@@ -74,7 +78,10 @@ const SHomePage = () => {
               >
                 <Meta title={movie.movieNameEnglish} />
                 <Button
-                  onClick={() => navigate("/dateTimeSelection")}
+                  onClick={() => {
+                    navigate(`/DateTimeSelection/${movie.movieId}`);
+                    console.log("Movie ID:", movie.movieId);
+                  }}
                   type="primary"
                   className="book-button"
                 >

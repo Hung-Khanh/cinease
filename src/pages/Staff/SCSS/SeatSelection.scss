@@ -1,0 +1,439 @@
+$seat-available: #ffffff;
+$seat-selected: #2ecc71;
+$seat-unavailable: #555;
+$seat-border: #999;
+$bg-color: #011c0f;
+
+.seat-selection-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: $bg-color;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+}
+
+.seat-selection-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 950px;
+  box-sizing: border-box;
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    gap: 15px;
+    max-width: 100%;
+  }
+}
+
+.back-button {
+  background: none;
+  border: 2px solid #0c9550;
+  color: #0c9550;
+  font-size: 24px;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s ease;
+  margin-bottom: -10px;
+
+  &:hover {
+    background-color: #0c9550;
+    color: white;
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}
+
+.screen-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+  position: relative;
+
+  .screen {
+    width: 420px;
+    height: 60px;
+    background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+    border: 2px solid #0c9550;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(12, 149, 80, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    // Tablet responsive
+    @media (max-width: 1024px) {
+      width: 350px;
+      height: 50px;
+    }
+
+    // Mobile responsive
+    @media (max-width: 768px) {
+      width: 280px;
+      height: 45px;
+    }
+
+    // Small mobile
+    @media (max-width: 480px) {
+      width: 240px;
+      height: 40px;
+    }
+
+    .screen-text {
+      color: #011c0f;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+
+      // Mobile responsive
+      @media (max-width: 768px) {
+        font-size: 14px;
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .screen-arrow {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #0c9550;
+    margin-top: -2px;
+
+    // Mobile responsive
+    @media (max-width: 768px) {
+      border-left-width: 8px;
+      border-right-width: 8px;
+      border-top-width: 8px;
+    }
+  }
+}
+
+.main-section {
+  display: grid;
+  grid-template-columns: repeat(10, auto);
+  column-gap: 3px;
+  row-gap: 3px;
+  justify-content: center;
+  overflow-x: auto;
+  padding: 0 10px;
+
+  // Tablet responsive
+  @media (max-width: 1024px) {
+    column-gap: 2px;
+    row-gap: 2px;
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    column-gap: 1px;
+    row-gap: 1px;
+    padding: 0 5px;
+  }
+
+  // Small mobile - make seats smaller
+  @media (max-width: 480px) {
+    column-gap: 1px;
+    row-gap: 1px;
+    padding: 0;
+  }
+}
+
+.seat {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $seat-border;
+  border-radius: 6px;
+  font-size: 14px;
+  margin: 5px;
+  cursor: pointer;
+  min-width: 42px; // Prevent shrinking
+
+  // Tablet responsive
+  @media (max-width: 1024px) {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+    min-width: 38px;
+  }
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    min-width: 32px;
+    border-radius: 4px;
+  }
+
+  // Small mobile
+  @media (max-width: 480px) {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+    min-width: 28px;
+  }
+
+  // Extra small mobile
+  @media (max-width: 360px) {
+    width: 25px;
+    height: 25px;
+    font-size: 9px;
+    min-width: 25px;
+  }
+
+  &.available {
+    background-color: $seat-available;
+    color: black;
+  }
+
+  &.selected {
+    background-color: $seat-selected;
+    color: white;
+  }
+
+  &.sold {
+    background-color: $seat-unavailable;
+    color: white;
+    cursor: not-allowed;
+  }
+
+  &.vip {
+    border: 0.5px solid #e74c3c;
+
+    @media (max-width: 768px) {
+      border-width: 1.5px;
+    }
+  }
+}
+
+.seat-selection-container {
+  max-width: fit-content;
+  margin: 0 auto;
+  padding: 10px;
+
+  @media (max-width: 768px) {
+    padding: 5px;
+  }
+}
+
+.legend.bottom-center {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    gap: 15px;
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+    font-size: 11px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    @media (max-width: 480px) {
+      gap: 6px;
+    }
+
+    .box {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        width: 16px;
+        height: 16px;
+      }
+
+      @media (max-width: 480px) {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .available {
+      background-color: $seat-available;
+      border: 1px solid #ccc;
+    }
+
+    .selected {
+      background-color: $seat-selected;
+    }
+
+    .sold {
+      background-color: $seat-unavailable;
+    }
+
+    .vip {
+      background-color: $seat-available;
+      border: 2px solid #e74c3c;
+    }
+  }
+}
+
+.summary.bottom-bar {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  font-size: 14px;
+  gap: 40px;
+
+  // Mobile responsive
+  @media (max-width: 768px) {
+    margin-top: 20px;
+    padding: 12px 15px;
+    font-size: 12px;
+    gap: 20px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    gap: 15px;
+  }
+
+  .summary-item {
+    flex: 1;
+
+    @media (max-width: 768px) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .label {
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #ccc;
+      margin-bottom: 3px;
+
+      @media (max-width: 768px) {
+        font-size: 11px;
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 10px;
+      }
+    }
+
+    .value {
+      font-size: 18px;
+      font-weight: bold;
+      white-space: pre-line;
+
+      @media (max-width: 768px) {
+        font-size: 16px;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.checkout-button {
+  background-color: #0c9550;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 120px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+
+  &:hover {
+    background-color: #1e8449;
+  }
+}
+
+// Additional responsive utilities
+@media (max-width: 768px) {
+  .seat-selection-wrapper {
+    overflow-x: hidden;
+  }
+
+  .main-section {
+    // Ensure seats don't overflow on mobile
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+// Landscape orientation on mobile
+@media (max-width: 768px) and (orientation: landscape) {
+  .seat-selection-wrapper {
+    padding: 10px 20px;
+  }
+
+  .screen-section {
+    margin-bottom: 20px;
+  }
+
+  .summary.bottom-bar {
+    margin-top: 15px;
+    flex-direction: row;
+
+    .summary-item {
+      display: block;
+    }
+  }
+}

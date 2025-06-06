@@ -20,10 +20,11 @@ const { Title, Text } = Typography;
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const apiUrl = "https://3a21-183-91-25-219.ngrok-free.app/api";
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: "", password: "" });
+  const [error, setError] = useState("");
   const [registerData, setRegisterData] = useState({
     username: "",
     email: "",
@@ -95,7 +96,7 @@ const Login = () => {
         navigate("/admin");
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
-        navigate("/staffHP");
+        navigate("/staffHomePage");
       } else {
         console.log(result.role);
         navigate("/userHP");
@@ -110,6 +111,7 @@ const Login = () => {
 
   const handleRegisterSubmit = async (values) => {
     setLoading(true);
+    setError(""); // Reset error trước khi gửi request
     try {
       console.log(
         "Sending register request to:",
@@ -138,7 +140,7 @@ const Login = () => {
       console.log("Register response:", result);
     } catch (error) {
       console.error("Error during registration:", error.message);
-      message.error(`Registration failed: ${error.message}`);
+      setError(`Registration failed: ${error.message}`); // Set lỗi vào state
     } finally {
       setLoading(false);
     }
@@ -206,14 +208,20 @@ const Login = () => {
             </Form.Item>
           </Form>
         </div>
-
         {/* Register Form Section */}
+
         <div className="form-container register-form-section">
           <Form
             name="register_form"
             onFinish={handleRegisterSubmit}
             className="register-form compact"
             initialValues={registerData}
+            onFieldsChange={(changedFields) => {
+              // Reset error khi user bắt đầu nhập
+              if (changedFields.length > 0) {
+                setError("");
+              }
+            }}
           >
             <Title level={3} className="register-title">
               Create your account
@@ -224,41 +232,60 @@ const Login = () => {
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
               rules={[
-                { required: true, message: "Please input your username!" },
+                { required: true, message: "" }, // Bỏ message ở đây
               ]}
+              validateStatus={error && !registerData.username ? "error" : ""}
             >
               <Input
-                placeholder="Enter username"
+                placeholder={
+                  error && !registerData.username
+                    ? "Please input your username!"
+                    : "Enter username"
+                }
                 name="username"
                 value={registerData.username}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={error && !registerData.username ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item label="Password" required>
-              <Row gutter={8} style={{ alignItems: "center" }}>
+
+            {/* Password Section */}
+            <Form.Item
+              label="Password"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+              required={true}
+              className="password-section-wrapper"
+            >
+              <Row gutter={8}>
                 <Col span={12}>
                   <Form.Item
                     name="password"
                     rules={[
                       {
                         required: true,
-                        message: "Please input your password!",
-                      },
-                      {
-                        min: 6,
-                        message: "Password must be at least 6 characters!",
+                        message: "",
                       },
                     ]}
-                    noStyle
+                    style={{ marginBottom: 0 }}
+                    validateStatus={
+                      error && !registerData.password ? "error" : ""
+                    }
                   >
                     <Input.Password
-                      placeholder="Enter password"
+                      placeholder={
+                        error && !registerData.password
+                          ? "Please input your password!"
+                          : "Enter password"
+                      }
                       name="password"
                       value={registerData.password}
                       onChange={handleRegisterInputChange}
                       size="small"
-                      style={{ width: "100%" }}
+                      className={
+                        error && !registerData.password ? "error-input" : ""
+                      }
                     />
                   </Form.Item>
                 </Col>
@@ -269,109 +296,181 @@ const Login = () => {
                     rules={[
                       {
                         required: true,
-                        message: "Please confirm your password!",
+                        message: "",
                       },
                       ({ getFieldValue }) => ({
                         validator(_, value) {
                           if (!value || getFieldValue("password") === value) {
                             return Promise.resolve();
                           }
-                          return Promise.reject(
-                            new Error("Passwords do not match!")
-                          );
+                          return Promise.reject(new Error(""));
                         },
                       }),
                     ]}
-                    noStyle
+                    style={{ marginBottom: 0 }}
+                    validateStatus={
+                      error &&
+                      (!registerData.repeatPassword ||
+                        registerData.password !== registerData.repeatPassword)
+                        ? "error"
+                        : ""
+                    }
                   >
                     <Input.Password
-                      placeholder="Confirm password"
+                      placeholder={
+                        error && !registerData.repeatPassword
+                          ? "Please confirm your password!"
+                          : error &&
+                            registerData.password !==
+                              registerData.repeatPassword
+                          ? "Passwords do not match!"
+                          : "Confirm password"
+                      }
                       name="repeatPassword"
                       value={registerData.repeatPassword}
                       onChange={handleRegisterInputChange}
                       size="small"
-                      style={{ width: "100%" }}
+                      className={
+                        error &&
+                        (!registerData.repeatPassword ||
+                          registerData.password !== registerData.repeatPassword)
+                          ? "error-input"
+                          : ""
+                      }
                     />
                   </Form.Item>
                 </Col>
               </Row>
             </Form.Item>
+
             <Form.Item
               label="Full Name"
               name="fullName"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[{ required: true, message: "Please enter your name" }]}
+              rules={[{ required: true, message: "" }]}
+              validateStatus={error && !registerData.fullName ? "error" : ""}
             >
               <Input
-                placeholder="Enter your full name"
+                placeholder={
+                  error && !registerData.fullName
+                    ? "Please enter your name"
+                    : "Enter your full name"
+                }
                 name="fullName"
                 value={registerData.fullName}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={error && !registerData.fullName ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item
-              label="Date of Birth"
-              name="dob"
-              labelCol={{ span: 24 }}
-              wrapperCol={{ span: 24 }}
-              rules={[
-                {
-                  required: true,
-                  message: "Please select your date of birth!",
-                },
-              ]}
-            >
-              <Input
-                type="date"
-                placeholder="Select date of birth"
-                name="dob"
-                value={registerData.dob}
-                onChange={handleRegisterInputChange}
-                size="small"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Sex"
-              name="sex"
-              labelCol={{ span: 24 }}
-              wrapperCol={{ span: 24 }}
-              rules={[{ required: true, message: "Please select your sex!" }]}
-            >
-              <Select
-                placeholder="Select sex"
-                name="sex"
-                value={registerData.sex}
-                onChange={(value) =>
-                  handleRegisterInputChange({ target: { name: "sex", value } })
-                }
-                size="small"
-                style={{ width: "100%" }}
-              >
-                <Select.Option value="male">Male</Select.Option>
-                <Select.Option value="female">Female</Select.Option>
-                <Select.Option value="other">Other</Select.Option>
-              </Select>
-            </Form.Item>
+
+            {/* Date of Birth và Sex nằm ngang nhau */}
+            <Row gutter={8}>
+              <Col span={12}>
+                <Form.Item
+                  label="Date of Birth"
+                  name="dob"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "",
+                    },
+                  ]}
+                  validateStatus={error && !registerData.dob ? "error" : ""}
+                >
+                  <Input
+                    type="date"
+                    placeholder={
+                      error && !registerData.dob
+                        ? "Please select your date of birth!"
+                        : "Select date of birth"
+                    }
+                    name="dob"
+                    value={registerData.dob}
+                    onChange={handleRegisterInputChange}
+                    size="small"
+                    className={error && !registerData.dob ? "error-input" : ""}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Sex"
+                  name="sex"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                  rules={[{ required: true, message: "" }]}
+                  validateStatus={error && !registerData.sex ? "error" : ""}
+                >
+                  <Select
+                    placeholder={
+                      error && !registerData.sex
+                        ? "Please select your sex!"
+                        : "Select sex"
+                    }
+                    name="sex"
+                    value={registerData.sex}
+                    onChange={(value) =>
+                      handleRegisterInputChange({
+                        target: { name: "sex", value },
+                      })
+                    }
+                    size="small"
+                    className={error && !registerData.sex ? "error-input" : ""}
+                    style={{ width: "100%" }}
+                  >
+                    <Select.Option value="male">Male</Select.Option>
+                    <Select.Option value="female">Female</Select.Option>
+                    <Select.Option value="other">Other</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
             <Form.Item
               label="Email"
               name="email"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
               rules={[
-                { required: true, message: "Please input your email!" },
-                { type: "email", message: "Please enter a valid email!" },
+                { required: true, message: "" },
+                { type: "email", message: "" },
               ]}
+              validateStatus={
+                error &&
+                (!registerData.email ||
+                  !/\S+@\S+\.\S+/.test(registerData.email))
+                  ? "error"
+                  : ""
+              }
             >
               <Input
-                placeholder="Enter email"
+                placeholder={
+                  error && !registerData.email
+                    ? "Please input your email!"
+                    : error &&
+                      registerData.email &&
+                      !/\S+@\S+\.\S+/.test(registerData.email)
+                    ? "Please enter a valid email!"
+                    : "Enter email"
+                }
                 name="email"
                 value={registerData.email}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={
+                  error &&
+                  (!registerData.email ||
+                    !/\S+@\S+\.\S+/.test(registerData.email))
+                    ? "error-input"
+                    : ""
+                }
               />
             </Form.Item>
+
             <Form.Item
               label="Identity Card"
               name="cardNumber"
@@ -380,56 +479,91 @@ const Login = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please input your Identity Card Number!",
+                  message: "",
                 },
               ]}
+              validateStatus={error && !registerData.cardNumber ? "error" : ""}
             >
               <Input
-                placeholder="Enter Identity Card Number"
+                placeholder={
+                  error && !registerData.cardNumber
+                    ? "Please input your Identity Card Number!"
+                    : "Enter Identity Card Number"
+                }
                 name="cardNumber"
                 value={registerData.cardNumber}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={
+                  error && !registerData.cardNumber ? "error-input" : ""
+                }
               />
             </Form.Item>
+
             <Form.Item
               label="Phone Number"
               name="phone"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
               rules={[
-                { required: true, message: "Please input your Phone Number!" },
+                { required: true, message: "" },
                 {
                   pattern: /^\d{10,}$/,
-                  message: "Please enter a valid phone number!",
+                  message: "",
                 },
               ]}
+              validateStatus={
+                error &&
+                (!registerData.phone || !/^\d{10,}$/.test(registerData.phone))
+                  ? "error"
+                  : ""
+              }
             >
               <Input
-                placeholder="Enter Your Phone Number"
+                placeholder={
+                  error && !registerData.phone
+                    ? "Please input your Phone Number!"
+                    : error &&
+                      registerData.phone &&
+                      !/^\d{10,}$/.test(registerData.phone)
+                    ? "Please enter a valid phone number!"
+                    : "Enter Your Phone Number"
+                }
                 name="phone"
                 value={registerData.phone}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={
+                  error &&
+                  (!registerData.phone || !/^\d{10,}$/.test(registerData.phone))
+                    ? "error-input"
+                    : ""
+                }
               />
             </Form.Item>
+
             <Form.Item
               label="Address"
               name="address"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "Please input your Address!" },
-              ]}
+              rules={[{ required: true, message: "" }]}
+              validateStatus={error && !registerData.address ? "error" : ""}
             >
               <Input
-                placeholder="Enter Your Address"
+                placeholder={
+                  error && !registerData.address
+                    ? "Please input your Address!"
+                    : "Enter Your Address"
+                }
                 name="address"
                 value={registerData.address}
                 onChange={handleRegisterInputChange}
                 size="small"
+                className={error && !registerData.address ? "error-input" : ""}
               />
             </Form.Item>
+
             <Form.Item>
               <Button
                 type="primary"
@@ -444,7 +578,6 @@ const Login = () => {
             </Form.Item>
           </Form>
         </div>
-
         {/* Background Section with Toggle Panels */}
         <div className="toggle-container">
           <div className="toggle">
