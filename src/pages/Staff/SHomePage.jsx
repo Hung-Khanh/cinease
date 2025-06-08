@@ -9,6 +9,8 @@ const { Meta } = Card;
 const SHomePage = () => {
   const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
+  const apiUrl = "https://c887-118-69-61-33.ngrok-free.app/api";
+  const token = localStorage.getItem("token");
 
   const fetchMovies = async () => {
     try {
