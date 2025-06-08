@@ -20,7 +20,7 @@ const { Title, Text } = Typography;
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const apiUrl = "https://3a21-183-91-25-219.ngrok-free.app/api";
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: "", password: "" });
@@ -86,6 +86,13 @@ const Login = () => {
       const result = await response.json();
       message.success("Login successful!");
 
+      // Lưu thông tin user vào localStorage để Header hiển thị avatar
+      localStorage.setItem('user', JSON.stringify({
+        token: result.token,
+        role: result.role,
+        username: result.username || values.username,
+        avatar: result.avatar || '/src/assets/profile.png',
+      }));
       login({
         token: result.token,
         role: result.role,
@@ -98,7 +105,7 @@ const Login = () => {
         navigate("/staffHP");
       } else {
         console.log(result.role);
-        navigate("/userHP");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error during login:", error.message);

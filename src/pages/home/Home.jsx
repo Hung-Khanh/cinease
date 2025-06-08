@@ -1,15 +1,11 @@
 import { Carousel, Rate, Badge } from "antd";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Slide1 from "../../assets/Slide1.png";
 import Slide2 from "../../assets/Slide2.png";
 import Slide3 from "../../assets/Slide3.png";
 import Slide4 from "../../assets/Slide4.png";
 import Slide5 from "../../assets/Slide5.png";
-import doraemon from "../../assets/doraemon.png";
-import stitch from "../../assets/stitch.png";
-import kien from "../../assets/kien.png";
-import vongtaynang from "../../assets/vongtaynang.png";
-import duoidayho from "../../assets/duoidayho.png";
 import demen from "../../assets/demen.png";
 import mamochong from "../../assets/mamochong.png";
 import ballerina from "../../assets/ballerina.png";
@@ -17,49 +13,7 @@ import todoigaunhi from "../../assets/todoigaunhi.png";
 import luyenrong from "../../assets/luyenrong.png";
 import KM from "../../assets/KM.png";
 import "./Home.scss";
-
-const showingMovies = [
-    {
-        title: "Doraemon",
-        img: doraemon,
-        rating: 9.3,
-        stars: 4.5,
-        genre: "Cartoon",
-        showtimes: "120 phút"
-    },
-    {
-        title: "Lilo & Stitch",
-        img: stitch,
-        rating: 9.4,
-        stars: 4.7,
-        genre: "Cartoon",
-        showtimes: "120 min"
-    },
-    {
-        title: "Thám Tử Kiên",
-        img: kien,
-        rating: 9.5,
-        stars: 5.0,
-        genre: "Horror",
-        showtimes: "110 min"
-    },
-    {
-        title: "Vòng Tay Nắng",
-        img: vongtaynang,
-        rating: 9.6,
-        stars: 4.8,
-        genre: "Adventure",
-        showtimes: "120 min"
-    },
-    {
-        title: "Dưới Dáy Hố",
-        img: duoidayho,
-        rating: 9.4,
-        stars: 4.7,
-        genre: "Horror",
-        showtimes: "120 min"
-    }
-];
+import api from '../../constants/axios';
 
 const comingMovies = [
     {
@@ -118,14 +72,39 @@ const promotions = [
 ];
 
 const Home = () => {
+    const [showingMovies, setShowingMovies] = useState([]);
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const response = await api.get('/public/movies', {
+                    headers: {
+                        Accept: "application/json",
+                        "ngrok-skip-browser-warning": "true",
+                    },
+                });
+                const data = response.data;
+                const extractedMovies = data.map((movie) => ({
+                    title: movie.movieNameEnglish,
+                    img: movie.largeImage,
+                    rating: movie.rating || 9.0,
+                    genre: movie.genre || "Unknown",
+                    showtimes: movie.duration ? `${movie.duration} min` : "120 min"
+                }));
+                setShowingMovies(extractedMovies);
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+                setShowingMovies([]);
+            }
+        };
+        fetchMovies();
+    }, []);
+
     return (
         <div className="home">
             <main className="home-content">
-                {/* Banner/Slide */}
                 <section className="home-slide">
                     <div className="slide-container">
                         <Carousel autoplay effect="fade" style={{ width: "100%", height: "auto", maxHeight: "450px" }}>
-                            {/* Slide 1 */}
                             <div className="slide-item">
                                 <img src={Slide1} alt="Slide1" />
                                 <div className="slide-overlay">
@@ -137,7 +116,6 @@ const Home = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Slide 2 */}
                             <div className="slide-item">
                                 <img src={Slide2} alt="Slide2" />
                                 <div className="slide-overlay">
@@ -149,7 +127,6 @@ const Home = () => {
                                     </div>
                                 </div>
                             </div>
-                                {/* Slide 3 */}
                             <div className="slide-item">
                                 <img src={Slide3} alt="Slide3" />
                                 <div className="slide-overlay">
@@ -161,7 +138,6 @@ const Home = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Slide 4 */}
                             <div className="slide-item">
                                 <img src={Slide4} alt="Slide4" />
                                 <div className="slide-overlay">
@@ -173,7 +149,6 @@ const Home = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Slide 5 */}
                             <div className="slide-item">
                                 <img src={Slide5} alt="Slide5" />
                                 <div className="slide-overlay">
@@ -188,14 +163,13 @@ const Home = () => {
                         </Carousel>
                     </div>
                 </section>
-                {/* Now Showing */}
                 <section className="movie-section">
                     <div className="section-header">
                         <h2>Now Showing</h2>
                         <Link to="/movie" className="see-all">See All &rarr;</Link>
-                        </div>
+                    </div>
                     <div className="movie-list">
-                         {showingMovies.map((movie, idx) => (
+                        {showingMovies.map((movie, idx) => (
                             <div className="movie-card" key={idx}>
                                 <img src={movie.img} alt={movie.title} className="movie-img" />
                                 <div className="movie-info">
@@ -213,7 +187,6 @@ const Home = () => {
                         ))}
                     </div>
                 </section>
-                {/* Coming Soon */}
                 <section className="movie-section">
                     <div className="section-header">
                         <h2>Coming Soon</h2>
@@ -232,11 +205,10 @@ const Home = () => {
                                         <span className="coming-genre-btn">{movie.genre}</span>
                                     )}
                                 </div>
-                                </div>
+                            </div>
                         ))}
                     </div>
                 </section>
-                {/* Special Promotions */}
                 <section className="promo-section">
                     <div className="section-header">
                         <h2>Special Promotions</h2>
