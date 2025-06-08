@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { AuthProvider } from "./constants/AuthContext";
 
-import Footer from "./component/footer/Footer";
-import Header from "./component/header/Header";
+import Footer from "./component/Footer/Footer.jsx";
+import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/SHomePage.jsx";
-import HomePage from "./pages/home/Home.jsx";
-import Movie from "./pages/movie/Movie";
+import HomePage from "./pages/Home/Home.jsx";
+import Movie from "./pages/movie/Movie.jsx";
 import DateTimeSelection from "./pages/Staff/DateTimeSelection.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
 function Layout() {
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
@@ -22,6 +23,7 @@ function Layout() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/dateTimeSelection" element={<DateTimeSelection />} />
           <Route path="/movie" element={<Movie />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}

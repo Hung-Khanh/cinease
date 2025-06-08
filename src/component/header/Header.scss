@@ -1,94 +1,129 @@
+$primary-bg: #0a181f;
+$secondary-bg: #1a3a2a;
+$text-color: #ffffff;
+$green-accent: #27ae60;
+$input-bg: rgba(255, 255, 255, 0.1);
 .header {
-    background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
-    padding: 15px;
-  
-    .header-container {
+  background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
+  padding: 15px;
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .logo {
+      width: 100px;
+      height: 70px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 50px;
+      margin-left: 50px;
+      align-items: center;
+
+      a {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #007bff;
+        }
+      }
+    }
+
+    .notification-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-  
-      .logo {
-        width: 100px;
-        height: 70px;
-      }
-  
-      .nav-links {
-        display: flex;
-        gap: 50px;
-        margin-left: 50px;
-        align-items: center;
-  
-        a {
-          text-decoration: none;
-          color: #fff;
-          font-weight: bold;
-          font-size: 15px;
-          letter-spacing: 0.5px;
-          transition: color 0.2s;
-  
-          &:hover {
-            color: #007bff;
-          }
+      margin-left: auto;
+      margin-right: 15px;
+
+      .notification-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+
+        .notification-icon {
+          width: 30px;
+          height: 30px;
+          filter: brightness(0) invert(1);
         }
       }
-  
-      .notification-container {
+    }
+
+    .auth-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      a {
+        display: inline-block;
+        padding: 8px 22px;
+        border-radius: 22px;
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+        font-size: 15px;
+        background: $green-accent;
+        border: none;
+        margin-right: 12px;
+        transition: background 0.2s, color 0.2s;
+
+        &.login-link:hover {
+          background:$green-accent;
+          color: #fff;
+        }
+      }
+    }
+
+    .user-avatar-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10px;
+      position: relative;
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid #ffffff;
         display: flex;
         align-items: center;
-        margin-left: auto;
-        margin-right: 15px;
-  
-        .notification-button {
-          background: none;
-          border: none;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        transition: box-shadow 0.2s;
+        &:hover {
+          box-shadow: 0 0 8px $green-accent;
+        }
+        .avatar-image {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+      }
+      .dropdown-menu {
+        position: absolute;
+        top: 44px;
+        right: 0;
+        background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
+        color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        min-width: 120px;
+        z-index: 100;
+        .dropdown-item {
+          padding: 10px 16px;
           cursor: pointer;
-  
-          .notification-icon {
-            width: 30px;
-            height: 30px;
-            filter: brightness(0) invert(1);
-          }
-        }
-      }
-  
-      .auth-links {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-  
-        a {
-          display: inline-block;
-          padding: 8px 22px;
-          border-radius: 22px;
-          text-decoration: none;
-          color: #fff;
-          font-weight: bold;
-          font-size: 15px;
-          background: #27ae60;
-          border: none;
-          margin-right: 12px;
-          transition: background 0.2s, color 0.2s;
-  
-          &.login-link:hover {
-            background: #219150;
-            color: #fff;
-          }
-        }
-  
-        .register-link {
-          background: #e0e0e0;
-          color: #222;
-          border: none;
-          margin-right: 0;
-          font-weight: bold;
-          box-shadow: none;
-  
-          &:hover {
-            background: #cccccc;
-            color: #111;
-          }
         }
       }
     }
   }
-  
+}

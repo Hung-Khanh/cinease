@@ -2,33 +2,25 @@ import { useEffect, useState } from "react";
 import { Carousel, Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
 import "./SHomePage.scss";
+import api from "../../constants/axios";
 
 const { Meta } = Card;
 
 const SHomePage = () => {
   const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
-  const apiUrl = "https://3a21-183-91-25-219.ngrok-free.app/api";
-  const token = localStorage.getItem("token");
 
   const fetchMovies = async () => {
     try {
-      const response = await fetch(`${apiUrl}/public/movies`, {
+      const response = await api.get('/public/movies', {
         headers: {
-          Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "ngrok-skip-browser-warning": "true",
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
+      const data = response.data;
 
-      const data = await response.json();
-      console.log("Movies data:", data);
-
-      // Lọc dữ liệu chỉ lấy movieNameEnglish và largeImage
       const extractedMovies = data.map((movie) => ({
         movieNameEnglish: movie.movieNameEnglish,
         largeImage: movie.largeImage,
@@ -41,9 +33,7 @@ const SHomePage = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchMovies();
-    }
+    fetchMovies();
   }, []);
 
   return (
