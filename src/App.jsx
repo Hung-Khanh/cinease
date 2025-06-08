@@ -9,6 +9,9 @@ import HomePage from "./pages/Home/Home.jsx";
 import Movie from "./pages/movie/Movie.jsx";
 import DateTimeSelection from "./pages/Staff/DateTimeSelection.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
+import Confirm from "./pages/confirm/Confirm.jsx";
+import SeatSelection from "./pages/seat/SeatSelect.jsx";
+import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 function Layout() {
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
@@ -24,6 +27,9 @@ function Layout() {
           <Route path="/dateTimeSelection" element={<DateTimeSelection />} />
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/confirm" element={<Confirm />} />
+          <Route path="/seat-selection" element={<SeatSelection />} />
+          <Route path="/payment-detail" element={<PaymentDetail />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
