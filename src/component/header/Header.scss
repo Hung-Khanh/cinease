@@ -75,7 +75,7 @@ $input-bg: rgba(255, 255, 255, 0.1);
         transition: background 0.2s, color 0.2s;
 
         &.login-link:hover {
-          background:$green-accent;
+          background: $green-accent;
           color: #fff;
         }
       }
@@ -113,10 +113,15 @@ $input-bg: rgba(255, 255, 255, 0.1);
         position: absolute;
         top: 44px;
         right: 0;
-        background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
+        background: linear-gradient(
+          180deg,
+          #0a181f 0%,
+          #0a181f 60%,
+          #1a3a2a 100%
+        );
         color: #fff;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         min-width: 120px;
         z-index: 100;
         .dropdown-item {

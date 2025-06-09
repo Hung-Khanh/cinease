@@ -1,0 +1,706 @@
+.dts-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a4d3a 0%, #0d2818 100%);
+  color: white;
+  font-family: "Arial", sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+
+  // Mobile First Approach
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
+
+  .dts-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+
+    @media (max-width: 768px) {
+      margin-bottom: 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 15px;
+    }
+
+    .dts-back-btn {
+      position: absolute;
+      left: 30px;
+      top: 25px;
+      transform: translateY(-50%);
+      color: #0c9550;
+      border: 2px solid #0c9550;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+
+      @media (max-width: 768px) {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: none;
+        width: 45px;
+        height: 45px;
+      }
+
+      @media (max-width: 480px) {
+        width: 40px;
+        height: 40px;
+        left: 5px;
+      }
+
+      &:hover {
+        background-color: #0c9550;
+        color: white;
+        border-color: #044824;
+      }
+
+      .anticon {
+        font-size: 20px;
+
+        @media (max-width: 768px) {
+          font-size: 18px;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .dts-title {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      margin: 0;
+      flex: 1;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+
+      @media (max-width: 1024px) {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 24px;
+        letter-spacing: 1px;
+        padding-left: 50px;
+        text-align: left;
+        width: 100%;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 20px;
+        letter-spacing: 0.5px;
+        padding-left: 45px;
+      }
+
+      @media (max-width: 360px) {
+        font-size: 18px;
+        padding-left: 40px;
+      }
+    }
+  }
+
+  .dts-content {
+    display: flex;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    @media (max-width: 1024px) {
+      gap: 30px;
+      max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    @media (max-width: 480px) {
+      gap: 15px;
+    }
+
+    .dts-poster {
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        align-self: center;
+        order: -1;
+      }
+
+      .dts-poster-image {
+        top: 140px;
+        position: relative;
+        width: 300px;
+        height: 450px;
+        object-fit: cover;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+        @media (max-width: 1024px) {
+          width: 280px;
+          height: 420px;
+          top: 100px;
+        }
+
+        @media (max-width: 768px) {
+          width: 250px;
+          height: 375px;
+          top: 0;
+          position: relative;
+        }
+
+        @media (max-width: 480px) {
+          width: 200px;
+          height: 300px;
+          border-radius: 12px;
+        }
+
+        @media (max-width: 360px) {
+          width: 180px;
+          height: 270px;
+        }
+      }
+    }
+
+    .dts-selection {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+
+      @media (max-width: 1024px) {
+        gap: 35px;
+      }
+
+      @media (max-width: 768px) {
+        gap: 30px;
+        width: 100%;
+      }
+
+      @media (max-width: 480px) {
+        gap: 25px;
+      }
+
+      .dts-section {
+        .dts-section-title {
+          font-size: 28px;
+          font-weight: bold;
+          margin-bottom: 20px;
+          color: white;
+
+          @media (max-width: 1024px) {
+            font-size: 26px;
+          }
+
+          @media (max-width: 768px) {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 15px;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 22px;
+            margin-bottom: 12px;
+          }
+
+          @media (max-width: 360px) {
+            font-size: 20px;
+          }
+        }
+
+        .dts-date-grid {
+          display: flex;
+          gap: 15px;
+          flex-wrap: wrap;
+
+          @media (max-width: 768px) {
+            justify-content: center;
+            gap: 12px;
+          }
+
+          @media (max-width: 480px) {
+            gap: 10px;
+          }
+
+          .dts-date-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            height: auto;
+            min-width: 100px;
+            transition: all 0.3s ease;
+
+            @media (max-width: 768px) {
+              min-width: 90px;
+              padding: 12px 16px;
+            }
+
+            @media (max-width: 480px) {
+              min-width: 80px;
+              padding: 10px 12px;
+              border-radius: 10px;
+            }
+
+            @media (max-width: 360px) {
+              min-width: 70px;
+              padding: 8px 10px;
+            }
+
+            &:hover {
+              background: rgba(12, 149, 80, 0.2);
+              border-color: #0c9550;
+              color: white;
+            }
+
+            &.selected {
+              background: #0c9550;
+              border-color: #0c9550;
+              color: white;
+              font-weight: bold;
+            }
+
+            .dts-date-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 5px;
+
+              @media (max-width: 480px) {
+                gap: 3px;
+              }
+
+              .dts-date-day {
+                font-size: 16px;
+                font-weight: bold;
+
+                @media (max-width: 768px) {
+                  font-size: 15px;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 14px;
+                }
+
+                @media (max-width: 360px) {
+                  font-size: 13px;
+                }
+              }
+
+              .dts-date-weekday {
+                font-size: 14px;
+                opacity: 0.8;
+
+                @media (max-width: 768px) {
+                  font-size: 13px;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 12px;
+                }
+
+                @media (max-width: 360px) {
+                  font-size: 11px;
+                }
+              }
+            }
+          }
+        }
+
+        .dts-time-grid {
+          display: flex;
+          gap: 15px;
+          flex-wrap: wrap;
+
+          @media (max-width: 768px) {
+            justify-content: center;
+            gap: 12px;
+          }
+
+          @media (max-width: 480px) {
+            gap: 10px;
+          }
+
+          .dts-time-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 12px;
+            padding: 15px 25px;
+            height: auto;
+            min-width: 140px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            @media (max-width: 1024px) {
+              min-width: 120px;
+              padding: 12px 20px;
+            }
+
+            @media (max-width: 768px) {
+              min-width: 110px;
+              padding: 12px 18px;
+              font-size: 15px;
+            }
+
+            @media (max-width: 480px) {
+              min-width: 100px;
+              padding: 10px 15px;
+              font-size: 14px;
+              border-radius: 10px;
+            }
+
+            @media (max-width: 360px) {
+              min-width: 90px;
+              padding: 8px 12px;
+              font-size: 13px;
+            }
+
+            &:hover {
+              background: rgba(12, 149, 80, 0.2);
+              border-color: #0c9550;
+              color: white;
+            }
+
+            &.selected {
+              background: #0c9550;
+              border-color: #0c9550;
+              color: white;
+              font-weight: bold;
+            }
+
+            .dts-time-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 4px;
+
+              .dts-time-main {
+                font-weight: 600;
+              }
+
+              .dts-cinema-room {
+                font-size: 12px;
+                opacity: 0.8;
+                font-weight: normal;
+
+                @media (max-width: 480px) {
+                  font-size: 11px;
+                }
+
+                @media (max-width: 360px) {
+                  font-size: 10px;
+                }
+              }
+            }
+          }
+
+          .dts-time-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            font-size: 16px;
+
+            @media (max-width: 768px) {
+              padding: 15px;
+              font-size: 15px;
+            }
+
+            @media (max-width: 480px) {
+              padding: 12px;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+
+      .dts-next-btn {
+        background: #0c9550;
+        border: none;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        height: 50px;
+        border-radius: 25px;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+
+        @media (max-width: 768px) {
+          height: 45px;
+          font-size: 16px;
+          margin-top: 15px;
+          border-radius: 22px;
+        }
+
+        @media (max-width: 480px) {
+          height: 40px;
+          font-size: 15px;
+          margin-top: 12px;
+          border-radius: 20px;
+          letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 360px) {
+          height: 38px;
+          font-size: 14px;
+        }
+
+        &:hover:not(:disabled) {
+          background: #044824;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(12, 149, 80, 0.4);
+
+          @media (max-width: 768px) {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(12, 149, 80, 0.4);
+          }
+        }
+
+        &:disabled {
+          background: rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.5);
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+
+  .dts-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    font-size: 18px;
+    color: white;
+
+    @media (max-width: 768px) {
+      height: 40vh;
+      font-size: 16px;
+    }
+
+    @media (max-width: 480px) {
+      height: 30vh;
+      font-size: 15px;
+    }
+  }
+
+  // Landscape orientation for mobile
+  @media (max-width: 768px) and (orientation: landscape) {
+    .dts-content {
+      flex-direction: row;
+      gap: 20px;
+
+      .dts-poster {
+        order: 0;
+
+        .dts-poster-image {
+          width: 180px;
+          height: 270px;
+        }
+      }
+
+      .dts-selection {
+        gap: 20px;
+
+        .dts-section {
+          .dts-section-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+          }
+
+          .dts-date-grid,
+          .dts-time-grid {
+            gap: 8px;
+          }
+
+          .dts-date-btn,
+          .dts-time-btn {
+            padding: 8px 12px;
+            min-width: 70px;
+            font-size: 13px;
+          }
+        }
+
+        .dts-next-btn {
+          height: 35px;
+          font-size: 13px;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+
+  // Very small screens (< 360px)
+  @media (max-width: 320px) {
+    padding: 8px;
+
+    .dts-header {
+      .dts-title {
+        font-size: 16px;
+        padding-left: 35px;
+      }
+
+      .dts-back-btn {
+        width: 35px;
+        height: 35px;
+
+        .anticon {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .dts-content {
+      .dts-poster {
+        .dts-poster-image {
+          width: 160px;
+          height: 240px;
+        }
+      }
+
+      .dts-selection {
+        .dts-section {
+          .dts-section-title {
+            font-size: 18px;
+          }
+
+          .dts-date-grid {
+            .dts-date-btn {
+              min-width: 60px;
+              padding: 6px 8px;
+
+              .dts-date-content {
+                .dts-date-day {
+                  font-size: 12px;
+                }
+
+                .dts-date-weekday {
+                  font-size: 10px;
+                }
+              }
+            }
+          }
+
+          .dts-time-grid {
+            .dts-time-btn {
+              min-width: 80px;
+              padding: 6px 10px;
+              font-size: 12px;
+            }
+          }
+        }
+
+        .dts-next-btn {
+          height: 35px;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  // Large screens (> 1200px)
+  @media (min-width: 1200px) {
+    padding: 30px;
+
+    .dts-content {
+      max-width: 1400px;
+      gap: 50px;
+
+      .dts-poster {
+        .dts-poster-image {
+          width: 320px;
+          height: 480px;
+          top: 160px;
+        }
+      }
+
+      .dts-selection {
+        gap: 50px;
+
+        .dts-section {
+          .dts-section-title {
+            font-size: 30px;
+          }
+
+          .dts-date-grid {
+            gap: 18px;
+
+            .dts-date-btn {
+              min-width: 110px;
+              padding: 18px 24px;
+            }
+          }
+
+          .dts-time-grid {
+            gap: 18px;
+
+            .dts-time-btn {
+              min-width: 150px;
+              padding: 18px 30px;
+              font-size: 17px;
+            }
+          }
+        }
+
+        .dts-next-btn {
+          height: 55px;
+          font-size: 19px;
+        }
+      }
+    }
+  }
+}
+
+// Override Ant Design button styles
+.ant-btn {
+  &:focus {
+    box-shadow: none !important;
+  }
+
+  // Ensure buttons work well on touch devices
+  @media (max-width: 768px) {
+    min-height: 44px; // Apple's recommended minimum touch target
+  }
+}
+
+// Ensure proper scrolling on small screens
+@media (max-width: 480px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+// High DPI screens
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .dts-container {
+    .dts-poster {
+      .dts-poster-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+      }
+    }
+  }
+}
