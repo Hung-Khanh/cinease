@@ -1,0 +1,357 @@
+$primary-bg: #133547;
+$secondary-bg: #133547;
+$text-color: #ffffff;
+$green-accent: #00E676;
+$hover-color: #2ecc71;
+$input-bg: rgba(255, 255, 255, 0.1);
+
+// Custom Scrollbar Styling
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: #333333;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #333333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0C9550;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: $hover-color;
+  }
+}
+
+.dashboard-container {
+  padding: 20px;
+  min-height: 100vh;
+  
+  // Ensure smooth scrolling and scrollbar behavior
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $green-accent #333333;
+
+  .dashboard-charts {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
+    .chart-card {
+      flex: 1;
+      background: #444444;
+      border-radius: 12px;
+      height: 400px;
+      
+      .chart-card-title {
+        color: $green-accent !important;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 230, 118, 0.1);
+      }
+      
+      .chart-container {
+        height: calc(100% - 60px);
+        width: 100%;      
+      }
+
+      &.pie-chart {
+        .chart-container {
+          position: relative;
+
+          // Remove the radial gradient effect
+          &::before {
+            display: none;
+          }
+
+          // Improve chart responsiveness and positioning
+          .recharts-responsive-container {
+            margin: 0 auto;
+          }
+
+          // Tooltip styling
+          .chart-tooltip {
+            background-color: rgba(0, 230, 118, 0.2) !important;
+            border: 1px solid rgba(0, 230, 118, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            
+            strong {
+              color: #00E676;
+            }
+          }
+        }
+      }
+
+      .chart-container {
+        .chart-tooltip {
+          &.bar-tooltip {
+            background-color: rgba(0, 230, 118, 0.2) !important;
+            border: 1px solid rgba(0, 230, 118, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            
+            strong {
+              color: #00E676;
+              text-transform: uppercase;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .revenue-by-movie-card {
+    background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 230, 118, 0.1);
+    margin-top: 20px;
+
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background-color: rgba(0, 230, 118, 0.1);
+      margin-bottom: 20px;
+
+      .header-icon {
+        color: $green-accent;
+        margin-right: 12px;
+        font-size: 1.5rem;
+      }
+
+      .header-title {
+        color: $green-accent;
+        margin: 0;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+
+    .movie-revenue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+      padding: 0 16px 16px;
+      max-height: 700px;
+      overflow-y: auto;
+
+      .movie-card {
+        background-color: #444444;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 230, 118, 0.1);
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 0;
+          height: 100%;
+          background-color: rgba(0, 230, 118, 0.05);
+          transition: width 0.3s ease;
+          z-index: 0;
+        }
+
+        &:hover {
+          transform: scale(1.02);
+          box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+
+          &::before {
+            width: 100%;
+          }
+        }
+
+        .movie-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+          padding: 16px 16px 0;
+          position: relative;
+          z-index: 1;
+
+          .movie-title {
+            color: $green-accent;
+            font-weight: bold;
+            font-size: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .movie-label {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+
+            &.hot {
+              background-color: rgba(231, 76, 60, 0.2);
+              color: #e74c3c;
+            }
+
+            &.new {
+              background-color: rgba(0, 230, 118, 0.2);
+              color: $green-accent;
+            }
+          }
+        }
+
+        .stats-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 0 16px;
+          position: relative;
+          z-index: 1;
+
+          .revenue-stats,
+          .tickets-stats {
+            text-align: center;
+          }
+
+          .revenue-value,
+          .tickets-value {
+            color: $green-accent;
+            font-weight: bold;
+            font-size: 1.1rem;
+          }
+
+          .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+          }
+        }
+
+        .progress-container {
+          margin-top: 12px;
+          position: relative;
+          z-index: 0;
+          background-color: rgba(0, 230, 118, 0.1);
+          height: 6px;
+          border-radius: 3px;
+          overflow: hidden;
+          // display: flex;
+          justify-content: center;
+          align-items: center;
+
+          .progress-bar {
+            width: 30%;
+            height: 100%;
+            background-color: #00E676;
+            border-radius: 3px;
+            transform-origin:left center;
+          }
+        }
+
+        .capacity-text {
+          color: #00E676;
+          text-align: center;
+          font-size: 0.9rem;
+          margin-top: 8px;
+          padding-bottom: 16px;
+          position: relative;
+          z-index: 1;
+        }
+
+        // Show More Card Styles
+        &.show-more-card {
+          background-color: rgba(0, 230, 118, 0.1);
+          border: 2px solid rgba(0, 230, 118, 0.3);
+          cursor: pointer;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          transition: all 0.3s ease;
+
+          .show-more-content {
+            color: $green-accent;
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s ease;
+          }
+
+          &:hover {
+            background-color: rgba(0, 230, 118, 0.2);
+            
+            .show-more-content {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+}
+
+// Recharts Specific Styles
+.dashboard-charts {
+  .recharts-bar {
+    fill: #00E676;
+    fill-opacity: 0.8;
+  }
+  
+  .recharts-cartesian-axis-tick {
+    text {
+      fill: white;
+      font-size: 12px;
+    }
+  }
+  
+  .recharts-tooltip-wrapper {
+    background: #444 !important;
+    border-radius: 4px;
+    
+    .recharts-tooltip-item {
+      color: #00E676;
+    }
+  }
+  
+  .recharts-pie-label {
+    fill: white !important;
+    font-size: 12px !important;
+  }
+  
+  .recharts-legend-item {
+    color: white !important;
+  }
+}
+
+// Recharts Bar Chart Specific Styles
+.recharts-bar-rectangle {
+  transition: fill 0.3s ease;
+  
+  &:hover {
+    fill: #2ecc71 !important;
+  }
+} 
