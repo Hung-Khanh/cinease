@@ -8,44 +8,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [ticketData, setTicketData] = useState(null);
   const navigate = useNavigate();
   const { invoiceId } = useParams();
-  const [movies, setMovies] = useState([]);
+  const [movieName, setMovieName] = useState("");
+  const [movieImage, setMovieImage] = useState("");
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      const token = localStorage.getItem("token");
-
-      try {
-        const response = await fetch(`${apiUrl}/public/movies?q=6`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `API error: ${response.status} ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-        console.log("Movies data:", data);
-
-        const extractedMovies = data.map((movie) => ({
-          largeImage: movie.largeImage,
-          movieName: movie.movieNameEnglish,
-        }));
-        setMovies(extractedMovies);
-        console.log(
-          "movieIMG: ",
-          extractedMovies.map((movie) => movie.largeImage)
-        );
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      }
-    };
-
     const fetchTicketDetails = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -73,7 +39,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           throw new Error(`Failed to fetch ticket details: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Ticket data:", data);
+        console.log("Ticket data:", data.movieName);
+        setMovieName(data.movieName);
         setTicketData(data);
       } catch (error) {
         console.error("Error in fetchTicketDetails:", error);
@@ -83,13 +50,44 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
     if (invoiceId) {
       fetchTicketDetails();
-      fetchMovies();
-      console.log(movies);
     } else {
       console.log("No invoiceId found in state");
       alert("Invalid ticket information.");
     }
   }, [apiUrl, invoiceId]);
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      if (!movieName) return; // Không gọi API nếu movieName rỗng
+
+      const token = localStorage.getItem("token");
+      try {
+        const response = await fetch(`${apiUrl}/public/movies?q=${movieName}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `API error: ${response.status} ${response.statusText}`
+          );
+        }
+
+        const data = await response.json();
+        console.log("Movies data:", data);
+
+        setMovieImage(data[0]?.largeImage || "placeholder-image.jpg");
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        setMovieImage("placeholder-image.jpg");
+      }
+    };
+
+    fetchMovies();
+  }, [movieName, apiUrl]); //
 
   const handleBack = () => {
     if (onBack) {
@@ -125,13 +123,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         <div className="ticket-card">
           <div className="ticket-image">
             <img
-              src={movies.largeImage}
-              alt={ticketData?.movieName}
+              src={movieImage || "placeholder-image.jpg"} // Sử dụng movieImage
+              alt={ticketData?.movieName || "Movie Poster"}
               className="movie-poster"
             />
           </div>
-          <span>Name:{movies.movieName}</span>
-
           <div className="ticket-details">
             <h2>TICKET DETAIL</h2>
             <div className="detail-item">
@@ -171,7 +167,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             <div className="detail-item transaction">
               <span>Transaction Detail</span>
               <div className="transaction-details">
-                <div>REGULAR SEAT</div>
+                <div>SEAT</div>
                 <div>
                   VND{" "}
                   {ticketData?.price
@@ -180,11 +176,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                       ).toLocaleString()
                     : "0"}{" "}
                   x {ticketData?.seat?.length || 0}
-                </div>
-                <div>SERVICE CHARGE (6%)</div>
-                <div>
-                  VND {(ticketData?.price * 0.06).toLocaleString() || "0"} x{" "}
-                  {ticketData?.seat?.length || 0}
                 </div>
                 <div>DISCOUNT</div>
                 <div>
