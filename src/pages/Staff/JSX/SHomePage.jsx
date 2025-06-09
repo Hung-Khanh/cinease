@@ -1,48 +1,31 @@
 import { useEffect, useState } from "react";
 import { Carousel, Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD:src/pages/Staff/JSX/SHomePage.jsx
 import "../SCSS/SHomePage.scss";
-=======
-import "./SHomePage.scss";
-import api from "../../constants/axios";
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d:src/pages/Staff/SHomePage.jsx
 
 const { Meta } = Card;
 
 const SHomePage = () => {
   const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
-<<<<<<< HEAD:src/pages/Staff/JSX/SHomePage.jsx
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-=======
-  const apiUrl = "https://c887-118-69-61-33.ngrok-free.app/api";
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d:src/pages/Staff/SHomePage.jsx
-  const token = localStorage.getItem("token");
 
   const fetchMovies = async () => {
+    const token = localStorage.getItem("token");
+
     try {
-<<<<<<< HEAD:src/pages/Staff/JSX/SHomePage.jsx
       const response = await fetch(`${apiUrl}/public/movie/now-showing`, {
-=======
-      const response = await api.get('/public/movies', {
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d:src/pages/Staff/SHomePage.jsx
         headers: {
+          Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "ngrok-skip-browser-warning": "true",
         },
       });
 
-      const data = response.data;
-
-<<<<<<< HEAD:src/pages/Staff/JSX/SHomePage.jsx
       const data = await response.json();
 
       // Lọc dữ liệu chỉ lấy movieNameEnglish và largeImage
       const extractedMovies = data.content.map((movie) => ({
-=======
-      const extractedMovies = data.map((movie) => ({
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d:src/pages/Staff/SHomePage.jsx
         movieNameEnglish: movie.movieNameEnglish,
         largeImage: movie.largeImage,
         movieId: movie.movieId,
