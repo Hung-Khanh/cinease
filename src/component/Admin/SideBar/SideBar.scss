@@ -1,0 +1,189 @@
+$primary-bg: #0a181f;
+$secondary-bg: #1a3a2a;
+$text-color: #ffffff;
+$green-accent: #27ae60;
+$hover-color: #2ecc71;
+
+.admin-sidebar {
+  width: 250px;
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%);
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(39, 174, 96, 0.1);
+  transition: all 0.3s ease;
+
+  &.hidden {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 20px 0;
+    border-right: none;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+
+    .logo-image {
+      max-width: 150px;
+      height: auto;
+      object-fit: contain;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+      }
+    }
+  }
+
+  .sidebar-menu {
+    flex-grow: 1;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        margin-bottom: 8px;
+        padding: 0 15px;
+
+        .sidebar-link {
+          display: flex;
+          align-items: center;
+          color: $text-color;
+          text-decoration: none;
+          padding: 12px 15px;
+          transition: all 0.3s ease;
+          position: relative;
+          overflow: hidden;
+          border-radius: 8px;
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(39, 174, 96, 0.15);
+            transition: width 0.3s ease;
+            z-index: -1;
+          }
+
+          .sidebar-icon {
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+
+            .menu-icon {
+              width: 18px;
+              height: 18px;
+              opacity: 0.8;
+              transition: all 0.3s ease;
+              filter: invert(1) brightness(1) contrast(100%);
+            }
+          }
+
+          .sidebar-text {
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+          }
+
+          &:hover {
+            transform: scale(1.02);
+            color: $green-accent;
+            border-color: $green-accent;
+            box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
+            background-color: rgba(39, 174, 96, 0.1);
+
+            &::before {
+              width: 100%;
+            }
+
+            .sidebar-icon {
+              background-color: rgba(39, 174, 96, 0.2);
+              transform: scale(1.1);
+
+              .menu-icon {
+                opacity: 1;
+                filter: invert(1) brightness(1.3) contrast(110%);
+                transform: scale(1.1);
+              }
+            }
+
+            .sidebar-text {
+              transform: translateX(3px);
+            }
+          }
+
+          &:focus-within {
+            transform: scale(1.02);
+            color: $green-accent;
+            border-color: $green-accent;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.4);
+            background-color: rgba(39, 174, 96, 0.1);
+            outline: none;
+          }
+
+          &.active {
+            background-color: $green-accent;
+            border-color: $green-accent;
+            color: $text-color;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+
+            .sidebar-icon {
+              background-color: rgba(255, 255, 255, 0.2);
+
+              .menu-icon {
+                opacity: 1;
+                filter: invert(1) brightness(1.2) contrast(100%);
+              }
+            }
+
+            &:hover {
+              background-color: $hover-color;
+              transform: scale(1.03);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .sidebar-stars {
+    display: flex;
+    justify-content: center;
+    padding: 15px 0;
+    margin-bottom: 20px;
+
+    .star {
+      color: $green-accent;
+      font-size: 1.2rem;
+      margin: 0 5px;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+  }
+} 

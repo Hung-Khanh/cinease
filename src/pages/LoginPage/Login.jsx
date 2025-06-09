@@ -161,7 +161,7 @@ const Login = () => {
       });
       if (result.role === "ADMIN") {
         console.log(result.role);
-        navigate("/admin");
+        navigate("/admin/dashboard");
         message.success("Login Successful");
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
