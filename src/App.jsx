@@ -6,9 +6,10 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
 
-import Footer from "./component/footer/Footer";
-import Header from "./component/header/Header";
+import Footer from "./component/Footer/Footer.jsx";
+import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
+<<<<<<< HEAD
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
 import HomePage from "./pages/home/Home.jsx";
 import Movie from "./pages/movie/Movie";
@@ -16,6 +17,17 @@ import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
 import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
 import TicketInformation from "./pages/Staff/JSX/TicketInformation.jsx";
 
+=======
+import StaffHomePage from "./pages/Staff/SHomePage.jsx";
+import HomePage from "./pages/Home/Home.jsx";
+import Movie from "./pages/movie/Movie.jsx";
+import DateTimeSelection from "./pages/Staff/DateTimeSelection.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
+import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
+import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
+import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
+import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 function Layout() {
   const location = useLocation(); // Add useLocation hook
   const isAdmin = location.pathname.startsWith("/admin");
@@ -44,6 +56,11 @@ function Layout() {
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/movie" element={<Movie />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/description-movie" element={<DescriptionMovie />} />
+          <Route path="/select-showtime" element={<SelectShowtime/>} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}

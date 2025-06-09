@@ -1,7 +1,35 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.scss";
+import { useState, useEffect } from "react";
+import { UserOutlined } from "@ant-design/icons";
 
 const Header = () => {
+    const [user, setUser] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+            // Nếu vừa đăng nhập thành công, chuyển về trang home
+            if (window.location.pathname === "/login") {
+                navigate("/");
+            }
+        }
+    }, [navigate]);
+
+    const toggleDropdown = () => {
+        setShowDropdown(!showDropdown);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        setShowDropdown(false);
+        navigate('/');
+    };
+
     return (
         <header className="header">
             <div className="header-container">
@@ -19,11 +47,23 @@ const Header = () => {
                         <img src="/src/assets/bell.png" alt="notification" className="notification-icon" />
                     </button>
                 </div>
-
-                <div className="auth-links">
-                    <Link to="/login" className="login-link">Sign In</Link>
-                    <Link to="/register" className="register-link">Sign Up</Link>
-                </div>
+                {user ? (
+                    <div className="user-avatar-container">
+                        <div className="avatar" onClick={toggleDropdown}>
+                            <UserOutlined style={{ fontSize: 24, color: '#fff' }} />
+                        </div>
+                        {showDropdown && (
+                            <div className="dropdown-menu">
+                                <div className="dropdown-item" onClick={() => navigate('/profile')}>Profile</div>
+                                <div className="dropdown-item" onClick={handleLogout} style={{ color: 'red', cursor: 'pointer' }}>Logout</div>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="auth-links">
+                        <Link to="/login" className="login-link">Sign In</Link>
+                    </div>
+                )}
             </div>
         </header>
     );

@@ -75,15 +75,23 @@
       left: 0;
       z-index: 2;
       opacity: 1;
+<<<<<<< HEAD
 
       @media (max-width: 768px) {
         display: block;
       }
+=======
+      /* Hiển thị mặc định */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
     }
 
     &.active .login-form-section {
       transform: translateX(100%);
       opacity: 0;
+<<<<<<< HEAD
+=======
+      /* Ẩn khi active */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
       z-index: 1;
 
       @media (max-width: 768px) {
@@ -95,6 +103,10 @@
     .register-form-section {
       left: 0;
       opacity: 0;
+<<<<<<< HEAD
+=======
+      /* Ẩn mặc định */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
       z-index: 1;
 
       @media (max-width: 768px) {
@@ -105,6 +117,10 @@
     &.active .register-form-section {
       transform: translateX(100%);
       opacity: 1;
+<<<<<<< HEAD
+=======
+      /* Hiển thị khi active */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
       z-index: 2;
       animation: move 0.6s;
 
@@ -117,11 +133,13 @@
     }
 
     @keyframes move {
+
       0%,
       49.99% {
         opacity: 0;
         z-index: 1;
       }
+
       50%,
       100% {
         opacity: 1;
@@ -286,6 +304,7 @@
           padding-bottom: 5px;
         }
       }
+
       .ant-form-item {
         margin-bottom: 20px;
 
@@ -293,6 +312,12 @@
           margin-bottom: 8px;
         }
       }
+<<<<<<< HEAD
+=======
+
+      border-radius: 6px;
+      border: 1px solid #000;
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
       padding: 20px;
       width: 200%;
       display: flex;
@@ -325,6 +350,7 @@
           font-size: 11px;
         }
       }
+
       .ant-form-item {
         margin-bottom: 0px;
 
@@ -336,6 +362,7 @@
           margin-bottom: 3px;
         }
       }
+<<<<<<< HEAD
       .ant-input-status-error,
       .error-input {
         border-color: #ff4d4f !important;
@@ -387,6 +414,8 @@
           }
         }
       }
+=======
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 
       border-radius: 6px;
       padding: 0px;
@@ -544,11 +573,24 @@
       height: 30px;
       display: flex;
       align-items: center;
+<<<<<<< HEAD
+=======
+      /* Căn giữa icon theo chiều dọc */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 
       @media (max-width: 768px) {
         font-size: 14px;
+<<<<<<< HEAD
         height: 35px;
         padding: 8px 12px;
+=======
+        cursor: pointer;
+        margin-left: 10px;
+        /* Đảm bảo khoảng cách hợp lý với input */
+        display: flex;
+        align-items: center;
+        /* Căn giữa icon */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
       }
 
       @media (max-width: 480px) {
@@ -581,10 +623,14 @@
     .ant-row {
       margin: 2px !important;
       align-items: center;
+<<<<<<< HEAD
 
       @media (max-width: 768px) {
         margin: 4px !important;
       }
+=======
+      /* Đảm bảo các cột căn giữa */
+>>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
     }
 
     .ant-col {
