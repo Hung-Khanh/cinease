@@ -148,13 +148,6 @@ const Login = () => {
       const result = await response.json();
       message.success("Login successful!");
 
-      // Lưu thông tin user vào localStorage để Header hiển thị avatar
-      localStorage.setItem('user', JSON.stringify({
-        token: result.token,
-        role: result.role,
-        username: result.username || values.username,
-        avatar: result.avatar || '/src/assets/profile.png',
-      }));
       login({
         token: result.token,
         role: result.role,
@@ -169,7 +162,7 @@ const Login = () => {
         message.success("Login Successful");
       } else {
         console.log(result.role);
-        navigate("/");
+        navigate("/userHP");
       }
     } catch (error) {
       console.error("Error during login:", error.message);
