@@ -26,7 +26,6 @@ const SHomePage = () => {
       }
 
       const data = await response.json();
-      console.log("Movies data:", data);
 
       // Lọc dữ liệu chỉ lấy movieNameEnglish và largeImage
       const extractedMovies = data.content.map((movie) => ({
@@ -35,10 +34,6 @@ const SHomePage = () => {
         movieId: movie.movieId,
       }));
       setMovies(extractedMovies);
-      console.log(
-        "movieID: ",
-        extractedMovies.map((movie) => movie.movieId)
-      );
     } catch (error) {
       console.error("Error fetching movies:", error);
     }

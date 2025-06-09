@@ -6,15 +6,14 @@ import { useNavigate, useParams } from "react-router-dom";
 const SeatSelection = ({ apiUrl, onBack }) => {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const { scheduleId } = useParams();
-  const { movieName } = useParams();
+  const { scheduleId, movieName } = useParams();
   const navigate = useNavigate();
 
   const fetchSeat = async () => {
     const token = localStorage.getItem("token");
     try {
-      const Url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`;
-      const response = await fetch(Url, {
+      const url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`;
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           accept: "*/*",
@@ -65,7 +64,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
 
   const toggleSeat = (seatId) => {
     const seat = findSeatBySeatId(seatId);
-    if (!seat || seat.seatStatus == "BOOKED") return;
+    if (!seat || seat.seatStatus === "BOOKED") return;
 
     setSelectedSeats((prev) =>
       prev.includes(seatId)
@@ -98,10 +97,10 @@ const SeatSelection = ({ apiUrl, onBack }) => {
     return total + seatPrice;
   }, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("token");
     const selectedSeatsInfo = selectedSeats.map((seatId) => {
       const seat = findSeatBySeatId(seatId);
-      console.log("Schedule Seat ID:", seat?.scheduleSeatId);
       return {
         seatId,
         scheduleSeatId: seat?.scheduleSeatId,
@@ -110,13 +109,40 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       };
     });
 
-    navigate("/confirm", {
-      state: {
-        selectedSeats,
-        totalPrice,
-        selectedSeatsInfo,
-      },
-    });
+    // Extract scheduleSeatIds and format as a comma-separated list without brackets
+    const scheduleSeatIds = selectedSeatsInfo.map(
+      (seat) => seat.scheduleSeatId
+    );
+    try {
+      const response = await fetch(`${apiUrl}/employee/bookings/select-seats`, {
+        method: "POST",
+        headers: {
+          accept: "*/*",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({
+          scheduleId: parseInt(scheduleId),
+          scheduleSeatIds,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("❌ Error response from select-seats:", errorText);
+        throw new Error(`Failed to select seats: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Seat selection response:", data);
+
+      // Navigate to confirmation page after successful API call
+      navigate(`/ticketInformation/${data.invoiceId}`, {});
+    } catch (error) {
+      console.error("Error in handleCheckout:", error);
+      alert("Failed to select seats. Please try again.");
+    }
   };
 
   const renderSeats = () => {
@@ -145,6 +171,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       </div>
     ));
   };
+
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -204,6 +231,14 @@ const SeatSelection = ({ apiUrl, onBack }) => {
           <div className="summary-item">
             <p className="label">MOVIE</p>
             <p className="value">{movieName || "No Movie Selected"}</p>
+          </div>
+          <div className="summary-item">
+            <p className="label">CURRENT DATE</p>
+            <p className="value">{new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="summary-item">
+            <p className="label">CURRENT TIME</p>
+            <p className="value">{new Date().toLocaleTimeString()}</p>
           </div>
           <button
             className="checkout-button"

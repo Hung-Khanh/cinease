@@ -1,0 +1,122 @@
+.ticket-info-wrapper {
+  position: relative;
+  min-height: 100vh;
+  background-image: url("../../../assets/bigbackground.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #fff;
+
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .ticket-info-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+
+    .ticket-card {
+      border-radius: 10px;
+      padding: 20px;
+      width: 100%;
+      display: flex;
+      gap: 20px;
+
+      .ticket-image {
+        .movie-poster {
+          width: 200px;
+          height: 300px;
+          object-fit: fill;
+          border-radius: 15px;
+        }
+      }
+
+      .ticket-details {
+        flex: 1;
+
+        h2 {
+          font-size: 24px;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          font-size: 16px;
+
+          &.voucher {
+            select {
+              padding: 5px;
+              background: #333;
+              color: #fff;
+              border: 1px solid #555;
+              border-radius: 5px;
+            }
+          }
+
+          &.transaction {
+            flex-direction: column;
+            gap: 5px;
+
+            .transaction-details {
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+              padding-left: 20px;
+
+              div:nth-child(odd) {
+                font-weight: bold;
+              }
+              div:nth-child(even) {
+                text-align: right;
+              }
+            }
+          }
+
+          &.total {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+          }
+        }
+
+        .note {
+          font-size: 12px;
+          color: #ccc;
+          text-align: center;
+          margin-top: 10px;
+        }
+
+        .purchase-button {
+          width: 100%;
+          padding: 10px;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          margin-top: 20px;
+
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+    }
+  }
+}

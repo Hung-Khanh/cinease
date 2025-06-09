@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
 
 import Footer from "./component/footer/Footer";
@@ -9,10 +14,14 @@ import HomePage from "./pages/home/Home.jsx";
 import Movie from "./pages/movie/Movie";
 import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
 import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
+import TicketInformation from "./pages/Staff/JSX/TicketInformation.jsx";
+
 function Layout() {
+  const location = useLocation(); // Add useLocation hook
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+
   return (
     <div className="app-container">
       {!isLoginRegister && !isAdmin && <Header />}
@@ -29,6 +38,10 @@ function Layout() {
           <Route
             path="/Select-Seat/:scheduleId/:movieName"
             element={<SeatSelection apiUrl={apiUrl} />}
+          />
+          <Route
+            path="/ticketInformation/:invoiceId"
+            element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/movie" element={<Movie />} />
         </Routes>

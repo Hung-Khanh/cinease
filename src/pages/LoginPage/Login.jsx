@@ -8,11 +8,12 @@ import {
   Row,
   Col,
   message,
+  Alert,
 } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "./Login.scss";
 import logo from "../../assets/Logo.png";
-import { useAuth } from "../../constants/AuthContext"; // Adjust the import path as necessary
+import { useAuth } from "../../constants/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
@@ -24,7 +25,6 @@ const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
   const [registerData, setRegisterData] = useState({
     username: "",
     email: "",
@@ -37,10 +37,41 @@ const Login = () => {
     phone: "",
     address: "",
   });
+  const [error, setError] = useState(""); // Lỗi từ server (chỉ cho form đăng ký)
+  const [errors, setErrors] = useState({
+    login: { username: false, password: false },
+    register: {
+      username: false,
+      email: false,
+      password: false,
+      repeatPassword: false,
+      fullName: false,
+      dob: false,
+      sex: false,
+      cardNumber: false,
+      phone: false,
+      address: false,
+    },
+  }); // Lỗi validation cho từng trường
 
   const toggleForm = () => {
-    console.log("Toggling form, current isRegister:", isRegister);
     setIsRegister(!isRegister);
+    setError("");
+    setErrors({
+      login: { username: false, password: false },
+      register: {
+        username: false,
+        email: false,
+        password: false,
+        repeatPassword: false,
+        fullName: false,
+        dob: false,
+        sex: false,
+        cardNumber: false,
+        phone: false,
+        address: false,
+      },
+    }); // Reset lỗi khi chuyển form
   };
 
   const handleLoginInputChange = (e) => {
@@ -48,6 +79,14 @@ const Login = () => {
     setLoginData((prevData) => ({
       ...prevData,
       [name]: value,
+    }));
+    // Xóa lỗi của trường khi người dùng nhập
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      login: {
+        ...prevErrors.login,
+        [name]: false,
+      },
     }));
   };
 
@@ -57,16 +96,38 @@ const Login = () => {
       ...prevData,
       [name]: value,
     }));
+    // Xóa lỗi của trường khi người dùng nhập
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      register: {
+        ...prevErrors.register,
+        [name]: false,
+      },
+    }));
   };
 
   const handleLoginSubmit = async (values) => {
     setLoading(true);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      login: { username: false, password: false },
+    }));
+
+    // Kiểm tra validation thủ công
+    const newErrors = { username: false, password: false };
+    if (!values.username) newErrors.username = true;
+    if (!values.password) newErrors.password = true;
+
+    if (newErrors.username || newErrors.password) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        login: newErrors,
+      }));
+      setLoading(false);
+      return; // Ngăn gửi request nếu có lỗi
+    }
+
     try {
-      console.log(
-        "Sending login request to:",
-        `${apiUrl}/public/login`,
-        values
-      );
       const response = await fetch(`${apiUrl}/public/login`, {
         method: "POST",
         headers: {
@@ -94,9 +155,11 @@ const Login = () => {
       if (result.role === "ADMIN") {
         console.log(result.role);
         navigate("/admin");
+        message.success("Login Successful");
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
         navigate("/staffHomePage");
+        message.success("Login Successful");
       } else {
         console.log(result.role);
         navigate("/userHP");
@@ -111,13 +174,51 @@ const Login = () => {
 
   const handleRegisterSubmit = async (values) => {
     setLoading(true);
-    setError(""); // Reset error trước khi gửi request
+    setError("");
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      register: {
+        username: false,
+        email: false,
+        password: false,
+        repeatPassword: false,
+        fullName: false,
+        dob: false,
+        sex: false,
+        cardNumber: false,
+        phone: false,
+        address: false,
+      },
+    }));
+
+    // Kiểm tra validation thủ công
+    const newErrors = {};
+    if (!values.username) newErrors.username = true;
+    if (!values.email) newErrors.email = true;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
+      newErrors.email = true;
+    if (!values.password) newErrors.password = true;
+    if (!values.repeatPassword) newErrors.repeatPassword = true;
+    else if (values.password !== values.repeatPassword)
+      newErrors.repeatPassword = true;
+    if (!values.fullName) newErrors.fullName = true;
+    if (!values.dob) newErrors.dob = true;
+    if (!values.sex) newErrors.sex = true;
+    if (!values.cardNumber) newErrors.cardNumber = true;
+    if (!values.phone) newErrors.phone = true;
+    else if (!/^\d{10,}$/.test(values.phone)) newErrors.phone = true;
+    if (!values.address) newErrors.address = true;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        register: newErrors,
+      }));
+      setLoading(false);
+      return; // Ngăn gửi request nếu có lỗi
+    }
+
     try {
-      console.log(
-        "Sending register request to:",
-        `${apiUrl}/public/register`,
-        values
-      );
       const response = await fetch(`${apiUrl}/public/register`, {
         method: "POST",
         headers: {
@@ -127,20 +228,16 @@ const Login = () => {
         },
         body: JSON.stringify(values),
       });
-      console.log("Response details:", {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
       message.success("Registration successful!");
       console.log("Register response:", result);
+      setIsRegister(false);
     } catch (error) {
       console.error("Error during registration:", error.message);
-      setError(`Registration failed: ${error.message}`); // Set lỗi vào state
+      setError(`Registration failed: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -165,15 +262,18 @@ const Login = () => {
               name="username"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "Please input your username!" },
-              ]}
             >
               <Input
-                placeholder="Enter username"
+                status={errors.login.username ? "error" : ""}
+                placeholder={
+                  errors.login.username
+                    ? "Please input your username!"
+                    : "Enter username"
+                }
                 name="username"
                 value={loginData.username}
                 onChange={handleLoginInputChange}
+                className={errors.login.username ? "error-input" : ""}
               />
             </Form.Item>
             <Form.Item
@@ -181,18 +281,21 @@ const Login = () => {
               name="password"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "Please input your password!" },
-              ]}
             >
               <Input.Password
-                placeholder="Enter password"
+                status={errors.login.password ? "error" : ""}
+                placeholder={
+                  errors.login.password
+                    ? "Please input your password!"
+                    : "Enter password"
+                }
                 name="password"
                 value={loginData.password}
                 onChange={handleLoginInputChange}
                 iconRender={(visible) =>
                   visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                 }
+                className={errors.login.password ? "error-input" : ""}
               />
             </Form.Item>
             <Form.Item>
@@ -208,20 +311,22 @@ const Login = () => {
             </Form.Item>
           </Form>
         </div>
-        {/* Register Form Section */}
 
+        {/* Register Form Section */}
         <div className="form-container register-form-section">
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form
             name="register_form"
             onFinish={handleRegisterSubmit}
             className="register-form compact"
             initialValues={registerData}
-            onFieldsChange={(changedFields) => {
-              // Reset error khi user bắt đầu nhập
-              if (changedFields.length > 0) {
-                setError("");
-              }
-            }}
           >
             <Title level={3} className="register-title">
               Create your account
@@ -231,14 +336,11 @@ const Login = () => {
               name="username"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "" }, // Bỏ message ở đây
-              ]}
-              validateStatus={error && !registerData.username ? "error" : ""}
             >
               <Input
+                status={errors.register.username ? "error" : ""}
                 placeholder={
-                  error && !registerData.username
+                  errors.register.username
                     ? "Please input your username!"
                     : "Enter username"
                 }
@@ -246,11 +348,10 @@ const Login = () => {
                 value={registerData.username}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={error && !registerData.username ? "error-input" : ""}
+                className={errors.register.username ? "error-input" : ""}
               />
             </Form.Item>
 
-            {/* Password Section */}
             <Form.Item
               label="Password"
               labelCol={{ span: 24 }}
@@ -260,22 +361,11 @@ const Login = () => {
             >
               <Row gutter={8}>
                 <Col span={12}>
-                  <Form.Item
-                    name="password"
-                    rules={[
-                      {
-                        required: true,
-                        message: "",
-                      },
-                    ]}
-                    style={{ marginBottom: 0 }}
-                    validateStatus={
-                      error && !registerData.password ? "error" : ""
-                    }
-                  >
+                  <Form.Item name="password" style={{ marginBottom: 0 }}>
                     <Input.Password
+                      status={errors.register.password ? "error" : ""}
                       placeholder={
-                        error && !registerData.password
+                        errors.register.password
                           ? "Please input your password!"
                           : "Enter password"
                       }
@@ -283,47 +373,19 @@ const Login = () => {
                       value={registerData.password}
                       onChange={handleRegisterInputChange}
                       size="small"
-                      className={
-                        error && !registerData.password ? "error-input" : ""
-                      }
+                      className={errors.register.password ? "error-input" : ""}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item
-                    name="repeatPassword"
-                    dependencies={["password"]}
-                    rules={[
-                      {
-                        required: true,
-                        message: "",
-                      },
-                      ({ getFieldValue }) => ({
-                        validator(_, value) {
-                          if (!value || getFieldValue("password") === value) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject(new Error(""));
-                        },
-                      }),
-                    ]}
-                    style={{ marginBottom: 0 }}
-                    validateStatus={
-                      error &&
-                      (!registerData.repeatPassword ||
-                        registerData.password !== registerData.repeatPassword)
-                        ? "error"
-                        : ""
-                    }
-                  >
+                  <Form.Item name="repeatPassword" style={{ marginBottom: 0 }}>
                     <Input.Password
+                      status={errors.register.repeatPassword ? "error" : ""}
                       placeholder={
-                        error && !registerData.repeatPassword
-                          ? "Please confirm your password!"
-                          : error &&
-                            registerData.password !==
-                              registerData.repeatPassword
-                          ? "Passwords do not match!"
+                        errors.register.repeatPassword
+                          ? registerData.password && registerData.repeatPassword
+                            ? "Passwords do not match!"
+                            : "Please confirm your password!"
                           : "Confirm password"
                       }
                       name="repeatPassword"
@@ -331,11 +393,7 @@ const Login = () => {
                       onChange={handleRegisterInputChange}
                       size="small"
                       className={
-                        error &&
-                        (!registerData.repeatPassword ||
-                          registerData.password !== registerData.repeatPassword)
-                          ? "error-input"
-                          : ""
+                        errors.register.repeatPassword ? "error-input" : ""
                       }
                     />
                   </Form.Item>
@@ -348,24 +406,22 @@ const Login = () => {
               name="fullName"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[{ required: true, message: "" }]}
-              validateStatus={error && !registerData.fullName ? "error" : ""}
             >
               <Input
+                status={errors.register.fullName ? "error" : ""}
                 placeholder={
-                  error && !registerData.fullName
-                    ? "Please enter your name"
+                  errors.register.fullName
+                    ? "Please enter your full name!"
                     : "Enter your full name"
                 }
                 name="fullName"
                 value={registerData.fullName}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={error && !registerData.fullName ? "error-input" : ""}
+                className={errors.register.fullName ? "error-input" : ""}
               />
             </Form.Item>
 
-            {/* Date of Birth và Sex nằm ngang nhau */}
             <Row gutter={8}>
               <Col span={12}>
                 <Form.Item
@@ -373,26 +429,20 @@ const Login = () => {
                   name="dob"
                   labelCol={{ span: 24 }}
                   wrapperCol={{ span: 24 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "",
-                    },
-                  ]}
-                  validateStatus={error && !registerData.dob ? "error" : ""}
                 >
                   <Input
                     type="date"
+                    status={errors.register.dob ? "error" : ""}
                     placeholder={
-                      error && !registerData.dob
+                      errors.register.dob
                         ? "Please select your date of birth!"
                         : "Select date of birth"
                     }
                     name="dob"
                     value={registerData.dob}
                     onChange={handleRegisterInputChange}
-                    size="small"
-                    className={error && !registerData.dob ? "error-input" : ""}
+                    size="medium"
+                    className={errors.register.dob ? "error-input" : ""}
                   />
                 </Form.Item>
               </Col>
@@ -402,12 +452,11 @@ const Login = () => {
                   name="sex"
                   labelCol={{ span: 24 }}
                   wrapperCol={{ span: 24 }}
-                  rules={[{ required: true, message: "" }]}
-                  validateStatus={error && !registerData.sex ? "error" : ""}
                 >
                   <Select
+                    status={errors.register.sex ? "error" : ""}
                     placeholder={
-                      error && !registerData.sex
+                      errors.register.sex
                         ? "Please select your sex!"
                         : "Select sex"
                     }
@@ -418,9 +467,9 @@ const Login = () => {
                         target: { name: "sex", value },
                       })
                     }
-                    size="small"
-                    className={error && !registerData.sex ? "error-input" : ""}
+                    size="medium"
                     style={{ width: "100%" }}
+                    className={errors.register.sex ? "error-input" : ""}
                   >
                     <Select.Option value="male">Male</Select.Option>
                     <Select.Option value="female">Female</Select.Option>
@@ -435,39 +484,21 @@ const Login = () => {
               name="email"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "" },
-                { type: "email", message: "" },
-              ]}
-              validateStatus={
-                error &&
-                (!registerData.email ||
-                  !/\S+@\S+\.\S+/.test(registerData.email))
-                  ? "error"
-                  : ""
-              }
             >
               <Input
+                status={errors.register.email ? "error" : ""}
                 placeholder={
-                  error && !registerData.email
-                    ? "Please input your email!"
-                    : error &&
-                      registerData.email &&
-                      !/\S+@\S+\.\S+/.test(registerData.email)
-                    ? "Please enter a valid email!"
+                  errors.register.email
+                    ? registerData.email
+                      ? "Please enter a valid email!"
+                      : "Please input your email!"
                     : "Enter email"
                 }
                 name="email"
                 value={registerData.email}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={
-                  error &&
-                  (!registerData.email ||
-                    !/\S+@\S+\.\S+/.test(registerData.email))
-                    ? "error-input"
-                    : ""
-                }
+                className={errors.register.email ? "error-input" : ""}
               />
             </Form.Item>
 
@@ -476,17 +507,11 @@ const Login = () => {
               name="cardNumber"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                {
-                  required: true,
-                  message: "",
-                },
-              ]}
-              validateStatus={error && !registerData.cardNumber ? "error" : ""}
             >
               <Input
+                status={errors.register.cardNumber ? "error" : ""}
                 placeholder={
-                  error && !registerData.cardNumber
+                  errors.register.cardNumber
                     ? "Please input your Identity Card Number!"
                     : "Enter Identity Card Number"
                 }
@@ -494,9 +519,7 @@ const Login = () => {
                 value={registerData.cardNumber}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={
-                  error && !registerData.cardNumber ? "error-input" : ""
-                }
+                className={errors.register.cardNumber ? "error-input" : ""}
               />
             </Form.Item>
 
@@ -505,40 +528,21 @@ const Login = () => {
               name="phone"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[
-                { required: true, message: "" },
-                {
-                  pattern: /^\d{10,}$/,
-                  message: "",
-                },
-              ]}
-              validateStatus={
-                error &&
-                (!registerData.phone || !/^\d{10,}$/.test(registerData.phone))
-                  ? "error"
-                  : ""
-              }
             >
               <Input
+                status={errors.register.phone ? "error" : ""}
                 placeholder={
-                  error && !registerData.phone
-                    ? "Please input your Phone Number!"
-                    : error &&
-                      registerData.phone &&
-                      !/^\d{10,}$/.test(registerData.phone)
-                    ? "Please enter a valid phone number!"
+                  errors.register.phone
+                    ? registerData.phone
+                      ? "Please enter a valid phone number!"
+                      : "Please input your Phone Number!"
                     : "Enter Your Phone Number"
                 }
                 name="phone"
                 value={registerData.phone}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={
-                  error &&
-                  (!registerData.phone || !/^\d{10,}$/.test(registerData.phone))
-                    ? "error-input"
-                    : ""
-                }
+                className={errors.register.phone ? "error-input" : ""}
               />
             </Form.Item>
 
@@ -547,12 +551,11 @@ const Login = () => {
               name="address"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
-              rules={[{ required: true, message: "" }]}
-              validateStatus={error && !registerData.address ? "error" : ""}
             >
               <Input
+                status={errors.register.address ? "error" : ""}
                 placeholder={
-                  error && !registerData.address
+                  errors.register.address
                     ? "Please input your Address!"
                     : "Enter Your Address"
                 }
@@ -560,7 +563,7 @@ const Login = () => {
                 value={registerData.address}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={error && !registerData.address ? "error-input" : ""}
+                className={errors.register.address ? "error-input" : ""}
               />
             </Form.Item>
 
@@ -571,14 +574,14 @@ const Login = () => {
                 block
                 className="register-button compact"
                 loading={loading}
-                size="small"
+                size="medium"
               >
                 Register now
               </Button>
             </Form.Item>
           </Form>
         </div>
-        {/* Background Section with Toggle Panels */}
+
         <div className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
