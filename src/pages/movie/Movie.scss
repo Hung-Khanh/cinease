@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-$primary-color: #044824;
-=======
 body {
   background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
 }
 
 $primary-color: #219150;
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 $secondary-color: #1da1f2;
 $dark-bg: #1c262b;
 $text-light: #fff;
@@ -109,21 +105,6 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   }
 }
 
-<<<<<<< HEAD
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
-  margin: 0 16px 18px 16px;
-
-  &::after {
-    content: "";
-    flex: auto;
-  }
-}
-
-=======
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 .movie-list-view {
   display: flex;
   flex-direction: column;
@@ -138,16 +119,13 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   width: 100%;
   max-width: 280px;
   margin: 0 auto;
-<<<<<<< HEAD
-=======
-  
+
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   transition: box-shadow 0.2s;
   color: $text-light;
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 
   &--empty {
     visibility: hidden;

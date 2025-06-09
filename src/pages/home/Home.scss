@@ -5,33 +5,32 @@ $text-light: #fff;
 $text-muted: #b0b0b0;
 $card-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-=======
-  $primary-color: #219150;
-  $secondary-color: #1da1f2;
-  $dark-bg: #1c262b;
-  $text-light: #fff;
-  $text-muted: #b0b0b0;
-  $card-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-  $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
 
-  .home {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
-    color: $text-light;
+.home {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
+  color: $text-light;
 
-    .home-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 30px 16px 0;
-    }
+  .home-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 16px 0;
+  }
 
-    .slide-container {
+  .slide-container {
+    width: 100%;
+    height: 600px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 0;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+
+    img {
       width: 100%;
       height: 600px;
+      object-fit: fill;
       border-radius: 18px;
-<<<<<<< HEAD
     }
 
     .slide-item {
@@ -56,7 +55,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
-        padding: 48px 64px;
+        padding: 64px 80px;
         color: $text-light;
         z-index: 2;
 
@@ -124,21 +123,12 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     }
 
     @media (max-width: 900px) {
-      height: 160px;
-=======
-      overflow: hidden;
-      margin-bottom: 0;
-      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
+      height: 200px;
 
       img {
-        width: 100%;
-        height: 600px;
-        object-fit: fill;
-        border-radius: 18px;
+        height: 200px;
       }
 
-<<<<<<< HEAD
       .slide-item,
       .slide-overlay {
         height: 160px;
@@ -174,13 +164,13 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     }
 
     .see-all {
-      color: $secondary-color;
+      color: #fff;
       font-size: 14px;
       text-decoration: none;
       transition: color 0.2s;
 
       &:hover {
-        color: $primary-color;
+        color: #0d47a1;
       }
     }
   }
@@ -288,7 +278,6 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       gap: 32px;
       justify-content: center;
       align-items: stretch;
-      margin-bottom: 24px;
       width: 100%;
 
       .promo-card {
@@ -298,301 +287,47 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         width: 320px;
         min-width: 260px;
         height: 210px;
-=======
-      .slide-item {
-        @extend .slide-container;
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
         display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
 
-        .slide-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
+        &:hover {
+          transform: translateY(-6px) scale(1.03);
+          box-shadow: $hover-shadow;
+        }
+
+        .promo-img {
           width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, rgba(10, 24, 31, 0.78) 40%, rgba(10, 24, 31, 0.12) 100%);
+          height: 140px;
+          object-fit: cover;
+          border-radius: 14px 14px 0 0;
+        }
+
+        .promo-info {
+          padding: 10px 14px 12px;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          align-items: flex-start;
-          padding: 64px 80px;
-          color: $text-light;
-          z-index: 2;
+          gap: 6px;
 
-          .slide-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+          .promo-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: $text-light;
+            margin-bottom: 2px;
           }
 
-          .slide-desc {
-            font-size: 1.2rem;
-            font-weight: 400;
-            margin-bottom: 28px;
-            max-width: 600px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-          }
-
-          .slide-cta {
-            display: flex;
-            gap: 18px;
-
-            .slide-btn {
-              padding: 10px 28px;
-              border-radius: 8px;
-              font-size: 1rem;
-              font-weight: 600;
-              border: none;
-              cursor: pointer;
-              transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-              outline: none;
-
-              &.buy {
-                background: $primary-color;
-                color: $text-light;
-
-                &:hover {
-                  background: $primary-color;
-                }
-              }
-
-              &.trailer {
-                background: $secondary-color;
-                color: $text-light;
-
-                &:hover {
-                  background: #4fc3f7;
-                }
-              }
-
-              &.info {
-                background: #fff;
-                color: #1976d2;
-                border: 1.5px solid #1976d2;
-
-                &:hover {
-                  background: #e3f2fd;
-                  color: #0d47a1;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      @media (max-width: 900px) {
-        height: 200px;
-
-        img {
-          height: 200px;
-        }
-
-        .slide-item,
-        .slide-overlay {
-          height: 160px;
-          padding: 18px;
-        }
-
-        .slide-title {
-          font-size: 1.2rem;
-        }
-
-        .slide-desc {
-          font-size: 0.9rem;
-          margin-bottom: 12px;
-        }
-
-        .slide-btn {
-          font-size: 0.8rem;
-          padding: 6px 14px;
-        }
-      }
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 32px 0 0;
-
-      h2 {
-        font-size: 20px;
-        font-weight: 700;
-        color: $text-light;
-      }
-
-      .see-all {
-        color: #fff;
-        font-size: 14px;
-        text-decoration: none;
-        transition: color 0.2s;
-
-        &:hover {
-          color: #0d47a1;
-        }
-      }
-    }
-
-    .movie-list {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 18px;
-      margin-bottom: 0;
-      padding-bottom: 8px;
-      justify-content: space-between;
-      overflow-x: auto;
-    }
-
-    .coming-img-wrap {
-      position: relative;
-      border-radius: 14px 14px 0 0;
-      overflow: hidden;
-    }
-
-    .coming-badge {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: #e53935;
-      color: #fff;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 8px 8px 8px 0;
-      padding: 4px 14px;
-      z-index: 2;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-      letter-spacing: 0.5px;
-      border: none;
-      min-width: 80px;
-      text-align: center;
-    }
-
-    .coming-soon-card,
-    .movie-card {
-      @extend .movie-list;
-      flex: 0 0 19%;
-      max-width: 19%;
-      min-width: 180px;
-      background: $dark-bg;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: $card-shadow;
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-
-      &:hover {
-        transform: translateY(-6px) scale(1.03);
-        box-shadow: $hover-shadow;
-      }
-
-      .movie-img,
-      .coming-img {
-        width: 100%;
-        height: 240px;
-        object-fit: cover;
-        border-radius: 14px 14px 0 0;
-      }
-
-      .movie-info,
-      .coming-info {
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .movie-title,
-      .coming-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: $text-light;
-        margin-bottom: 2px;
-      }
-
-      .movie-genre-btn,
-      .coming-genre-btn {
-        background: #e6f0ff;
-        color: #1976d2;
-        font-size: 13px;
-        font-weight: 500;
-        padding: 2px 12px;
-        border-radius: 8px;
-        margin-left: auto;
-        transition: background 0.2s, color 0.2s;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
-      }
-    }
-
-    .promo-section {
-      margin-top: 36px;
-
-      .promo-list {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 32px;
-        justify-content: center;
-        align-items: stretch;
-        width: 100%;
-
-        .promo-card {
-          background: $dark-bg;
-          border-radius: 14px;
-          box-shadow: $card-shadow;
-          width: 320px;
-          min-width: 260px;
-          height: 210px;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          transition: transform 0.2s, box-shadow 0.2s;
-
-          &:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: $hover-shadow;
-          }
-
-          .promo-img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 14px 14px 0 0;
-          }
-
-          .promo-info {
-            padding: 10px 14px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 6px;
-
-            .promo-title {
-              font-size: 15px;
-              font-weight: 600;
-              color: $text-light;
-              margin-bottom: 2px;
-            }
-
-            .promo-desc {
-              font-size: 13px;
-              color: $text-muted;
-            }
+          .promo-desc {
+            font-size: 13px;
+            color: $text-muted;
           }
         }
       }
     }
   }
+}
 
-<<<<<<< HEAD
-// Ẩn thanh scroll cho các vùng scroll chính của trang Home
 .home,
 .home-content,
 .slide-container,
@@ -601,6 +336,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   scrollbar-width: none; // Firefox
   -ms-overflow-style: none; // IE & Edge
 }
+
 .home::-webkit-scrollbar,
 .home-content::-webkit-scrollbar,
 .slide-container::-webkit-scrollbar,
@@ -608,22 +344,3 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 .promo-list::-webkit-scrollbar {
   display: none; // Chrome, Safari, Opera
 }
-=======
-
-  .home,
-  .home-content,
-  .slide-container,
-  .movie-list,
-  .promo-list {
-    scrollbar-width: none; // Firefox
-    -ms-overflow-style: none; // IE & Edge
-  }
-
-  .home::-webkit-scrollbar,
-  .home-content::-webkit-scrollbar,
-  .slide-container::-webkit-scrollbar,
-  .movie-list::-webkit-scrollbar,
-  .promo-list::-webkit-scrollbar {
-    display: none; // Chrome, Safari, Opera
-  }
->>>>>>> 9a6be20954a3bdcef22b8b082f3218c79aac260d
