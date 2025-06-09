@@ -9,9 +9,10 @@ import HomePage from "./pages/Home/Home.jsx";
 import Movie from "./pages/movie/Movie.jsx";
 import DateTimeSelection from "./pages/Staff/DateTimeSelection.jsx";
 import Profile from "./pages/Profile/Profile.jsx";
-import Confirm from "./pages/confirm/Confirm.jsx";
-import SeatSelection from "./pages/seat/SeatSelect.jsx";
-import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
+import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
+import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
+import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
+import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 function Layout() {
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
@@ -27,9 +28,10 @@ function Layout() {
           <Route path="/dateTimeSelection" element={<DateTimeSelection />} />
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/confirm" element={<Confirm />} />
-          <Route path="/seat-selection" element={<SeatSelection />} />
-          <Route path="/payment-detail" element={<PaymentDetail />} />
+          <Route path="/description-movie" element={<DescriptionMovie />} />
+          <Route path="/select-showtime" element={<SelectShowtime/>} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
