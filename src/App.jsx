@@ -44,7 +44,7 @@ function Layout() {
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/ticketInformation/:invoiceId"
+            path="/ticketInformation/:invoiceId/:scheduleId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/movie" element={<Movie />} />

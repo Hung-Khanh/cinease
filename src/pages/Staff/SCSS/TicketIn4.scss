@@ -92,6 +92,36 @@
             font-weight: bold;
             margin-top: 20px;
           }
+
+          &.phone-input {
+            button {
+              width: 100%;
+              padding: 10px;
+              background-color: #28a745;
+              color: #fff;
+              border: none;
+              border-radius: 5px;
+              font-size: 16px;
+              cursor: pointer;
+
+              &:hover {
+                background-color: #218838;
+              }
+            }
+          }
+
+          &.payment-method {
+            flex-direction: column;
+            gap: 10px;
+
+            .ant-select {
+              width: 100%;
+            }
+
+            div {
+              margin-top: 10px;
+            }
+          }
         }
 
         .note {
