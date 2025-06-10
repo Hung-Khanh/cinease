@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import { Modal, Select, Input } from "antd";
 
 import "../SCSS/TicketIn4.scss";
+
+const { Option } = Select;
 
 const TicketInformation = ({ apiUrl, onBack }) => {
   const [ticketData, setTicketData] = useState(null);
   const navigate = useNavigate();
   const { invoiceId } = useParams();
+  const { scheduleId } = useParams();
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [inputType, setInputType] = useState("phone");
+  const [inputValue, setInputValue] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("VNPAY");
+  const [cashReceived, setCashReceived] = useState("");
+  const [change, setChange] = useState(0);
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        console.log("No token found, redirecting to login");
-        alert("Please log in to proceed.");
-        window.location.href = `${apiUrl}/oauth2/authorization/google`;
-        return;
-      }
 
       try {
         const response = await fetch(
@@ -39,7 +43,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           throw new Error(`Failed to fetch ticket details: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Ticket data:", data.movieName);
+        console.log("Ticket details:", data);
         setMovieName(data.movieName);
         setTicketData(data);
       } catch (error) {
@@ -58,7 +62,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      if (!movieName) return; // Không gọi API nếu movieName rỗng
+      if (!movieName) return;
 
       const token = localStorage.getItem("token");
       try {
@@ -77,8 +81,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         }
 
         const data = await response.json();
-        console.log("Movies data:", data);
-
         setMovieImage(data[0]?.largeImage || "placeholder-image.jpg");
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -87,7 +89,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     };
 
     fetchMovies();
-  }, [movieName, apiUrl]); //
+  }, [movieName, apiUrl]);
 
   const handleBack = () => {
     if (onBack) {
@@ -97,10 +99,71 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     }
   };
 
-  const handlePurchase = () => {
-    // Placeholder for purchase logic (e.g., redirect to payment or confirm)
-    alert("Purchase functionality to be implemented.");
+  const showModal = () => {
+    setIsModalVisible(true);
   };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handlePurchase = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const identityOrPhone = inputType === "phone" ? inputValue : undefined;
+      const response = await fetch(
+        `${apiUrl}/employee/bookings/confirmBooking`,
+        {
+          method: "POST",
+          headers: {
+            accept: "*/*",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({
+            invoiceId: parseInt(invoiceId),
+            scheduleId: parseInt(scheduleId),
+            useScore: 0,
+            promotionId: null,
+            identityCard: inputType === "id" ? inputValue : undefined,
+            phoneNumber: identityOrPhone,
+            paymentMethod: paymentMethod,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ Error confirming booking:", errorText);
+        throw new Error(`Failed to confirm booking: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Confirm booking response:", data.paymentUrl);
+      if (paymentMethod === "VNPAY" && data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else if (paymentMethod === "CASH") {
+        navigate("/payment-success", { state: { change } });
+      } else {
+        alert("No payment URL received. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error in handlePurchase:", error);
+      alert("Failed to confirm booking. Please try again.");
+    }
+  };
+
+  const handleCashChange = (e) => {
+    const value = parseFloat(e.target.value) || 0;
+    setCashReceived(value);
+    setChange(value - (ticketData?.total || 0));
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -110,7 +173,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         month: "2-digit",
         year: "numeric",
       })
-      .replace(/\//g, "/"); // Ensure dd/mm/yyyy format
+      .replace(/\//g, "/");
   };
 
   return (
@@ -123,7 +186,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         <div className="ticket-card">
           <div className="ticket-image">
             <img
-              src={movieImage || "placeholder-image.jpg"} // Sử dụng movieImage
+              src={movieImage || "placeholder-image.jpg"}
               alt={ticketData?.movieName || "Movie Poster"}
               className="movie-poster"
             />
@@ -161,7 +224,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <span>Select or enter a voucher</span>
               <select>
                 <option value="">Select a voucher</option>
-                {/* Add voucher options dynamically if needed */}
               </select>
             </div>
             <div className="detail-item transaction">
@@ -189,6 +251,27 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <span>Total payment</span>
               <span>VND {ticketData?.total?.toLocaleString() || "0"}</span>
             </div>
+            <div className="detail-item phone-input">
+              <button onClick={showModal}>Enter Phone Number</button>
+            </div>
+            <div className="detail-item payment-method">
+              <span>Payment Method</span>
+              <Select value={paymentMethod} onChange={setPaymentMethod}>
+                <Option value="VNPAY">VNPAY</Option>
+                <Option value="CASH">Cash</Option>
+              </Select>
+              {paymentMethod === "CASH" && (
+                <div>
+                  <Input
+                    placeholder="Cash Received"
+                    value={cashReceived}
+                    onChange={handleCashChange}
+                    type="number"
+                  />
+                  <div>Change: VND {change.toLocaleString()}</div>
+                </div>
+              )}
+            </div>
             <p className="note">*Purchased ticket cannot be canceled</p>
             <button className="purchase-button" onClick={handlePurchase}>
               Purchase
@@ -196,6 +279,34 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           </div>
         </div>
       </div>
+
+      <Modal
+        title="Enter Information"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "20px",
+          transform: "translateY(-50%)",
+        }}
+      >
+        <Select
+          value={inputType}
+          onChange={setInputType}
+          style={{ width: "100%", marginBottom: "10px" }}
+        >
+          <Option value="phone">Enter Phone Number</Option>
+          <Option value="id">Enter ID Card</Option>
+        </Select>
+        <Input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder={inputType === "phone" ? "Phone Number" : "ID Card"}
+        />
+      </Modal>
     </div>
   );
 };

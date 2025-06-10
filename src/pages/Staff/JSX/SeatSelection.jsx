@@ -138,7 +138,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       console.log("Seat selection response:", data);
 
       // Navigate to confirmation page after successful API call
-      navigate(`/ticketInformation/${data.invoiceId}`, {});
+      navigate(`/ticketInformation/${data.invoiceId}/${scheduleId}`, {});
     } catch (error) {
       console.error("Error in handleCheckout:", error);
       alert("Failed to select seats. Please try again.");
