@@ -3,8 +3,11 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
+import React, { useState, useEffect } from 'react';
+
 
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
@@ -20,6 +23,73 @@ import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
 import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
+
+// Admin components
+import SideBar from "./component/Admin/SideBar/SideBar.jsx";
+import AdminHeader from "./component/Admin/Header/Header.jsx";
+import Dashboard from "./pages/admin/DashBoard/Dashboard.jsx";
+import Promotions from "./pages/admin/Promotions/Promotions.jsx";
+import AdminMovies from "./pages/admin/Movies/Movie.jsx";
+import backgroundImage from "./assets/bigbackground.png";
+
+function AdminLayout() {
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const [pageTitle, setPageTitle] = useState("DASHBOARD");
+
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
+  const handleMenuItemClick = (title) => {
+    setPageTitle(title);
+  };
+
+  return (
+    <div
+      className="admin-layout"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        height: "100vh",
+        display: "flex",
+        overflow: "auto",
+      }}
+    >
+      <SideBar
+        isVisible={isSidebarVisible}
+        onMenuItemClick={handleMenuItemClick}
+      />
+      <div
+        className="admin-main-content"
+        style={{
+          marginLeft: isSidebarVisible ? "250px" : "0",
+          transition: "margin-left 0.3s ease",
+          flex: 1,
+          overflowY: "auto",
+          padding: "20px",
+          backgroundColor: "rgba(10, 24, 31, 0.8)",
+        }}
+      >
+        <AdminHeader onLogoClick={toggleSidebar} pageTitle={pageTitle} />
+        <div
+          style={{
+            minHeight: "calc(100vh - 100px)",
+            overflowY: "auto",
+          }}
+        >
+          <Routes>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="promotions" element={<Promotions />} />
+            <Route path="movies" element={<AdminMovies />} />
+          </Routes>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Layout() {
   const location = useLocation(); // Add useLocation hook
   const isAdmin = location.pathname.startsWith("/admin");
@@ -64,7 +134,15 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Layout />
+        <Routes>
+          <Route path="/admin/*" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="promotions" element={<Promotions />} />
+            <Route path="movies" element={<AdminMovies />} />
+            {/* Add more admin routes here as needed */}
+          </Route>
+          <Route path="/*" element={<Layout />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );
