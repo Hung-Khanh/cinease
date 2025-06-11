@@ -3,11 +3,10 @@ import {
   Routes,
   Route,
   useLocation,
-  Navigate
+  Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect } from "react";
 
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
@@ -83,6 +82,8 @@ function AdminLayout() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="promotions" element={<Promotions />} />
             <Route path="movies" element={<AdminMovies />} />
+            <Route path="employees" element={<AdminMovies />} />
+            <Route path="cinema" element={<AdminMovies />} />
           </Routes>
         </div>
       </div>
@@ -114,7 +115,7 @@ function Layout() {
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/ticketInformation/:invoiceId/:scheduleId"
+            path="/ticketInformation/:invoiceId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/movie" element={<Movie />} />
@@ -135,12 +136,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/admin/*" element={<AdminLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-            {/* Add more admin routes here as needed */}
-          </Route>
+          <Route path="/admin/*" element={<AdminLayout />}></Route>
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>
