@@ -1,19 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Form, Table, message } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Input, Button, Form, Table, message, Upload, Select } from "antd";
+import { UserOutlined, CameraOutlined } from "@ant-design/icons";
 import "./Profile.scss";
 import api from "../../constants/axios";
-
-const userInfo = {
-  username: "",
-  fullName: "",
-  dob: "",
-  sex: "",
-  email: "",
-  card: "",
-  phone: "",
-  address: "",
-};
 
 const historyData = [
   { key: 1, date: "16/06/2025", movie: "Lật mặt 8", tickets: 2, points: "+50" },
@@ -24,78 +13,189 @@ const historyData = [
 const Profile = () => {
   const [form] = Form.useForm();
   const [pwdForm] = Form.useForm();
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const [previewAvatar, setPreviewAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Lấy token từ localStorage dạng object nếu cần
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const token = user.token || "";
 
   const columns = [
     { title: "Day", dataIndex: "date", key: "date", align: "center" },
     { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
     { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
-    { title: "Points", dataIndex: "points", key: "points", align: "center", render: (t) => <span style={{ color: '#ac2020' }}>{t}</span> },
+    {
+      title: "Points",
+      dataIndex: "points",
+      key: "points",
+      align: "center",
+      render: (t) => <span style={{ color: "#ac2020" }}>{t}</span>,
+    },
   ];
 
-  const handleAvatarChange = () => {
-    message.info("Tính năng cập nhật ảnh đại diện sẽ sớm có!");
-  };
+  // Fetch user info function
+  const fetchUserInfo = async () => {
+    try {
+      const response = await api.get("/member/account", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+      const data = response.data;
+      console.log("API response:", data);
 
-  const handleProfileSave = () => {
-    message.success("Save changes successfully!");
-  };
+      // Map API data to form fields
+      form.setFieldsValue({
+        username: data.username || "",
+        fullName: data.fullName || "",
+        dateOfBirth: data.dateOfBirth || "",
+        gender: data.gender || "OTHER",
+        email: data.email || "",
+        identityCard: data.identityCard || "",
+        phoneNumber: data.phoneNumber || "",
+        address: data.address || "",
+      });
 
-  const handlePwdChange = () => {
-    message.success("Update password successfully!");
-  };
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await api.get(`/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = response.data;
-        form.setFieldsValue({
-          username: data.username,
-          fullName: data.fullName,
-          dob: data.dob,
-          sex: data.sex,
-          email: data.email,
-          card: data.card,
-          phone: data.phone,
-          address: data.address,
-        });
-      } catch (error) {
-        console.error("Error fetching user info:", error);
+      // Set previewAvatar from server data if available
+      if (data.image) {
+        setPreviewAvatar(`data:image/jpeg;base64,${data.image}`);
+      } else if (data.avatar) {
+        setPreviewAvatar(data.avatar);
+      } else {
+        setPreviewAvatar(null);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+      message.error("Cannot fetch user info. Please check API or login again.");
+    }
+  };
+
+  // Fetch user info when component mounts
+  useEffect(() => {
     fetchUserInfo();
-  }, [userId, form, token]);
+  }, [token]);
+
+  // Helper: Convert file to base64
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const handleProfileSave = async (values) => {
+    setLoading(true);
+    try {
+      let imageBase64 = undefined;
+      if (avatarFile) {
+        imageBase64 = await fileToBase64(avatarFile);
+      } else if (previewAvatar && previewAvatar.startsWith("data:image")) {
+        imageBase64 = previewAvatar.split(",")[1];
+      }
+  
+      const payload = {
+        ...values,
+        ...(imageBase64 ? { image: imageBase64 } : {})
+      };
+  
+      Object.keys(payload).forEach(key => {
+        if (key !== "gender" && (payload[key] === undefined || payload[key] === null || payload[key] === "")) {
+          delete payload[key];
+        }
+      });
+  
+      await api.put("/member/account", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+  
+      message.success("Profile updated successfully!");
+      setAvatarFile(null);
+      await fetchUserInfo();
+    } catch (error) {
+      console.error("Update profile error:", error?.response?.data || error);
+      message.error(error?.response?.data?.message || "Update profile failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePwdChange = async (values) => {
+    const { currentPwd, newPwd, confirmPwd } = values;
+    if (!currentPwd || !newPwd || !confirmPwd) {
+      message.error("Please fill in all password fields!");
+      return;
+    }
+    if (newPwd.length < 6) {
+      message.error("New password must be at least 6 characters!");
+      return;
+    }
+    if (newPwd !== confirmPwd) {
+      message.error("Password confirmation does not match!");
+      return;
+    }
+    try {
+      await api.put("/member/account", {
+        currentPassword: currentPwd,
+        newPassword: newPwd,
+        confirmPassword: confirmPwd,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      message.success("Password changed successfully!");
+      pwdForm.resetFields();
+    } catch (error) {
+      message.error(error?.response?.data?.message || "Password change failed!");
+    }
+  };
 
   return (
     <div className="profile-page">
       <h2 className="profile-title">Profile</h2>
+
+      {/* Section avatar */}
       <div className="profile-section profile-info-section">
         <div className="profile-avatar-block">
           <div className="profile-avatar">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" />
+            {previewAvatar ? (
+              <img src={previewAvatar} alt="avatar" />
             ) : (
-              <UserOutlined />
+              <UserOutlined style={{ fontSize: 64, padding: 20 }} />
             )}
           </div>
-          <Button className="profile-avatar-btn" onClick={handleAvatarChange}>
-            Change Avatar
-          </Button>
+          <Upload
+            showUploadList={false}
+            beforeUpload={(file) => {
+              setPreviewAvatar(URL.createObjectURL(file));
+              setAvatarFile(file);
+              return false;
+            }}
+            accept="image/*"
+          >
+            <Button icon={<CameraOutlined />} className="profile-avatar-btn">
+              Choose Avatar
+            </Button>
+          </Upload>
         </div>
+
+        {/* Form info */}
         <Form
           form={form}
           layout="vertical"
           className="profile-info-form"
-          initialValues={userInfo}
           onFinish={handleProfileSave}
         >
+          {/* Row 1 */}
           <div className="profile-info-row">
             <Form.Item label="Username" name="username">
               <Input disabled />
@@ -104,55 +204,98 @@ const Profile = () => {
               <Input />
             </Form.Item>
           </div>
+
+          {/* Row 2 */}
           <div className="profile-info-row">
-            <Form.Item label="Date Of Birth" name="dob">
+            <Form.Item label="Date Of Birth" name="dateOfBirth">
               <Input />
             </Form.Item>
             <Form.Item label="Email" name="email">
               <Input />
             </Form.Item>
           </div>
+
+          {/* Row 3 */}
           <div className="profile-info-row">
-            <Form.Item label="Sex" name="sex">
-              <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #222', background: 'rgba(255,255,255,0.08)', color: '#fff' }}>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
+            <Form.Item label="Sex" name="gender">
+              <Select
+                style={{
+                  width: "100%",
+                  color: "#fff",
+                }}
+                options={[
+                  { value: "MALE", label: "Male" },
+                  { value: "FEMALE", label: "Female" },
+                  { value: "OTHER", label: "Other" },
+                ]}
+              />
             </Form.Item>
-            <Form.Item label="Identity Card" name="card">
+            <Form.Item label="Identity Card" name="identityCard">
               <Input />
             </Form.Item>
           </div>
+
+          {/* Row 4 */}
           <div className="profile-info-row">
-            <Form.Item label="Phone Number" name="phone">
+            <Form.Item label="Phone Number" name="phoneNumber">
               <Input />
             </Form.Item>
             <Form.Item label="Address" name="address">
               <Input />
             </Form.Item>
           </div>
-          <Button htmlType="submit" className="profile-save-btn">
+
+          <Button
+            htmlType="submit"
+            className="profile-save-btn"
+            loading={loading}
+          >
             Save Changes
           </Button>
         </Form>
       </div>
 
+      {/* Change password section */}
       <div className="profile-section profile-password-section">
         <h3 className="profile-password-title">Change Password</h3>
-        <Form form={pwdForm} layout="vertical" className="profile-password-form" onFinish={handlePwdChange}>
+        <Form
+          form={pwdForm}
+          layout="vertical"
+          className="profile-password-form"
+          onFinish={handlePwdChange}
+        >
           <div className="profile-info-row">
             <Form.Item
-              label={<span className="profile-password-label-green">Current Password</span>}
+              label="Current Password"
               name="currentPwd"
+              rules={[{ required: true, message: "Please enter your current password!" }]}
             >
-              <Input.Password placeholder="" />
+              <Input.Password placeholder="Enter current password" />
             </Form.Item>
-            <Form.Item label="New Password" name="newPwd">
-              <Input.Password placeholder="" />
+            <Form.Item
+              label="New Password"
+              name="newPwd"
+              rules={[{ required: true, message: "Please enter a new password!" }, { min: 6, message: "Password must be at least 6 characters!" }]}
+            >
+              <Input.Password placeholder="Enter new password" />
             </Form.Item>
-            <Form.Item label="Confirm Password" name="confirmPwd">
-              <Input.Password placeholder="" />
+            <Form.Item
+              label="Confirm Password"
+              name="confirmPwd"
+              dependencies={["newPwd"]}
+              rules={[
+                { required: true, message: "Please confirm your new password!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("newPwd") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Password confirmation does not match!"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Confirm new password" />
             </Form.Item>
           </div>
           <Button htmlType="submit" className="profile-save-btn">
@@ -161,6 +304,7 @@ const Profile = () => {
         </Form>
       </div>
 
+      {/* Transaction history */}
       <div className="profile-section profile-history-section">
         <div className="profile-history-header">
           <span className="profile-history-title">Recent Transactions</span>

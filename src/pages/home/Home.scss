@@ -175,14 +175,134 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     }
   }
 
-  .movie-list {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 18px;
+  .movie-carousel-wrap {
+    width: 100%;
+    position: relative;
     margin-bottom: 0;
-    padding-bottom: 8px;
-    justify-content: space-between;
-    overflow-x: auto;
+    .ant-carousel {
+      width: 100%;
+      .slick-list {
+        padding: 0 !important;
+      }
+      .slick-slide {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+      }
+    }
+  }
+
+  .movie-carousel {
+    width: 100%;
+    .movie-card {
+      flex: 0 0 22%;
+      max-width: 22%;
+      min-width: 220px;
+      margin: 0 12px;
+    }
+    .coming-soon-card {
+      flex: 0 0 20%;
+      max-width: 20%;
+      min-width: 230px;
+      margin: 0 14px;
+    }
+  }
+
+  // Style mũi tên carousel
+  .ant-carousel .slick-prev,
+  .ant-carousel .slick-next {
+    color: #fff;
+    font-size: 32px;
+    z-index: 2;
+    background: transparent !important;
+    width: auto;
+    height: auto;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.8;
+    border: none;
+    box-shadow: none;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    &::before {
+      display: none;
+    }
+    
+    &:hover, &:focus {
+      color: $primary-color;
+      opacity: 1;
+      transform: translateY(-50%) scale(1.2);
+      background: transparent !important;
+    }
+  }
+  
+  .ant-carousel .slick-prev {
+    left: -42px;
+    
+    &::before {
+      content: '❮';
+      font-size: 32px;
+      line-height: 1;
+    }
+  }
+  
+  .ant-carousel .slick-next {
+    right: -30px;
+    
+    &::before {
+      content: '❯';
+      font-size: 32px;
+      line-height: 1;
+    }
+  }
+  // Ẩn dots điều hướng
+  .ant-carousel .slick-dots {
+    display: none !important;
+  }
+  @media (max-width: 1200px) {
+    .movie-carousel .movie-card {
+      max-width: 36%;
+      min-width: 180px;
+    }
+    .movie-carousel .coming-soon-card {
+      max-width: 26%;
+      min-width: 200px;
+    }
+  }
+  @media (max-width: 900px) {
+    .ant-carousel .slick-prev,
+    .ant-carousel .slick-next {
+      font-size: 22px;
+      width: 28px;
+      height: 28px;
+    }
+    .ant-carousel .slick-prev {
+      left: -12px;
+    }
+    .ant-carousel .slick-next {
+      right: -12px;
+    }
+    .movie-carousel .movie-card {
+      max-width: 54%;
+      min-width: 160px;
+    }
+    .movie-carousel .coming-soon-card {
+      max-width: 26%;
+      min-width: 200px;
+    }
+  }
+  @media (max-width: 600px) {
+    .movie-carousel .movie-card {
+      max-width: 100%;
+      min-width: 130px;
+    }
+    .movie-carousel .coming-soon-card {
+      max-width: 100%;
+      min-width: 200px;
+    }
   }
 
   .coming-img-wrap {
@@ -211,7 +331,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
   .coming-soon-card,
   .movie-card {
-    @extend .movie-list;
+    display: flex;
+    flex-direction: column;
     flex: 0 0 19%;
     max-width: 19%;
     min-width: 180px;
@@ -279,7 +400,13 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       justify-content: center;
       align-items: stretch;
       width: 100%;
-
+      overflow-x: hidden;
+      scrollbar-width: none; // Firefox
+      -ms-overflow-style: none; // IE & Edge
+    }
+    .promo-list::-webkit-scrollbar {
+      display: none; // Chrome, Safari, Opera
+    }
       .promo-card {
         background: $dark-bg;
         border-radius: 14px;
@@ -326,21 +453,5 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       }
     }
   }
-}
 
-.home,
-.home-content,
-.slide-container,
-.movie-list,
-.promo-list {
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none; // IE & Edge
-}
 
-.home::-webkit-scrollbar,
-.home-content::-webkit-scrollbar,
-.slide-container::-webkit-scrollbar,
-.movie-list::-webkit-scrollbar,
-.promo-list::-webkit-scrollbar {
-  display: none; // Chrome, Safari, Opera
-}

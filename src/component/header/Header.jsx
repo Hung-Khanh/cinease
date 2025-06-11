@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { useState, useEffect } from "react";
-import { UserOutlined } from "@ant-design/icons";
+import { UserOutlined, BellOutlined } from "@ant-design/icons";
 
 const Header = () => {
     const [user, setUser] = useState(null);
@@ -42,10 +42,8 @@ const Header = () => {
                     <Link to="/movie">Movies</Link>
                 </nav>
 
-                <div className="notification-container">
-                    <button className="notification-button">
-                        <img src="/src/assets/bell.png" alt="notification" className="notification-icon" />
-                    </button>
+                <div className="notification-icon">
+                    <BellOutlined />
                 </div>
                 {user ? (
                     <div className="user-avatar-container">

@@ -1,4 +1,3 @@
-// SeatSelection.jsx
 import React, { useState } from 'react';
 import './SeatSelect.scss';
 import { FaArrowLeft } from 'react-icons/fa';

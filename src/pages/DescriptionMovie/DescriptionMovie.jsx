@@ -6,10 +6,10 @@ import { FaArrowLeft } from 'react-icons/fa';
 const DescriptionMovie = () => {
     const navigate = useNavigate();
     const [movie, setMovie] = useState(null);
-    const [isTrailerVisible, setTrailerVisible] = useState(false); 
+    const [isTrailerVisible, setTrailerVisible] = useState(false);
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
     const token = localStorage.getItem("token");
-console.log("Token:", token);
+    console.log("Token:", token);
 
     const fetchMovieDetails = async () => {
         try {
@@ -37,7 +37,7 @@ console.log("Token:", token);
     }, []);
 
     const handleTrailerClick = () => {
-        setTrailerVisible(!isTrailerVisible); 
+        setTrailerVisible(!isTrailerVisible);
     };
 
     return (
@@ -50,7 +50,7 @@ console.log("Token:", token);
                     </button>
                     <img src={movie?.largeImage} alt={movie?.movieNameEnglish} className="movie-poster" />
                     <div className="poster-title">{movie?.movieNameEnglish}</div>
-                    <button className="trailer-btn" onClick={handleTrailerClick}>Trailer</button> 
+                    <button className="trailer-btn" onClick={handleTrailerClick}>Trailer</button>
                 </div>
 
                 {isTrailerVisible && (
@@ -58,7 +58,7 @@ console.log("Token:", token);
                         <iframe
                             width="100%"
                             height="315"
-                            src={movie?.trailerUrl} 
+                            src={movie?.trailerUrl}
                             title="Trailer"
                             frameBorder="0"
                             allowFullScreen
