@@ -21,10 +21,11 @@ const PaymentDetail = () => {
 
   return (
     <div className="payment-wrapper">
-      <div className="left-column">
-        <button className="back-button">
+      <button className="back-button">
                   <FaArrowLeft />
                 </button>
+      <div className="left-column">
+        
         <div className="time">{formatTime(timeLeft)}</div>
         <div className="poster">
           <img

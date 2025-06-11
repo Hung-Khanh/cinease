@@ -2,11 +2,9 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useLocation,
-  Navigate
-} from "react-router-dom";
+  useLocation} from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 
 import Footer from "./component/Footer/Footer.jsx";

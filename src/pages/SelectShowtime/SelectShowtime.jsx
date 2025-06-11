@@ -36,15 +36,14 @@ const SelectShowtime = ({ movieId }) => {
     };
 
     const handleSubmit = () => {
-        console.log('Selected Date:', selectedDate);
-        console.log('Selected Time:', selectedTime);
+        navigate('/seat-selection');
     };
 
     return (
         <div className="select-showtime">
-            {/* <button className="back-button" onClick={() => navigate(-1)}>
+            <button className="back-button" onClick={() => navigate(-1)}>
                     <FaArrowLeft />
-                </button> */}
+                </button>
             <div className="poster-section">
                 
                 <h1>Select showtime</h1>
