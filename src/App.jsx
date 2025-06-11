@@ -30,6 +30,19 @@ import Dashboard from "./pages/admin/DashBoard/Dashboard.jsx";
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
+import Employees from "./pages/admin/Employees/Employees.jsx";
+
+function AdminRoutes() {
+  return (
+    <Routes>      
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="promotions" element={<Promotions />} />
+      <Route path="movies" element={<AdminMovies />} />
+      <Route path="employees" element={<Employees />} />
+      <Route path="cinema" element={<AdminMovies />} />
+    </Routes>
+  );
+}
 
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -78,13 +91,7 @@ function AdminLayout() {
             overflowY: "auto",
           }}
         >
-          <Routes>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-            <Route path="employees" element={<AdminMovies />} />
-            <Route path="cinema" element={<AdminMovies />} />
-          </Routes>
+          <AdminRoutes />
         </div>
       </div>
     </div>
@@ -137,6 +144,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/admin/*" element={<AdminLayout />}></Route>
+          
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>

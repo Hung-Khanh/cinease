@@ -131,23 +131,29 @@ $input-bg: rgba(255, 255, 255, 0.1);
           .avatar {
             background-color: $input-bg;
             cursor: pointer;
-            transition: all 0.3s ease;
-            width: 40px; // Added explicit size
-            height: 40px; // Added explicit size
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1.2rem; // Added font size for avatar content
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            color: $text-color;
 
             &:hover,
             &:focus-within {
-              transform: scale(1.15); // Increased scale
+              transform: scale(1.15);
               color: $green-accent;
               border-color: $green-accent;
               box-shadow: 0 0 10px rgba(39, 174, 96, 0.6);
               background-color: rgba($green-accent, 0.1);
+            }
+
+            // Pulsing effect when dropdown is open
+            &.active {
+              animation: pulse 1.5s infinite;
             }
           }
 
@@ -162,6 +168,8 @@ $input-bg: rgba(255, 255, 255, 0.1);
             min-width: 180px;
             z-index: 1000;
             overflow: hidden;
+            transform-origin: top right;
+            animation: dropdownSlideIn 0.3s ease-out;
 
             .dropdown-item {
               padding: 12px 16px;
@@ -169,14 +177,19 @@ $input-bg: rgba(255, 255, 255, 0.1);
               cursor: pointer;
               transition: all 0.3s ease;
               font-size: 14px;
+              display: flex;
+              align-items: center;
+              gap: 10px;
 
               &:hover {
                 background-color: rgba($green-accent, 0.1);
                 color: $green-accent;
+                transform: translateX(5px);
               }
 
               &:last-child {
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
+                color: #ff4d4f; // Red color for logout
               }
             }
           }
@@ -199,5 +212,29 @@ $input-bg: rgba(255, 255, 255, 0.1);
         }
       }
     }
+  }
+}
+
+// Keyframes for animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

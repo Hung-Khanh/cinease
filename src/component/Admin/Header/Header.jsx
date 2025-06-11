@@ -1,26 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input, Avatar } from 'antd';
+import { Input } from 'antd';
 import { SearchOutlined, BellOutlined, UserOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import './Header.scss';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../constants/AuthContext';
 
 const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      // Redirect to admin dashboard if coming from login
-      if (window.location.pathname === "/login") {
-        navigate("/admin/dashboard");
-      }
-    }
-  }, [navigate]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -31,9 +21,7 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    setShowDropdown(false);
+    logout();
     navigate('/login');
   };
 

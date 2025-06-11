@@ -1,153 +1,124 @@
-import { EditOutlined, DeleteOutlined, PlusOutlined, DownOutlined, CloseOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload, Checkbox } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload } from 'antd';
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
-import './Movie.scss';
+import './Employees.scss';
 
-// Custom Dropdown Component
-const MultiSelectDropdown = ({ 
-  options, 
-  value, 
-  onChange, 
-  placeholder 
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Ensure value is always an array
-  const safeValue = Array.isArray(value) ? value : [];
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleCheckboxChange = (checkedValues) => {
-    // Ensure onChange is called with an array
-    if (typeof onChange === 'function') {
-      onChange(checkedValues || []);
-    }
-  };
-
-  const handleRemoveItem = (itemToRemove) => {
-    const newValue = safeValue.filter(item => item !== itemToRemove);
-    if (typeof onChange === 'function') {
-      onChange(newValue);
-    }
-  };
-
-  return (
-    <div className="dropdown-multiple-select">
-      <div 
-        className={`dropdown-trigger ${isOpen ? 'open' : ''}`} 
-        onClick={handleToggle}
-      >
-        {safeValue.length > 0 ? (
-          <div className="selected-items">
-            {safeValue.map(item => (
-              <span key={item} className="selected-item">
-                {options.find(opt => opt.value === item)?.label || item}
-                <CloseOutlined 
-                  style={{ marginLeft: 4, fontSize: 10 }} 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveItem(item);
-                  }} 
-                />
-              </span>
-            ))}
-          </div>
-        ) : (
-          <span className="placeholder">{placeholder}</span>
-        )}
-        <DownOutlined className="dropdown-icon" />
-      </div>
-      {isOpen && (
-        <div className="dropdown-content">
-          <Checkbox.Group
-            className="checkbox-group"
-            options={options}
-            value={safeValue}
-            onChange={handleCheckboxChange}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
-const Movie = () => {
-  const [movies, setMovies] = useState([
+const Employees = () => {
+  const [employees, setEmployees] = useState([
     {
       key: '1',
-      name: 'Spiderman Across The Spiderverse',
-      duration: '140 mins',
-      genre: 'Action',
-      date: '2023-06-02',
-      cinemaRoom: 'Cinema Room 1',
-      status: 'Now Showing'
+      username: 'Employee01',
+      fullName: 'Minh Tri',
+      dateOfBirth: '2003/11/21',
+      gender: 'Female',
+      email: 'tricao@gmail.com',
+      identityCard: '123456789',
+      phone: '123456789',
+      address: 'HCM',
+      image: null
     },
     {
       key: '2',
-      name: 'Spiderman Across The Spiderverse',
-      duration: '140 mins',
-      genre: 'Action',
-      date: '2023-06-02',
-      cinemaRoom: 'Cinema Room 1',
-      status: 'Now Showing'
-    },
-    {
-      key: '3',
-      name: 'Spiderman Across The Spiderverse',
-      duration: '140 mins',
-      genre: 'Action',
-      date: '2023-06-02',
-      cinemaRoom: 'Cinema Room 1',
-      status: 'Now Showing'
+      username: 'Employee02',
+      fullName: 'Hoang Minh',
+      dateOfBirth: '2004/11/21',
+      gender: 'Female',
+      email: 'hoangminh@gmail.com',
+      identityCard: '123456789',
+      phone: '123456789',
+      address: 'HCM',
+      image: null
     }
   ]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [searchTerm] = useState('');
-  const [genreFilter, setGenreFilter] = useState(null);
-  const [statusFilter, setStatusFilter] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
-  const [movieToDelete, setMovieToDelete] = useState(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
 
   const columns = [
     {
-      title: 'Movie',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'Image',
+      dataIndex: 'image',
+      key: 'image',
+      render: (image) => (
+        image ? (
+          <img
+            src={image}
+            alt="Employee"
+            style={{
+              width: 50,
+              height: 50,
+              objectFit: 'cover',
+              borderRadius: '50%'
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              backgroundColor: '#27ae60',
+              borderRadius: '50%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'white'
+            }}
+          >
+            {/* First letter of full name */}
+            {employees.find(emp => emp.image === image)?.fullName[0] || 'N/A'}
+          </div>
+        )
+      ),
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username',
+      key: 'username',
       filteredValue: [searchTerm],
       onFilter: (value, record) =>
-        record.name.toLowerCase().includes(value.toLowerCase()),
+        record.username.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: 'Duration',
-      dataIndex: 'duration',
-      key: 'duration',
+      title: 'Full Name',
+      dataIndex: 'fullName',
+      key: 'fullName',
     },
     {
-      title: 'Genre',
-      dataIndex: 'genre',
-      key: 'genre',
+      title: 'Date of Birth',
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      title: 'Gender',
+      dataIndex: 'gender',
+      key: 'gender',
     },
     {
-      title: 'Cinema Room',
-      dataIndex: 'cinemaRoom',
-      key: 'cinemaRoom',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: 'Identity Card',
+      dataIndex: 'identityCard',
+      key: 'identityCard',
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
     },
     {
       title: 'Action',
@@ -164,7 +135,7 @@ const Movie = () => {
             type="link"
             icon={<DeleteOutlined />}
             className="delete-btn"
-            onClick={() => handleDeleteClick(record)}
+            onClick={() => handleDelete(record)}
           />
         </div>
       ),
@@ -174,17 +145,15 @@ const Movie = () => {
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
+    setImageFile(null);
 
-    // Prepare form values with dayjs dates and split multi-select fields
+    // Prepare form values with dayjs dates
     const editRecord = {
       ...record,
-      date: record.date ? dayjs(record.date, 'YYYY-MM-DD') : null,
-      genre: record.genre ? record.genre.split(', ') : [],
-      cinemaRoom: record.cinemaRoom ? record.cinemaRoom.split(', ') : [],
-      status: record.status ? record.status.split(', ') : [],
+      dateOfBirth: record.dateOfBirth ? dayjs(record.dateOfBirth, 'YYYY/MM/DD') : null,
     };
 
-    // Set the current movie being edited
+    // Set the current employee being edited
     setEditingKey(record.key);
 
     // Set form values
@@ -195,124 +164,121 @@ const Movie = () => {
     setIsModalVisible(true);
   };
 
-  const handleDeleteClick = (record) => {
-    setMovieToDelete(record);
-    setDeleteConfirmationVisible(true);
-  };
+  const handleDelete = (record) => {
+    try {
+      // Set the employee to be deleted
+      setEmployeeToDelete(record);
 
-  const confirmDelete = () => {
-    if (movieToDelete) {
-      const updatedMovies = movies.filter(movie => movie.key !== movieToDelete.key);
-      setMovies(updatedMovies);
-      message.success(`Movie "${movieToDelete.name}" deleted successfully`);
-      setDeleteConfirmationVisible(false);
-      setMovieToDelete(null);
+      // Show the delete confirmation modal
+      setDeleteConfirmationVisible(true);
+    } catch (error) {
+      console.error('Error in delete confirmation:', error);
+      message.error('Failed to show delete confirmation');
     }
   };
 
-  const cancelDelete = () => {
-    setDeleteConfirmationVisible(false);
-    setMovieToDelete(null);
-  };
+  const handleAddEmployee = (values) => {
+    // Generate a unique key for the new employee
+    const newKey = (employees.length + 1).toString();
 
-  const handleAddMovie = (values) => {
+    // Prepare the new employee object
+    const newEmployee = {
+      key: newKey,
+      ...values,
+      dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY/MM/DD') : null,
+      // Auto-set register date to current date
+      registerDate: dayjs().format('YYYY/MM/DD'),
+      // Add image if uploaded
+      image: imageFile ? URL.createObjectURL(imageFile) : null
+    };
+
     if (isEditing) {
-      // Update existing movie
-      const updatedMovies = movies.map(movie => 
-        movie.key === editingKey 
+      // Update existing employee
+      const updatedEmployees = employees.map(emp =>
+        emp.key === editingKey
           ? {
-              ...movie,
-              ...values,
-              genre: values.genre ? values.genre.join(', ') : '',
-              cinemaRoom: values.cinemaRoom ? values.cinemaRoom.join(', ') : '',
-              status: values.status ? values.status.join(', ') : '',
-              date: values.date ? values.date.format('YYYY-MM-DD') : null,
-            }
-          : movie
+            ...newEmployee,
+            key: emp.key,
+            registerDate: emp.registerDate // Preserve original register date
+          }
+          : emp
       );
-      
-      setMovies(updatedMovies);
-      message.success('Movie updated successfully');
-    } else {
-      // Add new movie
-      const newMovie = {
-        key: (movies.length + 1).toString(),
-        ...values,
-        genre: values.genre ? values.genre.join(', ') : '',
-        cinemaRoom: values.cinemaRoom ? values.cinemaRoom.join(', ') : '',
-        status: values.status ? values.status.join(', ') : '',
-        date: values.date ? values.date.format('YYYY-MM-DD') : null,
-      };
 
-      setMovies([...movies, newMovie]);
-      message.success('Movie added successfully');
+      setEmployees(updatedEmployees);
+      message.success('Employee updated successfully');
+    } else {
+      // Add new employee
+      setEmployees([...employees, newEmployee]);
+      message.success('Employee added successfully');
     }
-    
+
     // Reset modal and form
     setIsModalVisible(false);
     setIsEditing(false);
     setEditingKey(null);
+    setImageFile(null);
     form.resetFields();
   };
 
+  const handleImageUpload = (info) => {
+    const file = info.file.originFileObj;
+    setImageFile(file);
+  };
+
+  const confirmDelete = () => {
+    try {
+      // Remove the employee from the list
+      const updatedEmployees = employees.filter(emp => emp.key !== employeeToDelete.key);
+      setEmployees(updatedEmployees);
+      message.success(`Employee "${employeeToDelete.fullName}" deleted successfully`);
+
+      // Hide the delete confirmation modal
+      setDeleteConfirmationVisible(false);
+    } catch (error) {
+      console.error('Error in delete confirmation:', error);
+      message.error('Failed to delete employee');
+    }
+  };
+
+  const cancelDelete = () => {
+    // Hide the delete confirmation modal
+    setDeleteConfirmationVisible(false);
+  };
+
   return (
-    <div className="movies-container">
-      <div className="movies-header">
+    <div className="employees-container">
+      <div className="employees-header">
         <div className="header-actions">
           <div className="filter-dropdowns">
-            <Select
-              placeholder="Genre"
-              style={{ minWidth: 200 }}
-              allowClear
-              onChange={(value) => setGenreFilter(value)}
-            >
-              <Select.Option value="action">Action</Select.Option>
-              <Select.Option value="comedy">Comedy</Select.Option>
-              <Select.Option value="drama">Drama</Select.Option>
-              <Select.Option value="sci-fi">Sci-Fi</Select.Option>
-              <Select.Option value="horror">Horror</Select.Option>
-            </Select>
-            <Select
-              placeholder="Status"
-              style={{ minWidth: 200 }}
-              allowClear
-              onChange={(value) => setStatusFilter(value)}
-            >
-              <Select.Option value="Now Showing">Now Showing</Select.Option>
-              <Select.Option value="Upcoming">Upcoming</Select.Option>
-              <Select.Option value="Ended">Ended</Select.Option>
-            </Select>
+            <Input
+              placeholder="Search employees"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: 200, marginRight: 10 }}
+            />
           </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => setIsModalVisible(true)}
-            className="add-movie-btn"
+            className="add-employee-btn"
           >
-            Add New Movie
+            Add New Employee
           </Button>
         </div>
       </div>
 
       <Table
         columns={columns}
-        dataSource={movies.filter(movie => {
-          const genreMatch = !genreFilter || 
-            movie.genre.toLowerCase() === genreFilter.toLowerCase();
-          
-          const statusMatch = !statusFilter || 
-            movie.status.toLowerCase() === statusFilter.toLowerCase();
-          
-          return genreMatch && statusMatch;
-        })}
+        dataSource={employees}
         pagination={{
           pageSize: 5,
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
             if (type === 'prev') {
               return (
-                <Button 
-                  type="default" 
+                <Button
+                  type="default"
                   className="pagination-btn prev-btn"
                 >
                   Previous
@@ -321,8 +287,8 @@ const Movie = () => {
             }
             if (type === 'next') {
               return (
-                <Button 
-                  type="default" 
+                <Button
+                  type="default"
                   className="pagination-btn next-btn"
                 >
                   Next
@@ -334,279 +300,132 @@ const Movie = () => {
         }}
       />
 
-      {/* Add/Edit Movie Modal */}
       <Modal
-        title={isEditing ? "Edit Movie" : "Add New Movie"}
+        title={isEditing ? "Edit Employee" : "Add New Employee"}
         open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
           setIsEditing(false);
           setEditingKey(null);
+          setImageFile(null);
           form.resetFields();
         }}
         footer={null}
-        className="movie-modal"
-        width={500}
+        className="employee-modal"
+        width={600}
         centered
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleAddMovie}
-          className="movie-form"
-          requiredMark={false}
+          onFinish={handleAddEmployee}
+          className="employee-form"
         >
           <Form.Item
-            name="name"
-            label="Movie Name"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter movie name',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
+            name="phone"
+            label="Phone"
+            rules={[{ required: true, message: 'Please input the phone number!' }]}
           >
-            <Input 
-              placeholder="Enter movie name" 
-              className="custom-input"
-            />
+            <Input placeholder="Enter phone number" />
           </Form.Item>
 
-          <div className="form-row">
-            <Form.Item
-              name="date"
-              label="Date"
-              rules={[{ 
-                required: true, 
-                message: 'Date is required',
-              }]}
-              hasFeedback
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true, message: 'Please input the address!' }]}
+          >
+            <Input placeholder="Enter address" />
+          </Form.Item>
+
+
+          <Form.Item
+            name="username"
+            label="Username"
+            rules={[{ required: true, message: 'Please input the username!' }]}
+          >
+            <Input placeholder="Enter username" />
+          </Form.Item>
+
+          <Form.Item
+            name="fullName"
+            label="Full Name"
+            rules={[{ required: true, message: 'Please input the full name!' }]}
+          >
+            <Input placeholder="Enter full name" />
+          </Form.Item>
+
+          <Form.Item
+            name="dateOfBirth"
+            label="Date of Birth"
+            rules={[{ required: true, message: 'Please select date of birth!' }]}
+          >
+            <DatePicker
               style={{ width: '100%' }}
-            >
-              <DatePicker
-                style={{ width: '100%' }}
-                format="YYYY-MM-DD"
-                placeholder="Select Date"
-                className="custom-datepicker"
-              />
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="movieProductCompany"
-            label="Movie Product Company"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter movie product company',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
-          >
-            <Input 
-              placeholder="Enter movie product company" 
-              className="custom-input"
+              format="YYYY/MM/DD"
+              placeholder="Select date of birth"
             />
           </Form.Item>
 
           <Form.Item
-            name="actor"
-            label="Actor"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter actor',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
+            name="gender"
+            label="Gender"
+            rules={[{ required: true, message: 'Please select gender!' }]}
           >
-            <Input 
-              placeholder="Enter actor" 
-              className="custom-input"
-            />
+            <Select placeholder="Select gender">
+              <Select.Option value="Male">Male</Select.Option>
+              <Select.Option value="Female">Female</Select.Option>
+              <Select.Option value="Other">Other</Select.Option>
+            </Select>
           </Form.Item>
 
           <Form.Item
-            name="director"
-            label="Director"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter director',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Please input the email!' },
+              { type: 'email', message: 'Please enter a valid email!' }
+            ]}
           >
-            <Input 
-              placeholder="Enter director" 
-              className="custom-input"
-            />
-          </Form.Item>
-
-          <div className="form-row">
-            <Form.Item
-              name="duration"
-              label="Duration (minutes)"
-              style={{ width: '48%' }}
-              rules={[{ 
-                required: true, 
-                message: 'Please enter duration',
-                validateTrigger: ['onChange', 'onBlur']
-              }]}
-              hasFeedback
-            >
-              <Input 
-                placeholder="Enter duration" 
-                className="custom-input"
-                type="number"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="genre"
-              label="Genre"
-              style={{ width: '100%' }}
-              rules={[{ 
-                required: true, 
-                message: 'Please select at least one genre',
-                validator: async (_, value) => {
-                  if (!value || value.length === 0) {
-                    throw new Error('Please select at least one genre');
-                  }
-                }
-              }]}
-              hasFeedback
-            >
-              <MultiSelectDropdown
-                options={[
-                  { label: 'Action', value: 'action' },
-                  { label: 'Comedy', value: 'comedy' },
-                  { label: 'Drama', value: 'drama' },
-                  { label: 'Sci-Fi', value: 'sci-fi' },
-                  { label: 'Thriller', value: 'thriller' },
-                  { label: 'Romance', value: 'romance' }
-                ]}
-                placeholder="Select Genres"
-              />
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="version"
-            label="Version"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter version',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
-          >
-            <Input 
-              placeholder="Enter version" 
-              className="custom-input"
-            />
-          </Form.Item>
-
-          <div className="form-row">
-            <Form.Item
-              name="cinemaRoom"
-              label="Cinema Room"
-              style={{ width: '100%' }}
-              rules={[{ 
-                required: true, 
-                message: 'Please select at least one cinema room',
-                validator: async (_, value) => {
-                  if (!value || value.length === 0) {
-                    throw new Error('Please select at least one cinema room');
-                  }
-                }
-              }]}
-              hasFeedback
-            >
-              <MultiSelectDropdown
-                options={[
-                  { label: 'Cinema Room 1', value: 'Cinema Room 1' },
-                  { label: 'Cinema Room 2', value: 'Cinema Room 2' },
-                  { label: 'Cinema Room 3', value: 'Cinema Room 3' },
-                  { label: 'Cinema Room 4', value: 'Cinema Room 4' },
-                  { label: 'VIP Room', value: 'VIP Room' }
-                ]}
-                placeholder="Select Cinema Rooms"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="status"
-              label="Status"
-              style={{ width: '100%' }}
-              rules={[{ 
-                required: true, 
-                message: 'Please select at least one status',
-                validator: async (_, value) => {
-                  if (!value || value.length === 0) {
-                    throw new Error('Please select at least one status');
-                  }
-                }
-              }]}
-              hasFeedback
-            >
-              <MultiSelectDropdown
-                options={[
-                  { label: 'Now Showing', value: 'Now Showing' },
-                  { label: 'Upcoming', value: 'Upcoming' },
-                  { label: 'Ended', value: 'Ended' },
-                  { label: 'Premiere', value: 'Premiere' }
-                ]}
-                placeholder="Select Status"
-              />
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="schedule"
-            label="Schedule"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter schedule',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
-          >
-            <Input.TextArea 
-              placeholder="Enter schedule" 
-              rows={4}
-              className="custom-textarea"
-            />
+            <Input placeholder="Enter email" />
           </Form.Item>
 
           <Form.Item
-            name="content"
-            label="Content"
-            rules={[{ 
-              required: true, 
-              message: 'Please enter content',
-              validateTrigger: ['onChange', 'onBlur']
-            }]}
-            hasFeedback
+            name="identityCard"
+            label="Identity Card"
+            rules={[{ required: true, message: 'Please input the identity card number!' }]}
           >
-            <Input.TextArea 
-              placeholder="Enter content" 
-              rows={4}
-              className="custom-textarea"
-            />
+            <Input placeholder="Enter identity card number" />
           </Form.Item>
-
+          {/* Image Upload */}
           <Form.Item
-            name="moviePoster"
-            label="Movie Poster"
+            name="image"
+            label="Employee Image"
+            className="employee-image-uploader"
           >
-            <Upload 
-              name="moviePoster"
+            <Upload
+              name="avatar"
               listType="picture-card"
-              className="movie-poster-uploader"
-              showUploadList={true}
+              className="avatar-uploader"
+              showUploadList={false}
+              beforeUpload={() => false} // Prevent auto upload
+              onChange={handleImageUpload}
             >
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
+              {imageFile ? (
+                <img
+                  src={URL.createObjectURL(imageFile)}
+                  alt="avatar"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              ) : (
+                <div>
+                  <UploadOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
             </Upload>
           </Form.Item>
 
@@ -617,40 +436,41 @@ const Movie = () => {
               block 
               className="submit-btn"
             >
-              {isEditing ? "Update Movie" : "Add New Movie"}
+              {isEditing ? "Update Employee" : "Add New Employee"}
             </Button>
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
-        title="Confirm Deletion"
+        title="Confirm Delete"
         open={deleteConfirmationVisible}
+        onOk={confirmDelete}
         onCancel={cancelDelete}
-        footer={null}
-        className="movie-modal delete-confirmation-modal"
-        width={400}
+        okText="Delete"
+        okButtonProps={{ danger: true }}
+        cancelText="Cancel"
+        className="delete-confirmation-modal"
         centered
+        width={500}
       >
         <div className="delete-confirmation-content">
-          <p>Are you sure you want to delete the movie:</p>
-          <h3 className="movie-title">{movieToDelete?.name}</h3>
+          <p>Are you sure you want to delete the employee?</p>
+          <p className="movie-title">{employeeToDelete?.fullName}</p>
           <p className="warning-text">This action cannot be undone.</p>
+          
           <div className="delete-confirmation-actions">
             <Button 
-              onClick={cancelDelete} 
-              className="cancel-btn"
+              className="cancel-btn" 
+              onClick={cancelDelete}
             >
               Cancel
             </Button>
             <Button 
-              type="primary" 
-              danger 
-              onClick={confirmDelete} 
-              className="confirm-delete-btn"
+              className="confirm-delete-btn" 
+              onClick={confirmDelete}
             >
-              Confirm Delete
+              Delete Employee
             </Button>
           </div>
         </div>
@@ -659,4 +479,4 @@ const Movie = () => {
   );
 };
 
-export default Movie;
+export default Employees;

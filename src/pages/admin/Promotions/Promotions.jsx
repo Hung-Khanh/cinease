@@ -1,5 +1,5 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload } from 'antd';
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import './Promotions.scss';
@@ -12,7 +12,8 @@ const Promotions = () => {
       startTime: '2024/01/01',
       endTime: '2024/01/31',
       discountLevel: '50,000 VND',
-      details: 'Celebrate the New Year with special discounts'
+      details: 'Celebrate the New Year with special discounts',
+      image: null
     },
     {
       key: '2',
@@ -20,7 +21,8 @@ const Promotions = () => {
       startTime: '2024/12/01',
       endTime: '2024/12/31',
       discountLevel: '60,000 VND',
-      details: 'Exclusive offers for the holiday season'
+      details: 'Exclusive offers for the holiday season',
+      image: null
     },
     {
       key: '3',
@@ -28,7 +30,8 @@ const Promotions = () => {
       startTime: '2024/02/01',
       endTime: '2024/02/28',
       discountLevel: '80,000 VND',
-      details: 'Enjoy big savings on winter movie releases'
+      details: 'Enjoy big savings on winter movie releases',
+      image: null
     }
   ]);
 
@@ -41,6 +44,25 @@ const Promotions = () => {
   const [promotionToDelete, setPromotionToDelete] = useState(null);
 
   const columns = [
+    {
+      title: 'Image',
+      dataIndex: 'image',
+      key: 'image',
+      render: (image) => image ? (
+        <img 
+          src={image} 
+          alt="Promotion" 
+          style={{ 
+            width: '100px', 
+            height: '100px', 
+            objectFit: 'cover', 
+            borderRadius: '8px' 
+          }} 
+        />
+      ) : (
+        <div style={{ color: '#999' }}>No Image</div>
+      ),
+    },
     {
       title: 'Title',
       dataIndex: 'title',
@@ -99,7 +121,14 @@ const Promotions = () => {
     const editRecord = {
       ...record,
       startTime: record.startTime ? dayjs(record.startTime, 'YYYY/MM/DD') : null,
-      endTime: record.endTime ? dayjs(record.endTime, 'YYYY/MM/DD') : null
+      endTime: record.endTime ? dayjs(record.endTime, 'YYYY/MM/DD') : null,
+      image: record.image ? [{
+        uid: '-1',
+        name: 'image.png',
+        status: 'done',
+        url: record.image,
+        thumbUrl: record.image
+      }] : []
     };
 
     // Set the current promotion being edited
@@ -135,7 +164,8 @@ const Promotions = () => {
               ...promo,
               ...values,
               startTime: values.startTime ? values.startTime.format('YYYY/MM/DD') : null,
-              endTime: values.endTime ? values.endTime.format('YYYY/MM/DD') : null
+              endTime: values.endTime ? values.endTime.format('YYYY/MM/DD') : null,
+              image: values.image && values.image[0] ? values.image[0].thumbUrl : promo.image
             }
           : promo
       );
@@ -149,6 +179,7 @@ const Promotions = () => {
         ...values,
         startTime: values.startTime ? values.startTime.format('YYYY/MM/DD') : null,
         endTime: values.endTime ? values.endTime.format('YYYY/MM/DD') : null,
+        image: values.image && values.image[0] ? values.image[0].thumbUrl : null,
       };
 
       setPromotions([...promotions, newPromotion]);
@@ -370,12 +401,44 @@ const Promotions = () => {
 
           <Form.Item
             name="image"
-            label="Image"
+            label="Promotion Image"
+            valuePropName="fileList"
+            getValueFromEvent={(e) => {
+              if (Array.isArray(e)) {
+                return e;
+              }
+              return e && e.fileList;
+            }}
           >
-            <Input 
-              placeholder="Upload image" 
-              className="custom-input"
-            />
+            <Upload
+              name="promotionImage"
+              listType="picture-card"
+              className="image-uploader"
+              showUploadList={true}
+              beforeUpload={(file) => {
+                const isImage = file.type.startsWith('image/');
+                if (!isImage) {
+                  message.error(`${file.name} is not an image file`);
+                }
+                return isImage || Upload.LIST_IGNORE;
+              }}
+              onChange={(info) => {
+                if (info.file.status === 'done') {
+                  // Create a URL for the uploaded image
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    form.setFieldsValue({ image: e.target.result });
+                  };
+                  reader.readAsDataURL(info.file.originFileObj);
+                }
+              }}
+              maxCount={1}
+            >
+              <div>
+                <UploadOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            </Upload>
           </Form.Item>
 
           <Form.Item>
