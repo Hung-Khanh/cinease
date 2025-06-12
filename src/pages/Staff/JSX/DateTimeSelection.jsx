@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button, message } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
-
+import api from "../../../constants/axios";
 const DateTimeSelection = ({ apiUrl, onBack }) => {
   const { movieId } = useParams();
   const navigate = useNavigate();
@@ -22,10 +22,8 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
 
     try {
       setLoading(true);
-      const fullUrl = `${apiUrl}/public/movies?q=${movieId}`;
 
-      const response = await fetch(fullUrl, {
-        method: "GET",
+      const response = await api.get(`/public/movies?q=${movieId}`, {
         headers: {
           accept: "*/*",
           Authorization: `Bearer ${token}`,
@@ -84,12 +82,15 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   };
 
   useEffect(() => {
-    if (movieId && apiUrl) {
-      fetchName();
-      fetchShowtimes();
-    } else {
-      console.log("❌ Missing data:", { movieId, apiUrl });
-    }
+    const fetchData = async () => {
+      if (movieId && apiUrl) {
+        await fetchName();
+        await fetchShowtimes();
+      } else {
+        console.log("❌ Missing data:", { movieId, apiUrl });
+      }
+    };
+    fetchData();
   }, [movieId, apiUrl]);
 
   // Group showtimes by date
