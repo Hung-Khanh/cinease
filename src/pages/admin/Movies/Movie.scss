@@ -1,10 +1,9 @@
-// ===== COLOR VARIABLES =====
 $primary-bg: #0a181f;
 $secondary-bg: #1a3a2a;
 $text-color: #ffffff;
 $green-accent: #27ae60;
 $hover-color: #2ecc71;
-$bright-green: #0C9550;
+$bright-green: #0c9550;
 $input-bg: rgba(102, 136, 102, 0.2);
 $input-border: rgba(102, 136, 102, 0.5);
 $dark-input-bg: rgba(0, 50, 50, 0.4);
@@ -12,83 +11,53 @@ $cyan-border: rgba(0, 188, 212, 0.3);
 $cyan-hover: rgba(0, 188, 212, 0.6);
 $danger-color: #e74c3c;
 
-// ===== MAIN CONTAINER =====
 .movies-container {
   background-color: $primary-bg;
   color: $text-color;
   padding: 24px;
   min-height: 100vh;
 
-  // ===== HEADER SECTION =====
   .movies-header {
     margin-bottom: 24px;
 
     .header-actions {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: flex-end;
+      width: 100%;
       margin-bottom: 16px;
+      align-items: center;
 
-      // Filter Dropdowns
       .filter-dropdowns {
         display: flex;
         gap: 12px;
 
-        .ant-select {
-          min-width: 200px;
-
-          .ant-select-selector {
-            background-color: $input-bg !important;
-            border-color: $green-accent !important;
-            color: $text-color !important;
-
-            .ant-select-selection-placeholder {
-              color: rgba(255, 255, 255, 0.6) !important;
-            }
-
-            .ant-select-selection-item {
-              background-color: rgba(12, 149, 80, 0.2) !important;
-              color: $text-color !important;
-              border-radius: 4px !important;
-              margin-right: 4px !important;
-            }
+        .ant-input {
+          background-color: $input-bg !important;
+          border-color: $green-accent !important;
+          color: $text-color !important;
+          
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
           }
 
-          &:hover .ant-select-selector {
+          &:hover,
+          &:focus {
             border-color: $hover-color !important;
-          }
-
-          &.ant-select-focused .ant-select-selector {
-            border-color: $hover-color !important;
-            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2) !important;
-          }
-
-          .ant-select-dropdown {
-            background-color: $secondary-bg !important;
-            border-radius: 8px !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-
-            .ant-select-item {
-              color: $text-color !important;
-              background-color: transparent !important;
-
-              &:hover {
-                background-color: rgba(12, 149, 80, 0.2) !important;
-              }
-
-              &.ant-select-item-selected {
-                background-color: rgba(12, 149, 80, 0.4) !important;
-              }
-            }
           }
         }
       }
 
-      // Add Movie Button
       .add-movie-btn {
         background-color: $green-accent !important;
         border-color: $green-accent !important;
         color: $text-color !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
 
         &:hover,
         &:focus {
@@ -100,7 +69,6 @@ $danger-color: #e74c3c;
     }
   }
 
-  // ===== TABLE STYLING =====
   .ant-table {
     background-color: $secondary-bg !important;
 
@@ -130,7 +98,6 @@ $danger-color: #e74c3c;
       }
     }
 
-    // Pagination
     .ant-table-pagination {
       .ant-pagination-item {
         background-color: $input-bg !important;
@@ -167,7 +134,6 @@ $danger-color: #e74c3c;
     }
   }
 
-  // ===== ACTION BUTTONS =====
   .action-buttons {
     display: flex;
     gap: 8px;
@@ -190,9 +156,22 @@ $danger-color: #e74c3c;
       }
     }
   }
+
+  .pagination-btn {
+    margin: 0 5px;
+    padding: 4px 15px;
+    border-radius: 4px;
+    
+    &.prev-btn {
+      margin-right: 10px;
+    }
+    
+    &.next-btn {
+      margin-left: 10px;
+    }
+  }
 }
 
-// ===== MOVIE MODAL =====
 .ant-modal-wrap,
 .ant-modal-mask + .ant-modal-wrap {
   .movie-modal {
@@ -262,7 +241,6 @@ $danger-color: #e74c3c;
   }
 }
 
-// ===== MOVIE FORM =====
 .movie-modal .movie-form {
   .ant-form-item {
     margin-bottom: 20px !important;
@@ -279,10 +257,10 @@ $danger-color: #e74c3c;
       }
     }
 
-    // Base Input Styles
-    .custom-input,
-    .custom-textarea,
-    .custom-select {
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-select .ant-select-selector,
+    .ant-picker {
       background: $dark-input-bg !important;
       border: 1px solid $cyan-border !important;
       color: $text-color !important;
@@ -310,18 +288,71 @@ $danger-color: #e74c3c;
       }
     }
 
-    // DatePicker Styling
-    .custom-datepicker {
-      background: $dark-input-bg !important;
-      border: 1px solid $cyan-border !important;
-      color: $text-color !important;
-      border-radius: 6px !important;
+    .ant-select {
+      .ant-select-selector {
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+
+        .ant-select-selection-item {
+          color: $text-color !important;
+        }
+
+        .ant-select-selection-placeholder {
+          color: rgba(255, 255, 255, 0.6) !important;
+        }
+      }
+    }
+
+    .cinema-room-item,
+    .movie-types-item {
+      width: 100% !important;
+
+      .ant-select {
+        .ant-select-selector {
+          background: $dark-input-bg !important;
+          border: 1px solid $cyan-border !important;
+          color: $text-color !important;
+          border-radius: 6px !important;
+          padding: 12px 16px !important;
+          font-size: 14px !important;
+          height: 44px !important;
+          display: flex !important;
+          align-items: center !important;
+          transition: all 0.3s ease !important;
+
+          .ant-select-selection-item,
+          .ant-select-selection-placeholder {
+            color: $text-color !important;
+            display: flex !important;
+            align-items: center !important;
+          }
+
+          .ant-select-selection-placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+          }
+        }
+
+        &:hover .ant-select-selector {
+          border-color: $cyan-hover !important;
+          background: rgba(0, 60, 60, 0.5) !important;
+          box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
+        }
+
+        &.ant-select-focused .ant-select-selector {
+          border-color: $bright-green !important;
+          box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2) !important;
+          background: rgba(0, 60, 60, 0.6) !important;
+        }
+      }
+    }
+
+    .ant-picker {
+      width: 100% !important;
       height: 44px !important;
-      transition: all 0.3s ease !important;
 
       .ant-picker-input > input {
         color: $text-color !important;
-        background: transparent !important;
         
         &::placeholder {
           color: rgba(255, 255, 255, 0.6) !important;
@@ -331,80 +362,9 @@ $danger-color: #e74c3c;
       .ant-picker-suffix {
         color: rgba(255, 255, 255, 0.6) !important;
       }
-
-      &:hover {
-        border-color: $cyan-hover !important;
-        background: rgba(0, 60, 60, 0.5) !important;
-        box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
-      }
-
-      &.ant-picker-focused {
-        border-color: $bright-green !important;
-        box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2) !important;
-        background: rgba(0, 60, 60, 0.6) !important;
-      }
-    }
-
-    // Textarea Styling
-    .custom-textarea {
-      height: auto !important;
-      min-height: 100px !important;
-      resize: vertical !important;
-      padding: 12px 16px !important;
-      line-height: 1.5 !important;
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        text-indent: 0 !important;
-        line-height: 1.5 !important;
-      }
-
-      &:hover::placeholder,
-      &:focus::placeholder,
-      &.ant-input-focused::placeholder {
-        color: rgba(255, 255, 255, 0.8) !important;
-      }
-    }
-
-    // Select Styling
-    .ant-select.custom-select {
-      .ant-select-selector {
-        background: $dark-input-bg !important;
-        border: 1px solid $cyan-border !important;
-        color: $text-color !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-        height: 44px !important;
-        transition: all 0.3s ease !important;
-
-        .ant-select-selection-item {
-          color: $text-color !important;
-          line-height: 28px !important;
-        }
-
-        .ant-select-selection-placeholder {
-          color: rgba(255, 255, 255, 0.6) !important;
-          line-height: 28px !important;
-        }
-      }
-
-      &:hover .ant-select-selector {
-        border-color: $cyan-hover !important;
-        background: rgba(0, 60, 60, 0.5) !important;
-        box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
-      }
-
-      &.ant-select-focused .ant-select-selector {
-        border-color: $bright-green !important;
-        box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2) !important;
-        background: rgba(0, 60, 60, 0.6) !important;
-      }
     }
   }
 
-  // Submit Button
   .submit-btn {
     background: $bright-green !important;
     border: none !important;
@@ -432,192 +392,58 @@ $danger-color: #e74c3c;
     }
   }
 
-  // Form Layout
-  .form-row {
+  .modal-actions {
     display: flex !important;
-    justify-content: space-between !important;
+    justify-content: flex-end !important;
     gap: 16px !important;
+    margin-top: 24px !important;
 
-    .ant-form-item {
-      flex: 1 !important;
-      margin-bottom: 20px !important;
-    }
-  }
-
-  // Movie Poster Upload
-  .movie-poster-uploader {
-    .ant-upload {
-      background: $dark-input-bg !important;
-      border: 2px dashed $cyan-border !important;
-      color: $text-color !important;
+    .ant-btn {
+      height: 45px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
       border-radius: 8px !important;
-      padding: 24px !important;
-      text-align: center !important;
       transition: all 0.3s ease !important;
-      min-height: 120px !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-
-      &:hover {
-        border-color: $cyan-hover !important;
-        background: rgba(0, 60, 60, 0.5) !important;
-        box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
-      }
-
-      .ant-upload-text {
-        color: rgba(255, 255, 255, 0.8) !important;
-        font-size: 14px !important;
-        margin-top: 8px !important;
-      }
-
-      .ant-upload-hint {
-        color: rgba(255, 255, 255, 0.6) !important;
-        font-size: 12px !important;
-        margin-top: 4px !important;
-      }
-    }
-
-    .anticon {
-      color: $bright-green !important;
-      font-size: 24px !important;
+      min-width: 120px !important;
     }
   }
 
-  // Dropdown Multiple Select
-  .dropdown-multiple-select {
-    position: relative;
-    width: 100%;
-
-    .dropdown-trigger {
-      background-color: $dark-input-bg !important;
-      border: 2px solid $cyan-border !important;
-      border-radius: 6px !important;
-      padding: 10px 12px !important;
-      color: $text-color !important;
-      cursor: pointer !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      transition: all 0.3s ease !important;
-
-      &:hover {
-        border-color: $cyan-hover !important;
-        box-shadow: 0 2px 8px rgba(183, 196, 190, 0.15) !important;
-      }
-
-      .placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
-      }
-
-      .selected-items {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-
-        .selected-item {
-          background-color: $dark-input-bg !important;
-          color: $text-color !important;
-          border-radius: 4px !important;
-          padding: 2px 6px !important;
-          font-size: 12px !important;
-          margin-right: 4px !important;
-          margin-bottom: 2px !important;
-        }
-      }
-
-      .dropdown-icon {
+  .movie-poster-uploader {
+    .poster-uploader {
+      .ant-upload {
+        width: 128px !important;
+        height: 128px !important;
+        background: $dark-input-bg !important;
+        border: 2px dashed $cyan-border !important;
         color: $text-color !important;
-        transition: transform 0.3s ease !important;
-      }
-
-      &.open .dropdown-icon {
-        transform: rotate(180deg) !important;
-      }
-    }
-
-    .dropdown-content {
-      position: absolute !important;
-      top: 100% !important;
-      left: 0 !important;
-      width: 100% !important;
-      background-color: $secondary-bg !important;
-      border: 1px solid $green-accent !important;
-      border-top: none !important;
-      border-radius: 0 0 6px 6px !important;
-      max-height: 250px !important;
-      overflow-y: auto !important;
-      z-index: 10 !important;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-      padding: 12px !important;
-
-      .checkbox-group {
+        border-radius: 8px !important;
         display: flex !important;
-        flex-direction: column !important;
-      }
-    }
-  }
+        justify-content: center !important;
+        align-items: center !important;
+        transition: all 0.3s ease !important;
 
-  // Dropdown Checkbox Wrapper
-  .dropdown-checkbox-wrapper {
-    background-color: rgba(102, 136, 103, 0.2) !important;
-    border: 1px solid $green-accent !important;
-    border-radius: 6px !important;
-    padding: 12px !important;
-    transition: all 0.3s ease !important;
-
-    &:hover {
-      border-color: $bright-green !important;
-      box-shadow: 0 2px 8px rgba(12, 149, 80, 0.15) !important;
-    }
-
-    .genre-checkbox-group,
-    .cinema-room-checkbox-group,
-    .status-checkbox-group {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 12px !important;
-
-      .ant-checkbox-wrapper {
-        margin-right: 8px !important;
-        margin-bottom: 8px !important;
-        
-        .ant-checkbox {
-          .ant-checkbox-inner {
-            background-color: $dark-input-bg !important;
-            border-color: $cyan-border !important;
-            
-            &:hover {
-              border-color: $cyan-hover !important;
-            }
-          }
-
-          &.ant-checkbox-checked {
-            .ant-checkbox-inner {
-              background-color: $bright-green !important;
-              border-color: $bright-green !important;
-            }
-          }
+        &:hover {
+          border-color: $cyan-hover !important;
+          background: rgba(0, 60, 60, 0.5) !important;
+          box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
         }
 
-        span:last-child {
-          color: $text-color !important;
-          font-size: 14px !important;
-          transition: color 0.3s ease !important;
+        .anticon {
+          color: $bright-green !important;
+          font-size: 24px !important;
+        }
 
-          &:hover {
-            color: $text-color !important;
-          }
+        img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          border-radius: 6px !important;
         }
       }
     }
   }
 }
 
-// ===== DELETE CONFIRMATION MODAL =====
 .delete-confirmation-modal {
   .ant-modal-content {
     background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%) !important;
@@ -730,97 +556,11 @@ $danger-color: #e74c3c;
   }
 }
 
-// ===== GLOBAL STYLES =====
-
-// Modal Mask
 .ant-modal-mask {
   background-color: rgba(0, 0, 0, 0.75) !important;
   backdrop-filter: blur(4px) !important;
 }
 
-// Dropdown Menu for Movie Modal
-.ant-select-dropdown {
-  background-color: $secondary-bg !important;
-  border: 1px solid $bright-green !important;
-  border-radius: 6px !important;
-  box-shadow: 0 8px 25px rgba(0, 188, 212, 0.2) !important;
-
-  .ant-select-item {
-    color: $text-color !important;
-    padding: 8px 16px !important;
-
-    &:hover {
-      background-color: rgba(0, 188, 212, 0.1) !important;
-    }
-
-    &.ant-select-item-option-selected {
-      background-color: $bright-green !important;
-      color: $text-color !important;
-    }
-  }
-}
-
-// Date Picker Dropdown
-.ant-picker-dropdown {
-  .ant-picker-panel {
-    background-color: $secondary-bg !important;
-    border: 1px solid $bright-green !important;
-    border-radius: 6px !important;
-    box-shadow: 0 8px 25px rgba(0, 188, 212, 0.2) !important;
-
-    .ant-picker-header {
-      border-bottom: 1px solid $bright-green !important;
-
-      button {
-        color: $text-color !important;
-        
-        &:hover {
-          color: $bright-green !important;
-        }
-      }
-    }
-
-    .ant-picker-content {
-      th,
-      td {
-        color: $text-color !important;
-      }
-
-      .ant-picker-cell {
-        &:hover .ant-picker-cell-inner {
-          background-color: rgba(0, 188, 212, 0.1) !important;
-        }
-
-        &.ant-picker-cell-selected .ant-picker-cell-inner {
-          background-color: $bright-green !important;
-          color: $text-color !important;
-        }
-
-        &.ant-picker-cell-today .ant-picker-cell-inner {
-          border-color: $bright-green !important;
-        }
-      }
-    }
-  }
-
-  .ant-picker-footer {
-    background-color: $secondary-bg !important;
-    border-top: 1px solid $bright-green !important;
-
-    .ant-btn {
-      background-color: $bright-green !important;
-      border-color: $bright-green !important;
-      color: $text-color !important;
-
-      &:hover {
-        background-color: rgba(12, 149, 80, 0.9) !important;
-        border-color: rgba(12, 149, 80, 0.9) !important;
-      }
-    }
-  }
-}
-
-// Global Placeholder Styles
 .ant-input,
 .ant-input-affix-wrapper,
 .ant-picker-input > input,
@@ -842,28 +582,21 @@ $danger-color: #e74c3c;
   }
 }
 
-// Textarea Placeholder Fix
-.ant-input-textarea,
-.movie-modal .ant-input-textarea {
-  .ant-input {
-    padding: 12px 16px !important;
-    
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.6) !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      text-indent: 0 !important;
-      line-height: 1.5 !important;
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      transition: color 0.3s ease !important;
-    }
+.add-schedule-btn {
+  background: rgba(0, 60, 60, 0.5) !important;
+  border-color: $cyan-border !important;
+  color: $text-color !important;
+  height: 45px !important;
+  width: 100% !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
 
-    &:hover::placeholder,
-    &:focus::placeholder,
-    &.ant-input-focused::placeholder {
-      color: rgba(255, 255, 255, 0.8) !important;
-    }
+  &:hover,
+  &:focus {
+    background-color: $cyan-border !important;
+    border-color: $cyan-border !important;
+    color: $text-color !important;
   }
 }

@@ -7,14 +7,14 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../../constants/AuthContext';
 
 const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  // const handleSearchChange = (e) => {
+  //   setSearchTerm(e.target.value);
+  // };
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -39,7 +39,7 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
         </div>
         
         <div className="header-actions">
-          <div className="search-container">
+          {/* <div className="search-container">
             <Input 
               placeholder="Search here..."
               prefix={<SearchOutlined />}
@@ -47,7 +47,7 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
               value={searchTerm}
               onChange={handleSearchChange}
             />
-          </div>
+          </div> */}
 
           <div className="header-icons">
             <div className="notification-icon">
