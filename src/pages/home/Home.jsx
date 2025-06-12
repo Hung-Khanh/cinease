@@ -49,7 +49,7 @@ const comingMovies = [
         img: luyenrong,
         badge: "Coming Soon",
         date: "06/20/2025",
-        genre: "Adventure"
+        genre: "Adventure"  
     }
 ];
 
@@ -85,6 +85,7 @@ const Home = () => {
                 });
                 const data = response.data;
                 const extractedMovies = data.map((movie) => ({
+                    id: movie.movieId,
                     title: movie.movieNameEnglish,
                     img: movie.largeImage,
                     rating: movie.rating || 9.0,
@@ -182,7 +183,7 @@ const Home = () => {
     className="movie-carousel"
   >
     {showingMovies.map((movie, idx) => (
-      <div className="movie-card" key={idx} onClick={() => navigate('/description-movie')} style={{cursor: 'pointer'}}>
+      <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{cursor: 'pointer'}}>
         <img src={movie.img} alt={movie.title} className="movie-img" />
         <div className="movie-info">
           <div className="movie-title">{movie.title}</div>

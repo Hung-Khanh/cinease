@@ -4,17 +4,63 @@
   font-family: "Arial", sans-serif;
   padding: 2rem;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  position: relative;
+
+  .select-title {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+    z-index: 20;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  }
+
+  .back-button {
+    background: none;
+    border: 2px solid #2ecc71;
+    color: #2ecc71;
+    font-size: 24px;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 20;
+
+    &:hover {
+      background-color: #2ecc71;
+      color: white;
+    }
+  }
+
+  .main-content {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 6rem; // Để tránh chồng lên title và back button
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      margin-top: 5rem;
+    }
+  }
 
   .poster-section {
     text-align: center;
     max-width: 250px;
-    margin-right: 2rem;
-    position: relative;
-
-
+    flex-shrink: 0;
 
     .movie-poster {
       width: 100%;
@@ -27,22 +73,28 @@
       font-weight: 700;
       font-size: 1.2rem;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      margin: 0;
     }
   }
 
   .content-section {
     flex: 1;
     max-width: 550px;
-    background: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.2);
 
     h3 {
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.8rem;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      font-size: 1.1rem;
+      
+      &:first-child {
+        margin-top: 0;
+      }
     }
 
     .date-selection {
@@ -51,18 +103,30 @@
       gap: 10px;
       margin-bottom: 1rem;
 
-      .date-button,
-      .time-button {
+      .date-button {
         background: transparent;
         border: 1px solid white;
         color: white;
-        padding: 10px;
+        padding: 10px 15px;
         border-radius: 8px;
         cursor: pointer;
-        transition: 0.3s ease;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 80px;
+
+        div:first-child {
+          font-weight: bold;
+          margin-bottom: 2px;
+        }
+
+        div:last-child {
+          font-size: 0.8rem;
+          opacity: 0.8;
+        }
 
         &:hover {
-          background-color: transparent;
+          background-color: rgba(46, 204, 113, 0.2);
+          border-color: #2ecc71;
         }
 
         &.active {
@@ -83,6 +147,9 @@
         border-radius: 8px;
         font-weight: 600;
         cursor: default;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
       }
     }
 
@@ -97,10 +164,15 @@
         border: 1px solid white;
         color: white;
         padding: 10px 20px;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: 0.3s ease;
+        transition: all 0.3s ease;
+        font-weight: 500;
 
+        &:hover {
+          background-color: rgba(46, 204, 113, 0.2);
+          border-color: #2ecc71;
+        }
 
         &.active {
           background-color: #2ecc71;
@@ -118,40 +190,53 @@
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
-      width: 100%;
       text-align: center;
       transition: background-color 0.3s;
+      text-decoration: none;
+      display: block;
 
       &:hover {
         background-color: #12914b;
+      }
+
+      &:disabled {
+        background-color: #666;
+        cursor: not-allowed;
       }
     }
   }
 }
 
-.back-button {
-  background: none;
-  border: 2px solid #2ecc71;
-  color: #2ecc71;
-  font-size: 24px;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.3s ease;
-  margin-bottom: 1rem; 
-  margin-top: 150px; 
-  margin-left: 40px;
-  position: absolute;
-  top: 150px; 
-  left: 40px;
-  z-index: 10;
+// Responsive adjustments
+@media (max-width: 768px) {
+  .select-showtime {
+    padding: 1rem;
 
-  &:hover {
-    background-color: #2ecc71;
-    color: white;
+    .select-title {
+      font-size: 1.5rem;
+      top: 1.5rem;
+    }
+
+    .back-button {
+      top: 1.5rem;
+      left: 1rem;
+    }
+
+    .main-content {
+      margin-top: 4.5rem;
+    }
+
+    .content-section {
+      padding: 1.5rem;
+      
+      .date-selection .date-button {
+        min-width: 70px;
+        padding: 8px 12px;
+      }
+
+      .time-selection .time-button {
+        padding: 8px 16px;
+      }
+    }
   }
 }

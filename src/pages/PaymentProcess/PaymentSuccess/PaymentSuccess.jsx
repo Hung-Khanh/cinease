@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from "react";
 import "./PaymentSuccess.scss";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
