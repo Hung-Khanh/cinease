@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Modal, Select, Input, Button } from "antd";
+import { Modal, Select, Input } from "antd";
 
 import "../SCSS/TicketIn4.scss";
 
@@ -108,17 +108,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
-    setInputValue(""); // Reset input value when canceling
-  };
-
-  const handleSubmit = () => {
-    if (!inputValue) {
-      alert("Please enter a valid phone number or ID card.");
-      return;
-    }
-    // Cập nhật dữ liệu vào state hoặc thực hiện hành động cần thiết
-    console.log(`Submitted ${inputType}: ${inputValue}`);
     setIsModalVisible(false);
   };
 
@@ -317,13 +306,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={inputType === "phone" ? "Phone Number" : "ID Card"}
         />
-        <Button
-          type="primary"
-          onClick={handleSubmit}
-          style={{ marginTop: "10px" }}
-        >
-          Submit
-        </Button>
       </Modal>
     </div>
   );
