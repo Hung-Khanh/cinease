@@ -1,8 +1,9 @@
 $primary-bg: #0a181f;
 $secondary-bg: #1a3a2a;
 $text-color: #ffffff;
-$green-accent: #27ae60;
+$green-accent: #0c9550;
 $input-bg: rgba(255, 255, 255, 0.1);
+
 .header {
   background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
   padding: 15px;
@@ -23,43 +24,46 @@ $input-bg: rgba(255, 255, 255, 0.1);
       margin-left: 50px;
       align-items: center;
 
-      a {
+      a,
+      div {
         text-decoration: none;
-        color: #fff;
+        color: $text-color;
         font-weight: bold;
         font-size: 15px;
         letter-spacing: 0.5px;
         transition: color 0.2s;
+        cursor: pointer;
 
         &:hover {
-          color: #007bff;
+          color: $green-accent;
         }
       }
     }
 
     .notification-icon {
       color: $text-color;
-          background-color: $input-bg;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          font-size: 1.2rem;
-          margin-left: auto;
-          margin-right: 15px;
-          &:hover,
-          &:focus-within {
-            transform: scale(1.15); // Increased scale
-            color: $green-accent;
-            border-color: $green-accent;
-            box-shadow: 0 0 10px rgba(39, 174, 96, 0.6);
-            background-color: rgba($green-accent, 0.1);
-          }
+      background-color: $input-bg;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.2rem;
+      margin-left: auto;
+      margin-right: 15px;
+
+      &:hover,
+      &:focus-within {
+        transform: scale(1.15);
+        color: $green-accent;
+        border-color: $green-accent;
+        box-shadow: 0 0 10px rgba(39, 174, 96, 0.6);
+        background-color: rgba($green-accent, 0.1);
+      }
     }
 
     .auth-links {
@@ -94,18 +98,18 @@ $input-bg: rgba(255, 255, 255, 0.1);
         background-color: $input-bg;
         cursor: pointer;
         transition: all 0.3s ease;
-        width: 40px; // Added explicit size
-        height: 40px; // Added explicit size
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        font-size: 1.2rem; // Added font size for avatar content
+        font-size: 1.2rem;
 
         &:hover,
         &:focus-within {
-          transform: scale(1.15); // Increased scale
+          transform: scale(1.15);
           color: $green-accent;
           border-color: $green-accent;
           box-shadow: 0 0 10px rgba(39, 174, 96, 0.6);
