@@ -226,34 +226,35 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     box-shadow: none;
     top: 50%;
     transform: translateY(-50%);
-    
+
     &::before {
       display: none;
     }
-    
-    &:hover, &:focus {
+
+    &:hover,
+    &:focus {
       color: $primary-color;
       opacity: 1;
       transform: translateY(-50%) scale(1.2);
       background: transparent !important;
     }
   }
-  
+
   .ant-carousel .slick-prev {
     left: -42px;
-    
+
     &::before {
-      content: '❮';
+      content: "❮";
       font-size: 32px;
       line-height: 1;
     }
   }
-  
+
   .ant-carousel .slick-next {
     right: -30px;
-    
+
     &::before {
-      content: '❯';
+      content: "❯";
       font-size: 32px;
       line-height: 1;
     }
@@ -407,51 +408,49 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     .promo-list::-webkit-scrollbar {
       display: none; // Chrome, Safari, Opera
     }
-      .promo-card {
-        background: $dark-bg;
-        border-radius: 14px;
-        box-shadow: $card-shadow;
-        width: 320px;
-        min-width: 260px;
-        height: 210px;
+    .promo-card {
+      background: $dark-bg;
+      border-radius: 14px;
+      box-shadow: $card-shadow;
+      width: 320px;
+      min-width: 260px;
+      height: 210px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: $hover-shadow;
+      }
+
+      .promo-img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 14px 14px 0 0;
+      }
+
+      .promo-info {
+        padding: 10px 14px 12px;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
+        justify-content: center;
+        gap: 6px;
 
-        &:hover {
-          transform: translateY(-6px) scale(1.03);
-          box-shadow: $hover-shadow;
+        .promo-title {
+          font-size: 15px;
+          font-weight: 600;
+          color: $text-light;
+          margin-bottom: 2px;
         }
 
-        .promo-img {
-          width: 100%;
-          height: 140px;
-          object-fit: cover;
-          border-radius: 14px 14px 0 0;
-        }
-
-        .promo-info {
-          padding: 10px 14px 12px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          gap: 6px;
-
-          .promo-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: $text-light;
-            margin-bottom: 2px;
-          }
-
-          .promo-desc {
-            font-size: 13px;
-            color: $text-muted;
-          }
+        .promo-desc {
+          font-size: 13px;
+          color: $text-muted;
         }
       }
     }
   }
-
-
+}
