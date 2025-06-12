@@ -232,14 +232,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
             <p className="label">MOVIE</p>
             <p className="value">{movieName || "No Movie Selected"}</p>
           </div>
-          <div className="summary-item">
-            <p className="label">CURRENT DATE</p>
-            <p className="value">{new Date().toLocaleDateString()}</p>
-          </div>
-          <div className="summary-item">
-            <p className="label">CURRENT TIME</p>
-            <p className="value">{new Date().toLocaleTimeString()}</p>
-          </div>
           <button
             className="checkout-button"
             onClick={handleCheckout}

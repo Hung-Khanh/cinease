@@ -30,19 +30,22 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log("❌ Error response:", errorText);
-        throw new Error(`Failed to fetch movie name: ${response.status}`);
+      if (!response.data) {
+        throw new Error(`Failed to fetch movie name: No data returned`);
       }
 
-      const data = await response.json();
-      const movieData = data[0];
+      const movieData = response.data[0];
+      console.log("✅ Movie data:", movieData);
       setMovieName(movieData?.movieNameEnglish);
       setMovieImage(movieData?.largeImage);
     } catch (error) {
       console.error("❌ Error in fetchName:", error);
       console.error("❌ Error details:", error.message);
+      if (error.response) {
+        console.log("❌ Error response:", error.response.data);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
