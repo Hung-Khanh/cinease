@@ -148,6 +148,8 @@ const Login = () => {
       const result = await response.json();
       message.success("Login successful!");
 
+     
+      localStorage.setItem('user', JSON.stringify({ token: result.token, role: result.role }));
       login({
         token: result.token,
         role: result.role,
@@ -162,7 +164,7 @@ const Login = () => {
         message.success("Login Successful");
       } else {
         console.log(result.role);
-        navigate("/userHP");
+        navigate("/");
       }
     } catch (error) {
       console.error("Error during login:", error.message);

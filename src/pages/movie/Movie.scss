@@ -2,7 +2,16 @@ body {
   background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
 }
 
-$primary-color: #219150;
+$primary-color: #219151;
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin: 0 16px 32px 16px;
+  align-items: stretch;
+}
+
 $secondary-color: #1da1f2;
 $dark-bg: #1c262b;
 $text-light: #fff;

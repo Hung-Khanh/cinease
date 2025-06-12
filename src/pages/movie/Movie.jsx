@@ -41,7 +41,10 @@ const comingSoon = [
   },
 ];
 
+import { useNavigate } from "react-router-dom";
+
 const Movie = () => {
+  const navigate = useNavigate();
   const [nowShowing, setNowShowing] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -89,10 +92,10 @@ const Movie = () => {
   }
 
   let dynamicMoviesPerPage = moviesPerPage;
-  if (filtered.length <= 5) {
-    dynamicMoviesPerPage = 5;
-  } else if (filtered.length <= 10) {
-    dynamicMoviesPerPage = 10;
+  if (filtered.length <=6) {
+    dynamicMoviesPerPage = 6;
+  } else if (filtered.length <= 12) {
+    dynamicMoviesPerPage = 12;
   }
 
   const totalPages = Math.ceil(filtered.length / dynamicMoviesPerPage);
@@ -121,7 +124,7 @@ const Movie = () => {
         {filtered
           .slice((page - 1) * dynamicMoviesPerPage, page * dynamicMoviesPerPage)
           .map((movie, idx) => (
-            <div className="movie-card" key={idx}>
+            <div className="movie-card" key={idx} onClick={() => navigate("/description-movie")}>
               <img src={movie.img} alt={movie.title} className="movie-img" />
               <div className="movie-info">
                 <div className="movie-title">{movie.title}</div>
@@ -137,7 +140,7 @@ const Movie = () => {
               </div>
             </div>
           ))}
-        {dynamicMoviesPerPage > 5 && Array(dynamicMoviesPerPage - filtered.slice((page - 1) * dynamicMoviesPerPage, page * dynamicMoviesPerPage).length)
+        {dynamicMoviesPerPage > 12 && Array(dynamicMoviesPerPage - filtered.slice((page - 1) * dynamicMoviesPerPage, page * dynamicMoviesPerPage).length)
           .fill(0)
           .map((_, idx) => (
             <div key={`empty-${idx}`} className="movie-card movie-card--empty" />
