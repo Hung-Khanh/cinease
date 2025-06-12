@@ -7,7 +7,8 @@ const PaymentSuccess = () => {
   const location = useLocation();
   const [ticketData, setTicketData] = useState(null);
   const [moviePoster, setMoviePoster] = useState("");
-
+  const role = localStorage.getItem("role");
+  console.log("Role:", role);
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get(param);
@@ -81,6 +82,14 @@ const PaymentSuccess = () => {
 
   const { day, month, weekday } = formatDate(ticketData.date);
 
+  const handleBackToHome = () => {
+    if (role === "EMPLOYEE") {
+      navigate("/staffHomePage");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="payment-success-page">
       <div className="poster-section">
@@ -123,7 +132,7 @@ const PaymentSuccess = () => {
           <div className="info-value">{ticketData.total} VND</div>
         </div>
         <div className="thank-you">Thank you !</div>
-        <button className="home-btn" onClick={() => navigate("/")}>
+        <button className="home-btn" onClick={handleBackToHome}>
           Back to Home page
         </button>
       </div>
