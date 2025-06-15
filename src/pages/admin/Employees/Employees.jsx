@@ -1,36 +1,13 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload } from 'antd';
-import React, { useState } from 'react';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, DatePicker, Form, Input, Modal, Select, Table, message } from 'antd';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import './Employees.scss';
 
 const Employees = () => {
-  const [employees, setEmployees] = useState([
-    {
-      key: '1',
-      username: 'Employee01',
-      fullName: 'Minh Tri',
-      dateOfBirth: '2003/11/21',
-      gender: 'Female',
-      email: 'tricao@gmail.com',
-      identityCard: '123456789',
-      phone: '123456789',
-      address: 'HCM',
-      image: null
-    },
-    {
-      key: '2',
-      username: 'Employee02',
-      fullName: 'Hoang Minh',
-      dateOfBirth: '2004/11/21',
-      gender: 'Female',
-      email: 'hoangminh@gmail.com',
-      identityCard: '123456789',
-      phone: '123456789',
-      address: 'HCM',
-      image: null
-    }
-  ]);
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -39,71 +16,63 @@ const Employees = () => {
   const [editingKey, setEditingKey] = useState(null);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+
+  // Fetch employees from API
+  const fetchEmployees = async (showSuccessMessage = false) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${apiUrl}/admin/employee/list`, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      const formattedEmployees = result.map((employee, index) => ({
+        key: employee.employeeId?.toString() || index.toString(),
+        fullName: employee.fullName || 'N/A',
+        identityCard: employee.identityCard || 'N/A',
+        email: employee.email || 'N/A',
+        phoneNumber: employee.phoneNumber || 'N/A',
+        address: employee.address || 'N/A',
+      }));
+
+      setEmployees(formattedEmployees);
+
+      if (showSuccessMessage) {
+        message.success(`Fetched ${formattedEmployees.length} employees successfully`, 1.5);
+      }
+    } catch (error) {
+      message.error(`Failed to fetch employees: ${error.message}`, 3);
+      setEmployees([]); // Ensure employees is an empty array on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch employees on component mount
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const columns = [
-    {
-      title: 'Image',
-      dataIndex: 'image',
-      key: 'image',
-      render: (image) => (
-        image ? (
-          <img
-            src={image}
-            alt="Employee"
-            style={{
-              width: 50,
-              height: 50,
-              objectFit: 'cover',
-              borderRadius: '50%'
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              backgroundColor: '#27ae60',
-              borderRadius: '50%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              color: 'white'
-            }}
-          >
-            {/* First letter of full name */}
-            {employees.find(emp => emp.image === image)?.fullName[0] || 'N/A'}
-          </div>
-        )
-      ),
-    },
-    {
-      title: 'Username',
-      dataIndex: 'username',
-      key: 'username',
-      filteredValue: [searchTerm],
-      onFilter: (value, record) =>
-        record.username.toLowerCase().includes(value.toLowerCase()),
-    },
     {
       title: 'Full Name',
       dataIndex: 'fullName',
       key: 'fullName',
-    },
-    {
-      title: 'Date of Birth',
-      dataIndex: 'dateOfBirth',
-      key: 'dateOfBirth',
-    },
-    {
-      title: 'Gender',
-      dataIndex: 'gender',
-      key: 'gender',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      filteredValue: [searchTerm],
+      onFilter: (value, record) =>
+        record.fullName.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: 'Identity Card',
@@ -111,9 +80,14 @@ const Employees = () => {
       key: 'identityCard',
     },
     {
-      title: 'Phone',
-      dataIndex: 'phone',
-      key: 'phone',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'Phone Number',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
     },
     {
       title: 'Address',
@@ -145,12 +119,10 @@ const Employees = () => {
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
-    setImageFile(null);
 
-    // Prepare form values with dayjs dates
+    // Prepare form values
     const editRecord = {
       ...record,
-      dateOfBirth: record.dateOfBirth ? dayjs(record.dateOfBirth, 'YYYY/MM/DD') : null,
     };
 
     // Set the current employee being edited
@@ -177,72 +149,163 @@ const Employees = () => {
     }
   };
 
-  const handleAddEmployee = (values) => {
-    // Generate a unique key for the new employee
-    const newKey = (employees.length + 1).toString();
-
-    // Prepare the new employee object
-    const newEmployee = {
-      key: newKey,
-      ...values,
-      dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY/MM/DD') : null,
-      // Auto-set register date to current date
-      registerDate: dayjs().format('YYYY/MM/DD'),
-      // Add image if uploaded
-      image: imageFile ? URL.createObjectURL(imageFile) : null
-    };
-
-    if (isEditing) {
-      // Update existing employee
-      const updatedEmployees = employees.map(emp =>
-        emp.key === editingKey
-          ? {
-            ...newEmployee,
-            key: emp.key,
-            registerDate: emp.registerDate // Preserve original register date
-          }
-          : emp
-      );
-
-      setEmployees(updatedEmployees);
-      message.success('Employee updated successfully');
-    } else {
-      // Add new employee
-      setEmployees([...employees, newEmployee]);
-      message.success('Employee added successfully');
-    }
-
-    // Reset modal and form
-    setIsModalVisible(false);
-    setIsEditing(false);
-    setEditingKey(null);
-    setImageFile(null);
-    form.resetFields();
-  };
-
-  const handleImageUpload = (info) => {
-    const file = info.file.originFileObj;
-    setImageFile(file);
-  };
-
-  const confirmDelete = () => {
+  const handleAddEmployee = async (values) => {
     try {
-      // Remove the employee from the list
-      const updatedEmployees = employees.filter(emp => emp.key !== employeeToDelete.key);
-      setEmployees(updatedEmployees);
-      message.success(`Employee "${employeeToDelete.fullName}" deleted successfully`);
+      const token = localStorage.getItem('token');
 
-      // Hide the delete confirmation modal
-      setDeleteConfirmationVisible(false);
+      const requestBody = {
+        image: values.image || "https://example.com/default-avatar.jpg",
+        username: values.username,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+        dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : null,
+        gender: values.gender,
+        fullName: values.fullName,
+        identityCard: values.identityCard,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        address: values.address,
+      };
+
+      const url = isEditing
+        ? `${apiUrl}/admin/employee/${editingKey}`
+        : `${apiUrl}/admin/employee/add`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const responseText = await response.text();
+        throw new Error(`Failed to ${isEditing ? 'update' : 'add'} employee. Status: ${response.status}, Message: ${responseText}`);
+      }
+
+      // Refresh the employees list
+      await fetchEmployees(true);
+
+      // Show success message
+      message.success(`Employee "${values.fullName}" ${isEditing ? 'updated' : 'added'} successfully!`, 3);
+
+      // Reset modal and form
+      setIsModalVisible(false);
+      setIsEditing(false);
+      setEditingKey(null);
+      form.resetFields();
     } catch (error) {
-      console.error('Error in delete confirmation:', error);
-      message.error('Failed to delete employee');
+      message.error(`Failed to ${isEditing ? 'update' : 'add'} employee: ${error.message}`, 3);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (employeeToDelete) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${apiUrl}/admin/employee/${employeeToDelete.key}`, {
+          method: "DELETE",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+
+        if (!response.ok) {
+          const responseText = await response.text();
+          throw new Error(`Failed to delete employee. Status: ${response.status}, Message: ${responseText}`);
+        }
+
+        // Refresh the employees list
+        await fetchEmployees(true);
+
+        // Specific delete success toast
+        message.success(`Employee "${employeeToDelete.fullName}" deleted successfully`, 2);
+
+        // Hide the delete confirmation modal
+        setDeleteConfirmationVisible(false);
+        setEmployeeToDelete(null);
+      } catch (error) {
+        message.error(`Failed to delete employee: ${error.message}`, 3);
+      }
     }
   };
 
   const cancelDelete = () => {
     // Hide the delete confirmation modal
     setDeleteConfirmationVisible(false);
+  };
+
+  // Error Boundary Component
+  const ErrorFallback = ({ error }) => {
+    return (
+      <div role="alert" style={{ 
+        padding: '20px', 
+        backgroundColor: '#f8d7da', 
+        color: '#721c24', 
+        borderRadius: '5px' 
+      }}>
+        <p>Something went wrong:</p>
+        <pre style={{ color: 'red' }}>{error.message}</pre>
+        <Button onClick={() => fetchEmployees()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  };
+
+  // Render method with error handling
+  const renderEmployeesTable = () => {
+    try {
+      // Ensure employees is an array before rendering
+      const safeEmployees = Array.isArray(employees) ? employees : [];
+
+      return (
+        <Table
+          columns={columns}
+          dataSource={safeEmployees}
+          loading={loading}
+          locale={{
+            emptyText: loading ? 'Loading...' : 'No employees found'
+          }}
+          pagination={{
+            pageSize: 5,
+            showSizeChanger: false,
+            itemRender: (current, type, originalElement) => {
+              if (type === 'prev') {
+                return (
+                  <Button
+                    type="default"
+                    className="pagination-btn prev-btn"
+                  >
+                    Previous
+                  </Button>
+                );
+              }
+              if (type === 'next') {
+                return (
+                  <Button
+                    type="default"
+                    className="pagination-btn next-btn"
+                  >
+                    Next
+                  </Button>
+                );
+              }
+              return originalElement;
+            }
+          }}
+        />
+      );
+    } catch (error) {
+      return <ErrorFallback error={error} />;
+    }
   };
 
   return (
@@ -268,37 +331,7 @@ const Employees = () => {
         </div>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={employees}
-        pagination={{
-          pageSize: 5,
-          showSizeChanger: false,
-          itemRender: (current, type, originalElement) => {
-            if (type === 'prev') {
-              return (
-                <Button
-                  type="default"
-                  className="pagination-btn prev-btn"
-                >
-                  Previous
-                </Button>
-              );
-            }
-            if (type === 'next') {
-              return (
-                <Button
-                  type="default"
-                  className="pagination-btn next-btn"
-                >
-                  Next
-                </Button>
-              );
-            }
-            return originalElement;
-          }
-        }}
-      />
+      {renderEmployeesTable()}
 
       <Modal
         title={isEditing ? "Edit Employee" : "Add New Employee"}
@@ -307,7 +340,6 @@ const Employees = () => {
           setIsModalVisible(false);
           setIsEditing(false);
           setEditingKey(null);
-          setImageFile(null);
           form.resetFields();
         }}
         footer={null}
@@ -322,8 +354,8 @@ const Employees = () => {
           className="employee-form"
         >
           <Form.Item
-            name="phone"
-            label="Phone"
+            name="phoneNumber"
+            label="Phone Number"
             rules={[{ required: true, message: 'Please input the phone number!' }]}
           >
             <Input placeholder="Enter phone number" />
@@ -337,15 +369,6 @@ const Employees = () => {
             <Input placeholder="Enter address" />
           </Form.Item>
 
-
-          <Form.Item
-            name="username"
-            label="Username"
-            rules={[{ required: true, message: 'Please input the username!' }]}
-          >
-            <Input placeholder="Enter username" />
-          </Form.Item>
-
           <Form.Item
             name="fullName"
             label="Full Name"
@@ -355,27 +378,11 @@ const Employees = () => {
           </Form.Item>
 
           <Form.Item
-            name="dateOfBirth"
-            label="Date of Birth"
-            rules={[{ required: true, message: 'Please select date of birth!' }]}
+            name="identityCard"
+            label="Identity Card"
+            rules={[{ required: true, message: 'Please input the identity card number!' }]}
           >
-            <DatePicker
-              style={{ width: '100%' }}
-              format="YYYY/MM/DD"
-              placeholder="Select date of birth"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="gender"
-            label="Gender"
-            rules={[{ required: true, message: 'Please select gender!' }]}
-          >
-            <Select placeholder="Select gender">
-              <Select.Option value="Male">Male</Select.Option>
-              <Select.Option value="Female">Female</Select.Option>
-              <Select.Option value="Other">Other</Select.Option>
-            </Select>
+            <Input placeholder="Enter identity card number" />
           </Form.Item>
 
           <Form.Item
@@ -387,46 +394,6 @@ const Employees = () => {
             ]}
           >
             <Input placeholder="Enter email" />
-          </Form.Item>
-
-          <Form.Item
-            name="identityCard"
-            label="Identity Card"
-            rules={[{ required: true, message: 'Please input the identity card number!' }]}
-          >
-            <Input placeholder="Enter identity card number" />
-          </Form.Item>
-          {/* Image Upload */}
-          <Form.Item
-            name="image"
-            label="Employee Image"
-            className="employee-image-uploader"
-          >
-            <Upload
-              name="avatar"
-              listType="picture-card"
-              className="avatar-uploader"
-              showUploadList={false}
-              beforeUpload={() => false} // Prevent auto upload
-              onChange={handleImageUpload}
-            >
-              {imageFile ? (
-                <img
-                  src={URL.createObjectURL(imageFile)}
-                  alt="avatar"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
-              ) : (
-                <div>
-                  <UploadOutlined />
-                  <div style={{ marginTop: 8 }}>Upload</div>
-                </div>
-              )}
-            </Upload>
           </Form.Item>
 
           <Form.Item>

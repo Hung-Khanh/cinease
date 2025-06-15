@@ -1,39 +1,13 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import './Promotions.scss';
 
 const Promotions = () => {
-  const [promotions, setPromotions] = useState([
-    {
-      key: '1',
-      title: 'New Year Promotion',
-      startTime: '2024/01/01',
-      endTime: '2024/01/31',
-      discountLevel: '50,000 VND',
-      details: 'Celebrate the New Year with special discounts',
-      image: null
-    },
-    {
-      key: '2',
-      title: 'Holiday Season Sale',
-      startTime: '2024/12/01',
-      endTime: '2024/12/31',
-      discountLevel: '60,000 VND',
-      details: 'Exclusive offers for the holiday season',
-      image: null
-    },
-    {
-      key: '3',
-      title: 'Winter Blockbuster Discount',
-      startTime: '2024/02/01',
-      endTime: '2024/02/28',
-      discountLevel: '80,000 VND',
-      details: 'Enjoy big savings on winter movie releases',
-      image: null
-    }
-  ]);
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const [promotions, setPromotions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -42,6 +16,56 @@ const Promotions = () => {
   const [editingKey, setEditingKey] = useState(null);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
+
+  // Fetch promotions from API
+  const fetchPromotions = async (showSuccessMessage = false) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${apiUrl}/admin/promotions`, {
+        method: "GET",
+        headers: {
+          "Accept": "*/*",
+          "Authorization": `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const result = await response.json();
+
+      const formattedPromotions = result.map((promotion, index) => {
+        return {
+          key: promotion.promotionId.toString(),
+          title: promotion.title,
+          startTime: promotion.startTime,
+          endTime: promotion.endTime,
+          discountLevel: `${promotion.discountLevel} VND`,
+          details: promotion.detail || 'No details available',
+          image: promotion.image || null
+        };
+      });
+
+      setPromotions(formattedPromotions);
+
+      if (showSuccessMessage) {
+        message.success(`Fetched ${formattedPromotions.length} promotions successfully`, 1.5);
+      }
+    } catch (error) {
+      message.error(`Failed to fetch promotions: ${error.message}`, 3);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch promotions on component mount
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
 
   const columns = [
     {
@@ -120,15 +144,11 @@ const Promotions = () => {
     // Prepare form values with dayjs dates
     const editRecord = {
       ...record,
-      startTime: record.startTime ? dayjs(record.startTime, 'YYYY/MM/DD') : null,
-      endTime: record.endTime ? dayjs(record.endTime, 'YYYY/MM/DD') : null,
-      image: record.image ? [{
-        uid: '-1',
-        name: 'image.png',
-        status: 'done',
-        url: record.image,
-        thumbUrl: record.image
-      }] : []
+      startTime: record.startTime ? dayjs(record.startTime, 'YYYY-MM-DD HH:mm') : null,
+      endTime: record.endTime ? dayjs(record.endTime, 'YYYY-MM-DD HH:mm') : null,
+      discountLevel: record.discountLevel.replace(' VND', ''), // Remove VND for editing
+      details: record.details, // Use 'details' for form display
+      image: record.image // Directly use image URL
     };
 
     // Set the current promotion being edited
@@ -155,56 +175,90 @@ const Promotions = () => {
     }
   };
 
-  const handleAddPromotion = (values) => {
-    if (isEditing) {
-      // Update existing promotion
-      const updatedPromotions = promotions.map(promo => 
-        promo.key === editingKey 
-          ? {
-              ...promo,
-              ...values,
-              startTime: values.startTime ? values.startTime.format('YYYY/MM/DD') : null,
-              endTime: values.endTime ? values.endTime.format('YYYY/MM/DD') : null,
-              image: values.image && values.image[0] ? values.image[0].thumbUrl : promo.image
-            }
-          : promo
-      );
+  const handleAddPromotion = async (values) => {
+    try {
+      const token = localStorage.getItem('token');
       
-      setPromotions(updatedPromotions);
-      message.success('Promotion updated successfully');
-    } else {
-      // Add new promotion
-      const newPromotion = {
-        key: (promotions.length + 1).toString(),
-        ...values,
-        startTime: values.startTime ? values.startTime.format('YYYY/MM/DD') : null,
-        endTime: values.endTime ? values.endTime.format('YYYY/MM/DD') : null,
-        image: values.image && values.image[0] ? values.image[0].thumbUrl : null,
+      // Format dates to match the API's expected format
+      const formatDate = (date) => date ? dayjs(date).format('YYYY-MM-DD HH:mm') : null;
+
+      const requestBody = {
+        ...(isEditing ? { promotionId: parseInt(editingKey) } : {}),
+        title: values.title,
+        startTime: formatDate(values.startTime),
+        endTime: formatDate(values.endTime),
+        discountLevel: parseInt(values.discountLevel),
+        detail: values.details,
+        image: values.image || null,
       };
 
-      setPromotions([...promotions, newPromotion]);
-      message.success('Promotion added successfully');
+      const url = isEditing
+        ? `${apiUrl}/admin/promotions/${editingKey}`
+        : `${apiUrl}/admin/promotions`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Accept': '*/*',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const responseText = await response.text();
+        throw new Error(`Failed to ${isEditing ? 'update' : 'add'} promotion. Status: ${response.status}, Message: ${responseText}`);
+      }
+
+      // Refresh the promotions list
+      await fetchPromotions(true);
+
+      // Show success message
+      message.success(`Promotion "${values.title}" ${isEditing ? 'updated' : 'added'} successfully!`, 3);
+
+      // Reset modal and form
+      setIsModalVisible(false);
+      setIsEditing(false);
+      setEditingKey(null);
+      form.resetFields();
+    } catch (error) {
+      message.error(`Failed to ${isEditing ? 'update' : 'add'} promotion: ${error.message}`, 3);
     }
-    
-    // Reset modal and form
-    setIsModalVisible(false);
-    setIsEditing(false);
-    setEditingKey(null);
-    form.resetFields();
   };
 
-  const confirmDelete = () => {
-    try {
-      // Remove the promotion from the list
-      const updatedPromotions = promotions.filter(promo => promo.key !== promotionToDelete.key);
-      setPromotions(updatedPromotions);
-      message.success(`Promotion "${promotionToDelete.title}" deleted successfully`);
+  const confirmDelete = async () => {
+    if (promotionToDelete) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${apiUrl}/admin/promotions/${promotionToDelete.key}`, {
+          method: "DELETE",
+          headers: {
+            "Accept": "*/*",
+            "Authorization": `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
 
-      // Hide the delete confirmation modal
-      setDeleteConfirmationVisible(false);
-    } catch (error) {
-      console.error('Error in delete confirmation:', error);
-      message.error('Failed to delete promotion');
+        if (!response.ok) {
+          const responseText = await response.text();
+          throw new Error(`Failed to delete promotion. Status: ${response.status}, Message: ${responseText}`);
+        }
+
+        // Refresh the promotions list
+        await fetchPromotions(true);
+
+        // Specific delete success toast
+        message.success(`Promotion "${promotionToDelete.title}" deleted successfully`, 2);
+
+        // Hide the delete confirmation modal
+        setDeleteConfirmationVisible(false);
+        setPromotionToDelete(null);
+      } catch (error) {
+        message.error(`Failed to delete promotion: ${error.message}`, 3);
+      }
     }
   };
 
@@ -234,6 +288,7 @@ const Promotions = () => {
       <Table
         columns={columns}
         dataSource={promotions}
+        loading={loading}
         pagination={{
           pageSize: 5,
           showSizeChanger: false,
@@ -285,7 +340,7 @@ const Promotions = () => {
           requiredMark={false}
         >
           <Form.Item
-                name="title"
+            name="title"
             label="Promotion Title"
             rules={[{ 
               required: true, 
@@ -326,9 +381,10 @@ const Promotions = () => {
               style={{ width: '48%' }}
             >
               <DatePicker
+                showTime
                 style={{ width: '100%' }}
-                format="YYYY/MM/DD"
-                placeholder="Start Date"
+                format="YYYY-MM-DD HH:mm"
+                placeholder="Start Date and Time"
                 className="custom-datepicker"
               />
             </Form.Item>
@@ -358,13 +414,14 @@ const Promotions = () => {
               style={{ width: '48%' }}
             >
               <DatePicker
+                showTime
                 style={{ width: '100%' }}
-                format="YYYY/MM/DD"
-                placeholder="End Date"
+                format="YYYY-MM-DD HH:mm"
+                placeholder="End Date and Time"
                 className="custom-datepicker"
               />
             </Form.Item>
-            </div>
+          </div>
 
           <Form.Item
             name="discountLevel"
@@ -379,6 +436,7 @@ const Promotions = () => {
             <Input 
               placeholder="Enter discount amount" 
               className="custom-input"
+              type="number"
             />
           </Form.Item>
 
@@ -401,44 +459,19 @@ const Promotions = () => {
 
           <Form.Item
             name="image"
-            label="Promotion Image"
-            valuePropName="fileList"
-            getValueFromEvent={(e) => {
-              if (Array.isArray(e)) {
-                return e;
-              }
-              return e && e.fileList;
-            }}
+            label="Promotion Image URL"
+            rules={[{ 
+              type: 'url', 
+              message: 'Please enter a valid image URL',
+              validateTrigger: ['onChange', 'onBlur']
+            }]}
+            hasFeedback
           >
-            <Upload
-              name="promotionImage"
-              listType="picture-card"
-              className="image-uploader"
-              showUploadList={true}
-              beforeUpload={(file) => {
-                const isImage = file.type.startsWith('image/');
-                if (!isImage) {
-                  message.error(`${file.name} is not an image file`);
-                }
-                return isImage || Upload.LIST_IGNORE;
-              }}
-              onChange={(info) => {
-                if (info.file.status === 'done') {
-                  // Create a URL for the uploaded image
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    form.setFieldsValue({ image: e.target.result });
-                  };
-                  reader.readAsDataURL(info.file.originFileObj);
-                }
-              }}
-              maxCount={1}
-            >
-              <div>
-                <UploadOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            </Upload>
+            <Input 
+              placeholder="Enter image URL" 
+              className="custom-input"
+              prefix={<UploadOutlined />}
+            />
           </Form.Item>
 
           <Form.Item>
