@@ -1,0 +1,31 @@
+[33ma923289[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeatures/implement_Admin_Employees_CinemaRoom[m[33m, [m[1;31morigin/features/implement_Admin_Employees_CinemaRoom[m[33m)[m features/implement_Admin_Movies_CinemaRoom
+[33ma6e2ce5[m features/implement_Admin_Employees
+[33m19bd3dc[m features/implement_Admin_Employees_CinemaRoom
+[33m7f8049e[m Merge branch 'features/Implement_EmployeeeFlow' into 'develop'
+[33mea6f471[m Merge branch 'develop' of http://git.fa.edu.vn/hcm25_cpl_react_05/fe_team_2 into features/Implement_hotfix_login+Register
+[33m446f3a0[m features/Implement_EmployeeFlow
+[33mbfc5342[m Merge branch 'feature/implement_DashBoard_Movies_Promotions' into 'develop'
+[33md407349[m feature/implement_DashBoard_Movies_Promotions
+[33m15c6f45[m Merge branch 'features/Implement_hotfix_login+Register' into 'develop'
+[33m2ebffd8[m hot fix login, register
+[33mc4ce3cd[m Merge branch 'features/Implement_EMPLOYEE_SELECTDATE+SELECTIME+SELECTSEAT' into 'develop'
+[33m02c8643[m hot fix LoginPage, Date + Time + Seat Seletion +Ticket Information
+[33mf7b52a8[m HOT FIX SCSS HOME
+[33mb7ce826[m hot fix LoginPage, Date + Time + Seat Seletion +Ticket Information
+[33m7a4ee4e[m hot fix LoginPage, Date + Time + Seat Seletion +Ticket Information
+[33m4aa8563[m hot fix LoginPage, Date + Time + Seat Seletion +Ticket Information
+[33m9a6be20[m Merge branch 'features/Implement_User_DescriptionMovie+SelectShowtime+PaymentProcess' into 'develop'
+[33mfd01b1c[m[33m ([m[1;31morigin/features/Implement_User_DescriptionMovie+SelectShowtime+PaymentProcess[m[33m)[m Merge branch 'develop' into 'features/Implement_User_DescriptionMovie+SelectShowtime+PaymentProcess'
+[33m10bdfb9[m Merge branch 'features/Implement_User_selectseat+confirmpage+paymentdetail' into 'develop'
+[33mbd6b5e0[m DescriptionPage + SelectShowtime + PaymentProcess
+[33m3f4f1c1[m Implement seat selection , confirm page, page detail payment
+[33m945ecd1[m Merge branch 'features/Implement_Profile' into 'develop'
+[33m360eb74[m Implement user profile page with update info feature
+[33ma50f155[m Merge branch 'develop' of http://git.fa.edu.vn/hcm25_cpl_react_05/fe_team_2 into features/Implement_EMPLOYEE_SELECTDATE+SELECTIME+SELECTSEAT
+[33m1c9c2c9[m Employee choose Date, time and seat
+[33m34cd25f[m Merge branch 'features/Implement_Login+StaffHomePage' into 'develop'
+[33m527fdb5[m LOGIN + STAFFHOMEPAGE
+[33md7ad908[m Merge branch 'features/Implement_Home' into 'develop'
+[33mb1341f7[m Implement Home page layout and Header, Footer and Movie page layout
+[33mf32ba8f[m Initial commit
+[33m99b4b7d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Initial commit
