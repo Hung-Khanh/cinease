@@ -1,0 +1,270 @@
+.shomepage-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a3c34 0%, #000000 100%);
+  padding: 20px;
+  color: #fff;
+  font-family: "Arial", sans-serif;
+
+  .content {
+    text-align: center;
+
+    h1 {
+      font-size: 50px;
+      font-weight: bold;
+      margin-bottom: 20px;
+
+      // Responsive typography
+      @media (max-width: 768px) {
+        font-size: 36px;
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+    }
+
+    .movie-carousel {
+      .carousel-slide {
+        padding: 30px 5px;
+
+        // Reduce padding on mobile
+        @media (max-width: 768px) {
+          padding: 30px 5px;
+        }
+
+        @media (max-width: 480px) {
+          padding: 20px 2px;
+        }
+      }
+
+      .movie-card {
+        width: 300px;
+        height: 630px;
+        text-align: center;
+        margin: 0 auto; // Center the card
+
+        // Responsive card sizing
+        @media (max-width: 1200px) {
+          width: 280px;
+          height: 480px;
+        }
+
+        @media (max-width: 992px) {
+          width: 260px;
+          height: 460px;
+        }
+
+        @media (max-width: 768px) {
+          width: 240px;
+          height: 420px;
+        }
+
+        @media (max-width: 576px) {
+          width: 200px;
+          height: 360px;
+        }
+
+        @media (max-width: 480px) {
+          width: 180px;
+          height: 320px;
+        }
+
+        .ant-card-cover {
+          margin: 0;
+          padding: 0;
+        }
+
+        .movie-poster {
+          width: 100%;
+          height: 490px;
+          object-fit: cover;
+          border-radius: 10px 10px 0 0;
+          display: block;
+
+          // Responsive poster height
+          @media (max-width: 1200px) {
+            height: 340px;
+          }
+
+          @media (max-width: 992px) {
+            height: 320px;
+          }
+
+          @media (max-width: 768px) {
+            height: 280px;
+          }
+
+          @media (max-width: 576px) {
+            height: 240px;
+          }
+
+          @media (max-width: 480px) {
+            height: 200px;
+          }
+        }
+
+        .ant-card-body {
+          padding: 30px;
+
+          // Responsive padding
+          @media (max-width: 768px) {
+            padding: 20px;
+          }
+
+          @media (max-width: 576px) {
+            padding: 15px;
+          }
+
+          @media (max-width: 480px) {
+            padding: 10px;
+          }
+        }
+
+        .ant-card-meta-title {
+          font-size: 22px;
+          margin: 0;
+          color: #000;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 100%;
+
+          // Responsive title font size
+          @media (max-width: 768px) {
+            font-size: 18px;
+          }
+
+          @media (max-width: 576px) {
+            font-size: 16px;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 14px;
+          }
+        }
+
+        .ant-card-meta-description {
+          font-size: 12px;
+          color: #ccc;
+
+          // Responsive description font size
+          @media (max-width: 576px) {
+            font-size: 11px;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 10px;
+          }
+        }
+
+        .book-button {
+          background-color: #0c9550;
+          border: none;
+          border-radius: 5px;
+          width: 100%;
+          padding: 20px;
+          font-size: 14px;
+          margin-top: 10px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+
+          // Responsive button padding and font size
+          @media (max-width: 768px) {
+            padding: 15px;
+            font-size: 13px;
+          }
+
+          @media (max-width: 576px) {
+            padding: 12px;
+            font-size: 12px;
+          }
+
+          @media (max-width: 480px) {
+            padding: 10px;
+            font-size: 11px;
+          }
+
+          &:hover {
+            background-color: #044824;
+          }
+        }
+      }
+
+      // Carousel navigation arrows
+      .ant-carousel .slick-prev,
+      .ant-carousel .slick-next {
+        color: #fff;
+        font-size: 24px;
+        z-index: 1;
+        background: none;
+        border: none;
+
+        // Responsive arrow positioning and size
+        @media (max-width: 992px) {
+          font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+          font-size: 18px;
+        }
+
+        @media (max-width: 576px) {
+          font-size: 16px;
+        }
+      }
+
+      .ant-carousel .slick-prev {
+        left: -40px;
+
+        // Responsive arrow positioning
+        @media (max-width: 992px) {
+          left: -30px;
+        }
+
+        @media (max-width: 768px) {
+          left: -25px;
+        }
+
+        @media (max-width: 576px) {
+          left: -20px;
+        }
+
+        @media (max-width: 480px) {
+          left: -15px;
+        }
+      }
+
+      .ant-carousel .slick-next {
+        right: -40px;
+
+        // Responsive arrow positioning
+        @media (max-width: 992px) {
+          right: -30px;
+        }
+
+        @media (max-width: 768px) {
+          right: -25px;
+        }
+
+        @media (max-width: 576px) {
+          right: -20px;
+        }
+
+        @media (max-width: 480px) {
+          right: -15px;
+        }
+      }
+    }
+  }
+
+  // Responsive container padding
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
+}

@@ -1,0 +1,255 @@
+.ticket-info-wrapper {
+  position: relative;
+  min-height: 100vh;
+  background-image: url("../../../assets/bigbackground.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #fff;
+
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .ticket-info-container {
+    display: flex;
+    justify-content: center;
+    width: 800px;
+    padding: 0 15px 50px 50px; /* Add padding for smaller screens */
+  }
+
+  .ticket-card {
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    gap: 30px;
+    flex-direction: row; /* Default for larger screens */
+    background: rgba(
+      0,
+      0,
+      0,
+      0.7
+    ); /* Add semi-transparent background for readability */
+  }
+
+  .ticket-image {
+    .movie-poster {
+      width: 250px;
+      height: 460px;
+      object-fit: cover; /* Changed to cover for better image scaling */
+      border-radius: 15px;
+    }
+  }
+
+  .ticket-details {
+    flex: 1;
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 16px;
+
+      &.voucher {
+        select {
+          padding: 5px;
+          background: #333;
+          color: #fff;
+          border: 1px solid #555;
+          border-radius: 5px;
+          width: 100%; /* Full width for select on smaller screens */
+        }
+      }
+
+      &.transaction {
+        flex-direction: column;
+        gap: 5px;
+
+        .transaction-details {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          padding-left: 20px;
+
+          div:nth-child(odd) {
+            font-weight: bold;
+          }
+          div:nth-child(even) {
+            text-align: right;
+          }
+        }
+      }
+
+      &.total {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      &.phone-input {
+        button {
+          width: 100%;
+          padding: 10px;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+
+      &.payment-method {
+        flex-direction: column;
+        gap: 10px;
+
+        .ant-select {
+          width: 100%;
+        }
+
+        div {
+          margin-top: 10px;
+        }
+      }
+    }
+
+    .note {
+      font-size: 12px;
+      color: #ccc;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .purchase-button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+  }
+
+  /* Tablet screens (768px and below) */
+  @media (max-width: 768px) {
+    .ticket-card {
+      flex-direction: column; /* Stack image and details vertically */
+      align-items: center;
+      padding: 15px;
+    }
+
+    .ticket-image {
+      .movie-poster {
+        width: 150px; /* Smaller poster size */
+        height: 225px;
+      }
+    }
+
+    .ticket-details {
+      h2 {
+        font-size: 20px; /* Smaller heading */
+      }
+
+      .detail-item {
+        font-size: 14px; /* Smaller font size */
+      }
+
+      .total {
+        font-size: 18px; /* Adjust total font size */
+      }
+    }
+
+    .back-button {
+      font-size: 20px; /* Smaller back button */
+      top: 15px;
+      left: 15px;
+    }
+  }
+
+  /* Mobile screens (480px and below) */
+  @media (max-width: 480px) {
+    padding: 10px; /* Reduce padding */
+
+    .ticket-info-container {
+      padding: 0 10px;
+    }
+
+    .ticket-card {
+      padding: 10px;
+      gap: 15px;
+    }
+
+    .ticket-image {
+      .movie-poster {
+        width: 120px; /* Even smaller poster */
+        height: 180px;
+      }
+    }
+
+    .ticket-details {
+      h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      .detail-item {
+        font-size: 12px; /* Smaller font */
+        flex-direction: column; /* Stack details for better readability */
+        gap: 5px;
+
+        &.transaction {
+          .transaction-details {
+            padding-left: 10px;
+          }
+        }
+      }
+
+      .total {
+        font-size: 16px;
+      }
+
+      .note {
+        font-size: 10px;
+      }
+
+      .purchase-button {
+        font-size: 14px;
+        padding: 8px;
+      }
+    }
+
+    .back-button {
+      font-size: 18px;
+      top: 10px;
+      left: 10px;
+    }
+  }
+}
