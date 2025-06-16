@@ -22,6 +22,8 @@ import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.js
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
+import Confirm from "./pages/confirm/Confirm.jsx";
+import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
@@ -141,10 +143,9 @@ function Layout() {
           />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route
-            path="/seat-select/:movieId/:scheduleId"
-            element={<SelectSeat />}
-          />
+          <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
+          <Route path="/confirm/:movieId" element={<Confirm />} />
+          <Route path="/payment-detail/:invoiceId/:scheduleId" element={<PaymentDetail />} />
           {/* Add more routes as needed */}
         </Routes>
       </main>
