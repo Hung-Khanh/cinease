@@ -137,11 +137,6 @@ const Login = () => {
         },
         body: JSON.stringify(values),
       });
-      console.log("Response details:", {
-        status: response.status,
-        url: response.url,
-        data: response,
-      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

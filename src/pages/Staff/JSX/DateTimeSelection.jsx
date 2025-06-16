@@ -35,7 +35,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       }
 
       const movieData = response.data[0];
-      console.log("✅ Movie data:", movieData);
       setMovieName(movieData?.movieNameEnglish);
       setMovieImage(movieData?.largeImage);
     } catch (error) {
@@ -65,15 +64,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log("❌ Showtimes error response:", errorText);
-        throw new Error(`Failed to fetch showtimes: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log("✅ Showtimes data:", data);
-      console.log("📊 Number of showtimes:", data.length);
       setShowtimes(data);
     } catch (error) {
       console.error("❌ Error fetching showtimes:", error);
@@ -137,12 +128,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   const handleTimeSelect = (showtime) => {
     setSelectedTime(showtime.showTime);
     setSelectedScheduleId(showtime.scheduleId);
-
-    // Console log scheduleId ngay khi chọn
-    console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
-    console.log("📅 Selected Date:", showtime.showDate);
-    console.log("⏰ Selected Time:", showtime.showTime);
-    console.log("🎭 Cinema Room:", showtime.cinemaRoomName);
   };
 
   const handleNext = () => {
@@ -150,19 +135,11 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       message.warning("Please select both date and time");
       return;
     }
-    navigate(`/Select-Seat/${selectedScheduleId}/${movieName}`);
-
-    // Console log tất cả thông tin đã chọn
-    console.log("=== FINAL SELECTION ===");
-    console.log("🎬 Schedule ID:", selectedScheduleId);
-    console.log("📅 Selected date:", selectedDate);
-    console.log("⏰ Selected time:", selectedTime);
-    console.log("=======================");
+    navigate(
+      `/Select-Seat/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
+    );
 
     message.success("Date and time selected successfully!");
-
-    // Bạn có thể truyền scheduleId lên component cha hoặc navigate với scheduleId
-    // Ví dụ: navigate(`/seats/${selectedScheduleId}`);
   };
 
   // Xử lý nút back
