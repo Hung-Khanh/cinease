@@ -2,13 +2,13 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useLocation} from "react-router-dom";
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
-import React, { useState } from 'react';
-
+import React, { useState } from "react";
 
 import Footer from "./component/Footer/Footer.jsx";
-import Header from "./component/Header/Header.jsx";
+import Header from "./component/header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
 import HomePage from "./pages/home/Home.jsx";
@@ -25,6 +25,7 @@ import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 
+import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -32,6 +33,20 @@ import Dashboard from "./pages/admin/DashBoard/Dashboard.jsx";
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
+import Employees from "./pages/admin/Employees/Employees.jsx";
+import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
+
+function AdminRoutes() {
+  return (
+    <Routes>      
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="promotions" element={<Promotions />} />
+      <Route path="movies" element={<AdminMovies />} />
+      <Route path="employees" element={<Employees />} />
+      <Route path="cinema" element={<CinemaRooms />} />
+    </Routes>
+  );
+}
 
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -80,11 +95,7 @@ function AdminLayout() {
             overflowY: "auto",
           }}
         >
-          <Routes>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-          </Routes>
+          <AdminRoutes />
         </div>
       </div>
     </div>
@@ -111,17 +122,25 @@ function Layout() {
             element={<DateTimeSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/Select-Seat/:scheduleId/:movieName"
+            path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/ticketInformation/:invoiceId/:scheduleId"
+            path="/ticketInformation/:invoiceId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
+          <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/description-movie/:movieId" element={<DescriptionMovie />} />
-          <Route path="/select-showtime/:movieId" element={<SelectShowtime />} />
+          <Route
+            path="/description-movie/:movieId"
+            element={<DescriptionMovie />}
+          />
+          <Route
+            path="/select-showtime/:movieId"
+            element={<SelectShowtime />}
+          />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
@@ -140,12 +159,8 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/admin/*" element={<AdminLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-            {/* Add more admin routes here as needed */}
-          </Route>
+          <Route path="/admin/*" element={<AdminLayout />}></Route>
+          
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>

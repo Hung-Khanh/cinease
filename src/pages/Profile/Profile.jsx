@@ -7,7 +7,13 @@ import api from "../../constants/axios";
 const historyData = [
   { key: 1, date: "16/06/2025", movie: "Lật mặt 8", tickets: 2, points: "+50" },
   { key: 2, date: "15/06/2025", movie: "Doraemon", tickets: 2, points: "+50" },
-  { key: 3, date: "14/06/2025", movie: "Lilo & Stitch", tickets: 2, points: "+50" },
+  {
+    key: 3,
+    date: "14/06/2025",
+    movie: "Lilo & Stitch",
+    tickets: 2,
+    points: "+50",
+  },
 ];
 
 const Profile = () => {
@@ -44,7 +50,6 @@ const Profile = () => {
         },
       });
       const data = response.data;
-      console.log("API response:", data);
 
       // Map API data to form fields
       form.setFieldsValue({
@@ -83,10 +88,10 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result;
-        const base64 = result.split(',')[1];
+        const base64 = result.split(",")[1];
         resolve(base64);
       };
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
       reader.readAsDataURL(file);
     });
   }
@@ -100,25 +105,30 @@ const Profile = () => {
       } else if (previewAvatar && previewAvatar.startsWith("data:image")) {
         imageBase64 = previewAvatar.split(",")[1];
       }
-  
+
       const payload = {
         ...values,
-        ...(imageBase64 ? { image: imageBase64 } : {})
+        ...(imageBase64 ? { image: imageBase64 } : {}),
       };
-  
-      Object.keys(payload).forEach(key => {
-        if (key !== "gender" && (payload[key] === undefined || payload[key] === null || payload[key] === "")) {
+
+      Object.keys(payload).forEach((key) => {
+        if (
+          key !== "gender" &&
+          (payload[key] === undefined ||
+            payload[key] === null ||
+            payload[key] === "")
+        ) {
           delete payload[key];
         }
       });
-  
+
       await api.put("/member/account", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
-  
+
       message.success("Profile updated successfully!");
       setAvatarFile(null);
       await fetchUserInfo();
@@ -145,17 +155,23 @@ const Profile = () => {
       return;
     }
     try {
-      await api.put("/member/account", {
-        currentPassword: currentPwd,
-        newPassword: newPwd,
-        confirmPassword: confirmPwd,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(
+        "/member/account",
+        {
+          currentPassword: currentPwd,
+          newPassword: newPwd,
+          confirmPassword: confirmPwd,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       message.success("Password changed successfully!");
       pwdForm.resetFields();
     } catch (error) {
-      message.error(error?.response?.data?.message || "Password change failed!");
+      message.error(
+        error?.response?.data?.message || "Password change failed!"
+      );
     }
   };
 
@@ -268,14 +284,22 @@ const Profile = () => {
             <Form.Item
               label="Current Password"
               name="currentPwd"
-              rules={[{ required: true, message: "Please enter your current password!" }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your current password!",
+                },
+              ]}
             >
               <Input.Password placeholder="Enter current password" />
             </Form.Item>
             <Form.Item
               label="New Password"
               name="newPwd"
-              rules={[{ required: true, message: "Please enter a new password!" }, { min: 6, message: "Password must be at least 6 characters!" }]}
+              rules={[
+                { required: true, message: "Please enter a new password!" },
+                { min: 6, message: "Password must be at least 6 characters!" },
+              ]}
             >
               <Input.Password placeholder="Enter new password" />
             </Form.Item>
@@ -284,13 +308,18 @@ const Profile = () => {
               name="confirmPwd"
               dependencies={["newPwd"]}
               rules={[
-                { required: true, message: "Please confirm your new password!" },
+                {
+                  required: true,
+                  message: "Please confirm your new password!",
+                },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("newPwd") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Password confirmation does not match!"));
+                    return Promise.reject(
+                      new Error("Password confirmation does not match!")
+                    );
                   },
                 }),
               ]}

@@ -1,42 +1,48 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import './SideBar.scss';
-import logo from '../../../assets/logo.png'; // Adjust path as needed
-import DashboardIcon from '../../../assets/admin-logo/dashboard-icon.svg';
-import EmployeesIcon from '../../../assets/admin-logo/employees-icon.svg';
-import MoviesIcon from '../../../assets/admin-logo/movies-icon.svg';
-import PromotionsIcon from '../../../assets/admin-logo/promotions-icon.svg';
-import CinemaIcon from '../../../assets/admin-logo/cinema-icon.svg';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import "./SideBar.scss";
+import logo from "../../../assets/logo.png"; // Adjust path as needed
+import DashboardIcon from "../../../assets/admin-logo/dashboard-icon.svg";
+import EmployeesIcon from "../../../assets/admin-logo/employees-icon.svg";
+import MoviesIcon from "../../../assets/admin-logo/movies-icon.svg";
+import PromotionsIcon from "../../../assets/admin-logo/promotions-icon.svg";
+import CinemaIcon from "../../../assets/admin-logo/cinema-icon.svg";
+import TicketIcon from "../../../assets/admin-logo/ticket-icon.svg";
 
 const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   const location = useLocation();
 
   const adminMenuItems = [
     {
-      path: '/admin/dashboard',
+      path: "/admin/dashboard",
       icon: DashboardIcon,
-      label: 'Dashboard'
+      label: "Dashboard",
     },
     {
-      path: '/admin/employees',
+      path: "/admin/employees",
       icon: EmployeesIcon,
-      label: 'Employees'
+      label: "Employees",
     },
     {
-      path: '/admin/movies',
+      path: "/admin/movies",
       icon: MoviesIcon,
-      label: 'Movies'
+      label: "Movies",
     },
     {
-      path: '/admin/promotions',
+      path: "/admin/promotions",
       icon: PromotionsIcon,
-      label: 'Promotions'
+      label: "Promotions",
     },
     {
-      path: '/admin/cinema',
+      path: "/admin/cinema",
       icon: CinemaIcon,
-      label: 'Cinema Rooms'
-    }
+      label: "Cinema Rooms",
+    },
+    {
+      path: "/admin/ticket",
+      icon: TicketIcon,
+      label: "Ticket Booking",
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -48,24 +54,26 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   };
 
   return (
-    <div className={`admin-sidebar ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`admin-sidebar ${isVisible ? "visible" : "hidden"}`}>
       <div className="sidebar-logo">
         <img src={logo} alt="Cinease Logo" className="logo-image" />
       </div>
-      
+
       <nav className="sidebar-menu">
         <ul>
           {adminMenuItems.map((item) => (
             <li key={item.path}>
-              <Link 
-                to={item.path} 
-                className={`sidebar-link ${isActive(item.path) ? 'active' : ''}`}
+              <Link
+                to={item.path}
+                className={`sidebar-link ${
+                  isActive(item.path) ? "active" : ""
+                }`}
                 onClick={() => handleMenuItemClick(item.label)}
               >
                 <span className="sidebar-icon">
-                  <img 
-                    src={item.icon} 
-                    alt={`${item.label} icon`} 
+                  <img
+                    src={item.icon}
+                    alt={`${item.label} icon`}
                     className="menu-icon"
                   />
                 </span>
