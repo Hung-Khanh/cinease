@@ -7,7 +7,8 @@ const PaymentSuccess = () => {
   const location = useLocation();
   const [ticketData, setTicketData] = useState(null);
   const [moviePoster, setMoviePoster] = useState("");
-  const role = localStorage.getItem("role");
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const token = localStorage.getItem("token");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
@@ -23,10 +24,9 @@ const PaymentSuccess = () => {
   };
   useEffect(() => {
     const fetchTicketInformation = async () => {
-      const token = localStorage.getItem("token");
       try {
         const response = await fetch(
-          `https://legally-actual-mollusk.ngrok-free.app/api/employee/bookings/${invoiceId}`,
+          `${apiUrl}/employee/bookings/${invoiceId}`,
           {
             method: "GET",
             headers: {
@@ -74,7 +74,7 @@ const PaymentSuccess = () => {
     if (invoiceId) {
       fetchTicketInformation();
     } else {
-      alert("Invalid ticket information.");
+      // alert("Invalid ticket information.");
     }
   }, [invoiceId]);
 
