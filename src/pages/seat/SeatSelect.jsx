@@ -11,7 +11,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Sửa dòng này:
   const { movieName = "", showDate = "", showTime = "" } = location.state || {};
 
   const fetchSeat = async () => {
@@ -32,8 +31,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
     try {
       const url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`;
-      console.log("📡 Đang gọi API:", url);
-
       const response = await fetch(url, {
         method: "GET",
         headers: {
@@ -43,7 +40,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       });
 
       if (!response.ok) {
-        // Đọc lỗi một lần duy nhất
         const errorText = await response.text();
         console.log("❌ Error response:", errorText);
         if (response.status === 401) {
@@ -54,7 +50,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         throw new Error(`Failed to fetch seats: ${response.status}`);
       }
 
-      // Đọc JSON một lần duy nhất
       const data = await response.json();
       console.log("data:", data);
       setSeats(data);
@@ -64,34 +59,30 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     }
   };
 
-
   useEffect(() => {
     fetchSeat();
   }, [scheduleId]);
 
-  // Helper: tìm seat theo seatId
-const findSeatBySeatId = (seatId) => {
+  const findSeatBySeatId = (seatId) => {
     return seats.find(
       (seat) => createSeatId(seat.seatColumn, seat.seatRow) === seatId
     );
   };
-  // Helper: tạo seatId từ hàng và số ghế
-const createSeatId = (seatColumn, seatRow) => {
+
+  const createSeatId = (seatColumn, seatRow) => {
     return `${seatColumn}${seatRow}`;
   };
-  // Helper: danh sách hàng ghế
- const getUniqueRows = () => {
+
+  const getUniqueRows = () => {
     const rows = [...new Set(seats.map((seat) => seat.seatColumn))];
     return rows.sort();
   };
 
-  // Helper: số ghế lớn nhất trong 1 hàng
   const getMaxSeatsPerRow = () => {
     if (seats.length === 0) return 0;
     return Math.max(...seats.map((seat) => seat.seatRow));
   };
 
-  // Helper: xử lý chọn/bỏ chọn ghế
   const toggleSeat = (seatId) => {
     const seat = findSeatBySeatId(seatId);
     if (!seat || seat.seatStatus === "BOOKED") return;
@@ -176,11 +167,18 @@ const createSeatId = (seatColumn, seatRow) => {
       const data = await response.json();
       console.log("✅ Seat selection response:", data);
 
-      if (data?.invoiceId) {
-        navigate(`/confirm/${data.invoiceId}`, {});
-      } else {
-        alert("Chọn ghế thành công nhưng không có thông tin hóa đơn!");
-      }
+      // Chỉ cần response thành công là chuyển trang
+      navigate(`/confirm/${movieId}`, {
+        state: {
+          // invoiceId: data.invoiceId, // nếu cần truyền invoiceId thì giữ lại
+          scheduleId: parseInt(scheduleId),
+          selectedSeats,
+          totalPrice,
+          movieName,
+          showDate,
+          showTime,
+        },
+      });
     } catch (error) {
       console.error("Error in handleCheckout:", error);
       alert("Failed to select seats. Please try again.");
@@ -282,12 +280,12 @@ const createSeatId = (seatColumn, seatRow) => {
           </div>
 
           <button
-            className="checkout-button"
-onClick={handleCheckout}
-            disabled={selectedSeats.length === 0}
-          >
-            Checkout
-          </button>
+              className="checkout-button"
+              onClick={handleCheckout}
+              disabled={selectedSeats.length === 0}
+            >
+              Checkout
+            </button>
         </div>
       </div>
     </div>

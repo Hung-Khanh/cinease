@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './Confirm.scss';
 import Select from 'react-select';
 import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import Movie from '../movie/Movie';
 
 const options = [
   { value: 'BAPNGON', label: 'BAPNGON' },
@@ -10,63 +11,231 @@ const options = [
   { value: 'CINEASEVIP', label: 'CINEASEVIP' },
 ];
 
-const Confirm = () => {
+const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { invoiceId: paramInvoiceId } = useParams();
+  const {
+    invoiceId = paramInvoiceId,
+    selectedSeats = [],
+    movieName = "",
+    cinemaRoomId: initialCinemaRoomId = "",
+    movieId = "",
+    showDate = "",
+    showTime = "",
+    totalPrice = 0,
+    scheduleId
+  } = location.state || {};
 
-  const handleConfirm = () => {
-    navigate('/payment-detail');
+  const [voucher, setVoucher] = useState(null);
+  const [largeImage, setLargeImage] = useState("");
+  const [cinemaRoomId, setCinemaRoomId] = useState(initialCinemaRoomId);
+
+  useEffect(() => {
+    console.log("cinemaRoomId:", cinemaRoomId);
+  }, [cinemaRoomId]);
+
+  const fetchMoviePoster = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn chưa đăng nhập.");
+      navigate("/login");
+      return;
+    }
+
+    let foundPoster = "";
+    try {
+      let response = await fetch(`${apiUrl}/public/movies?q=${movieId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+          Accept: "application/json",
+        },
+      });
+
+      if (response.redirected) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          let movie = data.find(m => (m.movieId === parseInt(movieId) || m.movieId === movieId));
+          foundPoster = movie?.largeImage || "";
+        }
+      }
+
+      if (!foundPoster && movieName) {
+        response = await fetch(`${apiUrl}/public/movies?q=${encodeURIComponent(movieName)}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+            Accept: "application/json",
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            let movie = data.find(m => m.movieName?.toLowerCase() === movieName.toLowerCase());
+            foundPoster = movie?.largeImage || data[0]?.largeImage || "";
+          }
+        }
+      }
+
+      setLargeImage(foundPoster);
+    } catch (err) {
+      console.error("🔥 Error fetching movie poster:", err);
+    }
   };
 
-  const handleBack = () => {
-    navigate('/seat-selection');
+  // Fetch cinemaRoomId if missing
+  useEffect(() => {
+    if (!cinemaRoomId && scheduleId) {
+      const fetchRoom = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(`${apiUrl}/public/schedules/${scheduleId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+              Accept: "application/json",
+            },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setCinemaRoomId(data.cinemaRoomId || "");
+          }
+        } catch (e) {
+          // Không alert, chỉ log
+          console.error("Không lấy được cinemaRoomId:", e);
+        }
+      };
+      fetchRoom();
+    }
+  }, [cinemaRoomId, scheduleId, apiUrl]);
+
+  useEffect(() => {
+    setLargeImage("");
+    fetchMoviePoster();
+    // eslint-disable-next-line
+  }, [movieId, movieName]);
+
+  const handleConfirm = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn chưa đăng nhập.");
+      navigate("/login");
+      return;
+    }
+
+    if (!scheduleId || isNaN(Number(scheduleId))) {
+      alert("Mã lịch chiếu (scheduleId) không hợp lệ!");
+      return;
+    }
+
+    const bodyData = {
+      scheduleId: parseInt(scheduleId),
+      useScore: 0,
+      promotionId: 0,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/member/confirm-booking`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify(bodyData),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("❌ Confirm failed:", text);
+        alert(`Xác nhận không thành công.\n${text}`);
+        return;
+      }
+
+      const data = await response.json();
+
+      const newInvoiceId = data.invoiceId || data.id || data.bookingId;
+      if (!newInvoiceId) {
+        alert("Không lấy được mã hóa đơn mới từ server!");
+        return;
+      }
+      navigate(`/payment-detail/${newInvoiceId}/${scheduleId}`);
+    } catch (err) {
+      console.error("🔥 Error confirming:", err);
+      alert("Có lỗi xảy ra.");
+    }
   };
+
+  const handleBack = () => navigate(-1);
 
   return (
     <div className="confirm-wrapper">
+      <button className="back-button" onClick={handleBack}>
+        <FaArrowLeft />
+      </button>
       <main className="confirm-container">
-        <button className="back-button" onClick={handleBack}>
-          <FaArrowLeft />
-        </button>
-
         <div className="ticket-box">
           <div className="poster">
-            <img src="src/assets/z6663759604899_57baa9df4721a2c6cdcad271180353b3.jpg" alt="Poster" />
+            {largeImage ? (
+              <img src={largeImage} alt={`Poster for movie`} />
+            ) : (
+              <div className="no-poster">No Poster</div>
+            )}
           </div>
-
           <div className="ticket-info">
             <h2>CONFIRM INFORMATION</h2>
-            <p><strong>🎬 MOVIE </strong> <br /> SPIDERMAN ACROSS THE SPIDERVERSE</p>
-            <p><strong>🎥 FORMAT:</strong> 2D</p>
-            <p><strong>📅 SHOW DATE:</strong> 26/5/2025 &nbsp; <strong>⏰ SHOW TIME:</strong> 15H40</p>
-            <p><strong>🏢 THEATER:</strong> Vincom Megamall GrandPark &nbsp; <strong>📽 ROOM:</strong> 8</p>
-            <p><strong>💺 SEAT:</strong> C8 - C9 - C10 &nbsp; <strong>TICKET:</strong> 3</p>
-            <p className="total"><strong>TOTAL:</strong> VND 90.000 x 3</p>
-
-            {/* Select style react-select */}
+            <div className="row">
+              <span className="icon">🎬</span>
+              <span className="label">Movie:</span>
+              <span className="value">{movieName}</span>
+            </div>
+            <div className="row">
+              <span className="icon">📅</span>
+              <span className="label">Date:</span>
+              <span className="value">{showDate}</span>
+            </div>
+            <div className="row">
+              <span className="icon">⏰</span>
+              <span className="label">Time:</span>
+              <span className="value">{showTime}</span>
+            </div>
+            <div className="row">
+              <span className="icon">💺</span>
+              <span className="label">Seat:</span>
+              <span className="value">{selectedSeats.join(', ')}</span>
+            </div>
+            <div className="row">
+              <span className="icon">💺</span>
+              <span className="label">CineRoom:</span>
+              <span className="value">{cinemaRoomId}</span>
+            </div>
+            <div className="row total">
+              <span className="icon">💵</span>
+              <span className="label">Total:</span>
+              <span className="value">VND {totalPrice.toLocaleString()}</span>
+            </div>
             <div className="voucher-container">
               <Select
                 className="voucher-select"
                 classNamePrefix="voucher"
                 options={options}
                 isClearable
-                isSearchable
-                placeholder="Select or enter a voucher"
+                placeholder="Select a voucher"
+                onChange={setVoucher}
               />
             </div>
-
-            <div className="customer-info">
-              <p><strong>FULLNAME : </strong> Minh Trí</p>
-              <p><strong>PHONE NUMBER :</strong> 0931122334</p>
-              <p><strong>EMAIL:</strong> <a href="mailto:minhtri@gmail.com">minhtri@gmail.com</a></p>
-            </div>
-
-            <button
-              className="confirm-button"
-              onClick={handleConfirm}
-            >
+            <button className="confirm-button" onClick={handleConfirm}>
               CONFIRM
             </button>
-            <p className="note">* Please confirm your ticket before payment. Tickets cannot be canceled after successful payment</p>
+            <p className="note">* Vé đã xác nhận không thể hủy.</p>
           </div>
         </div>
       </main>
@@ -75,3 +244,5 @@ const Confirm = () => {
 };
 
 export default Confirm;
+
+
