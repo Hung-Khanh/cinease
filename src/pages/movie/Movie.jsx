@@ -27,6 +27,7 @@ const comingSoon = [
 const Movie = () => {
   const navigate = useNavigate();
   const [nowShowing, setNowShowing] = useState([]);
+  const [comingSoonMovies, setComingSoonMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
@@ -34,7 +35,7 @@ const Movie = () => {
   const moviesPerPage = 10;
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const token = localStorage.getItem("token");
-console.log(token);  
+  console.log(token);
   useEffect(() => {
     const fetchMovies = async () => {
       try {
@@ -65,13 +66,46 @@ console.log(token);
         setNowShowing([]);
       }
     };
+    const fetchComingSoonMovies = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/public/movie/upcoming`, {
+          headers: {
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+        console.log(response.data); // Kiểm tra dữ liệu trả về
+        const data = await response.json();
+        const comingSoonData = data.content;
+
+        if (Array.isArray(comingSoonData)) {
+          const extractedComingSoonMovies = comingSoonData.map((movie) => ({
+            id: movie.movieId,
+            title: movie.movieNameEnglish,
+            img: movie.largeImage,
+            date: movie.fromDate || "Unknown",
+            badge: "Coming Soon",
+            genre: movie.version || "Unknown",
+            types: movie.types || "Unknown",
+          }));
+          setComingSoonMovies(extractedComingSoonMovies);
+        } else {
+          console.error("Dữ liệu không phải là mảng:", comingSoonData);
+          setComingSoonMovies([]);
+        }
+      } catch (error) {
+        console.error("Error fetching coming soon movies:", error);
+        setComingSoonMovies([]);
+      }
+    };
     fetchMovies();
+    fetchComingSoonMovies();
   }, [apiUrl, token]);
 
   const genreOptions = [
     ...new Set(nowShowing.map(m => m.genre))
   ];
-  
+
   let filtered = nowShowing.filter(m =>
     m.title.toLowerCase().includes(search.toLowerCase()) &&
     (genre === "all" || m.genre === genre)
@@ -123,7 +157,7 @@ console.log(token);
         {filtered
           .slice((page - 1) * moviesPerPage, page * moviesPerPage)
           .map((movie, idx) => (
-            <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{cursor: 'pointer'}}>
+            <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
               <img src={movie.img} alt={movie.title} className="movie-img" />
               <div className="movie-info">
                 <div className="movie-title">{movie.title}</div>
@@ -158,7 +192,7 @@ console.log(token);
       <div className="movie-coming-soon-section">
         <span>Coming Soon</span>
         <div className="movie-coming-soon-list">
-          {comingSoon.map((movie, idx) => (
+          {comingSoonMovies.map((movie, idx) => (
             <div className="coming-soon-card" key={idx}>
               <img src={movie.img} alt={movie.title} className="coming-soon-img" />
               <div className="coming-soon-info">
