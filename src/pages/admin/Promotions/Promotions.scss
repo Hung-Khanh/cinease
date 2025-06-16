@@ -6,6 +6,10 @@ $green-accent: #27ae60;
 $hover-color: #2ecc71;
 $input-bg: rgba(102, 136, 102, 0.2);
 $input-border-color: rgba(102, 136, 102, 0.5);
+$dark-input-bg: rgba(0, 50, 50, 0.4);
+$cyan-border: rgba(0, 188, 212, 0.3);
+$cyan-hover: rgba(0, 188, 212, 0.6);
+$bright-green: #0C9550;
 
 .promotions-container {
   background-color: $primary-bg;
@@ -735,6 +739,89 @@ body .ant-modal-root {
             background-color: rgba(231, 76, 60, 0.9) !important;
             border-color: rgba(231, 76, 60, 0.9) !important;
             transform: translateY(0) !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Image Upload Styling
+.image-uploader {
+  .ant-upload {
+    width: 128px !important;
+    height: 128px !important;
+    background: $dark-input-bg !important;
+    border: 2px dashed $cyan-border !important;
+    color: $text-color !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+
+    &:hover {
+      border-color: $cyan-hover !important;
+      background: rgba(0, 60, 60, 0.5) !important;
+      box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
+    }
+
+    .anticon {
+      color: $bright-green !important;
+      font-size: 24px !important;
+    }
+
+    img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 6px !important;
+    }
+
+    // Styling for upload text
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: $text-color !important;
+      
+      &:hover {
+        color: $bright-green !important;
+      }
+    }
+  }
+
+  // Uploaded image preview styling
+  .ant-upload-list-picture-card {
+    .ant-upload-list-item {
+      width: 128px !important;
+      height: 128px !important;
+      border-radius: 8px !important;
+      border: 2px solid $cyan-border !important;
+      background: $dark-input-bg !important;
+
+      &:hover {
+        border-color: $cyan-hover !important;
+        box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
+      }
+
+      .ant-upload-list-item-thumbnail {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 6px !important;
+      }
+
+      .ant-upload-list-item-actions {
+        .anticon {
+          color: $text-color !important;
+          background-color: rgba(0, 0, 0, 0.5) !important;
+          border-radius: 4px !important;
+          padding: 4px !important;
+
+          &:hover {
+            color: $bright-green !important;
           }
         }
       }
