@@ -70,7 +70,6 @@ const SHomePage = () => {
                 <Button
                   onClick={() => {
                     navigate(`/DateTimeSelection/${movie.movieId}`);
-                    console.log("Movie ID:", movie.movieId);
                   }}
                   type="primary"
                   className="book-button"

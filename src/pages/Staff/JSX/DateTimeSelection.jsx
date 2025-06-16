@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button, message } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../constants/axios";
+
 const DateTimeSelection = ({ apiUrl, onBack }) => {
   const { movieId } = useParams();
   const navigate = useNavigate();
@@ -22,30 +22,29 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
 
     try {
       setLoading(true);
+      const fullUrl = `${apiUrl}/public/movies?q=${movieId}`;
 
-      const response = await api.get(`/public/movies?q=${movieId}`, {
+      const response = await fetch(fullUrl, {
+        method: "GET",
         headers: {
           accept: "*/*",
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       });
-      if (!response.data) {
-        throw new Error(`Failed to fetch movie name: No data returned`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("❌ Error response:", errorText);
+        throw new Error(`Failed to fetch movie name: ${response.status}`);
       }
 
-      const movieData = response.data[0];
-      console.log("✅ Movie data:", movieData);
+      const data = await response.json();
+      const movieData = data[0];
       setMovieName(movieData?.movieNameEnglish);
       setMovieImage(movieData?.largeImage);
     } catch (error) {
       console.error("❌ Error in fetchName:", error);
       console.error("❌ Error details:", error.message);
-      if (error.response) {
-        console.log("❌ Error response:", error.response.data);
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -65,15 +64,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log("❌ Showtimes error response:", errorText);
-        throw new Error(`Failed to fetch showtimes: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log("✅ Showtimes data:", data);
-      console.log("📊 Number of showtimes:", data.length);
       setShowtimes(data);
     } catch (error) {
       console.error("❌ Error fetching showtimes:", error);
@@ -85,15 +76,12 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (movieId && apiUrl) {
-        await fetchName();
-        await fetchShowtimes();
-      } else {
-        console.log("❌ Missing data:", { movieId, apiUrl });
-      }
-    };
-    fetchData();
+    if (movieId && apiUrl) {
+      fetchName();
+      fetchShowtimes();
+    } else {
+      console.log("❌ Missing data:", { movieId, apiUrl });
+    }
   }, [movieId, apiUrl]);
 
   // Group showtimes by date
@@ -137,12 +125,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   const handleTimeSelect = (showtime) => {
     setSelectedTime(showtime.showTime);
     setSelectedScheduleId(showtime.scheduleId);
-
-    // Console log scheduleId ngay khi chọn
-    console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
-    console.log("📅 Selected Date:", showtime.showDate);
-    console.log("⏰ Selected Time:", showtime.showTime);
-    console.log("🎭 Cinema Room:", showtime.cinemaRoomName);
   };
 
   const handleNext = () => {
@@ -150,19 +132,11 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       message.warning("Please select both date and time");
       return;
     }
-    navigate(`/Select-Seat/${selectedScheduleId}/${movieName}`);
-
-    // Console log tất cả thông tin đã chọn
-    console.log("=== FINAL SELECTION ===");
-    console.log("🎬 Schedule ID:", selectedScheduleId);
-    console.log("📅 Selected date:", selectedDate);
-    console.log("⏰ Selected time:", selectedTime);
-    console.log("=======================");
+    navigate(
+      `/Select-Seat/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
+    );
 
     message.success("Date and time selected successfully!");
-
-    // Bạn có thể truyền scheduleId lên component cha hoặc navigate với scheduleId
-    // Ví dụ: navigate(`/seats/${selectedScheduleId}`);
   };
 
   // Xử lý nút back
