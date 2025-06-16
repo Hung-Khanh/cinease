@@ -1,0 +1,42 @@
+.confirm-purchase-wrapper {
+  font-family: "Montserrat", poppins, sans-serif;
+  background-image: url("../../assets/bigbackground.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.confirm-purchase-wrapper .ant-space {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirm-purchase-wrapper .qr-box {
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-purchase-wrapper .ant-qrcode {
+  width: 350px !important;
+  height: 350px !important;
+  canvas {
+    width: 320px !important;
+    height: 320px !important;
+  }
+}

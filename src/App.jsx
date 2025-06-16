@@ -2,13 +2,13 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useLocation} from "react-router-dom";
+  useLocation,
+} from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
-import React, { useState } from 'react';
-
+import React, { useState } from "react";
 
 import Footer from "./component/Footer/Footer.jsx";
-import Header from "./component/Header/Header.jsx";
+import Header from "./component/header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
 import HomePage from "./pages/home/Home.jsx";
@@ -23,6 +23,7 @@ import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 
+import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -109,20 +110,31 @@ function Layout() {
             element={<DateTimeSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/Select-Seat/:scheduleId/:movieName"
+            path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
             path="/ticketInformation/:invoiceId/:scheduleId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
+          <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/description-movie/:movieId" element={<DescriptionMovie />} />
-          <Route path="/select-showtime/:movieId" element={<SelectShowtime />} />
+          <Route
+            path="/description-movie/:movieId"
+            element={<DescriptionMovie />}
+          />
+          <Route
+            path="/select-showtime/:movieId"
+            element={<SelectShowtime />}
+          />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
+          <Route
+            path="/seat-select/:movieId/:scheduleId"
+            element={<SelectSeat />}
+          />
           {/* Add more routes as needed */}
         </Routes>
       </main>

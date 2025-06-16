@@ -7,6 +7,7 @@ const PaymentSuccess = () => {
   const location = useLocation();
   const [ticketData, setTicketData] = useState(null);
   const [moviePoster, setMoviePoster] = useState("");
+  const role = localStorage.getItem("role");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
