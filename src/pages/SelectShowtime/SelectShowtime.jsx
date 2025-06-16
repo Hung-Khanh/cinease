@@ -1,99 +1,166 @@
 import React, { useState, useEffect } from 'react';
 import './SelectShowtime.scss';
 import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import poster from '../../assets/stitch.jpg';
+import { useNavigate, useParams } from 'react-router-dom';
+import { message } from 'antd';
+import { Link } from 'react-router-dom';
 
-const SelectShowtime = ({ movieId }) => {
+const SelectShowtime = () => {
     const navigate = useNavigate();
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
-    const [dates, setDates] = useState([
-        { date: '2025-06-08', day: 'Mon' },
-        { date: '2025-06-09', day: 'Tue' },
-        { date: '2025-06-10', day: 'Wed' }
-    ]);
-    const [times, setTimes] = useState(['10:00 AM', '1:00 PM', '4:00 PM', '7:00 PM']);
+    const [selectedScheduleId, setSelectedScheduleId] = useState(null); 
+    const [dates, setDates] = useState([]);
+    const [showtimes, setShowtimes] = useState([]);
+    const [movie, setMovie] = useState(null);
+    const { movieId } = useParams();
+    const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+    const token = localStorage.getItem("token");
+
+    // Fetch movie details
+    const fetchMovieDetails = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/public/movies?q=${movieId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            const data = await response.json();
+            const movieData = data[0];
+            setMovie(movieData);
+            setDates(movieData.dates || []);
+        } catch (error) {
+            console.error("Error fetching movie data:", error);
+        }
+    };
+
+    const fetchShowtimes = async () => {
+        try {
+            const fullUrl = `${apiUrl}/public/showtimes?movieId=${movieId}`;
+            const response = await fetch(fullUrl, {
+                method: "GET",
+                headers: {
+                    accept: "*/*",
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
+                },
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log("❌ Showtimes error response:", errorText);
+                throw new Error(`Failed to fetch showtimes: ${response.status}`);
+            }
+            const data = await response.json();
+            setShowtimes(data);
+        } catch (error) {
+            console.error("❌ Error fetching showtimes:", error);
+            message.error("Failed to load showtimes");
+        }
+    };
 
     useEffect(() => {
-        if (dates.length > 0) {
-            setSelectedDate(dates[0].date); 
-        }
-    }, [dates]);
+        fetchMovieDetails();
+        fetchShowtimes();
+    }, []);
 
-    useEffect(() => {
-        if (selectedDate && times.length > 0) {
-            setSelectedTime(times[0]); 
+    const groupedShowtimes = showtimes.reduce((acc, showtime) => {
+        const date = showtime.showDate;
+        if (!acc[date]) {
+            acc[date] = [];
         }
-    }, [selectedDate, times]);
+        acc[date].push(showtime);
+        return acc;
+    }, {});
+
+    const uniqueDates = Object.keys(groupedShowtimes).sort();
 
     const handleDateSelect = (date) => {
         setSelectedDate(date);
+        setSelectedTime('');
+        setSelectedScheduleId(null); 
     };
 
-    const handleTimeSelect = (time) => {
-        setSelectedTime(time);
-    };
+    const handleTimeSelect = (showtime) => {
+        setSelectedTime(showtime.showTime);
+        setSelectedScheduleId(showtime.scheduleId); 
 
-    const handleSubmit = () => {
-        navigate('/seat-selection');
+        console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
     };
 
     return (
-        <div className="select-showtime">
-            <button className="back-button" onClick={() => navigate(-1)}>
-                    <FaArrowLeft />
-                </button>
+    <div className="select-showtime">
+        <h1 className='select-title'>Select Showtime</h1>
+        <button className="back-button" onClick={() => navigate(-1)}>
+            <FaArrowLeft />
+        </button>
+        
+        <div className="main-content">
             <div className="poster-section">
-                
-                <h1>Select showtime</h1>
-                <img src={poster} alt="Movie Poster" className="movie-poster" />
-                <h1 className="movie-title">STITCH</h1>
+                <img src={movie?.largeImage} alt={movie?.movieNameEnglish} className="movie-poster" />
+                <h1 className="movie-title">{movie?.movieNameEnglish}</h1>
             </div>
-
+            
             <div className="content-section">
                 <h3>Date</h3>
                 <div className="date-selection">
-                    {dates.map((item, idx) => (
+                    {uniqueDates.map((date) => (
                         <button
-                            key={idx}
-                            className={`date-button ${selectedDate === item.date ? 'active' : ''}`}
-                            onClick={() => handleDateSelect(item.date)}
+                            key={date}
+                            className={`date-button ${selectedDate === date ? 'active' : ''}`}
+                            onClick={() => handleDateSelect(date)}
                         >
-                            <div>{item.date}</div>
-                            <div>{item.day}</div>
+                            <div>{date}</div>
+                            <div>{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
                         </button>
                     ))}
                 </div>
-
-                <h3>Cinease complex</h3>
+                
+                <h3>Cinema Complex</h3>
                 <div className="cinema-complex">
                     <button className="location-button">Ho Chi Minh</button>
                 </div>
-
-                <h3>Cinease Vinhome Grand Park</h3>
+                
+                <h3>Showtimes</h3>
                 <div className="time-selection">
-                    {times.map((time, index) => (
+                    {selectedDate && groupedShowtimes[selectedDate]?.map((showtime) => (
                         <button
-                            key={index}
-                            className={`time-button ${selectedTime === time ? 'active' : ''}`}
-                            onClick={() => handleTimeSelect(time)}
+                            key={showtime.scheduleId}
+                            className={`time-button ${selectedTime === showtime.showTime ? 'active' : ''}`}
+                            onClick={() => handleTimeSelect(showtime)}
                         >
-                            {time}
+                            {showtime.showTime}
                         </button>
                     ))}
                 </div>
-
-                <button
+                
+                <Link
+                    to={{
+                        pathname: `/seat-select/${movieId}/${selectedScheduleId}`,
+                    }}
+                    state={{
+                        movieName: movie?.movieNameEnglish,
+                        showDate: selectedDate,
+                        showTime: selectedTime,
+                    }}
                     className="select-seat-btn"
-                    onClick={handleSubmit}
-                    disabled={!selectedDate || !selectedTime}
+                    onClick={(e) => {
+                        if (!selectedDate || !selectedTime) {
+                            e.preventDefault();
+                            message.warning("Please select both date and time");
+                        }
+                    }}
                 >
                     SELECT SEAT
-                </button>
+                </Link>
             </div>
         </div>
-    );
-};
+    </div>
+);
+}
 
-export default SelectShowtime;
+    export default SelectShowtime;

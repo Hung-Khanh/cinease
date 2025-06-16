@@ -141,11 +141,10 @@ const Login = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
+      message.success("Login successful!");
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ token: result.token, role: result.role })
-      );
+     
+      localStorage.setItem('user', JSON.stringify({ token: result.token, role: result.role }));
       login({
         token: result.token,
         role: result.role,

@@ -21,6 +21,8 @@ import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
 import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
+import SelectSeat from "./pages/seat/SeatSelect.jsx";
+
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
@@ -119,10 +121,21 @@ function Layout() {
 
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/description-movie" element={<DescriptionMovie />} />
-          <Route path="/select-showtime" element={<SelectShowtime />} />
+          <Route
+            path="/description-movie/:movieId"
+            element={<DescriptionMovie />}
+          />
+          <Route
+            path="/select-showtime/:movieId"
+            element={<SelectShowtime />}
+          />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
+          <Route
+            path="/seat-select/:movieId/:scheduleId"
+            element={<SelectSeat />}
+          />
+          {/* Add more routes as needed */}
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}

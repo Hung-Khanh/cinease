@@ -1,63 +1,233 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import './SeatSelect.scss';
-import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const seatsPerRow = 10;
-
-const soldSeats = ['D2', 'D3', 'D4', 'D5', 'D6'];
-
-const isVipSeat = (seat) => {
-  const row = seat[0];
-  const seatNumber = parseInt(seat.slice(1));
-  const vipRows = ['C', 'D', 'E', 'F', 'G'];
-  return vipRows.includes(row) && seatNumber >= 2 && seatNumber <= 9;
-};
-
-const SeatSelection = () => {
+const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api", onBack }) => {
+  const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const { scheduleId, movieId } = useParams();
+  const [movie, setMovie] = useState(null);
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const toggleSeat = (seat) => {
-    if (soldSeats.includes(seat)) return;
+  // Sửa dòng này:
+  const { movieName = "", showDate = "", showTime = "" } = location.state || {};
+
+  const fetchSeat = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      navigate("/login");
+      return;
+    }
+
+    const id = parseInt(scheduleId);
+    if (isNaN(id)) {
+      console.error("❌ scheduleId error or undefined:", scheduleId);
+      alert("scheduleId error. Vui lòng quay lại trang trước và thử lại.");
+      return;
+    }
+
+    try {
+      const url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`;
+      console.log("📡 Đang gọi API:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        // Đọc lỗi một lần duy nhất
+        const errorText = await response.text();
+        console.log("❌ Error response:", errorText);
+        if (response.status === 401) {
+          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          navigate("/login");
+          return;
+        }
+        throw new Error(`Failed to fetch seats: ${response.status}`);
+      }
+
+      // Đọc JSON một lần duy nhất
+      const data = await response.json();
+      console.log("data:", data);
+      setSeats(data);
+    } catch (error) {
+      console.error("🔥 Error in fetchSeat:", error);
+      alert("Lỗi khi tải danh sách ghế. Vui lòng thử lại.");
+    }
+  };
+
+
+  useEffect(() => {
+    fetchSeat();
+  }, [scheduleId]);
+
+  // Helper: tìm seat theo seatId
+const findSeatBySeatId = (seatId) => {
+    return seats.find(
+      (seat) => createSeatId(seat.seatColumn, seat.seatRow) === seatId
+    );
+  };
+  // Helper: tạo seatId từ hàng và số ghế
+const createSeatId = (seatColumn, seatRow) => {
+    return `${seatColumn}${seatRow}`;
+  };
+  // Helper: danh sách hàng ghế
+ const getUniqueRows = () => {
+    const rows = [...new Set(seats.map((seat) => seat.seatColumn))];
+    return rows.sort();
+  };
+
+  // Helper: số ghế lớn nhất trong 1 hàng
+  const getMaxSeatsPerRow = () => {
+    if (seats.length === 0) return 0;
+    return Math.max(...seats.map((seat) => seat.seatRow));
+  };
+
+  // Helper: xử lý chọn/bỏ chọn ghế
+  const toggleSeat = (seatId) => {
+    const seat = findSeatBySeatId(seatId);
+    if (!seat || seat.seatStatus === "BOOKED") return;
 
     setSelectedSeats((prev) =>
-      prev.includes(seat)
-        ? prev.filter((s) => s !== seat)
-        : [...prev, seat]
+      prev.includes(seatId)
+        ? prev.filter((s) => s !== seatId)
+        : [...prev, seatId]
     );
   };
 
-  const getSeatClass = (seat) => {
-    let baseClass = 'seat';
-    
-    // Thêm class vip nếu là ghế VIP
-    if (isVipSeat(seat)) {
-      baseClass += ' vip';
+  const getSeatClass = (seatId) => {
+    const seat = findSeatBySeatId(seatId);
+    if (!seat) return "seat unavailable";
+
+    let baseClass = "seat";
+    if (seat.seatType === "VIP") {
+      baseClass += " vip";
     }
-    
-    if (soldSeats.includes(seat)) return baseClass + ' sold';
-    if (selectedSeats.includes(seat)) return baseClass + ' selected';
-    return baseClass + ' available';
+    if (seat.seatStatus !== "AVAILABLE") {
+      return baseClass + " sold";
+    }
+    if (selectedSeats.includes(seatId)) {
+      return baseClass + " selected";
+    }
+    return baseClass + " available";
   };
 
-  const totalPrice = selectedSeats.reduce((total, seat) => {
-    const seatPrice = isVipSeat(seat) ? 100000 : 90000;
+  const totalPrice = selectedSeats.reduce((total, seatId) => {
+    const seat = findSeatBySeatId(seatId);
+    if (!seat) return total;
+    const seatPrice = seat.seatType === "VIP" ? 100000 : 90000;
     return total + seatPrice;
   }, 0);
 
-  const handleCheckout = () => {
-    // Điều hướng sang trang /checkout, có thể truyền state nếu cần
-    navigate('/confirm', { state: { selectedSeats, totalPrice } });
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      navigate("/login");
+      return;
+    }
+
+    const selectedSeatsInfo = selectedSeats.map(seatId => {
+      const seat = findSeatBySeatId(seatId);
+      return {
+        seatId,
+        scheduleSeatId: seat?.scheduleSeatId,
+        seatType: seat?.seatType,
+        price: seat?.seatType === "VIP" ? 100000 : 90000,
+      };
+    });
+
+    const scheduleSeatIds = selectedSeatsInfo.map(
+      (seat) => seat.scheduleSeatId
+    );
+    try {
+      const response = await fetch(`${apiUrl}/member/select-seats`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({
+          scheduleId: parseInt(scheduleId),
+          scheduleSeatIds,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("❌ Error response from select-seats:", errorText);
+        if (response.status === 401) {
+          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          navigate("/login");
+          return;
+        }
+        throw new Error(`Failed to select seats: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ Seat selection response:", data);
+
+      if (data?.invoiceId) {
+        navigate(`/confirm/${data.invoiceId}`, {});
+      } else {
+        alert("Chọn ghế thành công nhưng không có thông tin hóa đơn!");
+      }
+    } catch (error) {
+      console.error("Error in handleCheckout:", error);
+      alert("Failed to select seats. Please try again.");
+    }
+  };
+
+  const renderSeats = () => {
+    const rows = getUniqueRows();
+    const maxSeatsPerRow = getMaxSeatsPerRow();
+
+    return rows.map((row) => (
+      <div key={row} className="seat-row">
+        {Array.from({ length: maxSeatsPerRow }, (_, i) => {
+          const seatNumber = i + 1;
+          const seatId = createSeatId(row, seatNumber);
+          const seat = findSeatBySeatId(seatId);
+          if (!seat) {
+            return <div key={seatId} className="seat empty"></div>;
+          }
+          return (
+            <div
+              key={seatId}
+              className={getSeatClass(seatId)}
+              onClick={() => toggleSeat(seatId)}
+            >
+              {seatId}
+            </div>
+          );
+        })}
+      </div>
+    ));
+  };
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
   };
 
   return (
     <div className="seat-selection-wrapper">
-      <button className="back-button">
-          <FaArrowLeft />
-        </button>
-          
+      <button className="back-button" onClick={handleBack}>
+        <FaArrowLeft />
+      </button>
+
       <div className="seat-selection-container">
         <div className="screen-section">
           <div className="screen">
@@ -65,21 +235,9 @@ const SeatSelection = () => {
           </div>
           <div className="screen-arrow"></div>
         </div>
+
         <div className="main-section">
-          {rows.map((row) =>
-            Array.from({ length: seatsPerRow }, (_, i) => {
-              const seat = `${row}${i + 1}`;
-              return (
-                <div
-                  key={seat}
-                  className={getSeatClass(seat)}
-                  onClick={() => toggleSeat(seat)}
-                >
-                  {seat}
-                </div>
-              );
-            })
-          )}
+          {seats.length > 0 ? renderSeats() : <div>Đang tải ghế...</div>}
         </div>
 
         <div className="legend bottom-center">
@@ -108,15 +266,25 @@ const SeatSelection = () => {
           </div>
           <div className="summary-item">
             <p className="label">SELECTED SEAT</p>
-            <p className="value">{selectedSeats.join(', ') || 'Not Selected'}</p>
+            <p className="value">{selectedSeats.join(", ") || "Not Selected"}</p>
           </div>
           <div className="summary-item">
             <p className="label">MOVIE</p>
-            <p className="value">SPIDERMAN ACROSS<br/>THE SPIDERVERSE</p>
+            <p className="value">{movieName || "No Movie Selected"}</p>
           </div>
+          <div className="summary-item">
+            <p className="label">DATE</p>
+            <p className="value">{showDate || "N/A"}</p>
+          </div>
+          <div className="summary-item">
+            <p className="label">TIME</p>
+            <p className="value">{showTime || "N/A"}</p>
+          </div>
+
           <button
             className="checkout-button"
-            onClick={handleCheckout}
+onClick={handleCheckout}
+            disabled={selectedSeats.length === 0}
           >
             Checkout
           </button>
@@ -126,269 +294,4 @@ const SeatSelection = () => {
   );
 };
 
-export default SeatSelection;
-
-// // SeatSelection.jsx
-// import React, { useState, useEffect } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
-// import './SeatSelect.scss';
-// import { FaArrowLeft } from 'react-icons/fa';
-
-// const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-// const seatsPerRow = 10;
-
-// // Định nghĩa khu vực VIP (C2-C9, D2-D9, E2-E9, F2-F9, G2-G9)
-// const isVipSeat = (seat) => {
-//   const row = seat[0];
-//   const seatNumber = parseInt(seat.slice(1));
-//   const vipRows = ['C', 'D', 'E', 'F', 'G'];
-//   return vipRows.includes(row) && seatNumber >= 2 && seatNumber <= 9;
-// };
-
-// const SeatSelection = () => {
-//   const [selectedSeats, setSelectedSeats] = useState([]);
-//   const [soldSeats, setSoldSeats] = useState(['D2', 'D3', 'D4', 'D5', 'D6']);
-//   const [movieInfo, setMovieInfo] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-  
-//   const { scheduleId } = useParams(); // Lấy scheduleId từ URL params
-//   const navigate = useNavigate();
-  
-//   const apiUrl = "https://3a21-183-91-25-219.ngrok-free.app/api";
-//   const token = localStorage.getItem("token");
-
-//   // Fetch thông tin ghế đã bán và thông tin phim
-//   const fetchSeatInfo = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await fetch(`${apiUrl}/public/schedule/${scheduleId}/seats`, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           Accept: "application/json",
-//           "ngrok-skip-browser-warning": "true",
-//         },
-//       });
-
-//       if (!response.ok) {
-//         throw new Error(`API error: ${response.status} ${response.statusText}`);
-//       }
-
-//       const data = await response.json();
-      
-//       // Giả sử API trả về danh sách ghế đã bán và thông tin phim
-//       setSoldSeats(data.soldSeats || []);
-//       setMovieInfo(data.movieInfo || null);
-      
-//     } catch (error) {
-//       console.error("Error fetching seat info:", error);
-//       setError("Không thể tải thông tin ghế");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // Gọi API để chọn ghế
-//   const selectSeats = async () => {
-//     if (selectedSeats.length === 0) {
-//       alert("Vui lòng chọn ít nhất một ghế");
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-      
-//       // Chuyển đổi selectedSeats thành scheduleSeatIds
-//       // Giả sử bạn có mapping từ seat name sang seat ID
-//       const scheduleSeatIds = selectedSeats.map(seat => {
-//         // Đây là logic tạm thời, bạn cần thay thế bằng logic thực tế
-//         // để chuyển đổi từ seat name (ví dụ: "C8") sang seat ID
-//         return generateSeatId(seat);
-//       });
-
-//       const requestBody = {
-//         scheduleId: parseInt(scheduleId),
-//         scheduleSeatIds: scheduleSeatIds
-//       };
-
-//       const response = await fetch(`${apiUrl}/api/member/select-seats`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//           Accept: "application/json",
-//           "ngrok-skip-browser-warning": "true",
-//         },
-//         body: JSON.stringify(requestBody)
-//       });
-
-//       if (!response.ok) {
-//         throw new Error(`API error: ${response.status} ${response.statusText}`);
-//       }
-
-//       const data = await response.json();
-//       console.log("Seat selection successful:", data);
-      
-//       // Chuyển hướng đến trang thanh toán hoặc xử lý tiếp theo
-//       navigate('/checkout', { 
-//         state: { 
-//           selectedSeats, 
-//           totalPrice, 
-//           movieInfo,
-//           bookingData: data 
-//         } 
-//       });
-
-//     } catch (error) {
-//       console.error("Error selecting seats:", error);
-//       setError("Không thể chọn ghế. Vui lòng thử lại.");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   // Hàm tạm thời để generate seat ID từ seat name
-//   // Bạn cần thay thế bằng logic thực tế
-//   const generateSeatId = (seatName) => {
-//     // Ví dụ: chuyển "C8" thành một ID số
-//     const row = seatName[0];
-//     const number = parseInt(seatName.slice(1));
-//     const rowIndex = rows.indexOf(row);
-//     return (rowIndex * seatsPerRow + number) + 9007199254740000; // Tạm thời
-//   };
-
-//   useEffect(() => {
-//     if (scheduleId) {
-//       fetchSeatInfo();
-//     }
-//   }, [scheduleId]);
-
-//   const toggleSeat = (seat) => {
-//     if (soldSeats.includes(seat)) return;
-
-//     setSelectedSeats((prev) =>
-//       prev.includes(seat)
-//         ? prev.filter((s) => s !== seat)
-//         : [...prev, seat]
-//     );
-//   };
-
-//   const getSeatClass = (seat) => {
-//     let baseClass = 'seat';
-    
-//     if (isVipSeat(seat)) {
-//       baseClass += ' vip';
-//     }
-    
-//     if (soldSeats.includes(seat)) return baseClass + ' sold';
-//     if (selectedSeats.includes(seat)) return baseClass + ' selected';
-//     return baseClass + ' available';
-//   };
-
-//   const totalPrice = selectedSeats.reduce((total, seat) => {
-//     const seatPrice = isVipSeat(seat) ? 100000 : 90000;
-//     return total + seatPrice;
-//   }, 0);
-
-//   const handleBack = () => {
-//     navigate(-1);
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="seat-selection-wrapper">
-//         <div className="loading">Đang tải...</div>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="seat-selection-wrapper">
-//         <div className="error">
-//           <p>{error}</p>
-//           <button onClick={() => window.location.reload()}>Thử lại</button>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="seat-selection-wrapper">
-//       <button className="back-button" onClick={handleBack}>
-//         <FaArrowLeft />
-//       </button>
-          
-//       <div className="seat-selection-container">
-//         <div className="screen-section">
-//           <div className="screen">
-//             <span className="screen-text">Screen</span>
-//           </div>
-//           <div className="screen-arrow"></div>
-//         </div>
-        
-//         <div className="main-section">
-//           {rows.map((row) =>
-//             Array.from({ length: seatsPerRow }, (_, i) => {
-//               const seat = `${row}${i + 1}`;
-//               return (
-//                 <div
-//                   key={seat}
-//                   className={getSeatClass(seat)}
-//                   onClick={() => toggleSeat(seat)}
-//                 >
-//                   {seat}
-//                 </div>
-//               );
-//             })
-//           )}
-//         </div>
-
-//         <div className="legend bottom-center">
-//           <div className="legend-item">
-//             <div className="box available"></div>
-//             <span>Available Seat</span>
-//           </div>
-//           <div className="legend-item">
-//             <div className="box selected"></div>
-//             <span>Selected Seat</span>
-//           </div>
-//           <div className="legend-item">
-//             <div className="box sold"></div>
-//             <span>Unavailable Seat</span>
-//           </div>
-//           <div className="legend-item">
-//             <div className="box vip"></div>
-//             <span>VIP Seat</span>
-//           </div>
-//         </div>
-
-//         <div className="summary bottom-bar">
-//           <div className="summary-item">
-//             <p className="label">TOTAL</p>
-//             <p className="value">VND {totalPrice.toLocaleString()}</p>
-//           </div>
-//           <div className="summary-item">
-//             <p className="label">SELECTED SEAT</p>
-//             <p className="value">{selectedSeats.join(', ') || 'Not Selected'}</p>
-//           </div>
-//           <div className="summary-item">
-//             <p className="label">MOVIE</p>
-//             <p className="value">
-//               {movieInfo ? movieInfo.movieNameEnglish : 'SPIDERMAN ACROSS THE SPIDERVERSE'}
-//             </p>
-//           </div>
-//           <button 
-//             className="checkout-button"
-//             onClick={selectSeats}
-//             disabled={loading || selectedSeats.length === 0}
-//           >
-//             {loading ? 'Processing...' : 'Checkout'}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SeatSelection;
+export default SeatSelect;

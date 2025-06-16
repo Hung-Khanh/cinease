@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./DescriptionMovie.scss";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 
 const DescriptionMovie = () => {
@@ -8,12 +9,12 @@ const DescriptionMovie = () => {
     const [movie, setMovie] = useState(null);
     const [isTrailerVisible, setTrailerVisible] = useState(false);
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+    const { movieId } = useParams();
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
 
     const fetchMovieDetails = async () => {
         try {
-            const response = await fetch(`${apiUrl}/public/movies?q=14`, {
+            const response = await fetch(`${apiUrl}/public/movies?q=${movieId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
@@ -39,7 +40,9 @@ const DescriptionMovie = () => {
     const handleTrailerClick = () => {
         setTrailerVisible(!isTrailerVisible);
     };
-
+    const handleOverlayClick = () => {
+        setTrailerVisible(false);
+    };
     return (
         <div className="description-page">
             <div className="description-container">
@@ -54,15 +57,17 @@ const DescriptionMovie = () => {
                 </div>
 
                 {isTrailerVisible && (
-                    <div className="trailer-container">
-                        <iframe
-                            width="100%"
-                            height="315"
-                            src={movie?.trailerUrl}
-                            title="Trailer"
-                            frameBorder="0"
-                            allowFullScreen
-                        ></iframe>
+                    <div className="trailer-overlay" onClick={handleOverlayClick}>
+                        <div className="trailer-container" onClick={(e) => e.stopPropagation()}>
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={movie?.trailerUrl}
+                                title="Trailer"
+                                frameBorder="0"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
                     </div>
                 )}
 
@@ -77,12 +82,15 @@ const DescriptionMovie = () => {
                         <p className="movie-description">{movie?.content}</p>
                     </div>
 
-                    <button
+                    <Link
+                        to={`/select-showtime/${movieId}`}
+                        state={{ movieId: movie?.movieId }}
                         className="buy-ticket-btn"
-                        onClick={() => navigate('/select-showtime', { state: { movieId: movie?.movieId } })}
                     >
-                        Buy ticket
-                    </button>
+                        Buy Ticket
+                    </Link>
+
+
 
                     <table className="movie-details">
                         <tbody>
@@ -95,7 +103,7 @@ const DescriptionMovie = () => {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
