@@ -22,6 +22,8 @@ import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.js
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
+import Confirm from "./pages/confirm/Confirm.jsx";
+import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
@@ -31,6 +33,20 @@ import Dashboard from "./pages/admin/DashBoard/Dashboard.jsx";
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
+import Employees from "./pages/admin/Employees/Employees.jsx";
+import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
+
+function AdminRoutes() {
+  return (
+    <Routes>      
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="promotions" element={<Promotions />} />
+      <Route path="movies" element={<AdminMovies />} />
+      <Route path="employees" element={<Employees />} />
+      <Route path="cinema" element={<CinemaRooms />} />
+    </Routes>
+  );
+}
 
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
@@ -79,11 +95,7 @@ function AdminLayout() {
             overflowY: "auto",
           }}
         >
-          <Routes>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-          </Routes>
+          <AdminRoutes />
         </div>
       </div>
     </div>
@@ -114,7 +126,7 @@ function Layout() {
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/ticketInformation/:invoiceId/:scheduleId"
+            path="/ticketInformation/:invoiceId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
@@ -131,10 +143,9 @@ function Layout() {
           />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route
-            path="/seat-select/:movieId/:scheduleId"
-            element={<SelectSeat />}
-          />
+          <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
+          <Route path="/confirm/:movieId" element={<Confirm />} />
+          <Route path="/payment-detail/:invoiceId/:scheduleId" element={<PaymentDetail />} />
           {/* Add more routes as needed */}
         </Routes>
       </main>
@@ -148,12 +159,8 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/admin/*" element={<AdminLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="promotions" element={<Promotions />} />
-            <Route path="movies" element={<AdminMovies />} />
-            {/* Add more admin routes here as needed */}
-          </Route>
+          <Route path="/admin/*" element={<AdminLayout />}></Route>
+          
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>
