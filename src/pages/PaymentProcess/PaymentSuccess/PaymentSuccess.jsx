@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
 import "./PaymentSuccess.scss";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -82,6 +82,14 @@ const PaymentSuccess = () => {
 
   const { day, month, weekday } = formatDate(ticketData.date);
 
+  const handleBackToHome = () => {
+    if (role === "EMPLOYEE") {
+      navigate("/staffHomePage");
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <div className="payment-success-page">
       <div className="poster-section">
@@ -124,7 +132,7 @@ const PaymentSuccess = () => {
           <div className="info-value">{ticketData.total} VND</div>
         </div>
         <div className="thank-you">Thank you !</div>
-        <button className="home-btn" onClick={() => navigate("/")}>
+        <button className="home-btn" onClick={handleBackToHome}>
           Back to Home page
         </button>
       </div>
