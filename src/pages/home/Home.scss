@@ -72,6 +72,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
           margin-bottom: 28px;
           max-width: 600px;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+          margin-top: 0px;
         }
 
         .slide-cta {
@@ -131,7 +132,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
       .slide-item,
       .slide-overlay {
-        height: 160px;
+height: 160px;
         padding: 18px;
       }
 
@@ -295,7 +296,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     }
   }
   @media (max-width: 600px) {
-    .movie-carousel .movie-card {
+.movie-carousel .movie-card {
       max-width: 100%;
       min-width: 130px;
     }
@@ -344,6 +345,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    height: 450px;
 
     &:hover {
       transform: translateY(-6px) scale(1.03);
@@ -353,7 +355,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     .movie-img,
     .coming-img {
       width: 100%;
-      height: 240px;
+      height: 320px;
       object-fit: cover;
       border-radius: 14px 14px 0 0;
     }
@@ -413,12 +415,12 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         box-shadow: $card-shadow;
         width: 320px;
         min-width: 260px;
-        height: 210px;
+        height: 270px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s;
-
+        margin-bottom: 20px;
         &:hover {
           transform: translateY(-6px) scale(1.03);
           box-shadow: $hover-shadow;
@@ -426,12 +428,12 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
         .promo-img {
           width: 100%;
-          height: 140px;
+          height: 160px;
           object-fit: cover;
           border-radius: 14px 14px 0 0;
+          margin-bottom: 10px;
         }
-
-        .promo-info {
+.promo-info {
           padding: 10px 14px 12px;
           display: flex;
           flex-direction: column;
@@ -453,5 +455,3 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       }
     }
   }
-
-

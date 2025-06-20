@@ -7,7 +7,7 @@ $card-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
 .profile-page {
-  background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
+  background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #0a181f 100%);
   min-height: 100vh;
   padding: 20px;
   color: #ffffff;
@@ -277,7 +277,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       .profile-point {
         font-size: 24px;
         font-weight: 700;
-        color: #ac2020;
+        color: #1DF9FD;
       }
 
       .profile-point-label {
