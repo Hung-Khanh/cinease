@@ -1,53 +1,53 @@
 import { Carousel, Rate, Badge } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Slide1 from "../../assets/Slide1.png";
 import KM from "../../assets/KM.png";
 import "./Home.scss";
 import api from '../../constants/axios';
-
-const promotions = [
-    {
-        img: KM,
-        title: "June Promotion - 10% Off",
-        desc: "Applicable across all theaters."
-    },
-    {
-        img: KM,
-        title: "June Promotion - 20% Off",
-        desc: "Applicable across all theaters."
-    },
-    {
-        img: KM,
-        title: "June Promotion - 30% Off",
-        desc: "Applicable across all theaters."
-    }
-];
 
 const Home = () => {
     const navigate = useNavigate();
     const [showingMovies, setShowingMovies] = useState([]);
     const [comingSoonMovies, setComingSoonMovies] = useState([]);
+    const [promotions, setPromotions] = useState([]);
+    const [trailerVisible, setTrailerVisible] = useState(null);
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                const response = await api.get('/public/movies', {
+                const response = await api.get(`/public/movie/now-showing`, {
                     headers: {
                         Accept: "application/json",
                         "ngrok-skip-browser-warning": "true",
                     },
                 });
+
+                if (response.status !== 200) {
+                    console.error("HTTP error:", response.status);
+                    return;
+                }
+
                 const data = response.data;
-                const extractedMovies = data.map((movie) => ({
-                    id: movie.movieId,
-                    title: movie.movieNameEnglish,
-                    img: movie.largeImage,
-                    rating: movie.rating,
-                    genre: movie.version || "Unknown",
-                    types: movie.types || "Unknown",
-                    showtimes: movie.duration ? `${movie.duration} min` : "120 min"
-                }));
-                setShowingMovies(extractedMovies);
+                const filmData = data.content;
+
+                if (Array.isArray(filmData)) {
+                    const extractedMovies = filmData.map((movie) => ({
+                        id: movie.movieId,
+                        title: movie.movieNameEnglish,
+                        poster: movie.posterImageUrl || KM,
+                        img: movie.largeImage,
+                        rating: movie.rating || "N/A",
+                        genre: movie.version || "Unknown",
+                        types: movie.types || "Unknown",
+                        showtimes: movie.duration ? `${movie.duration} min` : "120 min",
+                        trailer: movie.trailerUrl,
+                        desc: movie.content,
+                    }));
+
+                    setShowingMovies(extractedMovies);
+                } else {
+                    console.error("Dữ liệu không phải là mảng:", filmData);
+                    setShowingMovies([]);
+                }
             } catch (error) {
                 console.error("Error fetching movies:", error);
                 setShowingMovies([]);
@@ -63,11 +63,11 @@ const Home = () => {
                     },
                 });
                 console.log(response.data); // Kiểm tra dữ liệu trả về
-        const data = response.data.content;
+                const data = response.data.content;
                 const extractedComingSoonMovies = data.map((movie) => ({
                     id: movie.movieId,
                     title: movie.movieNameEnglish,
-                    img: movie.largeImage,
+                    img: movie.posterImageUrl,
                     date: movie.fromDate || "Unknown",
                     badge: "Coming Soon",
                     genre: movie.version || "Unknown",
@@ -78,9 +78,34 @@ const Home = () => {
                 console.error("Error fetching coming soon movies:", error);
                 setComingSoonMovies([]);
             }
-        }
+        };
+
+        const fetchPromotions = async () => {
+            try {
+                const response = await api.get(`/public/promotions`, {
+                    headers: {
+                        Accept: "application/json",
+                        "ngrok-skip-browser-warning": "true",
+                    },
+                });
+                const data = response.data;
+                const extractedPromotions = data.map((promo) => ({
+                    id: promo.promotionId,
+                    title: promo.title,
+                    img: promo.image,
+                    detail: promo.detail,
+                    startTime: promo.startTime,
+                    endTime: promo.endTime,
+                }));
+                setPromotions(extractedPromotions);
+            } catch (error) {
+                console.error("Error fetching promotions:", error);
+                setPromotions([]);
+            }
+        };
         fetchMovies();
         fetchComingSoonMovies();
+        fetchPromotions();
     }, []);
 
     return (
@@ -89,21 +114,42 @@ const Home = () => {
                 <section className="home-slide">
                     <div className="slide-container">
                         <Carousel autoplay effect="fade" style={{ width: "100%", height: "auto", maxHeight: "450px" }}>
-                            <div className="slide-item">
-                                <img src={Slide1} alt="Slide1" />
-                                <div className="slide-overlay">
-                                    <h1 className="slide-title">Doraemon: Cuộc Phiêu Lưu Vào Thế Giới Trong Tranh</h1>
-                                    <p className="slide-desc">Genre: Animation, Adventure | Nobita and friends explore a mysterious land in the sky with thrilling adventures.</p>
-                                    <div className="slide-cta">
-                                        <button className="slide-btn buy">Buy Ticket</button>
-                                        <button className="slide-btn trailer">Watch Trailer</button>
+                            {showingMovies.map((movie, index) => (
+                                <div className="slide-item" key={index}>
+                                    <img src={movie.img} alt={movie.title} />
+                                    <div className="slide-overlay">
+                                        <h1 className="slide-title">{movie.title}</h1>
+                                        <p className="slide-desc">{movie.desc}</p>
+                                        <div className="slide-cta">
+                                            <button className="slide-btn buy" onClick={() => navigate(`/select-showtime/${movie.id}`)}>Buy Ticket</button>
+                                            <button
+                                                className="slide-btn trailer"
+                                                onClick={() => setTrailerVisible(movie.trailer)} // Use state to show trailer overlay
+                                            >
+                                                Watch Trailer
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
+                            ))}
                         </Carousel>
                     </div>
                 </section>
+
+                {trailerVisible && (
+                    <div className="trailer-overlay" onClick={() => setTrailerVisible(null)}>
+                        <div className="trailer-container" onClick={(e) => e.stopPropagation()}>
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={trailerVisible} 
+                                title="Trailer"
+                                frameBorder="0"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    </div>
+                )}
                 <section className="movie-section">
                     <div className="section-header">
                         <h2>Now Showing</h2>
@@ -123,7 +169,7 @@ const Home = () => {
                         >
                             {showingMovies.map((movie, idx) => (
                                 <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
-                                    <img src={movie.img} alt={movie.title} className="movie-img" />
+                                    <img src={movie.poster} alt={movie.title} className="movie-img" />
                                     <div className="movie-info">
                                         <div className="movie-title">{movie.title}</div>
                                         <div className="movie-rating-row">
@@ -158,7 +204,7 @@ const Home = () => {
                             className="movie-carousel"
                         >
                             {comingSoonMovies.map((movie, idx) => (
-                                <div className="coming-soon-card" key={idx}>
+                                <div className="coming-soon-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="coming-img-wrap">
                                         <img src={movie.img} alt={movie.title} className="coming-img" />
                                         <div className="coming-badge">{movie.badge}</div>
@@ -180,15 +226,25 @@ const Home = () => {
                         <h2>Special Promotions</h2>
                     </div>
                     <div className="promo-list">
-                        {promotions.map((promo, idx) => (
-                            <div className="promo-card" key={idx}>
-                                <img src={promo.img} alt={promo.title} className="promo-img" />
-                                <div className="promo-info">
-                                    <div className="promo-title">{promo.title}</div>
-                                    <div className="promo-desc">{promo.desc}</div>
+                        {promotions.map((promo, idx) => {
+                            const startDate = new Date(promo.startTime);
+                            const endDate = new Date(promo.endTime);
+                            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                            const formattedStartDate = startDate.toLocaleDateString('en-US', options);
+                            const formattedEndDate = endDate.toLocaleDateString('en-US', options);
+
+                            return (
+                                <div className="promo-card" key={idx}>
+                                    <img src={promo.img} alt={promo.title} className="promo-img" />
+                                    <div className="promo-info">
+                                        <div className="promo-title">{promo.title}</div>
+                                        {/* Display formatted dates */}
+                                        <div className="promo-date">Start: {formattedStartDate}</div>
+                                        <div className="promo-date">End: {formattedEndDate}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             </main>

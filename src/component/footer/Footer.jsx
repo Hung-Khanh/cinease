@@ -11,10 +11,10 @@ const Footer = () => {
                         Vietnam's leading modern cinema system, bringing you the ultimate movie experience.
                     </div>
                     <div className="footer-social">
-                        <a href="#" className="social-icon"><i className="fa-brands fa-facebook"></i></a>
-                        <a href="#" className="social-icon"><i className="fa-brands fa-instagram"></i></a>
-                        <a href="#" className="social-icon"><i className="fa-brands fa-youtube"></i></a>
-                        <a href="#" className="social-icon"><i className="fa-brands fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/khanhhung2712" className="social-icon"><i className="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/hux.hung27" className="social-icon"><i className="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.youtube.com/@hux.hung27" className="social-icon"><i className="fa-brands fa-youtube"></i></a>
+                        <a href="https://www.tiktok.com/@hux.hung27" className="social-icon"><i className="fa-brands fa-tiktok"></i></a>
                     </div>
                 </div>
                 <div className="footer-col">
