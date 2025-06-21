@@ -126,6 +126,39 @@
 
         .ant-select {
           width: 100%;
+
+          // Fix alignment cho Select
+          .ant-select-selector {
+            display: flex;
+            align-items: center; // Căn giữa theo chiều dọc
+            min-height: 32px; // Đảm bảo chiều cao tối thiểu
+            padding: 4px 11px; // Padding chuẩn
+          }
+
+          // Căn giữa arrow icon
+          .ant-select-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(-50%);
+            transform: translateY(70%);
+          }
+
+          // Căn giữa selection text
+          .ant-select-selection-item {
+            display: flex;
+            align-items: center;
+            line-height: 1.5;
+          }
+        }
+
+        // Styling cho Input khi chọn Cash
+        .ant-input {
+          margin-top: 10px;
+          padding: 4px 11px;
+          min-height: 32px;
+          display: flex;
+          align-items: center;
         }
 
         div {
@@ -224,7 +257,7 @@
         font-size: 12px; /* Smaller font */
         flex-direction: column; /* Stack details for better readability */
         gap: 5px;
-
+        padding: 700px;
         &.transaction {
           .transaction-details {
             padding-left: 10px;

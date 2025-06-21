@@ -140,6 +140,11 @@ $bg-color: #011c0f;
   overflow-x: auto;
   padding: 0 10px;
 
+  /* Ẩn bất kỳ nhãn cột nào được thêm từ ::before */
+  &::before {
+    content: none !important;
+  }
+
   @media (max-width: 1024px) {
     column-gap: 2px;
     row-gap: 2px;

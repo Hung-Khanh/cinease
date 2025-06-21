@@ -49,6 +49,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       console.log("Error in fetchProduct: ", error);
     }
   };
+
   useEffect(() => {
     if (scheduleId && apiUrl) {
       fetchSeat();
@@ -68,12 +69,12 @@ const SeatSelection = ({ apiUrl, onBack }) => {
     );
   };
 
-  const getUniqueRows = () => {
-    const rows = [...new Set(seats.map((seat) => seat.seatColumn))];
-    return rows.sort();
+  const getUniqueColumns = () => {
+    const columns = [...new Set(seats.map((seat) => seat.seatColumn))];
+    return columns.sort();
   };
 
-  const getMaxSeatsPerRow = () => {
+  const getMaxSeatsPerColumn = () => {
     if (seats.length === 0) return 0;
     return Math.max(...seats.map((seat) => seat.seatRow));
   };
@@ -106,13 +107,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
     return baseClass + " available";
   };
 
-  const totalPrice = selectedSeats.reduce((total, seatId) => {
-    const seat = findSeatBySeatId(seatId);
-    if (!seat) return total;
-    const seatPrice = seat.seatType === "VIP" ? 120000 : 80000;
-    return total + seatPrice;
-  }, 0);
-
   const handleCheckout = async () => {
     const token = localStorage.getItem("token");
     const selectedSeatsInfo = selectedSeats.map((seatId) => {
@@ -121,13 +115,22 @@ const SeatSelection = ({ apiUrl, onBack }) => {
         seatId,
         scheduleSeatId: seat?.scheduleSeatId,
         seatType: seat?.seatType,
-        price: seat?.seatType === "VIP" ? 120000 : 80000,
       };
     });
 
     const scheduleSeatIds = selectedSeatsInfo.map(
       (seat) => seat.scheduleSeatId
     );
+
+    // Prepare products array for the request body
+    const productsForRequest = Object.entries(productQuantities)
+      .filter(([, quantity]) => quantity > 0)
+      .map(([productId, quantity]) => ({
+        productId: parseInt(productId),
+        quantity,
+        notes: null,
+      }));
+
     try {
       const response = await fetch(`${apiUrl}/employee/bookings/select-seats`, {
         method: "POST",
@@ -140,6 +143,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
         body: JSON.stringify({
           scheduleId: parseInt(scheduleId),
           scheduleSeatIds,
+          products: productsForRequest,
         }),
       });
 
@@ -150,6 +154,9 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       }
 
       const data = await response.json();
+      if (data?.grandTotal) {
+        localStorage.setItem("grandTotal", JSON.stringify(data.grandTotal));
+      }
       setIsModalVisible(false);
       navigate(`/ticketInformation/${data.invoiceId}/${scheduleId}`, {});
     } catch (error) {
@@ -159,18 +166,21 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   };
 
   const renderSeats = () => {
-    const rows = getUniqueRows();
-    const maxSeatsPerRow = getMaxSeatsPerRow();
+    const columns = getUniqueColumns();
+    const maxSeatsPerColumn = getMaxSeatsPerColumn();
 
-    return rows.map((row) => (
-      <div key={row} className="seat-row">
-        {Array.from({ length: maxSeatsPerRow }, (_, i) => {
-          const seatNumber = i + 1;
-          const seatId = createSeatId(row, seatNumber);
+    const rows = Array.from({ length: maxSeatsPerColumn }, (_, i) => i + 1);
+
+    return rows.map((rowNumber) => (
+      <div key={rowNumber} className="seat-row">
+        {columns.map((column) => {
+          const seatId = createSeatId(column, rowNumber);
           const seat = findSeatBySeatId(seatId);
+
           if (!seat) {
             return <div key={seatId} className="seat empty"></div>;
           }
+
           return (
             <div
               key={seatId}
@@ -208,14 +218,17 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       return { ...prev, [productId]: next };
     });
   };
+
   const categories = [
     "ALL",
     ...Array.from(new Set(products.map((p) => p.category))),
   ];
+
   const filteredProducts =
     selectedCategory === "ALL"
       ? products
       : products.filter((p) => p.category === selectedCategory);
+
   return (
     <div className="seat-selection-wrapper">
       <button className="back-button" onClick={handleBack}>
@@ -233,6 +246,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
         <div className="main-section">
           {seats.length > 0 ? renderSeats() : <div>Đang tải ghế...</div>}
         </div>
+
         <div className="filter-section">
           <Select
             value={selectedCategory}
@@ -246,6 +260,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
             ))}
           </Select>
         </div>
+
         <Flex
           wrap="wrap"
           gap={50}
@@ -253,74 +268,111 @@ const SeatSelection = ({ apiUrl, onBack }) => {
           style={{
             rowGap: 50,
             columnGap: 50,
-            margin: "32px 60px",
+            margin: "16px",
           }}
         >
-          {filteredProducts.map((product) => (
-            <Card
-              key={product.productId}
-              hoverable
-              style={{
-                width: 180,
-                borderRadius: 16,
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <img
-                alt={product.productName}
-                src={product.image}
+          {filteredProducts.map((product) => {
+            const imagePath = product.image.startsWith("/api")
+              ? product.image.substring(4)
+              : product.image;
+            const imageSrc = `${apiUrl}${imagePath}`;
+            return (
+              <Card
+                key={product.productId}
                 style={{
-                  width: "100%",
-                  height: 120,
-                  objectFit: "cover",
-                  borderRadius: 10,
-                  marginBottom: 12,
-                }}
-              />
-              <div style={{ fontWeight: 600 }}>{product.productName}</div>
-              <div style={{ color: "#888" }}>
-                {product.price.toLocaleString()} VND
-              </div>
-              <div
-                style={{
-                  marginTop: 12,
+                  width: 180,
+                  height: 300,
+                  borderRadius: 16,
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
+                  textAlign: "center",
+                  overflow: "hidden",
+                  backgroundColor: "#fff",
                 }}
               >
-                <Button
-                  size="small"
-                  onClick={() => handleQuantityChange(product.productId, -1)}
-                  disabled={(productQuantities[product.productId] || 0) === 0}
-                  style={{ minWidth: 28 }}
-                >
-                  -
-                </Button>
-                <span
+                <div style={{ width: "100%", height: 160 }}>
+                  {" "}
+                  {/* Adjusted height for image */}
+                  <img
+                    alt={product.productName}
+                    src={imageSrc}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "16px 16px 0 0",
+                      margin: 0,
+                      padding: 0,
+                    }}
+                  />
+                </div>
+                <div
                   style={{
-                    margin: "-20px 40px",
-                    minWidth: 24,
-                    display: "inline-block",
-                    textAlign: "center",
+                    padding: "12px",
+                    flexGrow: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: 0,
                   }}
                 >
-                  {productQuantities[product.productId] || 0}
-                </span>
-                <Button
-                  size="small"
-                  onClick={() => handleQuantityChange(product.productId, 1)}
-                  style={{ minWidth: 28 }}
-                >
-                  +
-                </Button>
-              </div>
-            </Card>
-          ))}
+                  <div>
+                    <div
+                      style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}
+                    >
+                      {product.productName}
+                    </div>
+                    <div
+                      style={{ color: "#888", fontSize: 12, marginBottom: 12 }}
+                    >
+                      {product.price.toLocaleString()} VND
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 8,
+                      alignItems: "center",
+                      marginTop: "auto", // Push buttons to the bottom
+                    }}
+                  >
+                    <Button
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(product.productId, -1)
+                      }
+                      disabled={
+                        (productQuantities[product.productId] || 0) === 0
+                      }
+                      style={{ width: 28, height: 28 }}
+                    >
+                      -
+                    </Button>
+                    <span
+                      style={{
+                        minWidth: 24,
+                        textAlign: "center",
+                        fontSize: 14,
+                      }}
+                    >
+                      {productQuantities[product.productId] || 0}
+                    </span>
+                    <Button
+                      size="small"
+                      onClick={() => handleQuantityChange(product.productId, 1)}
+                      style={{ width: 28, height: 28 }}
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
         </Flex>
+
         <div className="legend bottom-center">
           <div className="legend-item">
             <div className="box available"></div>
@@ -342,10 +394,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
 
         <div className="summary bottom-bar">
           <div className="summary-item">
-            <p className="label">TOTAL</p>
-            <p className="value">VND {totalPrice.toLocaleString()}</p>
-          </div>
-          <div className="summary-item">
             <p className="label">SELECTED SEAT</p>
             <p className="value">
               {selectedSeats.join(", ") || "Not Selected"}
@@ -356,12 +404,12 @@ const SeatSelection = ({ apiUrl, onBack }) => {
             <p className="value">{movieName || "No Movie Selected"}</p>
           </div>
           <div className="summary-item">
-            <p className="label">CURRENT DATE</p>
-            <p className="value">{new Date().toLocaleDateString()}</p>
+            <p className="label">DATE</p>
+            <p className="value">{selectedDate}</p>
           </div>
           <div className="summary-item">
-            <p className="label">CURRENT TIME</p>
-            <p className="value">{new Date().toLocaleTimeString()}</p>
+            <p className="label">TIME</p>
+            <p className="value">{selectedTime}</p>
           </div>
           <button
             className="checkout-button"
@@ -385,15 +433,23 @@ const SeatSelection = ({ apiUrl, onBack }) => {
           <strong>Seats:</strong> {selectedSeats.join(", ") || "None"}
         </p>
         <p>
-          <strong>Total:</strong> {totalPrice.toLocaleString()} VND
+          <strong>Combo:</strong>{" "}
+          {Object.entries(productQuantities)
+            .filter(([, quantity]) => quantity > 0)
+            .map(([productId, quantity]) => {
+              const product = products.find(
+                (p) => p.productId === parseInt(productId)
+              );
+              return product ? `${product.productName} x${quantity}` : null;
+            })
+            .filter(Boolean)
+            .join(", ") || "None"}
         </p>
         <p>
-          <strong>Date:</strong>
-          {selectedDate}
+          <strong>Date:</strong> {selectedDate}
         </p>
         <p>
-          <strong>Time:</strong>
-          {selectedTime}
+          <strong>Time:</strong> {selectedTime}
         </p>
         <div className="modal-buttons">
           <Button

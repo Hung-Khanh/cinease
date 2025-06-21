@@ -38,7 +38,7 @@ import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 
 function AdminRoutes() {
   return (
-    <Routes>      
+    <Routes>
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="promotions" element={<Promotions />} />
       <Route path="movies" element={<AdminMovies />} />
@@ -126,11 +126,10 @@ function Layout() {
             element={<SeatSelection apiUrl={apiUrl} />}
           />
           <Route
-            path="/ticketInformation/:invoiceId"
+            path="/ticketInformation/:invoiceId/:scheduleId"
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
-
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
           <Route
@@ -143,9 +142,15 @@ function Layout() {
           />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
+          <Route
+            path="/seat-select/:movieId/:scheduleId"
+            element={<SelectSeat />}
+          />
           <Route path="/confirm/:movieId" element={<Confirm />} />
-          <Route path="/payment-detail/:invoiceId/:scheduleId" element={<PaymentDetail />} />
+          <Route
+            path="/payment-detail/:invoiceId/:scheduleId"
+            element={<PaymentDetail />}
+          />
           {/* Add more routes as needed */}
         </Routes>
       </main>
@@ -160,7 +165,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/admin/*" element={<AdminLayout />}></Route>
-          
+
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>
