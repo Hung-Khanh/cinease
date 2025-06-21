@@ -2,28 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./Movie.scss";
 import { useNavigate } from "react-router-dom";
 
-const comingSoon = [
-  {
-    title: "Coming Soon 1",
-    img: "https://metiz.vn/media/poster_film/d_m_n_-_cu_c_phi_u_l_u_t_i_x_m_l_y_l_i_-_teaser_poster_-_kc_30052025_1_.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 2",
-    img: "https://cdn.flickeringmyth.com/wp-content/uploads/2024/12/BALLERINA_2025x3000_Online_1SHT_BACK_TATTOO_V5_rgb-600x889.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 3",
-    img: "https://static1.srcdn.com/wordpress/wp-content/uploads/2024/11/htd_teaser1sheet7_rgb_2sm.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  // ... thêm các phim sắp chiếu khác
-];
-
 const Movie = () => {
   const navigate = useNavigate();
   const [nowShowing, setNowShowing] = useState([]);
@@ -32,7 +10,7 @@ const Movie = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [genre, setGenre] = useState("all");
-  const moviesPerPage = 10;
+  const moviesPerPage = 12;
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const token = localStorage.getItem("token");
   console.log(token);

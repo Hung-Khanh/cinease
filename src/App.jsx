@@ -8,7 +8,7 @@ import { AuthProvider } from "./constants/AuthContext";
 import React, { useState } from "react";
 
 import Footer from "./component/Footer/Footer.jsx";
-import Header from "./component/header/Header.jsx";
+import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
 import HomePage from "./pages/home/Home.jsx";
@@ -24,6 +24,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
+import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
 
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
@@ -151,6 +152,7 @@ function Layout() {
             path="/payment-detail/:invoiceId/:scheduleId"
             element={<PaymentDetail />}
           />
+          <Route path="/history" element={<HistoryTicket />} />
           {/* Add more routes as needed */}
         </Routes>
       </main>

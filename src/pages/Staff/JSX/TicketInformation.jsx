@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Modal, Select, Input, Button } from "antd";
+import { Modal, Select, Input, Button, Button } from "antd";
 import api from "../../../constants/axios";
 
 import "../SCSS/TicketIn4.scss";

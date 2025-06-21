@@ -44,7 +44,7 @@ const Promotions = () => {
           title: promotion.title,
           startTime: promotion.startTime,
           endTime: promotion.endTime,
-          discountLevel: `${promotion.discountLevel} VND`,
+          discountLevel: `${promotion.discountLevel} %`,
           details: promotion.detail || 'No details available',
           image: promotion.image || null
         };

@@ -566,6 +566,7 @@ const Movie = () => {
         className="movie-modal"
         width={600}
         centered
+        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
       >
         <Form
           form={form}
