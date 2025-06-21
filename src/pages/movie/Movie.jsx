@@ -16,34 +16,43 @@ const Movie = () => {
   console.log(token);
   useEffect(() => {
     const fetchMovies = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/public/movies`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
-        if (!response.ok) {
-          console.error("HTTP error:", response.status);
-          return;
-        }
-        const data = await response.json();
-        const extractedMovies = data.map((movie) => ({
-          id: movie.movieId,
-          title: movie.movieNameEnglish,
-          img: movie.largeImage,
-          rating: movie.rating || 9.0,
-          duration: movie.duration ? `${movie.duration} min` : "120 min",
-          genre: movie.version || "Unknown",
-          types: movie.types || "Unknown"
-        }));
-        setNowShowing(extractedMovies);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-        setNowShowing([]);
-      }
-    };
+  try {
+    const response = await fetch(`${apiUrl}/public/movie/now-showing`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    const data = await response.json();
+    const moviesData = data.content;
+    // Log the response data for debugging
+    console.log("Fetched Movies Data:", data);
+    
+    // Check if the data is an array before mapping
+    if (Array.isArray(moviesData)) {
+      const extractedMovies = moviesData.map((movie) => ({
+        id: movie.movieId,
+        title: movie.movieNameEnglish,
+        poster: movie.posterImageUrl,
+        rating: movie.rating || 9.0,
+        duration: movie.duration ? `${movie.duration} min` : "120 min",
+        genre: movie.version || "Unknown",
+        types: movie.types || "Unknown",
+      }));
+      setNowShowing(extractedMovies);
+    } else {
+      console.error("Data is not an array:", moviesData);
+      setNowShowing([]);
+    }
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    setNowShowing([]);
+  }
+};
     const fetchComingSoonMovies = async () => {
       try {
         const response = await fetch(`${apiUrl}/public/movie/upcoming`, {
@@ -60,11 +69,12 @@ const Movie = () => {
           const extractedComingSoonMovies = comingSoonData.map((movie) => ({
             id: movie.movieId,
             title: movie.movieNameEnglish,
-            img: movie.largeImage,
+            poster: movie.posterImageUrl,
             date: movie.fromDate || "Unknown",
             badge: "Coming Soon",
             genre: movie.version || "Unknown",
             types: movie.types || "Unknown",
+            release: movie.fromDate ? new Date(movie.fromDate).toLocaleDateString() : "Unknown",
           }));
           setComingSoonMovies(extractedComingSoonMovies);
         } else {
@@ -136,7 +146,7 @@ const Movie = () => {
           .slice((page - 1) * moviesPerPage, page * moviesPerPage)
           .map((movie, idx) => (
             <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
-              <img src={movie.img} alt={movie.title} className="movie-img" />
+              <img src={movie.poster} alt={movie.title} className="movie-img" />
               <div className="movie-info">
                 <div className="movie-title">{movie.title}</div>
                 <div className="movie-rating-row">
@@ -171,11 +181,11 @@ const Movie = () => {
         <span>Coming Soon</span>
         <div className="movie-coming-soon-list">
           {comingSoonMovies.map((movie, idx) => (
-            <div className="coming-soon-card" key={idx}>
-              <img src={movie.img} alt={movie.title} className="coming-soon-img" />
+            <div className="coming-soon-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
+              <img src={movie.poster} alt={movie.title} className="coming-soon-img" />
               <div className="coming-soon-info">
                 <div className="coming-soon-title">{movie.title}</div>
-                <div className="coming-soon-release">{movie.release}</div>
+                <div className="coming-soon-release">Release Date:  {movie.release}</div>
                 <span className="movie-genre">{movie.genre}</span>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>

@@ -101,7 +101,7 @@ const SelectShowtime = () => {
         
         <div className="main-content">
             <div className="poster-section">
-                <img src={movie?.largeImage} alt={movie?.movieNameEnglish} className="movie-poster" />
+                <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster" />
                 <h1 className="movie-title">{movie?.movieNameEnglish}</h1>
             </div>
             

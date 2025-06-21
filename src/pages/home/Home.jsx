@@ -5,6 +5,24 @@ import KM from "../../assets/KM.png";
 import "./Home.scss";
 import api from '../../constants/axios';
 
+// const promotions = [
+//     {
+//         img: KM,
+//         title: "June Promotion - 10% Off",
+//         desc: "Applicable across all theaters."
+//     },
+//     {
+//         img: KM,
+//         title: "June Promotion - 20% Off",
+//         desc: "Applicable across all theaters."
+//     },
+//     {
+//         img: KM,
+//         title: "June Promotion - 30% Off",
+//         desc: "Applicable across all theaters."
+//     }
+// ];
+
 const Home = () => {
     const navigate = useNavigate();
     const [showingMovies, setShowingMovies] = useState([]);
@@ -35,7 +53,7 @@ const Home = () => {
                         title: movie.movieNameEnglish,
                         poster: movie.posterImageUrl || KM,
                         img: movie.largeImage,
-                        rating: movie.rating || "N/A",
+                        rating: movie.rating,
                         genre: movie.version || "Unknown",
                         types: movie.types || "Unknown",
                         showtimes: movie.duration ? `${movie.duration} min` : "120 min",
