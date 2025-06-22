@@ -6,8 +6,8 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api", onBack }) => {
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [grandTotal, setGrandTotal] = useState("");
   const { scheduleId, movieId } = useParams();
-  const [movie, setMovie] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -15,17 +15,9 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
   const fetchSeat = async () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       navigate("/login");
-      return;
-    }
-
-    const id = parseInt(scheduleId);
-    if (isNaN(id)) {
-      console.error("❌ scheduleId error or undefined:", scheduleId);
-      alert("scheduleId error. Vui lòng quay lại trang trước và thử lại.");
       return;
     }
 
@@ -41,7 +33,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("❌ Error response:", errorText);
         if (response.status === 401) {
           alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           navigate("/login");
@@ -51,7 +42,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       }
 
       const data = await response.json();
-      console.log("data:", data);
       setSeats(data);
     } catch (error) {
       console.error("🔥 Error in fetchSeat:", error);
@@ -69,28 +59,26 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     );
   };
 
-  const createSeatId = (seatColumn, seatRow) => {
-    return `${seatColumn}${seatRow}`;
+  const calculateTotal = () => {
+    return selectedSeats.reduce((total, seatId) => {
+      const seat = findSeatBySeatId(seatId);
+      const price = seat && seat.seatPrice ? Number(seat.seatPrice) : 0;
+      return total + price;
+    }, 0);
   };
 
-  const getUniqueRows = () => {
-    const rows = [...new Set(seats.map((seat) => seat.seatColumn))];
-    return rows.sort();
-  };
+  const createSeatId = (seatColumn, seatRow) => `${seatColumn}${seatRow}`;
 
-  const getMaxSeatsPerRow = () => {
-    if (seats.length === 0) return 0;
-    return Math.max(...seats.map((seat) => seat.seatRow));
-  };
+  const getUniqueRows = () => [...new Set(seats.map(seat => seat.seatColumn))].sort();
+
+  const getMaxSeatsPerRow = () => seats.length === 0 ? 0 : Math.max(...seats.map(seat => seat.seatRow));
 
   const toggleSeat = (seatId) => {
     const seat = findSeatBySeatId(seatId);
     if (!seat || seat.seatStatus === "BOOKED") return;
 
     setSelectedSeats((prev) =>
-      prev.includes(seatId)
-        ? prev.filter((s) => s !== seatId)
-        : [...prev, seatId]
+      prev.includes(seatId) ? prev.filter((s) => s !== seatId) : [...prev, seatId]
     );
   };
 
@@ -99,24 +87,11 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     if (!seat) return "seat unavailable";
 
     let baseClass = "seat";
-    if (seat.seatType === "VIP") {
-      baseClass += " vip";
-    }
-    if (seat.seatStatus !== "AVAILABLE") {
-      return baseClass + " sold";
-    }
-    if (selectedSeats.includes(seatId)) {
-      return baseClass + " selected";
-    }
+    if (seat.seatType === "VIP") baseClass += " vip";
+    if (seat.seatStatus !== "AVAILABLE") return baseClass + " sold";
+    if (selectedSeats.includes(seatId)) return baseClass + " selected";
     return baseClass + " available";
   };
-
-  const totalPrice = selectedSeats.reduce((total, seatId) => {
-    const seat = findSeatBySeatId(seatId);
-    if (!seat) return total;
-    const seatPrice = seat.seatType === "VIP" ? 100000 : 90000;
-    return total + seatPrice;
-  }, 0);
 
   const handleCheckout = async () => {
     const token = localStorage.getItem("token");
@@ -132,13 +107,11 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         seatId,
         scheduleSeatId: seat?.scheduleSeatId,
         seatType: seat?.seatType,
-        price: seat?.seatType === "VIP" ? 100000 : 90000,
       };
     });
 
-    const scheduleSeatIds = selectedSeatsInfo.map(
-      (seat) => seat.scheduleSeatId
-    );
+    const scheduleSeatIds = selectedSeatsInfo.map(seat => seat.scheduleSeatId);
+
     try {
       const response = await fetch(`${apiUrl}/member/select-seats`, {
         method: "POST",
@@ -155,7 +128,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("❌ Error response from select-seats:", errorText);
         if (response.status === 401) {
           alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           navigate("/login");
@@ -165,23 +137,25 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       }
 
       const data = await response.json();
-      console.log("✅ Seat selection response:", data);
+      setGrandTotal(data.grandTotal);
 
-      // Chỉ cần response thành công là chuyển trang
-      navigate(`/confirm/${movieId}`, {
+      // ✅ Truyền đầy đủ dữ liệu sang SnackSelect (bắp nước)
+      navigate(`/product/${movieId}/${data.invoiceId}`, {
         state: {
-          // invoiceId: data.invoiceId, // nếu cần truyền invoiceId thì giữ lại
           scheduleId: parseInt(scheduleId),
+          invoiceId: data.invoiceId,
           selectedSeats,
-          totalPrice,
+          grandTotal: data.grandTotal,
+          movieId,
           movieName,
           showDate,
           showTime,
-        },
+          cinemaRoomName: data.cinemaRoomName,
+        }
       });
     } catch (error) {
       console.error("Error in handleCheckout:", error);
-      alert("Failed to select seats. Please try again.");
+      alert("Lỗi khi đặt ghế. Vui lòng thử lại.");
     }
   };
 
@@ -195,9 +169,7 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
           const seatNumber = i + 1;
           const seatId = createSeatId(row, seatNumber);
           const seat = findSeatBySeatId(seatId);
-          if (!seat) {
-            return <div key={seatId} className="seat empty"></div>;
-          }
+          if (!seat) return <div key={seatId} className="seat empty"></div>;
           return (
             <div
               key={seatId}
@@ -239,53 +211,25 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         </div>
 
         <div className="legend bottom-center">
-          <div className="legend-item">
-            <div className="box available"></div>
-            <span>Available Seat</span>
-          </div>
-          <div className="legend-item">
-            <div className="box selected"></div>
-            <span>Selected Seat</span>
-          </div>
-          <div className="legend-item">
-            <div className="box sold"></div>
-            <span>Unavailable Seat</span>
-          </div>
-          <div className="legend-item">
-            <div className="box vip"></div>
-            <span>VIP Seat</span>
-          </div>
+          <div className="legend-item"><div className="box available"></div><span>Available</span></div>
+          <div className="legend-item"><div className="box selected"></div><span>Selected</span></div>
+          <div className="legend-item"><div className="box sold"></div><span>Unavailable</span></div>
+          <div className="legend-item"><div className="box vip"></div><span>VIP</span></div>
         </div>
 
         <div className="summary bottom-bar">
-          <div className="summary-item">
-            <p className="label">TOTAL</p>
-            <p className="value">VND {totalPrice.toLocaleString()}</p>
-          </div>
-          <div className="summary-item">
-            <p className="label">SELECTED SEAT</p>
-            <p className="value">{selectedSeats.join(", ") || "Not Selected"}</p>
-          </div>
-          <div className="summary-item">
-            <p className="label">MOVIE</p>
-            <p className="value">{movieName || "No Movie Selected"}</p>
-          </div>
-          <div className="summary-item">
-            <p className="label">DATE</p>
-            <p className="value">{showDate || "N/A"}</p>
-          </div>
-          <div className="summary-item">
-            <p className="label">TIME</p>
-            <p className="value">{showTime || "N/A"}</p>
-          </div>
+          <div className="summary-item"><p className="label">SEAT</p><p className="value">{selectedSeats.join(", ") || "Chưa chọn"}</p></div>
+          <div className="summary-item"><p className="label">MOVIE</p><p className="value">{movieName || "N/A"}</p></div>
+          <div className="summary-item"><p className="label">DATE</p><p className="value">{showDate || "N/A"}</p></div>
+          <div className="summary-item"><p className="label">TIME</p><p className="value">{showTime || "N/A"}</p></div>
 
           <button
-              className="checkout-button"
-              onClick={handleCheckout}
-              disabled={selectedSeats.length === 0}
-            >
-              Checkout
-            </button>
+            className="checkout-button"
+            onClick={handleCheckout}
+            disabled={selectedSeats.length === 0}
+          >
+            Checkout
+          </button>
         </div>
       </div>
     </div>
