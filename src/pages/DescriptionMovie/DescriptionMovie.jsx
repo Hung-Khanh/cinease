@@ -51,7 +51,7 @@ const DescriptionMovie = () => {
                     <button className="back-button" onClick={() => navigate(-1)}>
                         <FaArrowLeft />
                     </button>
-                    <img src={movie?.largeImage} alt={movie?.movieNameEnglish} className="movie-poster" />
+                    <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster" />
                     <div className="poster-title">{movie?.movieNameEnglish}</div>
                     <button className="trailer-btn" onClick={handleTrailerClick}>Trailer</button>
                 </div>

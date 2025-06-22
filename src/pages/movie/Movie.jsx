@@ -1,117 +1,138 @@
 import React, { useState, useEffect } from "react";
 import "./Movie.scss";
-import api from '../../constants/axios';
-
-const comingSoon = [
-  {
-    title: "Coming Soon 1",
-    img: "https://metiz.vn/media/poster_film/d_m_n_-_cu_c_phi_u_l_u_t_i_x_m_l_y_l_i_-_teaser_poster_-_kc_30052025_1_.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 2",
-    img: "https://cdn.flickeringmyth.com/wp-content/uploads/2024/12/BALLERINA_2025x3000_Online_1SHT_BACK_TATTOO_V5_rgb-600x889.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 3",
-    img: "https://static1.srcdn.com/wordpress/wp-content/uploads/2024/11/htd_teaser1sheet7_rgb_2sm.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 4",
-    img: "https://cdn.flickeringmyth.com/wp-content/uploads/2024/12/BALLERINA_2025x3000_Online_1SHT_BACK_TATTOO_V5_rgb-600x889.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 5",
-    img: "https://metiz.vn/media/poster_film/d_m_n_-_cu_c_phi_u_l_u_t_i_x_m_l_y_l_i_-_teaser_poster_-_kc_30052025_1_.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-  {
-    title: "Coming Soon 6",
-    img: "https://metiz.vn/media/poster_film/d_m_n_-_cu_c_phi_u_l_u_t_i_x_m_l_y_l_i_-_teaser_poster_-_kc_30052025_1_.jpg",
-    release: "Release: 15/06/2025",
-    genre: "Adventure",
-  },
-];
-
 import { useNavigate } from "react-router-dom";
 
 const Movie = () => {
   const navigate = useNavigate();
   const [nowShowing, setNowShowing] = useState([]);
+  const [comingSoonMovies, setComingSoonMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [genre, setGenre] = useState("all");
-  const moviesPerPage = 10;
-
+  const moviesPerPage = 12;
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const token = localStorage.getItem("token");
+  console.log(token);
   useEffect(() => {
     const fetchMovies = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/public/movie/now-showing`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    const data = await response.json();
+    const moviesData = data.content;
+    // Log the response data for debugging
+    console.log("Fetched Movies Data:", data);
+    
+    // Check if the data is an array before mapping
+    if (Array.isArray(moviesData)) {
+      const extractedMovies = moviesData.map((movie) => ({
+        id: movie.movieId,
+        title: movie.movieNameEnglish,
+        poster: movie.posterImageUrl,
+        rating: movie.rating || 9.0,
+        duration: movie.duration ? `${movie.duration} min` : "120 min",
+        genre: movie.version || "Unknown",
+        types: movie.types || "Unknown",
+      }));
+      setNowShowing(extractedMovies);
+    } else {
+      console.error("Data is not an array:", moviesData);
+      setNowShowing([]);
+    }
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    setNowShowing([]);
+  }
+};
+    const fetchComingSoonMovies = async () => {
       try {
-        const response = await api.get('/public/movies', {
+        const response = await fetch(`${apiUrl}/public/movie/upcoming`, {
           headers: {
             Accept: "application/json",
             "ngrok-skip-browser-warning": "true",
           },
         });
-        const data = response.data;
-        const extractedMovies = data.map((movie) => ({
-          title: movie.movieNameEnglish,
-          img: movie.largeImage,
-          rating: movie.rating || 9.0,
-          duration: movie.duration ? `${movie.duration} min` : "120 min",
-          genre: movie.genre || "Unknown"
-        }));
-        setNowShowing(extractedMovies);
+        console.log(response.data); // Kiểm tra dữ liệu trả về
+        const data = await response.json();
+        const comingSoonData = data.content;
+
+        if (Array.isArray(comingSoonData)) {
+          const extractedComingSoonMovies = comingSoonData.map((movie) => ({
+            id: movie.movieId,
+            title: movie.movieNameEnglish,
+            poster: movie.posterImageUrl,
+            date: movie.fromDate || "Unknown",
+            badge: "Coming Soon",
+            genre: movie.version || "Unknown",
+            types: movie.types || "Unknown",
+            release: movie.fromDate ? new Date(movie.fromDate).toLocaleDateString() : "Unknown",
+          }));
+          setComingSoonMovies(extractedComingSoonMovies);
+        } else {
+          console.error("Dữ liệu không phải là mảng:", comingSoonData);
+          setComingSoonMovies([]);
+        }
       } catch (error) {
-        console.error("Error fetching movies:", error);
-        setNowShowing([]);
+        console.error("Error fetching coming soon movies:", error);
+        setComingSoonMovies([]);
       }
     };
     fetchMovies();
-  }, []);
+    fetchComingSoonMovies();
+  }, [apiUrl, token]);
 
   const genreOptions = [
     ...new Set(nowShowing.map(m => m.genre))
   ];
+
   let filtered = nowShowing.filter(m =>
     m.title.toLowerCase().includes(search.toLowerCase()) &&
     (genre === "all" || m.genre === genre)
   );
+
   if (sort === "rating") {
-    filtered = filtered.slice().sort((a, b) => b.rating - a.rating);
+    filtered = filtered.sort((a, b) => b.rating - a.rating);
   } else if (sort === "oldest") {
-    filtered = filtered.slice().reverse();
+    filtered = filtered.reverse();
   }
 
-  let dynamicMoviesPerPage = moviesPerPage;
-  if (filtered.length <=6) {
-    dynamicMoviesPerPage = 6;
-  } else if (filtered.length <= 12) {
-    dynamicMoviesPerPage = 12;
-  }
-
-  const totalPages = Math.ceil(filtered.length / dynamicMoviesPerPage);
+  const totalPages = Math.ceil(filtered.length / moviesPerPage);
 
   return (
     <div className="movie-page">
       <h2 className="movie-title">Search Movie</h2>
       <div className="movie-search-bar">
-        <input type="text" placeholder="Search by movie name..." className="movie-search-input" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
-        <select className="movie-filter-select" value={genre} onChange={e => { setGenre(e.target.value); setPage(1); }}>
+        <input
+          type="text"
+          placeholder="Search by movie name..."
+          className="movie-search-input"
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
+        />
+        <select
+          className="movie-filter-select"
+          value={genre}
+          onChange={e => { setGenre(e.target.value); setPage(1); }}
+        >
           <option value="all">All Genres</option>
           {genreOptions.map(g => (
             <option key={g} value={g}>{g}</option>
           ))}
         </select>
-        <select className="movie-sort-select" value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}>
+        <select
+          className="movie-sort-select"
+          value={sort}
+          onChange={e => { setSort(e.target.value); setPage(1); }}
+        >
           <option value="latest">Newest</option>
           <option value="oldest">Oldest</option>
           <option value="rating">Highest Rating</option>
@@ -122,10 +143,10 @@ const Movie = () => {
       </div>
       <div className="movie-grid">
         {filtered
-          .slice((page - 1) * dynamicMoviesPerPage, page * dynamicMoviesPerPage)
+          .slice((page - 1) * moviesPerPage, page * moviesPerPage)
           .map((movie, idx) => (
-            <div className="movie-card" key={idx} onClick={() => navigate("/description-movie")}>
-              <img src={movie.img} alt={movie.title} className="movie-img" />
+            <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
+              <img src={movie.poster} alt={movie.title} className="movie-img" />
               <div className="movie-info">
                 <div className="movie-title">{movie.title}</div>
                 <div className="movie-rating-row">
@@ -135,15 +156,11 @@ const Movie = () => {
                 <div className="movie-extra-row">
                   <span>{movie.duration}</span>
                   <span className="movie-genre">{movie.genre}</span>
+                  <span className="movie-genre">{movie.types}</span>
                 </div>
                 <button className="movie-buy-btn">Book Ticket</button>
               </div>
             </div>
-          ))}
-        {dynamicMoviesPerPage > 12 && Array(dynamicMoviesPerPage - filtered.slice((page - 1) * dynamicMoviesPerPage, page * dynamicMoviesPerPage).length)
-          .fill(0)
-          .map((_, idx) => (
-            <div key={`empty-${idx}`} className="movie-card movie-card--empty" />
           ))}
       </div>
       {filtered.length > 0 && (
@@ -163,12 +180,12 @@ const Movie = () => {
       <div className="movie-coming-soon-section">
         <span>Coming Soon</span>
         <div className="movie-coming-soon-list">
-          {comingSoon.map((movie, idx) => (
-            <div className="coming-soon-card" key={idx}>
-              <img src={movie.img} alt={movie.title} className="coming-soon-img" />
+          {comingSoonMovies.map((movie, idx) => (
+            <div className="coming-soon-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
+              <img src={movie.poster} alt={movie.title} className="coming-soon-img" />
               <div className="coming-soon-info">
                 <div className="coming-soon-title">{movie.title}</div>
-                <div className="coming-soon-release">{movie.release}</div>
+                <div className="coming-soon-release">Release Date:  {movie.release}</div>
                 <span className="movie-genre">{movie.genre}</span>
               </div>
               <span className="coming-soon-badge">Coming Soon</span>

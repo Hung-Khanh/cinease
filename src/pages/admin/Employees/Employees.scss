@@ -1,9 +1,10 @@
+// ===== COLOR VARIABLES =====
 $primary-bg: #0a181f;
 $secondary-bg: #1a3a2a;
 $text-color: #ffffff;
 $green-accent: #27ae60;
 $hover-color: #2ecc71;
-$bright-green: #0c9550;
+$bright-green: #0C9550;
 $input-bg: rgba(102, 136, 102, 0.2);
 $input-border: rgba(102, 136, 102, 0.5);
 $dark-input-bg: rgba(0, 50, 50, 0.4);
@@ -11,22 +12,24 @@ $cyan-border: rgba(0, 188, 212, 0.3);
 $cyan-hover: rgba(0, 188, 212, 0.6);
 $danger-color: #e74c3c;
 
-.movies-container {
+// ===== MAIN CONTAINER =====
+.employees-container {
   background-color: $primary-bg;
   color: $text-color;
   padding: 24px;
   min-height: 100vh;
 
-  .movies-header {
+  // ===== HEADER SECTION =====
+  .employees-header {
     margin-bottom: 24px;
 
     .header-actions {
       display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      margin-bottom: 16px;
+      justify-content: space-between;
       align-items: center;
+      margin-bottom: 16px;
 
+      // Filter Dropdowns
       .filter-dropdowns {
         display: flex;
         gap: 12px;
@@ -47,17 +50,11 @@ $danger-color: #e74c3c;
         }
       }
 
-      .add-movie-btn {
+      // Add Employee Button
+      .add-employee-btn {
         background-color: $green-accent !important;
         border-color: $green-accent !important;
         color: $text-color !important;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 6px;
-        font-weight: 600;
-        transition: all 0.3s ease;
 
         &:hover,
         &:focus {
@@ -69,6 +66,7 @@ $danger-color: #e74c3c;
     }
   }
 
+  // ===== TABLE STYLING =====
   .ant-table {
     background-color: $secondary-bg !important;
 
@@ -98,6 +96,7 @@ $danger-color: #e74c3c;
       }
     }
 
+    // Pagination
     .ant-table-pagination {
       .ant-pagination-item {
         background-color: $input-bg !important;
@@ -134,6 +133,7 @@ $danger-color: #e74c3c;
     }
   }
 
+  // ===== ACTION BUTTONS =====
   .action-buttons {
     display: flex;
     gap: 8px;
@@ -156,25 +156,12 @@ $danger-color: #e74c3c;
       }
     }
   }
-
-  .pagination-btn {
-    margin: 0 5px;
-    padding: 4px 15px;
-    border-radius: 4px;
-    
-    &.prev-btn {
-      margin-right: 10px;
-    }
-    
-    &.next-btn {
-      margin-left: 10px;
-    }
-  }
 }
 
+// ===== EMPLOYEE MODAL =====
 .ant-modal-wrap,
 .ant-modal-mask + .ant-modal-wrap {
-  .movie-modal {
+  .employee-modal {
     .ant-modal {
       max-width: 600px !important;
       width: 95% !important;
@@ -241,7 +228,8 @@ $danger-color: #e74c3c;
   }
 }
 
-.movie-modal .movie-form {
+// ===== EMPLOYEE FORM =====
+.employee-modal .employee-form {
   .ant-form-item {
     margin-bottom: 20px !important;
 
@@ -257,6 +245,7 @@ $danger-color: #e74c3c;
       }
     }
 
+    // Base Input Styles
     .ant-input,
     .ant-input-affix-wrapper,
     .ant-select .ant-select-selector,
@@ -288,6 +277,7 @@ $danger-color: #e74c3c;
       }
     }
 
+    // Select Styling
     .ant-select {
       .ant-select-selector {
         height: 44px !important;
@@ -304,49 +294,7 @@ $danger-color: #e74c3c;
       }
     }
 
-    .cinema-room-item,
-    .movie-types-item {
-      width: 100% !important;
-
-      .ant-select {
-        .ant-select-selector {
-          background: $dark-input-bg !important;
-          border: 1px solid $cyan-border !important;
-          color: $text-color !important;
-          border-radius: 6px !important;
-          padding: 12px 16px !important;
-          font-size: 14px !important;
-          height: 44px !important;
-          display: flex !important;
-          align-items: center !important;
-          transition: all 0.3s ease !important;
-
-          .ant-select-selection-item,
-          .ant-select-selection-placeholder {
-            color: $text-color !important;
-            display: flex !important;
-            align-items: center !important;
-          }
-
-          .ant-select-selection-placeholder {
-            color: rgba(255, 255, 255, 0.6) !important;
-          }
-        }
-
-        &:hover .ant-select-selector {
-          border-color: $cyan-hover !important;
-          background: rgba(0, 60, 60, 0.5) !important;
-          box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
-        }
-
-        &.ant-select-focused .ant-select-selector {
-          border-color: $bright-green !important;
-          box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2) !important;
-          background: rgba(0, 60, 60, 0.6) !important;
-        }
-      }
-    }
-
+    // DatePicker Styling
     .ant-picker {
       width: 100% !important;
       height: 44px !important;
@@ -365,6 +313,7 @@ $danger-color: #e74c3c;
     }
   }
 
+  // Submit Button
   .submit-btn {
     background: $bright-green !important;
     border: none !important;
@@ -392,6 +341,7 @@ $danger-color: #e74c3c;
     }
   }
 
+  // Modal Actions
   .modal-actions {
     display: flex !important;
     justify-content: flex-end !important;
@@ -408,8 +358,9 @@ $danger-color: #e74c3c;
     }
   }
 
-  .movie-poster-uploader {
-    .poster-uploader {
+  // Image Upload Styling
+  .employee-image-uploader {
+    .avatar-uploader {
       .ant-upload {
         width: 128px !important;
         height: 128px !important;
@@ -444,6 +395,7 @@ $danger-color: #e74c3c;
   }
 }
 
+// ===== DELETE CONFIRMATION MODAL =====
 .delete-confirmation-modal {
   .ant-modal-content {
     background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%) !important;
@@ -556,17 +508,20 @@ $danger-color: #e74c3c;
   }
 }
 
+// ===== GLOBAL STYLES =====
+// Modal Mask
 .ant-modal-mask {
   background-color: rgba(0, 0, 0, 0.75) !important;
   backdrop-filter: blur(4px) !important;
 }
 
+// Global Placeholder Styles
 .ant-input,
 .ant-input-affix-wrapper,
 .ant-picker-input > input,
-.movie-modal .ant-input,
-.movie-modal .ant-input-affix-wrapper,
-.movie-modal .ant-picker-input > input {
+.employee-modal .ant-input,
+.employee-modal .ant-input-affix-wrapper,
+.employee-modal .ant-picker-input > input {
   &::placeholder {
     color: rgba(255, 255, 255, 0.6) !important;
     padding: 0 !important;
@@ -579,24 +534,5 @@ $danger-color: #e74c3c;
   &:focus::placeholder,
   &.ant-input-focused::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
-  }
-}
-
-.add-schedule-btn {
-  background: rgba(0, 60, 60, 0.5) !important;
-  border-color: $cyan-border !important;
-  color: $text-color !important;
-  height: 45px !important;
-  width: 100% !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  border-radius: 6px !important;
-  transition: all 0.3s ease !important;
-
-  &:hover,
-  &:focus {
-    background-color: $cyan-border !important;
-    border-color: $cyan-border !important;
-    color: $text-color !important;
   }
 }

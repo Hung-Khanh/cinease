@@ -514,11 +514,16 @@
       gap: 20px;
 
       .dts-poster {
+        top: -500px;
         order: 0;
 
         .dts-poster-image {
+          position: relative;
+          object-fit: cover;
           width: 180px;
           height: 270px;
+          border-radius: 15px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
       }
 
@@ -555,7 +560,7 @@
 
   // Very small screens (< 360px)
   @media (max-width: 320px) {
-    padding: 8px;
+    padding: 30px;
 
     .dts-header {
       .dts-title {
@@ -577,7 +582,7 @@
       .dts-poster {
         .dts-poster-image {
           width: 160px;
-          height: 240px;
+          height: 300px;
         }
       }
 
@@ -626,14 +631,14 @@
     padding: 30px;
 
     .dts-content {
-      max-width: 1400px;
+      max-width: 1300px;
       gap: 50px;
 
       .dts-poster {
         .dts-poster-image {
           width: 320px;
-          height: 480px;
-          top: 160px;
+          height: 500px;
+          top: 20px;
         }
       }
 

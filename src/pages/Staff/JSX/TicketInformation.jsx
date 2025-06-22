@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Modal, Select, Input } from "antd";
+import { Modal, Select, Input, Button } from "antd";
 
 import "../SCSS/TicketIn4.scss";
 
@@ -10,16 +10,21 @@ const { Option } = Select;
 const TicketInformation = ({ apiUrl, onBack }) => {
   const [ticketData, setTicketData] = useState(null);
   const navigate = useNavigate();
-  const { invoiceId } = useParams();
-  const { scheduleId } = useParams();
+  const { invoiceId, scheduleId } = useParams();
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
+  const [cinemaRoom, setCinemaRoom] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputType, setInputType] = useState("phone");
   const [inputValue, setInputValue] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const [cashReceived, setCashReceived] = useState("");
   const [change, setChange] = useState(0);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [ticketType, setTicketType] = useState("ADULT");
+  const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [ticketDetails, setTicketDetails] = useState(null);
+  const paymentUrl = ticketDetails?.paymentUrl;
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
@@ -43,7 +48,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           throw new Error(`Failed to fetch ticket details: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Ticket details:", data);
         setMovieName(data.movieName);
         setTicketData(data);
       } catch (error) {
@@ -55,7 +59,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     if (invoiceId) {
       fetchTicketDetails();
     } else {
-      console.log("No invoiceId found in state");
       alert("Invalid ticket information.");
     }
   }, [apiUrl, invoiceId]);
@@ -82,6 +85,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
         const data = await response.json();
         setMovieImage(data[0]?.largeImage || "placeholder-image.jpg");
+        setCinemaRoom(data[0]?.cinemaRoomId);
       } catch (error) {
         console.error("Error fetching movies:", error);
         setMovieImage("placeholder-image.jpg");
@@ -109,6 +113,15 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setInputValue("");
+  };
+
+  const handleSubmit = () => {
+    if (!inputValue) {
+      alert("Please enter a valid phone number or ID card.");
+      return;
+    }
+    setIsModalVisible(false);
   };
 
   const handlePurchase = async () => {
@@ -129,10 +142,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             invoiceId: parseInt(invoiceId),
             scheduleId: parseInt(scheduleId),
             useScore: 0,
-            promotionId: null,
+            promotionId: voucherCode || null,
             identityCard: inputType === "id" ? inputValue : undefined,
             phoneNumber: identityOrPhone,
             paymentMethod: paymentMethod,
+            ticketType: ticketType,
           }),
         }
       );
@@ -144,17 +158,15 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       }
 
       const data = await response.json();
-      console.log("Confirm booking response:", data.paymentUrl);
-      if (paymentMethod === "VNPAY" && data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else if (paymentMethod === "CASH") {
-        navigate("/payment-success", { state: { change } });
-      } else {
-        alert("No payment URL received. Please try again.");
-      }
+      console.log("ticket Details:", data);
+      setTicketDetails(data);
+      setResponseModalVisible(true);
     } catch (error) {
       console.error("Error in handlePurchase:", error);
-      alert("Failed to confirm booking. Please try again.");
+      setTicketDetails({
+        error: "Failed to confirm booking. Please try again.",
+      });
+      setResponseModalVisible(true);
     }
   };
 
@@ -174,6 +186,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         year: "numeric",
       })
       .replace(/\//g, "/");
+  };
+  const handleQRPurchase = () => {
+    localStorage.setItem("paymentUrl", JSON.stringify({ paymentUrl }));
+    console.log(ticketDetails?.paymentUrl);
+    navigate("/confirm-purchase");
   };
 
   return (
@@ -202,7 +219,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <div className="detail-item">
               <span>Cinema Room</span>
-              <span>{ticketData?.cinemaRoomName || "N/A"}</span>
+              <span>{cinemaRoom || "N/A"}</span>
             </div>
             <div className="detail-item">
               <span>Date</span>
@@ -221,31 +238,23 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <span>{ticketData?.seat?.join(", ") || "N/A"}</span>
             </div>
             <div className="detail-item voucher">
-              <span>Select or enter a voucher</span>
-              <select>
-                <option value="">Select a voucher</option>
-              </select>
+              <span>Enter Voucher Code</span>
+              <Input
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value)}
+                placeholder="Enter voucher code"
+              />
             </div>
-            <div className="detail-item transaction">
-              <span>Transaction Detail</span>
-              <div className="transaction-details">
-                <div>SEAT</div>
-                <div>
-                  VND{" "}
-                  {ticketData?.price
-                    ? (
-                        ticketData.price / (ticketData.seat?.length || 1)
-                      ).toLocaleString()
-                    : "0"}{" "}
-                  x {ticketData?.seat?.length || 0}
-                </div>
-                <div>DISCOUNT</div>
-                <div>
-                  VND{" "}
-                  {ticketData?.scoreForTicketConverting?.toLocaleString() ||
-                    "0.0"}
-                </div>
-              </div>
+            <div className="detail-item ticket-type">
+              <span>Select Ticket Type:</span>
+              <Select
+                value={ticketType}
+                onChange={setTicketType}
+                style={{ width: "100%" }}
+              >
+                <Option value="ADULT">ADULT</Option>
+                <Option value="STUDENT">STUDENT</Option>
+              </Select>
             </div>
             <div className="detail-item total">
               <span>Total payment</span>
@@ -274,7 +283,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <p className="note">*Purchased ticket cannot be canceled</p>
             <button className="purchase-button" onClick={handlePurchase}>
-              Purchase
+              Confirm
             </button>
           </div>
         </div>
@@ -282,7 +291,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
       <Modal
         title="Enter Information"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
@@ -306,6 +315,35 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={inputType === "phone" ? "Phone Number" : "ID Card"}
         />
+      </Modal>
+
+      <Modal
+        title="Purchase Response"
+        open={responseModalVisible}
+        onOk={() => setResponseModalVisible(false)}
+        onCancel={() => setResponseModalVisible(false)}
+      >
+        <p>Movie Name: {ticketDetails?.movieName || "N/A"}</p>
+        <p>Date: {formatDate(ticketDetails?.scheduleShowDate)}</p>
+
+        <p>
+          Time:{" "}
+          {ticketData?.time
+            ? new Date(ticketData.time).toLocaleTimeString()
+            : "N/A"}
+        </p>
+        <p>
+          Ticket ({ticketData?.seat?.length || 0}):{" "}
+          {ticketData?.seat?.join(", ") || "N/A"}
+        </p>
+        <p>Total payment: {ticketData?.total?.toLocaleString() || "0"} VND</p>
+        <br />
+        <Button key="close" onClick={() => setResponseModalVisible(false)}>
+          Close
+        </Button>
+        <Button key="Confirm" onClick={() => handleQRPurchase()}>
+          Purchase
+        </Button>
       </Modal>
     </div>
   );

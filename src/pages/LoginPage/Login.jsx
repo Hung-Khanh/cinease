@@ -137,19 +137,30 @@ const Login = () => {
         },
         body: JSON.stringify(values),
       });
-      console.log("Response details:", {
-        status: response.status,
-        url: response.url,
-        data: response,
-      });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const result = await response.json();
       message.success("Login successful!");
 
-     
+
+      // Lưu tạm token để gọi API lấy profile
       localStorage.setItem('user', JSON.stringify({ token: result.token, role: result.role }));
+      // Gọi API lấy thông tin user đầy đủ
+      try {
+        const profileRes = await fetch("https://legally-actual-mollusk.ngrok-free.app/api/member/account", {
+          headers: {
+            Authorization: `Bearer ${result.token}`,
+            "ngrok-skip-browser-warning": "true"
+          }
+        });
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          localStorage.setItem('user', JSON.stringify({ ...profileData, token: result.token, role: result.role }));
+        }
+      } catch (e) {
+        console.error("Error fetching profile:", e);
+      }
       login({
         token: result.token,
         role: result.role,
