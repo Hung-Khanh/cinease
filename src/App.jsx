@@ -24,7 +24,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
-import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
+import ProductPage from "./product/Product.jsx"; 
 
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
@@ -145,11 +145,11 @@ function Layout() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
-          <Route path="/confirm/:movieId" element={<Confirm />} />
-          <Route path="/payment-detail/:invoiceId/:scheduleId" element={<PaymentDetail />} />
-          <Route path="/history" element={<HistoryTicket />} />
+          <Route path="/confirm/:scheduleId" element={<Confirm />} />
+          <Route path="/product/:movieId/:invoiceId" element={<ProductPage />} />
+          <Route path="/payment-detail/:invoiceId" element={<PaymentDetail />} />
           {/* Add more routes as needed */}
-        </Routes>
+        </Routes>pm
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
     </div>
