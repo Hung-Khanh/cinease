@@ -216,9 +216,27 @@ $danger-color: #e74c3c;
       }
 
       .ant-modal-body {
-        background: transparent !important;
-        padding: 0 24px 24px 24px !important;
-        color: $text-color !important;
+        max-height: 70vh;
+        overflow-y: auto;
+        padding-right: 15px;
+
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
       }
 
       .ant-modal-footer {
@@ -231,7 +249,7 @@ $danger-color: #e74c3c;
 // ===== EMPLOYEE FORM =====
 .employee-modal .employee-form {
   .ant-form-item {
-    margin-bottom: 20px !important;
+    margin-bottom: 12px;
 
     .ant-form-item-label > label {
       color: $bright-green !important;

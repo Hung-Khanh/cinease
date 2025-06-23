@@ -1,7 +1,6 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message } from 'antd';
-import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
+import { DeleteOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Table, message } from 'antd';
+import { useEffect, useState } from 'react';
 import './Employees.scss';
 
 const Employees = () => {
@@ -16,6 +15,7 @@ const Employees = () => {
   const [editingKey, setEditingKey] = useState(null);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   // Fetch employees from API
   const fetchEmployees = async (showSuccessMessage = false) => {
@@ -49,9 +49,7 @@ const Employees = () => {
 
       setEmployees(formattedEmployees);
 
-      if (showSuccessMessage) {
-        message.success(`Fetched ${formattedEmployees.length} employees successfully`, 1.5);
-      }
+     
     } catch (error) {
       message.error(`Failed to fetch employees: ${error.message}`, 3);
       setEmployees([]); // Ensure employees is an empty array on error
@@ -120,9 +118,13 @@ const Employees = () => {
     // Reset the form
     form.resetFields();
 
-    // Prepare form values
+    // Prepare form values - only include editable fields
     const editRecord = {
-      ...record,
+      fullName: record.fullName,
+      identityCard: record.identityCard,
+      email: record.email,
+      phoneNumber: record.phoneNumber,
+      address: record.address,
     };
 
     // Set the current employee being edited
@@ -153,22 +155,39 @@ const Employees = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const requestBody = {
-        image: values.image || "https://example.com/default-avatar.jpg",
-        username: values.username,
-        password: values.password,
-        confirmPassword: values.confirmPassword,
-        dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : null,
-        gender: values.gender,
-        fullName: values.fullName,
-        identityCard: values.identityCard,
-        email: values.email,
-        phoneNumber: values.phoneNumber,
-        address: values.address,
-      };
+      // Format date of birth to match backend expectation
+      const formattedDateOfBirth = values.dateOfBirth
+        ? new Date(values.dateOfBirth).toISOString().split('T')[0]
+        : null;
 
+      // Determine the request body based on whether we're editing or adding
+      const requestBody = isEditing 
+        ? Object.fromEntries(
+            Object.entries({
+              fullName: values.fullName,
+              identityCard: values.identityCard,
+              email: values.email,
+              phoneNumber: values.phoneNumber,
+              address: values.address,
+            }).filter(([_, value]) => value !== undefined && value !== null)
+          )
+        : {
+            image: values.image || "https://example.com/default-avatar.jpg",
+            username: values.username,
+            password: values.password,
+            confirmPassword: values.confirmPassword,
+            dateOfBirth: formattedDateOfBirth,
+            gender: values.gender,
+            fullName: values.fullName,
+            identityCard: values.identityCard,
+            email: values.email,
+            phoneNumber: values.phoneNumber,
+            address: values.address,
+          };
+
+      // Construct the URL for editing or adding
       const url = isEditing
-        ? `${apiUrl}/admin/employee/${editingKey}`
+        ? `${apiUrl}/admin/employee/edit/${editingKey}`
         : `${apiUrl}/admin/employee/add`;
       const method = isEditing ? 'PUT' : 'POST';
 
@@ -192,7 +211,7 @@ const Employees = () => {
       await fetchEmployees(true);
 
       // Show success message
-      message.success(`Employee "${values.fullName}" ${isEditing ? 'updated' : 'added'} successfully!`, 3);
+      message.success(`Employee ${isEditing ? 'updated' : 'added'} successfully!`, 3);
 
       // Reset modal and form
       setIsModalVisible(false);
@@ -245,11 +264,11 @@ const Employees = () => {
   // Error Boundary Component
   const ErrorFallback = ({ error }) => {
     return (
-      <div role="alert" style={{ 
-        padding: '20px', 
-        backgroundColor: '#f8d7da', 
-        color: '#721c24', 
-        borderRadius: '5px' 
+      <div role="alert" style={{
+        padding: '20px',
+        backgroundColor: '#f8d7da',
+        color: '#721c24',
+        borderRadius: '5px'
       }}>
         <p>Something went wrong:</p>
         <pre style={{ color: 'red' }}>{error.message}</pre>
@@ -308,6 +327,35 @@ const Employees = () => {
     }
   };
 
+  // Custom Password Input Component
+  const PasswordInput = ({ value, onChange, placeholder, name }) => {
+    return (
+      <div style={{ position: 'relative' }}>
+        <Input
+          type={passwordVisible ? 'text' : 'password'}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          name={name}
+          style={{ paddingRight: '40px' }}
+        />
+        <div 
+          onClick={() => setPasswordVisible(!passwordVisible)}
+          style={{
+            position: 'absolute',
+            right: '10px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            cursor: 'pointer',
+            color: '#999'
+          }}
+        >
+          {passwordVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="employees-container">
       <div className="employees-header">
@@ -340,34 +388,87 @@ const Employees = () => {
           setIsModalVisible(false);
           setIsEditing(false);
           setEditingKey(null);
+          setPasswordVisible(false);
           form.resetFields();
         }}
         footer={null}
         className="employee-modal"
         width={600}
         centered
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' }
+        }}
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleAddEmployee}
           className="employee-form"
+          scrollToFirstError={true}
         >
-          <Form.Item
-            name="phoneNumber"
-            label="Phone Number"
-            rules={[{ required: true, message: 'Please input the phone number!' }]}
-          >
-            <Input placeholder="Enter phone number" />
-          </Form.Item>
+          {!isEditing && (
+            <>
+              <Form.Item
+                name="username"
+                label="Username"
+                rules={[{ required: true, message: 'Please input the username!' }]}
+              >
+                <Input placeholder="Enter username" />
+              </Form.Item>
 
-          <Form.Item
-            name="address"
-            label="Address"
-            rules={[{ required: true, message: 'Please input the address!' }]}
-          >
-            <Input placeholder="Enter address" />
-          </Form.Item>
+              <Form.Item
+                name="password"
+                label="Password"
+                rules={[
+                  { required: true, message: 'Please input the password!' },
+                  { min: 8, message: 'Password must be at least 8 characters long' }
+                ]}
+              >
+                <PasswordInput 
+                  placeholder="Enter password" 
+                  name="password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="confirmPassword"
+                label="Confirm Password"
+                dependencies={['password']}
+                rules={[
+                  { required: true, message: 'Please confirm your password!' },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('The two passwords do not match!'));
+                    },
+                  }),
+                ]}
+              >
+                <PasswordInput 
+                  placeholder="Confirm password" 
+                  name="confirmPassword"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="dateOfBirth"
+                label="Date of Birth"
+                rules={[{ required: true, message: 'Please select date of birth!' }]}
+              >
+                <Input type="date" placeholder="Select date of birth" />
+              </Form.Item>
+
+              <Form.Item
+                name="image"
+                label="Profile Image URL"
+                initialValue="https://example.com/default-avatar.jpg"
+              >
+                <Input placeholder="Enter profile image URL" />
+              </Form.Item>
+            </>
+          )}
 
           <Form.Item
             name="fullName"
@@ -396,11 +497,27 @@ const Employees = () => {
             <Input placeholder="Enter email" />
           </Form.Item>
 
+          <Form.Item
+            name="phoneNumber"
+            label="Phone Number"
+            rules={[{ required: true, message: 'Please input the phone number!' }]}
+          >
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
+
+          <Form.Item
+            name="address"
+            label="Address"
+            rules={[{ required: true, message: 'Please input the address!' }]}
+          >
+            <Input placeholder="Enter address" />
+          </Form.Item>
+
           <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              block 
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
               className="submit-btn"
             >
               {isEditing ? "Update Employee" : "Add New Employee"}
@@ -425,16 +542,16 @@ const Employees = () => {
           <p>Are you sure you want to delete the employee?</p>
           <p className="movie-title">{employeeToDelete?.fullName}</p>
           <p className="warning-text">This action cannot be undone.</p>
-          
+
           <div className="delete-confirmation-actions">
-            <Button 
-              className="cancel-btn" 
+            <Button
+              className="cancel-btn"
               onClick={cancelDelete}
             >
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
             >
               Delete Employee
