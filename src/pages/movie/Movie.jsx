@@ -29,10 +29,8 @@ const Movie = () => {
     }
     const data = await response.json();
     const moviesData = data.content;
-    // Log the response data for debugging
     console.log("Fetched Movies Data:", data);
     
-    // Check if the data is an array before mapping
     if (Array.isArray(moviesData)) {
       const extractedMovies = moviesData.map((movie) => ({
         id: movie.movieId,
@@ -61,7 +59,7 @@ const Movie = () => {
             "ngrok-skip-browser-warning": "true",
           },
         });
-        console.log(response.data); // Kiểm tra dữ liệu trả về
+        console.log(response.data); 
         const data = await response.json();
         const comingSoonData = data.content;
 
@@ -78,7 +76,7 @@ const Movie = () => {
           }));
           setComingSoonMovies(extractedComingSoonMovies);
         } else {
-          console.error("Dữ liệu không phải là mảng:", comingSoonData);
+          console.error("Data is not an array:", comingSoonData);
           setComingSoonMovies([]);
         }
       } catch (error) {

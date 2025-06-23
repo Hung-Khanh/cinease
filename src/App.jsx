@@ -149,7 +149,7 @@ function Layout() {
           <Route path="/product/:movieId/:invoiceId" element={<ProductPage />} />
           <Route path="/payment-detail/:invoiceId" element={<PaymentDetail />} />
           {/* Add more routes as needed */}
-        </Routes>pm
+        </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
     </div>
