@@ -25,7 +25,7 @@ import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
-
+import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
@@ -116,6 +116,7 @@ function Layout() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/staffHomePage" element={<StaffHomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route
