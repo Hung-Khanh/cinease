@@ -27,6 +27,7 @@ import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
 import ProductPage from "./product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
+import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
