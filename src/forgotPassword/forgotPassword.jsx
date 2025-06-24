@@ -217,6 +217,7 @@ const ForgotPassword = () => {
         subTitle="Back to Login Page and login again!"
         extra={[
           <Button
+            key="submit"
             onClick={handleBackToLogin}
             style={{
               background: "#0C9550 !important",

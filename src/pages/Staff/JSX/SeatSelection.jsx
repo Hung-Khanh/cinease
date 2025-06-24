@@ -231,7 +231,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
 
   return (
     <div className="seat-selection-wrapper">
-      <button className="back-button" onClick={handleBack}>
+      <button className="dts-back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
 
