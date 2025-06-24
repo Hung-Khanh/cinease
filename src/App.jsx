@@ -24,7 +24,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
-import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
+import ProductPage from "./product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 // Admin components
@@ -148,7 +148,11 @@ function Layout() {
             path="/seat-select/:movieId/:scheduleId"
             element={<SelectSeat />}
           />
-          <Route path="/confirm/:movieId" element={<Confirm />} />
+          <Route path="/confirm/:scheduleId" element={<Confirm />} />
+          <Route
+            path="/product/:movieId/:invoiceId"
+            element={<ProductPage />}
+          />
           <Route
             path="/payment-detail/:invoiceId/:scheduleId"
             element={<PaymentDetail />}

@@ -22,7 +22,7 @@ const Promotions = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/promotions`, {
+      const response = await fetch(`${apiUrl}/public/promotions`, {
         method: "GET",
         headers: {
           "Accept": "*/*",
@@ -44,7 +44,7 @@ const Promotions = () => {
           title: promotion.title,
           startTime: promotion.startTime,
           endTime: promotion.endTime,
-          discountLevel: `${promotion.discountLevel} %`,
+          discountLevel: `${promotion.discountLevel}%`,
           details: promotion.detail || 'No details available',
           image: promotion.image || null
         };

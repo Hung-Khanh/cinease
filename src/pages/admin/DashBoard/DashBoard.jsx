@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
   Bar, 
@@ -15,18 +15,20 @@ import {
 import './DashBoard.scss';
 
 const Dashboard = () => {
-  // Revenue by Day Data (Simulated more realistic data)
-  const revenueData = [
-    { day: 'Mon', revenue: 500 },
-    { day: 'Tue', revenue: 750 },
-    { day: 'Wed', revenue: 350 },
-    { day: 'Thu', revenue: 1200 },
-    { day: 'Fri', revenue: 1800 },
-    { day: 'Sat', revenue: 2000 },
-    { day: 'Sun', revenue: 1600 }
-  ];
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  
+  // State for movie revenue data
+  const [movieRevenueData, setMovieRevenueData] = useState([]);
+  const [movieLoading, setMovieLoading] = useState(false);
+  const [movieError, setMovieError] = useState(null);
+  const [showMoreMovies, setShowMoreMovies] = useState(false);
 
-  // Ticket Distribution Data (Updated to match image)
+  // State for daily revenue data
+  const [revenueData, setRevenueData] = useState([]);
+  const [revenueLoading, setRevenueLoading] = useState(false);
+  const [revenueError, setRevenueError] = useState(null);
+
+  // Ticket Distribution Data (Keep existing static data)
   const ticketDistributionData = [
     { type: 'VIP', value: 25 },
     { type: 'Regular', value: 40 },
@@ -34,136 +36,181 @@ const Dashboard = () => {
     { type: 'IMAX', value: 15 }
   ];
 
-  // Movie Revenue Data
-  const fullMovieRevenueData = [
-    {
-      title: 'Avatar: The Way of Water',
-      label: 'HOT',
-      revenue: 2.8,
-      ticketsSold: 156789,
-      capacity: 95,
-      isNew: false
-    },
-    {
-      title: 'Black Adam',
-      label: 'NEW',
-      revenue: 1.9,
-      ticketsSold: 89234,
-      capacity: 78,
-      isNew: true
-    },
-    {
-      title: 'Top Gun: Maverick',
-      label: '',
-      revenue: 1.6,
-      ticketsSold: 72156,
-      capacity: 65,
-      isNew: false
-    },
-    {
-      title: 'Minions: The Rise of Gru',
-      label: '',
-      revenue: 1.4,
-      ticketsSold: 98432,
-      capacity: 52,
-      isNew: false
-    },
-    {
-      title: 'Doctor Strange 2',
-      label: '',
-      revenue: 1.2,
-      ticketsSold: 65789,
-      capacity: 68,
-      isNew: false
-    },
-    {
-      title: 'Thor: Love and Thunder',
-      label: '',
-      revenue: 0.98,
-      ticketsSold: 54321,
-      capacity: 72,
-      isNew: false
-    },
-    {
-      title: 'Guardians of the Galaxy Vol. 3',
-      label: '',
-      revenue: 0.85,
-      ticketsSold: 48765,
-      capacity: 60,
-      isNew: false
-    },
-    {
-      title: 'Spider-Man: Across the Spider-Verse',
-      label: '',
-      revenue: 0.75,
-      ticketsSold: 42123,
-      capacity: 55,
-      isNew: false
-    },
-    {
-      title: 'Mission: Impossible - Dead Reckoning Part One',
-      label: '',
-      revenue: 0.65,
-      ticketsSold: 38456,
-      capacity: 50,
-      isNew: false
-    },
-    {
-      title: 'Elemental',
-      label: '',
-      revenue: 0.55,
-      ticketsSold: 35789,
-      capacity: 45,
-      isNew: false
-    },
-    {
-      title: 'The Flash',
-      label: '',
-      revenue: 0.45,
-      ticketsSold: 32456,
-      capacity: 40,
-      isNew: false
-    },
-    // New movies added after Spider-Man
-    {
-      title: 'Barbie',
-      label: 'NEW',
-      revenue: 0.7,
-      ticketsSold: 40000,
-      capacity: 58,
-      isNew: true
-    },
-    {
-      title: 'Oppenheimer',
-      label: 'HOT',
-      revenue: 0.6,
-      ticketsSold: 35000,
-      capacity: 52,
-      isNew: false
-    },
-    {
-      title: 'Indiana Jones and the Dial of Destiny',
-      label: '',
-      revenue: 0.5,
-      ticketsSold: 30000,
-      capacity: 45,
-      isNew: false
+  // Helper function to get date range for last 7 days
+  const getDateRange = () => {
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      dates.push(date.toISOString().split('T')[0]); // Format: YYYY-MM-DD
     }
-  ];
+    return dates;
+  };
 
-  // State to manage showing more movies
-  const [showMoreMovies, setShowMoreMovies] = useState(false);
+  // Helper function to get day name from date string
+  const getDayName = (dateString) => {
+    const date = new Date(dateString);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return days[date.getDay()];
+  };
+
+  // Fetch daily revenue data from API
+  const fetchDailyRevenue = async () => {
+    setRevenueLoading(true);
+    setRevenueError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const dateRange = getDateRange();
+      const revenuePromises = dateRange.map(async (date) => {
+        const response = await fetch(
+          `${apiUrl}/admin/invoices/revenue/range?startDate=${date}&endDate=${date}`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'ngrok-skip-browser-warning': 'true'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const revenue = await response.json();
+        return {
+          date,
+          day: getDayName(date),
+          revenue: revenue || 0 // API returns a number directly
+        };
+      });
+
+      const results = await Promise.all(revenuePromises);
+      setRevenueData(results);
+
+    } catch (error) {
+      console.error('Error fetching daily revenue:', error);
+      setRevenueError(error.message);
+      
+      // Fallback to mock data on error
+      setRevenueData([
+        { day: 'Mon', revenue: 500 },
+        { day: 'Tue', revenue: 750 },
+        { day: 'Wed', revenue: 350 },
+        { day: 'Thu', revenue: 1200 },
+        { day: 'Fri', revenue: 1800 },
+        { day: 'Sat', revenue: 2000 },
+        { day: 'Sun', revenue: 1600 }
+      ]);
+    } finally {
+      setRevenueLoading(false);
+    }
+  };
+
+  // Fetch movie revenues from API
+  const fetchMovieRevenue = async () => {
+    setMovieLoading(true);
+    setMovieError(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${apiUrl}/admin/invoices/revenue/movie`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      // Transform API data to match component structure
+      const transformedData = Object.entries(data).map(([movieTitle, revenue], index) => {
+        // Generate some realistic mock data for fields not provided by API
+        const baseTickets = Math.floor(revenue / 10); // Rough estimate: 10 currency units per ticket
+        const capacity = Math.min(95, Math.max(30, Math.floor((revenue / Math.max(...Object.values(data))) * 100)));
+        
+        return {
+          title: movieTitle,
+          label: index === 0 ? 'HOT' : (index === 1 ? 'NEW' : ''),
+          revenue: revenue / 1000000, // Convert to millions for display
+          ticketsSold: baseTickets,
+          capacity: capacity,
+          isNew: index === 1
+        };
+      }).sort((a, b) => b.revenue - a.revenue); // Sort by revenue descending
+
+      setMovieRevenueData(transformedData);
+    } catch (error) {
+      console.error('Error fetching movie revenue:', error);
+      setMovieError(error.message);
+      
+      // Fallback to mock data on error
+      setMovieRevenueData([
+        {
+          title: 'Xì Trum',
+          label: 'HOT',
+          revenue: 0.876,
+          ticketsSold: 87600,
+          capacity: 95,
+          isNew: false
+        },
+        {
+          title: 'Quỷ Ăn Tạng',
+          label: 'NEW',
+          revenue: 0.206,
+          ticketsSold: 20600,
+          capacity: 75,
+          isNew: true
+        },
+        {
+          title: 'Gấu Trúc Kung Fu',
+          label: '',
+          revenue: 0.120,
+          ticketsSold: 12000,
+          capacity: 60,
+          isNew: false
+        }
+      ]);
+    } finally {
+      setMovieLoading(false);
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchMovieRevenue();
+    fetchDailyRevenue();
+  }, []);
 
   // Determine movies to display
-  const movieRevenueData = showMoreMovies 
-    ? fullMovieRevenueData 
-    : fullMovieRevenueData.slice(0, 7);
+  const displayedMovies = showMoreMovies 
+    ? movieRevenueData 
+    : movieRevenueData.slice(0, 7);
 
   const formatRevenue = (revenue) => {
     if (revenue >= 1) {
-      return `$${revenue.toFixed(1)}B`;
+      return `${revenue}VND`;
     } else {
-      return `$${(revenue * 1000).toFixed(0)}M`;
+      return `${(revenue * 1000)}VND`;
     }
   };
 
@@ -226,7 +273,24 @@ const Dashboard = () => {
       <div className="dashboard-charts">
         {/* Daily Revenue Chart */}
         <div className="chart-card column-chart">
-          <div className="chart-card-title">Daily Revenue (Last 7 Days)</div>
+          <div className="chart-card-title">
+            Daily Revenue (Last 7 Days)
+            {revenueLoading && <span className="loading-indicator"> (Loading...)</span>}
+            {revenueError && (
+              <button 
+                className="retry-button" 
+                onClick={fetchDailyRevenue}
+                title="Retry loading data"
+              >
+                🔄 Retry
+              </button>
+            )}
+          </div>
+          {revenueError && (
+            <div className="error-message">
+              <p>⚠️ Failed to load daily revenue: {revenueError}</p>
+            </div>
+          )}
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={revenueData}>
@@ -276,11 +340,28 @@ const Dashboard = () => {
           <div className="header-icon">💰</div>
           <div className="header-title">
             Revenue by Movie
+            {movieLoading && <span className="loading-indicator"> (Loading...)</span>}
+            {movieError && (
+              <button 
+                className="retry-button" 
+                onClick={fetchMovieRevenue}
+                title="Retry loading data"
+              >
+                🔄 Retry
+              </button>
+            )}
           </div>
         </div>
 
+        {movieError && (
+          <div className="error-message">
+            <p>⚠️ Failed to load movie revenue data: {movieError}</p>
+            <p>Showing fallback data instead.</p>
+          </div>
+        )}
+
         <div className="movie-revenue-grid">
-          {movieRevenueData.map((movie, index) => (
+          {displayedMovies.map((movie, index) => (
             <div key={index} className="movie-card">
               <div className="movie-header">
                 <div className="movie-title">
@@ -326,7 +407,7 @@ const Dashboard = () => {
             </div>
           ))}
 
-          {fullMovieRevenueData.length > 7 && (
+          {movieRevenueData.length > 7 && (
             <div 
               className="movie-card show-more-card" 
               onClick={() => setShowMoreMovies(!showMoreMovies)}

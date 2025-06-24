@@ -1,5 +1,5 @@
 import { EditOutlined, DeleteOutlined, PlusOutlined, DownOutlined, CloseOutlined, PlusCircleOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload, Checkbox, TimePicker } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload, Checkbox, TimePicker, Space, Tooltip } from 'antd';
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import './Movie.scss';
@@ -90,30 +90,109 @@ const Movie = () => {
   // State for cinema rooms
   const [cinemaRooms, setCinemaRooms] = useState([]);
 
+  // State for file upload - simplified
+  const [posterFile, setPosterFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  // Optimize message handling with debounce and key management
+  const showSuccessMessage = React.useCallback((content, duration = 2) => {
+    message.success({
+      content,
+      duration,
+      key: 'movie-operation-success'
+    });
+  }, []);
+
+  const showErrorMessage = React.useCallback((content, duration = 3) => {
+    message.error({
+      content,
+      duration,
+      key: 'movie-operation-error'
+    });
+  }, []);
+
   const columns = [
     {
       title: 'Movie Name (VN)',
       dataIndex: 'movieNameVn',
       key: 'movieNameVn',
+      width: 80,
+      render: (text) => (
+        <Tooltip title={text}>
+          <div 
+            style={{ 
+              maxWidth: '80px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: '12px'
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      ),
     },
     {
       title: 'Movie Name (EN)',
       dataIndex: 'movieNameEnglish',
       key: 'movieNameEnglish',
+      width: 80,
+      render: (text) => (
+        <Tooltip title={text}>
+          <div 
+            style={{ 
+              maxWidth: '80px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: '12px'
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      ),
     },
     {
       title: 'Date Range',
       key: 'dateRange',
       render: (_, record) => (
-        <div>
-          {record.fromDate} - {record.toDate}
-        </div>
+        <Tooltip title={`From: ${record.fromDate} - To: ${record.toDate}`}>
+          <div style={{ cursor: 'help' }}>
+            {record.fromDate} - {record.toDate}
+          </div>
+        </Tooltip>
       ),
     },
     {
       title: 'Actor',
       dataIndex: 'actor',
       key: 'actor',
+      render: (actor) => (
+        <Tooltip title={actor}>
+          <div 
+            style={{ 
+              cursor: 'help',
+              maxWidth: '150px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {actor}
+          </div>
+        </Tooltip>
+      ),
+    },
+    {
+      title: 'Cinema Room',
+      key: 'cinemaRoom',
+      render: (_, record) => {
+        const room = cinemaRooms.find(r => r.cinemaRoomId === record.cinemaRoom);
+        return room ? `${room.cinemaRoomName} (${room.seatQuantity} seats)` : 'N/A';
+      },
     },
     {
       title: 'Movie Type',
@@ -134,13 +213,13 @@ const Movie = () => {
       render: (duration) => `${duration} mins`,
     },
     {
-      title: 'Large Image',
-      dataIndex: 'largeImage',
-      key: 'largeImage',
-      render: (largeImage) => (
-        largeImage ? (
+      title: 'Poster Image',
+      dataIndex: 'posterImageUrl',
+      key: 'posterImageUrl',
+      render: (posterImageUrl) => (
+        posterImageUrl ? (
           <img
-            src={largeImage}
+            src={posterImageUrl}
             alt="Movie Poster"
             style={{
               maxWidth: 100,
@@ -149,7 +228,27 @@ const Movie = () => {
             }}
           />
         ) : (
-          'No Image'
+          'No Poster'
+        )
+      ),
+    },
+    {
+      title: 'Banner Image',
+      dataIndex: 'largeImage',
+      key: 'largeImage',
+      render: (largeImage) => (
+        largeImage ? (
+          <img
+            src={largeImage}
+            alt="Movie Banner"
+            style={{
+              maxWidth: 150,
+              maxHeight: 100,
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          'No Banner'
         )
       ),
     },
@@ -157,16 +256,24 @@ const Movie = () => {
       title: 'Trailer',
       dataIndex: 'trailerUrl',
       key: 'trailerUrl',
+      width: 50,
       render: (trailerUrl) => (
         trailerUrl ? (
           <Button
             type="link"
+            size="small"
             onClick={() => window.open(trailerUrl, '_blank')}
+            style={{ 
+              padding: 0,
+              fontSize: '10px',
+              height: 'auto',
+              minWidth: 0
+            }}
           >
-            Watch Trailer
+            Watch
           </Button>
         ) : (
-          'No Trailer'
+          <span style={{ fontSize: '10px', color: '#999' }}>No Trailer</span>
         )
       ),
     },
@@ -221,6 +328,10 @@ const Movie = () => {
     // Set form values
     form.setFieldsValue(editRecord);
 
+    // Reset file states for editing
+    setPosterFile(null);
+    setBannerFile(null);
+
     // Set editing state and show modal
     setIsEditing(true);
     setIsModalVisible(true);
@@ -228,7 +339,20 @@ const Movie = () => {
 
   const handleAddMovie = async (values) => {
     try {
-      const requestBody = {
+      setUploading(true);
+
+      // Validate required files for new movies
+      if (!isEditing && !posterFile) {
+        message.error('Please upload a poster image');
+        setUploading(false);
+        return;
+      }
+
+      // Create FormData for multipart/form-data
+      const formData = new FormData();
+
+      // Add all form fields as query parameters in the URL
+      const queryParams = new URLSearchParams({
         movieNameVn: values.movieNameVn,
         movieNameEnglish: values.movieNameEnglish,
         fromDate: values.dateRange[0].format('YYYY-MM-DD'),
@@ -238,78 +362,86 @@ const Movie = () => {
         director: values.director,
         duration: parseInt(values.duration),
         version: values.version,
+        content: values.content,
+        cinemaRoomId: values.cinemaRoom,
+        trailerUrl: values.trailerUrl || '',
+        
+        // Handle type IDs
         typeIds: values.types && values.types.length > 0
           ? values.types.map(typeName => {
               const type = movieTypes.find(t => t.movieTypeName === typeName);
               return type ? type.movieTypeId : null;
-            }).filter(id => id !== null)
-          : [1],
-        cinemaRoom: values.cinemaRoom,
-        content: values.content,
-        largeImage: values.largeImage || '',
+            }).filter(id => id !== null).join(',')
+          : '1', // Default to first type if none selected
+        
+        // Schedule times
         scheduleTimes: values.scheduleTimes
           ? values.scheduleTimes.map(scheduleItem =>
-              `${scheduleItem.date.format('YYYY-MM-DD')} ${scheduleItem.time.format('HH:mm')}`
-            )
-          : [],
-        trailerUrl: values.trailerUrl || ''
-      };
+              `${scheduleItem.date.format('YYYY-MM-DD')}T${scheduleItem.time.format('HH:mm:ss')}`
+            ).join(',')
+          : ''
+      });
 
-      console.log('Is Editing:', isEditing); // Debug log
-      console.log('Editing Key:', editingKey); // Debug log
-      console.log('Request Body:', requestBody); // Debug log
+      // Add files to FormData
+      if (posterFile) {
+        formData.append('poster', posterFile);
+      }
+      if (bannerFile) {
+        formData.append('banner', bannerFile);
+      }
+
+      console.log('Form Data:', formData);
+      console.log('Query Params:', queryParams.toString());
 
       const token = localStorage.getItem('token');
       const url = isEditing
-        ? `${apiUrl}/admin/movies/${editingKey}`
-        : `${apiUrl}/admin/movies/add`;
+        ? `${apiUrl}/admin/movies/${editingKey}?${queryParams.toString()}`
+        : `${apiUrl}/admin/movies/add?${queryParams.toString()}`;
+      
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method: method,
         headers: {
           'Accept': '*/*',
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'ngrok-skip-browser-warning': 'true'
+          // Don't set Content-Type header - let browser set it for FormData
         },
-        body: JSON.stringify(requestBody)
+        body: formData
       });
-
-      console.log('Response Status:', response.status); // Debug log
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error Response:', errorText); // Debug log
+        console.error('Error Response:', errorText);
         throw new Error(errorText || `Failed to ${isEditing ? 'update' : 'add'} movie`);
       }
 
+      const result = await response.json();
+      console.log('API Response:', result);
+
       await fetchMovies();
 
-      // Ensure toast is shown for both add and update
-      if (isEditing) {
-        message.success({
-          content: `Movie "${values.movieNameVn}" updated successfully!`,
-          duration: 3,
-          key: 'movie-update-toast'
-        });
-        console.log('Update Toast Triggered'); // Debug log
-      } else {
-        message.success({
-          content: `New movie "${values.movieNameVn}" added successfully!`,
-          duration: 3,
-          key: 'movie-add-toast'
-        });
-        console.log('Add Toast Triggered'); // Debug log
-      }
+      // Success message with optimized handling
+      showSuccessMessage(
+        `Movie "${values.movieNameVn}" ${isEditing ? 'updated' : 'added'} successfully!`,
+        3
+      );
 
+      // Reset modal and form states
       setIsModalVisible(false);
       setIsEditing(false);
       setEditingKey(null);
+      setPosterFile(null);
+      setBannerFile(null);
       form.resetFields();
     } catch (error) {
-      console.error(`${isEditing ? 'Update' : 'Add'} Movie Error:`, error);
-      message.error(`Failed to ${isEditing ? 'update' : 'add'} movie: ${error.message}`, 3);
+      showErrorMessage(
+        `Failed to ${isEditing ? 'update' : 'add'} movie: ${error.message}`, 
+        3
+      );
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -338,14 +470,19 @@ const Movie = () => {
 
         await fetchMovies();
 
-        // Specific delete success toast
-        message.success(`Movie "${movieToDelete.movieNameVn}" deleted successfully`, 2);
+        // Specific delete success toast with key
+        showSuccessMessage(
+          `Movie "${movieToDelete.movieNameVn}" deleted successfully`, 
+          2
+        );
 
         setDeleteConfirmationVisible(false);
         setMovieToDelete(null);
       } catch (error) {
-        console.error('Delete Movie Error:', error);
-        message.error(`Failed to delete movie: ${error.message}`, 3);
+        showErrorMessage(
+          `Failed to delete movie: ${error.message}`, 
+          3
+        );
       }
     }
   };
@@ -368,19 +505,12 @@ const Movie = () => {
         },
       });
 
-      // Log the full response for debugging
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
-        // Try to get error text
         const errorText = await response.text();
-        console.error('Error response text:', errorText);
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       const result = await response.json();
-      console.log('Fetched Types:', result);
 
       // Map the types using the exact structure from the JSON
       const formattedTypes = result.map(type => ({
@@ -390,17 +520,9 @@ const Movie = () => {
 
       setMovieTypes(formattedTypes);
     } catch (error) {
-      console.error('Fetch Movie Types Error:', error);
-
-      // More detailed error message
-      message.error(`Failed to fetch movie types: ${error.message}`, 3);
+      showErrorMessage(`Failed to fetch movie types: ${error.message}`);
     }
   };
-
-  // Fetch movie types on component mount
-  useEffect(() => {
-    fetchMovieTypes();
-  }, []);
 
   // Fetch cinema rooms
   const fetchCinemaRooms = async () => {
@@ -415,32 +537,19 @@ const Movie = () => {
         },
       });
 
-      // Log the full response for debugging
-      console.log('Cinema Rooms Response status:', response.status);
-
       if (!response.ok) {
-        // Try to get error text
         const errorText = await response.text();
-        console.error('Error response text:', errorText);
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       const result = await response.json();
-      console.log('Fetched Cinema Rooms:', result);
-
       setCinemaRooms(result);
     } catch (error) {
-      console.error('Fetch Cinema Rooms Error:', error);
-      message.error(`Failed to fetch cinema rooms: ${error.message}`, 3);
+      showErrorMessage(`Failed to fetch cinema rooms: ${error.message}`);
     }
   };
 
-  // Fetch cinema rooms on component mount
-  useEffect(() => {
-    fetchCinemaRooms();
-  }, []);
-
-  // Modify fetchMovies to include type fetching
+  // Modify fetchMovies to use optimized message
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
@@ -459,10 +568,13 @@ const Movie = () => {
       }
 
       const result = await response.json();
-      console.log('Raw API Response:', result); // Debug log to verify types
 
       const formattedMovies = result.map((movie) => {
-        console.log(`Movie ${movie.movieId} Types:`, movie.types); // Specific type logging
+        // Ensure types is always an array
+        const movieTypes = Array.isArray(movie.types)
+          ? movie.types
+          : (movie.types ? [movie.types] : []);
+
         return {
           key: movie.movieId.toString(),
           movieNameVn: movie.movieNameVn,
@@ -470,21 +582,23 @@ const Movie = () => {
           fromDate: movie.fromDate,
           toDate: movie.toDate,
           actor: movie.actor,
-          movieProductionCompany: movie.movieProductionCompany,
+          movieProductionCompany: movie.movieProductionCompany || 'N/A',
           director: movie.director,
           duration: movie.duration !== undefined && movie.duration !== null
             ? Number(movie.duration)
             : 0,
           version: movie.version,
-          // Ensure types is always an array, even if it's not in the expected format
-          types: Array.isArray(movie.types)
-            ? movie.types
-            : (movie.types ? [movie.types] : []),
-          cinemaRoom: movie.cinemaRoomId,
           content: movie.content,
+          
+          // Ensure image URLs are handled correctly
+          posterImageUrl: movie.posterImageUrl || '',
           largeImage: movie.largeImage || '',
-          scheduleTimes: [],
-          trailerUrl: movie.trailerUrl
+          
+          cinemaRoom: movie.cinemaRoomId,
+          trailerUrl: movie.trailerUrl,
+          
+          // Ensure types is always an array
+          types: movieTypes
         };
       });
 
@@ -492,19 +606,20 @@ const Movie = () => {
 
       // Only show success message when explicitly requested
       if (showSuccessMessage) {
-        message.success("Movies fetched successfully", 1.5);
+        showSuccessMessage("Movies fetched successfully", 1.5);
       }
     } catch (error) {
-      console.error('Fetch Movies Error:', error);
-      message.error(`Failed to fetch movies: ${error.message}`, 1.5);
+      showErrorMessage(`Failed to fetch movies: ${error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch movies on component mount
+  // Fetch initial data on component mount
   useEffect(() => {
     fetchMovies();
+    fetchMovieTypes();
+    fetchCinemaRooms();
   }, []);
 
   return (
@@ -517,6 +632,8 @@ const Movie = () => {
             onClick={() => {
               setIsModalVisible(true);
               setIsEditing(false);
+              setPosterFile(null);
+              setBannerFile(null);
               form.resetFields();
             }}
             className="add-movie-btn"
@@ -560,13 +677,17 @@ const Movie = () => {
           setIsModalVisible(false);
           setIsEditing(false);
           setEditingKey(null);
+          setPosterFile(null);
+          setBannerFile(null);
           form.resetFields();
         }}
         footer={null}
         className="movie-modal"
         width={600}
         centered
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' }
+        }}
       >
         <Form
           form={form}
@@ -656,7 +777,7 @@ const Movie = () => {
                     onClick={() => add()}
                     block
                     icon={<PlusCircleOutlined />}
-                    className="add-schedule-btn" // Add this className
+                    className="add-schedule-btn"
                   >
                     Add Schedule Time
                   </Button>
@@ -670,7 +791,7 @@ const Movie = () => {
             label="Duration & Version"
             style={{ marginBottom: 16 }}
           >
-            <Input.Group compact>
+            <Space.Compact block>
               <Form.Item
                 name="duration"
                 noStyle
@@ -692,7 +813,7 @@ const Movie = () => {
                   placeholder="Version"
                 />
               </Form.Item>
-            </Input.Group>
+            </Space.Compact>
           </Form.Item>
 
           <Form.Item
@@ -723,7 +844,7 @@ const Movie = () => {
             label="Cinema Room & Movie Types"
             style={{ marginBottom: 16 }}
           >
-            <Input.Group compact>
+            <Space.Compact block>
               <Form.Item
                 name="cinemaRoom"
                 noStyle
@@ -744,6 +865,7 @@ const Movie = () => {
                 rules={[{ required: true, message: 'Please select at least one movie type' }]}
               >
                 <Select
+                  mode="multiple"
                   placeholder="Select movie types"
                   style={{ width: '48%' }}
                   options={movieTypes.map(type => ({
@@ -752,7 +874,7 @@ const Movie = () => {
                   }))}
                 />
               </Form.Item>
-            </Input.Group>
+            </Space.Compact>
           </Form.Item>
 
           <Form.Item
@@ -773,11 +895,80 @@ const Movie = () => {
             <Input placeholder="Enter trailer URL" />
           </Form.Item>
 
+          {/* Simplified File Upload Section */}
           <Form.Item
-            name="largeImage"
-            label="Large Image URL"
+            label="Movie Poster"
+            rules={[{ required: !isEditing, message: 'Please upload a poster image' }]}
           >
-            <Input placeholder="Enter large image URL" />
+            <Upload
+              accept="image/*"
+              beforeUpload={(file) => {
+                const isImage = file.type.startsWith('image/');
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                
+                if (!isImage) {
+                  message.error('You can only upload image files!');
+                  return false;
+                }
+                
+                if (!isLt2M) {
+                  message.error('Image must be smaller than 2MB!');
+                  return false;
+                }
+                
+                setPosterFile(file);
+                return false; // Prevent automatic upload
+              }}
+              fileList={posterFile ? [posterFile] : []}
+              onRemove={() => setPosterFile(null)}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>
+                Upload Poster Image
+              </Button>
+            </Upload>
+            {posterFile && (
+              <div style={{ marginTop: 8 }}>
+                Selected: {posterFile.name}
+              </div>
+            )}
+          </Form.Item>
+
+          <Form.Item
+            label="Movie Banner"
+          >
+            <Upload
+              accept="image/*"
+              beforeUpload={(file) => {
+                const isImage = file.type.startsWith('image/');
+                const isLt2M = file.size / 1024 / 1024 < 2;
+                
+                if (!isImage) {
+                  message.error('You can only upload image files!');
+                  return false;
+                }
+                
+                if (!isLt2M) {
+                  message.error('Image must be smaller than 2MB!');
+                  return false;
+                }
+                
+                setBannerFile(file);
+                return false; // Prevent automatic upload
+              }}
+              fileList={bannerFile ? [bannerFile] : []}
+              onRemove={() => setBannerFile(null)}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>
+                Upload Banner Image
+              </Button>
+            </Upload>
+            {bannerFile && (
+              <div style={{ marginTop: 8 }}>
+                Selected: {bannerFile.name}
+              </div>
+            )}
           </Form.Item>
 
           <Form.Item>
@@ -786,6 +977,7 @@ const Movie = () => {
               htmlType="submit"
               block
               className="submit-btn"
+              loading={uploading}
             >
               {isEditing ? "Update Movie" : "Add New Movie"}
             </Button>
@@ -822,7 +1014,7 @@ const Movie = () => {
             >
               Confirm Delete
             </Button>
-          </div>
+            </div>
         </div>
       </Modal>
     </div>

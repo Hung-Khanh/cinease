@@ -14,7 +14,7 @@ const DescriptionMovie = () => {
 
     const fetchMovieDetails = async () => {
         try {
-            const response = await fetch(`${apiUrl}/public/movies?q=${movieId}`, {
+            const response = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
@@ -26,8 +26,12 @@ const DescriptionMovie = () => {
                 return;
             }
             const data = await response.json();
-            const movieData = data[0];
-            setMovie(movieData);
+
+            if (data) {
+                setMovie(data); 
+            } else {
+                console.error("Movie data not found:", data);
+            }
         } catch (error) {
             console.error("Error fetching movie data:", error);
         }
@@ -51,7 +55,7 @@ const DescriptionMovie = () => {
                     <button className="back-button" onClick={() => navigate(-1)}>
                         <FaArrowLeft />
                     </button>
-                    <img src={movie?.largeImage} alt={movie?.movieNameEnglish} className="movie-poster" />
+                    <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster" />
                     <div className="poster-title">{movie?.movieNameEnglish}</div>
                     <button className="trailer-btn" onClick={handleTrailerClick}>Trailer</button>
                 </div>
@@ -86,6 +90,7 @@ const DescriptionMovie = () => {
                         to={`/select-showtime/${movieId}`}
                         state={{ movieId: movie?.movieId }}
                         className="buy-ticket-btn"
+                        style={{ display: new Date(movie?.fromDate) > new Date() ? 'none' : 'block' }} // Ẩn nút nếu phim chưa phát hành
                     >
                         Buy Ticket
                     </Link>

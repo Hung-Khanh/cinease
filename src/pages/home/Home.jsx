@@ -35,7 +35,7 @@ const Home = () => {
                         title: movie.movieNameEnglish,
                         poster: movie.posterImageUrl || KM,
                         img: movie.largeImage,
-                        rating: movie.rating || "N/A",
+                        rating: movie.rating,
                         genre: movie.version || "Unknown",
                         types: movie.types || "Unknown",
                         showtimes: movie.duration ? `${movie.duration} min` : "120 min",
