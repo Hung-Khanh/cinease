@@ -10,15 +10,28 @@
   padding: 20px;
   color: #fff;
 
-  .back-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+  .dts-back-btn {
     background: none;
-    border: none;
+    border: 2px solid #0c9550;
+    color: #0c9550;
     font-size: 24px;
-    color: #fff;
+    border-radius: 50%;
     cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50px;
+    top: 50px;
+    &:hover {
+      background-color: #0c9550;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+    }
   }
 
   .ticket-info-container {
@@ -220,7 +233,7 @@
       }
     }
 
-    .back-button {
+    .dts-back-btn {
       font-size: 20px; /* Smaller back button */
       top: 15px;
       left: 15px;
@@ -279,7 +292,7 @@
       }
     }
 
-    .back-button {
+    .dts-back-btn {
       font-size: 18px;
       top: 10px;
       left: 10px;

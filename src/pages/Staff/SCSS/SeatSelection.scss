@@ -36,7 +36,7 @@ $bg-color: #011c0f;
   }
 }
 
-.back-button {
+.dts-back-btn {
   background: none;
   border: 2px solid #0c9550;
   color: #0c9550;
@@ -48,8 +48,9 @@ $bg-color: #011c0f;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: 0.3s ease;
-  margin-bottom: -10px;
+  position: absolute;
+  top: 160px;
+  left: 60px;
 
   &:hover {
     background-color: #0c9550;

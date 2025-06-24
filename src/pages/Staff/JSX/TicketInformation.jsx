@@ -224,7 +224,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   return (
     <div className="ticket-info-wrapper">
-      <button className="back-button" onClick={handleBack}>
+      <button className="dts-back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
 
