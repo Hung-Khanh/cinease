@@ -1,4 +1,4 @@
-import { Carousel, Rate, Badge } from "antd";
+import { Carousel, Rate, Badge, Tooltip } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import KM from "../../assets/KM.png";
@@ -168,7 +168,8 @@ const Home = () => {
                             className="movie-carousel"
                         >
                             {showingMovies.map((movie, idx) => (
-                                <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
+                                <Tooltip title={movie.title} key={idx}>
+                                    <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
                                     <img src={movie.poster} alt={movie.title} className="movie-img" />
                                     <div className="movie-info">
                                         <div className="movie-title">{movie.title}</div>
@@ -183,6 +184,7 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </div>
+                                </Tooltip>
                             ))}
                         </Carousel>
                     </div>
@@ -204,6 +206,7 @@ const Home = () => {
                             className="movie-carousel"
                         >
                             {comingSoonMovies.map((movie, idx) => (
+                                <Tooltip title={movie.title} key={idx}>
                                 <div className="coming-soon-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="coming-img-wrap">
                                         <img src={movie.img} alt={movie.title} className="coming-img" />
@@ -217,6 +220,7 @@ const Home = () => {
                                         )}
                                     </div>
                                 </div>
+                                </Tooltip>
                             ))}
                         </Carousel>
                     </div>
@@ -234,6 +238,7 @@ const Home = () => {
                             const formattedEndDate = endDate.toLocaleDateString('en-US', options);
 
                             return (
+                                <Tooltip title={promo.title} key={idx}>
                                 <div className="promo-card" key={idx}>
                                     <img src={promo.img} alt={promo.title} className="promo-img" />
                                     <div className="promo-info">
@@ -243,6 +248,7 @@ const Home = () => {
                                         <div className="promo-date">End: {formattedEndDate}</div>
                                     </div>
                                 </div>
+                                </Tooltip>
                             );
                         })}
                     </div>

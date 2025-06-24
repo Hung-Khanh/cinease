@@ -1,17 +1,67 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Form, Table, message, Upload } from "antd";
+import { Input, Button, Form, Table, message, Upload, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import { UserOutlined, CameraOutlined } from "@ant-design/icons";
 import "./Profile.scss";
 import api from "../../constants/axios";
 
-const historyData = [
-  { key: 1, date: "16/06/2025", movie: "Lật mặt 8", tickets: 2, points: "+50" },
-  { key: 2, date: "15/06/2025", movie: "Doraemon", tickets: 2, points: "+50" },
-  { key: 3, date: "14/06/2025", movie: "Lilo & Stitch", tickets: 2, points: "+50" },
-];
-
 const Profile = () => {
+  // ...other states
+  const [historyData, setHistoryData] = useState([]);
+
+  useEffect(() => {
+    const fetchHistoryAndPoints = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const token = user.token || "";
+        // Gọi song song 2 API
+        const [ticketsRes, pointsRes] = await Promise.all([
+          api.get("/member/tickets", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          }),
+          api.get("/member/score-history", {
+            params: { type: "adding" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          })
+        ]);
+        const ticketsData = ticketsRes.data;
+        const pointsData = pointsRes.data;
+        // Map API data to table format (lấy từ ticketsData.content)
+        const mapped = (ticketsData.content || []).map((item, idx) => {
+          // Đếm số vé
+          const ticketCount = Array.isArray(item.products)
+            ? item.products.filter(p => p.itemType === "TICKET").length
+            : (item.seatNumbers ? item.seatNumbers.length : 0);
+          // Cộng tổng amount của tất cả bản ghi points có cùng movieName và date
+          const bookingDate = item.bookingDate ? new Date(item.bookingDate).toISOString().slice(0, 10) : null;
+          const relatedPoints = (pointsData || []).filter(
+            p => p.movieName === item.movieName && p.date === bookingDate
+          );
+          const totalPoints = relatedPoints.reduce((sum, p) => sum + p.amount, 0);
+          return {
+            key: item.invoiceId || idx,
+            date: item.bookingDate ? new Date(item.bookingDate).toLocaleDateString("vi-VN") : "",
+            movie: item.movieName,
+            tickets: ticketCount,
+            status: item.status || "",
+            points: totalPoints > 0 ? `+${totalPoints}` : ""
+          };
+        });
+        setHistoryData(mapped);
+      } catch (err) {
+        console.error(err);
+        setHistoryData([]);
+      }
+    };
+    fetchHistoryAndPoints();
+  }, []);
+
   const [form] = Form.useForm();
   const [pwdForm] = Form.useForm();
   const [previewAvatar, setPreviewAvatar] = useState(null);
@@ -32,15 +82,34 @@ const Profile = () => {
     { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
     { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
     {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (status) => {
+        const statusColors = {
+          PENDING: "orange",
+          CONFIRMED: "blue",
+          PAID: "green",
+          CANCELLED: "red",
+          EXPIRED: "gray",
+          AWAITING_PAYMENT: "yellow"
+        };
+        return (
+          <Tag color={statusColors[status] || "default"} style={{ minWidth: 90, textAlign: "center" }}>
+            {status}
+          </Tag>
+        );
+      }
+    },
+    {
       title: "Points",
       dataIndex: "points",
       key: "points",
       align: "center",
-      render: (t) => <span style={{ color: "#ac2020" }}>{t}</span>,
+      render: (t) => <span style={{ color: "#FF0000" }}>{t}</span>,
     },
   ];
-
-
 
   // Fetch user info function
   const fetchUserInfo = React.useCallback(async () => {
@@ -475,14 +544,14 @@ const Profile = () => {
       <div className="profile-section profile-history-section">
         <div className="profile-history-header">
           <span className="profile-history-title">Recent Transactions</span>
-          <span className="profile-point">2,450</span>
-          <span className="profile-point-label">Member Level: Gold</span>
+          {/* Optionally, you can show total points or member level here as before */}
         </div>
         <Table
           columns={columns}
           dataSource={historyData}
-          pagination={false}
+          pagination={{ pageSize: 5 }}
           className="profile-history-table"
+          rowKey="key"
         />
         <div className="profile-history-footer">
           <Button className="profile-history-btn" onClick={handleViewHistory}>See All History</Button>
