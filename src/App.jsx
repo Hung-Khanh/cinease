@@ -24,9 +24,10 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
-import ProductPage from "./product/Product.jsx"; 
-
+import ProductPage from "./product/Product.jsx";
+import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
+import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -116,6 +117,7 @@ function Layout() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/staffHomePage" element={<StaffHomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route
@@ -131,7 +133,6 @@ function Layout() {
             element={<TicketInformation apiUrl={apiUrl} />}
           />
           <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
-
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
           <Route
@@ -144,10 +145,20 @@ function Layout() {
           />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
-          <Route path="/seat-select/:movieId/:scheduleId" element={<SelectSeat />} />
+          <Route
+            path="/seat-select/:movieId/:scheduleId"
+            element={<SelectSeat />}
+          />
           <Route path="/confirm/:scheduleId" element={<Confirm />} />
-          <Route path="/product/:movieId/:invoiceId" element={<ProductPage />} />
-          <Route path="/payment-detail/:invoiceId" element={<PaymentDetail />} />
+          <Route
+            path="/product/:movieId/:invoiceId"
+            element={<ProductPage />}
+          />
+          <Route
+            path="/payment-detail/:invoiceId/:scheduleId"
+            element={<PaymentDetail />}
+          />
+          <Route path="/history" element={<HistoryTicket />} />
           {/* Add more routes as needed */}
         </Routes>
       </main>

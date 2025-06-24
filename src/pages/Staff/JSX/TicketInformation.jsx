@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { Modal, Select, Input, Button } from "antd";
+import api from "../../../constants/axios";
 
 import "../SCSS/TicketIn4.scss";
 
@@ -23,13 +24,20 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [voucherCode, setVoucherCode] = useState("");
   const [ticketType, setTicketType] = useState("ADULT");
   const [responseModalVisible, setResponseModalVisible] = useState(false);
-  const [ticketDetails, setTicketDetails] = useState(null);
-  const paymentUrl = ticketDetails?.paymentUrl;
+  const [grandTotal, setGrandTotal] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple clicks
+
+  // FIX 1: Chỉ get paymentUrl một lần khi component mount
+  useEffect(() => {
+    const storedGrandTotal = localStorage.getItem("grandTotal");
+    if (storedGrandTotal) {
+      setGrandTotal(storedGrandTotal);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
       const token = localStorage.getItem("token");
-
       try {
         const response = await fetch(
           `${apiUrl}/employee/bookings/${invoiceId}`,
@@ -38,7 +46,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             headers: {
               accept: "*/*",
               Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
+              "ngrok-skip-browser-warning": "null",
             },
           }
         );
@@ -73,7 +81,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
-            "ngrok-skip-browser-warning": "true",
+            "ngrok-skip-browser-warning": "null",
           },
         });
 
@@ -125,48 +133,57 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   };
 
   const handlePurchase = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const identityOrPhone = inputType === "phone" ? inputValue : undefined;
-      const response = await fetch(
-        `${apiUrl}/employee/bookings/confirmBooking`,
-        {
-          method: "POST",
-          headers: {
-            accept: "*/*",
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: JSON.stringify({
-            invoiceId: parseInt(invoiceId),
-            scheduleId: parseInt(scheduleId),
-            useScore: 0,
-            promotionId: voucherCode || null,
-            identityCard: inputType === "id" ? inputValue : undefined,
-            phoneNumber: identityOrPhone,
-            paymentMethod: paymentMethod,
-            ticketType: ticketType,
-          }),
-        }
-      );
+    if (isProcessing) return; // FIX 2: Prevent multiple calls
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Error confirming booking:", errorText);
-        throw new Error(`Failed to confirm booking: ${response.status}`);
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Authentication token is missing. Please log in again.");
+        return;
       }
 
-      const data = await response.json();
-      console.log("ticket Details:", data);
-      setTicketDetails(data);
+      const payload = {
+        invoiceId: parseInt(invoiceId),
+        scheduleId: parseInt(scheduleId),
+        useScore: 0,
+        promotionId: voucherCode || null,
+        identityCard: inputType === "id" ? inputValue : undefined,
+        phoneNumber: inputType === "phone" ? inputValue : undefined,
+        paymentMethod: paymentMethod,
+        ticketType: ticketType,
+      };
+
+      console.log("Sending payload:", payload);
+
+      const response = await api.post(`/employee/bookings/confirm`, payload, {
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = response.data;
+      console.log("Ticket Details:", data);
+      const paymentUrl = data?.paymentUrl;
+      if (paymentUrl) {
+        // FIX 4: Lưu trực tiếp paymentUrl, không wrap trong object
+        localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
+        console.log("Payment URL saved:", paymentUrl); // Chỉ log một lần
+      } else {
+        console.warn("No payment URL found in ticket data");
+      }
       setResponseModalVisible(true);
     } catch (error) {
       console.error("Error in handlePurchase:", error);
-      setTicketDetails({
-        error: "Failed to confirm booking. Please try again.",
-      });
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to confirm booking. Please try again.";
+      alert(errorMessage);
       setResponseModalVisible(true);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -187,11 +204,23 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       })
       .replace(/\//g, "/");
   };
-  const handleQRPurchase = () => {
-    localStorage.setItem("paymentUrl", JSON.stringify({ paymentUrl }));
-    console.log(ticketDetails?.paymentUrl);
-    navigate("/confirm-purchase");
-  };
+
+  // FIX 3: Cải thiện logic handleQRPurchase
+  const handleQRPurchase = useCallback(() => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+
+    try {
+      // Sử dụng paymentUrl từ ticketData thay vì localStorage
+
+      navigate("/confirm-purchase");
+    } catch (error) {
+      console.error("Error in handleQRPurchase:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [ticketData?.paymentUrl, navigate, isProcessing]);
 
   return (
     <div className="ticket-info-wrapper">
@@ -250,7 +279,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <Select
                 value={ticketType}
                 onChange={setTicketType}
-                style={{ width: "100%" }}
+                style={{ width: "97%" }}
               >
                 <Option value="ADULT">ADULT</Option>
                 <Option value="STUDENT">STUDENT</Option>
@@ -258,7 +287,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <div className="detail-item total">
               <span>Total payment</span>
-              <span>VND {ticketData?.total?.toLocaleString() || "0"}</span>
+              <span>VND {grandTotal || "0"}</span>
             </div>
             <div className="detail-item phone-input">
               <button onClick={showModal}>Enter Phone Number</button>
@@ -268,6 +297,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <Select value={paymentMethod} onChange={setPaymentMethod}>
                 <Option value="VNPAY">VNPAY</Option>
                 <Option value="CASH">Cash</Option>
+                <Option value="MOMO_QR">MOMO</Option>
               </Select>
               {paymentMethod === "CASH" && (
                 <div>
@@ -282,8 +312,12 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               )}
             </div>
             <p className="note">*Purchased ticket cannot be canceled</p>
-            <button className="purchase-button" onClick={handlePurchase}>
-              Confirm
+            <button
+              className="purchase-button"
+              onClick={handlePurchase}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : "Confirm"}
             </button>
           </div>
         </div>
@@ -315,6 +349,9 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           onChange={(e) => setInputValue(e.target.value)}
           placeholder={inputType === "phone" ? "Phone Number" : "ID Card"}
         />
+        <Button key="submit" onClick={handleSubmit}>
+          Submit
+        </Button>
       </Modal>
 
       <Modal
@@ -323,11 +360,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         onOk={() => setResponseModalVisible(false)}
         onCancel={() => setResponseModalVisible(false)}
       >
-        <p>Movie Name: {ticketDetails?.movieName || "N/A"}</p>
-        <p>Date: {formatDate(ticketDetails?.scheduleShowDate)}</p>
-
+        <p>Movie Name: {ticketData?.movieName || "N/A"}</p>
+        <p>Date: {formatDate(ticketData?.date)}</p>
         <p>
-          Time:{" "}
+          Time:{""}
           {ticketData?.time
             ? new Date(ticketData.time).toLocaleTimeString()
             : "N/A"}
@@ -336,13 +372,17 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           Ticket ({ticketData?.seat?.length || 0}):{" "}
           {ticketData?.seat?.join(", ") || "N/A"}
         </p>
-        <p>Total payment: {ticketData?.total?.toLocaleString() || "0"} VND</p>
+        <p>Total payment: {grandTotal} VND</p>
         <br />
         <Button key="close" onClick={() => setResponseModalVisible(false)}>
           Close
         </Button>
-        <Button key="Confirm" onClick={() => handleQRPurchase()}>
-          Purchase
+        <Button
+          key="Confirm"
+          onClick={handleQRPurchase}
+          disabled={isProcessing}
+        >
+          {isProcessing ? "Processing..." : "Purchase"}
         </Button>
       </Modal>
     </div>
