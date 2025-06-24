@@ -11,7 +11,7 @@ import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
-import HomePage from "./pages/Home/Home.jsx";
+import HomePage from "./pages/home/Home.jsx";
 import Movie from "./pages/movie/Movie";
 import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
 import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
