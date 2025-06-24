@@ -132,7 +132,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
       .slide-item,
       .slide-overlay {
-height: 160px;
+        height: 160px;
         padding: 18px;
       }
 
@@ -198,7 +198,7 @@ height: 160px;
     .movie-card {
       flex: 0 0 22%;
       max-width: 22%;
-      min-width: 220px;
+      min-width: 230px;
       margin: 0 12px;
     }
     .coming-soon-card {
@@ -374,6 +374,11 @@ height: 160px;
       font-weight: 600;
       color: $text-light;
       margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      
     }
 
     .movie-genre-btn,
