@@ -80,14 +80,72 @@
       margin-bottom: 10px;
       font-size: 16px;
 
-      &.voucher {
-        select {
-          padding: 5px;
-          background: #333;
-          color: #fff;
-          border: 1px solid #555;
-          border-radius: 5px;
-          width: 100%; /* Full width for select on smaller screens */
+      &.promotion-search {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+        position: relative; /* Đặt vị trí tương đối để điều khiển ul */
+
+        span {
+          font-weight: 500;
+          color: #333;
+        }
+
+        .ant-input-search {
+          font-size: 14px;
+          border-radius: 4px;
+          transition: border-color 0.3s;
+
+          .ant-input {
+            padding: 8px;
+          }
+
+          .ant-input:focus,
+          .ant-input:hover {
+            outline: none;
+          }
+        }
+
+        .promotion-list {
+          display: none; /* Ẩn ul mặc định */
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          margin-top: 8px; /* Đảm bảo ul nằm dưới search */
+          max-height: 150px;
+          overflow-y: auto;
+          border: 1px solid #d9d9d9;
+          border-radius: 4px;
+          background: #fff;
+          width: 100%; /* Đảm bảo ul chiếm toàn bộ chiều rộng */
+          position: absolute; /* Đặt ul dưới search */
+          top: 100%; /* Đặt ul ngay dưới thanh search */
+          left: 0; /* Căn trái với container */
+          z-index: 1; /* Đảm bảo ul hiển thị trên các phần tử khác */
+        }
+
+        /* Hiện ul khi có dữ liệu tìm kiếm */
+        .promotion-list.has-results {
+          display: block;
+        }
+
+        .promotion-list li {
+          padding: 8px 12px;
+          cursor: pointer;
+          font-size: 14px;
+          color: #333;
+          transition: background-color 0.2s;
+        }
+
+        .promotion-list li:hover {
+          background-color: #f5f5f5;
+        }
+
+        .promotion-list li.selected {
+          background-color: #e6f7ff;
+          color: #1890ff;
+          font-weight: 500;
         }
       }
 
@@ -140,15 +198,13 @@
         .ant-select {
           width: 100%;
 
-          // Fix alignment cho Select
           .ant-select-selector {
             display: flex;
-            align-items: center; // Căn giữa theo chiều dọc
-            min-height: 32px; // Đảm bảo chiều cao tối thiểu
-            padding: 4px 11px; // Padding chuẩn
+            align-items: center;
+            min-height: 32px;
+            padding: 4px 11px;
           }
 
-          // Căn giữa arrow icon
           .ant-select-arrow {
             display: flex;
             align-items: center;
@@ -157,7 +213,6 @@
             transform: translateY(70%);
           }
 
-          // Căn giữa selection text
           .ant-select-selection-item {
             display: flex;
             align-items: center;
@@ -165,7 +220,6 @@
           }
         }
 
-        // Styling cho Input khi chọn Cash
         .ant-input {
           margin-top: 10px;
           padding: 4px 11px;
@@ -207,34 +261,34 @@
   /* Tablet screens (768px and below) */
   @media (max-width: 768px) {
     .ticket-card {
-      flex-direction: column; /* Stack image and details vertically */
+      flex-direction: column;
       align-items: center;
       padding: 15px;
     }
 
     .ticket-image {
       .movie-poster {
-        width: 150px; /* Smaller poster size */
+        width: 150px;
         height: 225px;
       }
     }
 
     .ticket-details {
       h2 {
-        font-size: 20px; /* Smaller heading */
+        font-size: 20px;
       }
 
       .detail-item {
-        font-size: 14px; /* Smaller font size */
+        font-size: 14px;
       }
 
       .total {
-        font-size: 18px; /* Adjust total font size */
+        font-size: 18px;
       }
     }
 
     .dts-back-btn {
-      font-size: 20px; /* Smaller back button */
+      font-size: 20px;
       top: 15px;
       left: 15px;
     }
@@ -242,7 +296,7 @@
 
   /* Mobile screens (480px and below) */
   @media (max-width: 480px) {
-    padding: 10px; /* Reduce padding */
+    padding: 10px;
 
     .ticket-info-container {
       padding: 0 10px;
@@ -255,7 +309,7 @@
 
     .ticket-image {
       .movie-poster {
-        width: 120px; /* Even smaller poster */
+        width: 120px;
         height: 180px;
       }
     }
@@ -267,10 +321,10 @@
       }
 
       .detail-item {
-        font-size: 12px; /* Smaller font */
-        flex-direction: column; /* Stack details for better readability */
+        font-size: 12px;
+        flex-direction: column;
         gap: 5px;
-        padding: 700px;
+        padding: 700px; /* Có thể cần kiểm tra lại giá trị này */
         &.transaction {
           .transaction-details {
             padding-left: 10px;
