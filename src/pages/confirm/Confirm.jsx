@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import './Confirm.scss';
-import Select from 'react-select';
-import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-
-const voucherOptions = [
-  { value: 1, label: 'BAPNGON' },
-  { value: 2, label: 'CINEASE' },
-  { value: 3, label: 'CINEASEVIP' },
-];
+import React, { useEffect, useState } from "react";
+import "./Confirm.scss";
+import Select from "react-select";
+import { FaArrowLeft } from "react-icons/fa";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { movieId: paramMovieId } = useParams();
 
-  const [voucher, setVoucher] = useState(null);
+  const [promotions, setPromotions] = useState([]);   // danh sách promotions đầy đủ
+  const [voucher, setVoucher] = useState(null);       // promotion được chọn
   const [useScore, setUseScore] = useState(0);
   const [ticketType, setTicketType] = useState("ADULT");
   const [loading, setLoading] = useState(true);
@@ -49,6 +44,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     });
 
     fetchMovieDetails(data.movieId);
+    fetchPromotions();
   }, []);
 
   const fetchMovieDetails = async (movieId) => {
@@ -70,6 +66,32 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     }
   };
 
+  const fetchPromotions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${apiUrl}/public/promotions`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+          Accept: "application/json",
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPromotions(
+          data.map((promo) => ({
+            value: promo, // gắn nguyên object
+            label: `${promo.title} (${promo.discountLevel}% off)`,
+          }))
+        );
+      } else {
+        console.error('Error fetching promotions.');
+      }
+    } catch (err) {
+      console.error('Error fetching promotions:', err);
+    }
+  };
+
   const handleConfirm = async () => {
     const token = localStorage.getItem("token");
     if (!token || !bookingData) return;
@@ -78,14 +100,14 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
       invoiceId: Number(bookingData.invoiceId),
       scheduleId: Number(bookingData.scheduleId),
       useScore: Number(useScore),
-      promotionId: voucher?.value || "",
+      promotionId: voucher?.value?.promotionId || "", // lấy promotionId
       ticketType,
-      products: bookingData.products.map(p => ({
+      products: bookingData.products.map((p) => ({
         productId: p.productId,
         quantity: p.quantity,
-        notes: ""
+        notes: "",
       })),
-      skipProducts: bookingData.products.length === 0
+      skipProducts: bookingData.products.length === 0,
     };
 
     try {
@@ -108,15 +130,17 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
       navigate(`/payment-detail/${bookingData.invoiceId}`, {
         state: {
           ...bookingData,
-          confirmationResult: result
-        }
+          promotion: voucher?.value || null, // truyền object promotion
+          grandTotal: bookingData.grandTotal, // truyền tổng tiền
+          confirmationResult: result,
+        },
       });
     } catch (err) {
       alert("Lỗi xác nhận vé");
     }
   };
 
-  if (loading || !bookingData) return <div className="confirm-wrapper">Đang tải dữ liệu...</div>;
+  if (loading || !bookingData) return <div className="confirm-wrapper">LOADING DATA...</div>;
   if (error) return <div className="confirm-wrapper">{error}</div>;
 
   const seatCount = bookingData.seatNumbers.length;
@@ -125,34 +149,41 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   return (
     <div className="confirm-wrapper">
-      <button className="back-button" onClick={() => navigate(-1)}><FaArrowLeft /></button>
+      <button className="back-button" onClick={() => navigate(-1)}>
+        <FaArrowLeft />
+      </button>
       <main className="confirm-container">
         <div className="ticket-box">
           <div className="poster">
-            <img src={movieDetails.posterImageUrl || "https://via.placeholder.com/300x450?text=No+Poster"} alt="poster" />
+            <img
+              src={movieDetails.posterImageUrl || "https://via.placeholder.com/300x450?text=No+Poster"}
+              alt="poster"
+            />
           </div>
           <div className="ticket-info">
             <h2>XÁC NHẬN ĐẶT VÉ</h2>
-            <div><b>🎬 Phim:</b> {bookingData.movieName}</div>
-            <div><b>📅 Ngày:</b> {bookingData.showDate}</div>
-            <div><b>⏰ Giờ:</b> {bookingData.showTime}</div>
-            <div><b>💺 Ghế:</b> {bookingData.seatNumbers.join(", ")}</div>
-            <div><b>🏢 Phòng:</b> {bookingData.cinemaRoomName}</div>
+            <div><b>🎬 MOVIE: </b>  {bookingData.movieName}</div>
+            <div><b>📅 DATE:</b> {bookingData.showDate}</div>
+            <div><b>⏰ TIME:</b> {bookingData.showTime}</div>
+            <div><b>💺 SEAT:</b> {bookingData.seatNumbers.join(", ")}</div>
+            <div><b>🏢 CINEROOM:</b> {bookingData.cinemaRoomName}</div>
 
-            <div><b>🧾 Tổng bắp nước:</b> {bookingData.productsTotal.toLocaleString()} VND</div>
-            <div><b>🎟 Giá vé:</b> {`${seatCount} ghế × ${pricePerSeat.toLocaleString()} = ${ticketPriceTotal.toLocaleString()} VND`}</div>
-            <div><b>💰 Tổng cộng:</b> {bookingData.grandTotal.toLocaleString()} VND</div>
+            <div><b>🧾 TOTAL FOOD & DRINK :</b> {bookingData.productsTotal.toLocaleString()} VND</div>
+            <div><b>🎟 TICKET PRICE:</b> {`${seatCount} SEAT × ${pricePerSeat.toLocaleString()} = ${ticketPriceTotal.toLocaleString()} VND`}</div>
+            <div><b>💰 GRAND TOTAL:</b> {bookingData.grandTotal.toLocaleString()} VND</div>
 
+            {/* Select promotions */}
             <Select
-              options={voucherOptions}
+              classNamePrefix="voucher"
+              options={promotions}
               isClearable
-              placeholder="Chọn mã giảm giá"
+              placeholder="Select voucher"
               value={voucher}
               onChange={setVoucher}
-            />
+              />
 
-              <div className="row-form">
-              <label htmlFor="useScore">💳 Dùng điểm:</label>
+            <div className="row-form">
+              <label htmlFor="useScore">💳 USE SCORE:</label>
               <input
                 id="useScore"
                 type="number"
@@ -160,12 +191,12 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
                 onChange={(e) => setUseScore(e.target.value)}
                 min="0"
                 className="score-input"
-                placeholder="Nhập số điểm"
+                placeholder="Input score to use"
               />
             </div>
 
             <div className="row-form">
-              <label htmlFor="ticketType">🎫 Loại vé:</label>
+              <label htmlFor="ticketType">🎫TICKET TYPE:</label>
               <select
                 id="ticketType"
                 value={ticketType}
@@ -176,11 +207,8 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
               </select>
             </div>
 
-
-            <button className="confirm-button" onClick={handleConfirm}>
-              ✅ XÁC NHẬN ĐẶT VÉ
-            </button>
-            <p className="note">* Vé đã xác nhận không thể huỷ.</p>
+            <button className="confirm-button" onClick={handleConfirm}>✅ CONFIRM</button>
+            <p className="note">*Confirmed tickets cannot be canceled.</p>
           </div>
         </div>
       </main>

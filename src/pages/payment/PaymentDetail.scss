@@ -1,249 +1,198 @@
-/* PaymentDetail.scss - Clean Figma Style */
-
 .payment-detail-wrapper {
-  background: linear-gradient(135deg, #1a4b3d 0%, #0f2a20 100%);
+  position: relative;
   min-height: 100vh;
-  padding: 20px;
-  color: #ffffff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+  padding: 2rem;
+  background: radial-gradient(circle at top left, #000 0%, #011c0f 100%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
 
-// ⏳ Style countdown timer
+  .back-button-wrapper {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+
+    .back-button {
+      background: none;
+      border: 2px solid #2ecc71;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #2ecc71;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(46, 204, 113, 0.1);
+      }
+    }
+  }
+
 .countdown-wrapper {
-  padding: 24px 0;
-  text-align: center;
-
+  position: absolute;
+  top: 2rem;
+  left: 10rem; /* cách nút back 1 chút */
+  
   .countdown-timer {
-    font-size: 48px;
+    padding: 0.3rem 0.8rem;
+    font-size: 1.8rem;
     font-weight: bold;
-    color: #ffffff;
-    letter-spacing: 2px;
-    padding: 16px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    display: inline-block;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  }
-}
-
-.back-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #00ff88;
-  font-size: 20px;
-  cursor: pointer;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 50px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  width: fit-content;
-
-  &:hover {
-    background: rgba(0, 255, 136, 0.1);
-    border-color: #00ff88;
-    transform: translateX(-4px);
-  }
-
-  svg {
-    margin-right: 8px;
-  }
-}
-
-.content {
-  max-width: 800px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
-  padding: 32px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-}
-
-.poster-section {
-  flex: 0 0 240px;
-  text-align: center;
-
-  .poster {
-    width: 200px;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: scale(1.02);
-    }
-  }
-
-  h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #ffffff;
-    margin: 0;
-    line-height: 1.3;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-.payment-info {
-  flex: 1;
-
-  h2 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 24px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 14px;
-
-    &.transaction {
-      font-weight: 600;
-      margin-top: 20px;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(0, 255, 136, 0.3);
-      color: #00ff88;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    &.total {
-      font-weight: 700;
-      font-size: 18px;
-      padding: 16px 0;
-      border-top: 2px solid rgba(0, 255, 136, 0.3);
-      border-bottom: none;
-      margin-top: 12px;
-      color: #00ff88;
-    }
-
-    span:first-child {
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: 500;
-      text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 0.5px;
-    }
-
-    span:last-child {
-      color: #ffffff;
-      font-weight: 600;
-      text-align: right;
-    }
-  }
-
-  .note {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    text-align: center;
-    margin: 16px 0;
-    font-style: italic;
-  }
-
-  .payment-button {
-    display: block;
-    width: 100%;
-    padding: 16px 24px;
-    background: #00ff88;
-    color: #1a4b3d;
-    text-decoration: none;
-    border: none;
+    color: #2ecc71;
+    border: 2px solid #2ecc71;
     border-radius: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 24px;
-    text-align: center;
-    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.7);
+    width: fit-content; /* để không giãn */
     letter-spacing: 1px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: #00cc6a;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
   }
 }
 
-// Responsive design
-@media (max-width: 768px) {
+
   .content {
-    flex-direction: column;
-    gap: 24px;
-    padding: 24px 20px;
-    max-width: 480px;
-  }
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
 
   .poster-section {
-    flex: none;
-    align-self: center;
+  margin-top: 2rem; // Dời poster xuống tránh dính vào timer
+  text-align: center;
 
-    .poster {
-      width: 160px;
-      height: 240px;
-    }
-
-    h3 {
-      font-size: 16px;
-    }
-  }
-
-  .payment-info {
-    h2 {
-      font-size: 20px;
-      text-align: center;
-    }
+  img.poster {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
   }
 }
 
-@media (max-width: 480px) {
-  .payment-detail-wrapper {
-    padding: 16px;
-  }
 
-  .content {
-    padding: 20px 16px;
-  }
+    .payment-info {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
 
-  .poster-section .poster {
-    width: 140px;
-    height: 210px;
-  }
-
-  .payment-info {
-    .detail-row {
-      font-size: 13px;
-      padding: 10px 0;
-
-      &.total {
-        font-size: 16px;
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 0.5rem;
       }
 
-      span:first-child {
-        font-size: 11px;
+      .detail-row {
+        padding: 0.6rem 0;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+        span:first-child {
+          opacity: 0.8;
+          font-weight: 500;
+        }
+      }
+
+      .transaction {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .total {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #ffdd00;
+      }
+
+      select {
+        background: #222;
+        border: 1px solid #2ecc71;
+        padding: 0.3rem 0.5rem;
+        border-radius: 4px;
+        color: #fff;
+        min-width: 120px;
+      }
+
+      .payment-button {
+        width: 100%;
+        padding: 0.9rem;
+        background: #2ecc71;
+        border: none;
+        border-radius: 8px;
+        color: #011c0f;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        text-align: center;
+        transition: background 0.2s;
+
+        &:hover {
+          background: #27ae60;
+        }
+      }
+
+      a.payment-button {
+        margin-top: 1rem;
+        text-decoration: none;
+        display: block;
+      }
+
+      .note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  text-align: center;       /* căn giữa text */
+  white-space: nowrap;      /* không xuống dòng */
+  width: 100%;              /* chiếm toàn bộ bề ngang cha */
+  display: block;           /* bảo đảm chiếm cả dòng */
+}
+
+    }
+  }
+}
+.payment-method-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .payment-options {
+    display: flex;
+    gap: 1rem;
+
+    .payment-option {
+      background: none;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 0.25rem;
+      cursor: pointer;
+      transition: border 0.2s ease;
+       width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+
+      img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+      }
+
+      &.selected {
+        border: 2px solid #2ecc71;
+        box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+      }
+
+      &:hover {
+        border-color: #2ecc71;
       }
     }
   }
