@@ -15,42 +15,26 @@ const Profile = () => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
         const token = user.token || "";
         // Gọi song song 2 API
-        const [ticketsRes, pointsRes] = await Promise.all([
-          api.get("/member/tickets", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          }),
-          api.get("/member/score-history", {
-            params: { type: "adding" },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          })
-        ]);
+        const ticketsRes = await api.get("/member/tickets", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
         const ticketsData = ticketsRes.data;
-        const pointsData = pointsRes.data;
         // Map API data to table format (lấy từ ticketsData.content)
         const mapped = (ticketsData.content || []).map((item, idx) => {
           // Đếm số vé
           const ticketCount = Array.isArray(item.products)
             ? item.products.filter(p => p.itemType === "TICKET").length
             : (item.seatNumbers ? item.seatNumbers.length : 0);
-          // Cộng tổng amount của tất cả bản ghi points có cùng movieName và date
-          const bookingDate = item.bookingDate ? new Date(item.bookingDate).toISOString().slice(0, 10) : null;
-          const relatedPoints = (pointsData || []).filter(
-            p => p.movieName === item.movieName && p.date === bookingDate
-          );
-          const totalPoints = relatedPoints.reduce((sum, p) => sum + p.amount, 0);
           return {
             key: item.invoiceId || idx,
             date: item.bookingDate ? new Date(item.bookingDate).toLocaleDateString("vi-VN") : "",
             movie: item.movieName,
             tickets: ticketCount,
             status: item.status || "",
-            points: totalPoints > 0 ? `+${totalPoints}` : ""
+            grandTotal: item.grandTotal || 0
           };
         });
         setHistoryData(mapped);
@@ -82,6 +66,13 @@ const Profile = () => {
     { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
     { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
     {
+      title: "Grand Total",
+      dataIndex: "grandTotal",
+      key: "grandTotal",
+      align: "center",
+      render: v => v ? v.toLocaleString('vi-VN') + ' ₫' : ''
+    },
+    {
       title: "Status",
       dataIndex: "status",
       key: "status",
@@ -101,13 +92,6 @@ const Profile = () => {
           </Tag>
         );
       }
-    },
-    {
-      title: "Points",
-      dataIndex: "points",
-      key: "points",
-      align: "center",
-      render: (t) => <span style={{ color: "#FF0000" }}>{t}</span>,
     },
   ];
 
@@ -446,11 +430,13 @@ const Profile = () => {
 
           {/* Row 3 */}
           <div className="profile-info-row">
-          <Form.Item label="Sex" name="sex">
-              <select style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #222', background: 'rgba(255,255,255,0.08)', color: '#fff' }}>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+            <Form.Item label="Sex" name="gender">
+              <select
+                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #222', background: 'rgba(255,255,255,0.08)', color: '#fff' }}
+              >
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
               </select>
             </Form.Item>
             <Form.Item label="Identity Card" name="identityCard">
