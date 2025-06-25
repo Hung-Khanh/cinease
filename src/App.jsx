@@ -155,7 +155,7 @@ function Layout() {
             element={<ProductPage />}
           />
           <Route
-            path="/payment-detail/:invoiceId/:scheduleId"
+            path="/payment-detail/:invoiceId"
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />
