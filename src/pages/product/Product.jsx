@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import './Product.scss';
 
 const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
@@ -95,6 +96,11 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     return 'https://images.unsplash.com/photo-1504274066651-8d31a536b11a?w=400&h=300&fit=crop&crop=center';
   };
 
+  const handleBack = () => {
+  navigate(-1); 
+};
+
+
   const handleConfirm = () => {
     if (!seatData) return;
 
@@ -133,14 +139,18 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   return (
     <div className="products-wrapper">
+     <button className="back-button" onClick={() => handleBack()}>
+             <FaArrowLeft /> 
+      </button>
       <div className="products-header">
-        <h2>🍿 Chọn bắp nước</h2>
-        <p className="products-subtitle">Thưởng thức bộ phim với các combo đặc biệt</p>
+        <h2>FOOD & DRINK</h2>
+        <p className="products-subtitle">Enjoy the movie with our special combos</p>
       </div>
 
       <div className="product-list">
         {products.map((product) => (
           <div key={product.productId} className="product-card">
+            <div className="product-badge">{product.category}</div>
             <div className="product-image">
               <img 
                 src={getProductImage(product)} 
@@ -149,7 +159,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
                   e.target.src = 'https://images.unsplash.com/photo-1504274066651-8d31a536b11a?w=400&h=300&fit=crop&crop=center';
                 }}
               />
-              <div className="product-badge">{product.category}</div>
+              
             </div>
             
             <div className="product-info">
@@ -187,7 +197,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
         <div className="order-summary">
           <div className="summary-content">
             <div className="summary-info">
-              <span className="summary-items">{getTotalQuantity()} sản phẩm</span>
+              <span className="summary-items">{getTotalQuantity()} Product</span>
               <span className="summary-total">{getTotalPrice().toLocaleString()} VND</span>
             </div>
           </div>
@@ -199,8 +209,8 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
         onClick={handleConfirm}
       >
         {getTotalQuantity() > 0 
-          ? `Xác nhận (${getTotalQuantity()} sản phẩm)` 
-          : 'Bỏ qua & Tiếp tục'
+          ? `Confirm (${getTotalQuantity()} product)` 
+          : 'Skip & Continue'
         }
       </button>
     </div>

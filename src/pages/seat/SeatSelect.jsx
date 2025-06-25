@@ -139,7 +139,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       const data = await response.json();
       setGrandTotal(data.grandTotal);
 
-      // ✅ Truyền đầy đủ dữ liệu sang SnackSelect (bắp nước)
       navigate(`/product/${movieId}/${data.invoiceId}`, {
         state: {
           scheduleId: parseInt(scheduleId),
@@ -159,15 +158,15 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     }
   };
 
-  const renderSeats = () => {
-    const rows = getUniqueRows();
-    const maxSeatsPerRow = getMaxSeatsPerRow();
+    const renderSeats = () => {
+    const seatRows = [...new Set(seats.map((seat) => seat.seatColumn))].sort();
+    const maxSeatsPerRow = seats.length === 0 ? 0 : Math.max(...seats.map((seat) => seat.seatRow));
+    const seatNumbers = Array.from({ length: maxSeatsPerRow }, (_, i) => i + 1);
 
-    return rows.map((row) => (
-      <div key={row} className="seat-row">
-        {Array.from({ length: maxSeatsPerRow }, (_, i) => {
-          const seatNumber = i + 1;
-          const seatId = createSeatId(row, seatNumber);
+    return seatNumbers.map((num) => (
+      <div key={num} className="seat-row">
+        {seatRows.map((row) => {
+          const seatId = createSeatId(row, num); // ví dụ: A1, B1
           const seat = findSeatBySeatId(seatId);
           if (!seat) return <div key={seatId} className="seat empty"></div>;
           return (
@@ -184,6 +183,7 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     ));
   };
 
+
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -194,12 +194,11 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
   return (
     <div className="seat-selection-wrapper">
-      <button className="back-button" onClick={handleBack}>
-        <FaArrowLeft />
-      </button>
-
+      <button className="back-button" onClick={() => handleBack()}>
+                   <FaArrowLeft /> 
+            </button>
       <div className="seat-selection-container">
-        <div className="screen-section">
+        <div className="screen-section"> 
           <div className="screen">
             <span className="screen-text">Screen</span>
           </div>
@@ -207,7 +206,7 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         </div>
 
         <div className="main-section">
-          {seats.length > 0 ? renderSeats() : <div>Đang tải ghế...</div>}
+          {seats.length > 0 ? renderSeats() : <div>Loading...</div>}
         </div>
 
         <div className="legend bottom-center">
@@ -218,7 +217,7 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         </div>
 
         <div className="summary bottom-bar">
-          <div className="summary-item"><p className="label">SEAT</p><p className="value">{selectedSeats.join(", ") || "Chưa chọn"}</p></div>
+          <div className="summary-item"><p className="label">SEAT</p><p className="value">{selectedSeats.join(", ") || "N/A"}</p></div>
           <div className="summary-item"><p className="label">MOVIE</p><p className="value">{movieName || "N/A"}</p></div>
           <div className="summary-item"><p className="label">DATE</p><p className="value">{showDate || "N/A"}</p></div>
           <div className="summary-item"><p className="label">TIME</p><p className="value">{showTime || "N/A"}</p></div>
@@ -232,7 +231,7 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
           </button>
         </div>
       </div>
-    </div>
+      </div>
   );
 };
 

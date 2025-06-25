@@ -1,4 +1,5 @@
 .description-page {
+  position: relative; /* thêm cái này để back-button tuyệt đối bên trong */
   background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
   color: #fff;
   font-family: "Arial", sans-serif;
@@ -8,6 +9,7 @@
   justify-content: center;
   align-items: flex-start;
 }
+
 
 .description-container {
   display: flex;
