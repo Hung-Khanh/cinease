@@ -51,39 +51,27 @@ $font-weight-bold: 700;
 }
 
 .back-button {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 10;
-  background: rgba(25, 195, 125, 0.1);
-  border: 2px solid $primary-color;
-  color: $primary-color;
-  font-size: 18px;
-  border-radius: 12px;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+    position: absolute;
+    top: 15%;             /* Căn giữa theo trục dọc */
+    left: 24px;           /* Khoảng cách lề trái */
+    transform: translateY(-50%); /* Đưa nút về giữa */
+    width: 48px;
+    height: 48px;
+    background: none;
+    border: 2px solid #2ecc71;
+    color: #2ecc71;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
 
-  &:hover {
-    background: $primary-color;
-    color: $background-color;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(25, 195, 125, 0.3);
+    &:hover {
+      background-color: #2ecc71;
+      color: white;
+    }
   }
-
-  @media (max-width: 768px) {
-    width: 44px;
-    height: 44px;
-    font-size: 16px;
-    top: 20px;
-    left: 20px;
-  }
-}
 
 .ticket-box {
   display: flex;
@@ -384,4 +372,13 @@ $font-weight-bold: 700;
   background: rgba(100, 116, 139, 0.05);
   border-radius: 8px;
   border: 1px solid rgba(100, 116, 139, 0.1);
+}
+/* Force select text to black */
+.voucher__control,
+.voucher__single-value,
+.voucher__input-container,
+.voucher__menu,
+.voucher__option,
+.voucher__placeholder {
+  color: #000 !important;
 }

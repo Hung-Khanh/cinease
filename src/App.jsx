@@ -24,7 +24,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
-import ProductPage from "./product/Product.jsx";
+import ProductPage from "./pages/product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
@@ -155,7 +155,7 @@ function Layout() {
             element={<ProductPage />}
           />
           <Route
-            path="/payment-detail/:invoiceId/:scheduleId"
+            path="/payment-detail/:invoiceId"
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />

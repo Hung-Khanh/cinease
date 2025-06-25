@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from "react";
-import { Card, Table, Tag, Button } from "antd";
+import React, { useState, useEffect, useCallback } from "react";
+import { Card, Table, Tag, Button, message } from "antd";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -9,14 +9,14 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import api from "../../constants/axios";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import "./HistoryTicket.scss";
 import { useNavigate } from "react-router-dom";
 
-//Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,55 +30,82 @@ ChartJS.register(
 
 const HistoryTicket = () => {
   const navigate = useNavigate();
-  const totalPoints = 2450;
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: []
+  });
   const membershipLevel = "Gold";
   const pointsToNextLevel = 850;
-  const chartRef = useRef(null);
-  const chartData = {
-    labels: [
-      "T1",
-      "T2",
-      "T3",
-      "T4",
-      "T5",
-      "T6",
-      "T7",
-      "T8",
-      "T9",
-      "T10",
-      "T11",
-      "T12",
-    ],
-    datasets: [
-      {
-        label: "Điểm tích lũy",
-        data: [150, 230, 220, 210, 135, 150, 270, 290, 310, 350, 390, 420],
-        fill: false,
-        borderColor: "#1890ff",
-        tension: 0.3,
-        pointBackgroundColor: function (ctx) {
-          // Điểm thấp nhất và cao nhất to hơn, xanh hơn
-          const data = ctx.chart.data.datasets[0].data;
-          const idx = ctx.dataIndex;
-          const min = Math.min(...data);
-          const max = Math.max(...data);
-          if (data[idx] === min || data[idx] === max) return "#1890ff";
-          return "#63b3ed";
-        },
-        pointRadius: function (ctx) {
-          const data = ctx.chart.data.datasets[0].data;
-          const idx = ctx.dataIndex;
-          const min = Math.min(...data);
-          const max = Math.max(...data);
-          if (data[idx] === min || data[idx] === max) return 10;
-          return 5;
-        },
-        pointHoverRadius: 12,
-        pointBorderWidth: 2,
-        pointBorderColor: "#fff",
-      },
-    ],
-  };
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const token = user.token || "";
+
+  const fetchChartData = useCallback(async () => {
+    try {
+      const [addingRes, usingRes] = await Promise.all([
+        api.get("/member/score-history", {
+          params: { type: "Adding" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true"
+          }
+        }),
+        api.get("/member/score-history", {
+          params: { type: "Using" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true"
+          }
+        })
+      ]);
+
+      const combined = [...addingRes.data, ...usingRes.data];
+
+      // Luôn tạo đủ 12 tháng của năm hiện tại
+      const currentYear = new Date().getFullYear();
+      const labels = Array.from({ length: 12 }, (_, i) => `${String(i + 1).padStart(2, '0')}/${currentYear}`);
+      // Khởi tạo tất cả tháng = 0
+      const pointsByMonth = {};
+      labels.forEach(label => { pointsByMonth[label] = 0; });
+      // Cộng dồn dữ liệu vào đúng tháng
+      combined.forEach((item) => {
+        if (!item.date) return;
+        const d = new Date(item.date);
+        if (isNaN(d)) return;
+        const label = `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+        if (pointsByMonth[label] !== undefined) {
+          pointsByMonth[label] += item.amount * (item.type === "Adding" ? 1 : -1);
+        }
+      });
+      // Dữ liệu cho chart
+      const data = labels.map(month => pointsByMonth[month]);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: "Points",
+            data,
+            fill: false,
+            borderColor: "#1890ff",
+            tension: 0.3,
+            pointBackgroundColor: "#1890ff",
+            pointBorderColor: "#fff",
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }
+        ]
+      });
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to load points history");
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchChartData();
+  }, [fetchChartData]);
+
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -88,7 +115,7 @@ const HistoryTicket = () => {
         text: "Points History",
         font: { size: 18, weight: "bold" },
         color: "#333",
-        padding: { top: 10, bottom: 20 },
+        padding: { top: 10, bottom: 20 }
       },
       tooltip: {
         backgroundColor: "#1890ff",
@@ -100,113 +127,93 @@ const HistoryTicket = () => {
         padding: 12,
         displayColors: false,
         callbacks: {
-          label: function (context) {
-            return `Points: ${context.parsed.y}`;
-          },
-        },
+          label: (context) => `Points: ${context.parsed.y}`
+        }
       },
       datalabels: {
-        display: function (ctx) {
-          // Chỉ hiển thị label cho điểm thấp nhất và cao nhất
+        display: (ctx) => {
           const data = ctx.dataset.data;
-          const idx = ctx.dataIndex;
+          const val = data[ctx.dataIndex];
           const min = Math.min(...data);
           const max = Math.max(...data);
-          return data[idx] === min || data[idx] === max;
+          return val === min || val === max;
         },
         align: "top",
         color: "#1890ff",
         font: { weight: "bold", size: 14 },
-        formatter: function (value) {
-          return value;
-        },
-      },
+        formatter: (value) => value
+      }
     },
     elements: {
       line: { borderWidth: 3 },
-      point: { borderWidth: 2 },
+      point: { borderWidth: 2 }
     },
     scales: {
       x: {
         grid: { color: "#eee" },
-        ticks: { color: "#333", font: { size: 13 } },
+        ticks: { color: "#333", font: { size: 13 } }
       },
       y: {
         grid: { color: "#eee" },
         ticks: { color: "#333", font: { size: 13 } },
-        beginAtZero: true,
-        suggestedMax: 500,
-      },
-    },
+        beginAtZero: true
+      }
+    }
   };
-  // Cleanup chart on unmount
+
+  const [scoreHistory, setScoreHistory] = useState([]);
+
+  // Tổng điểm Adding
+  const totalAddingPoints = scoreHistory
+    .filter(item => item.type === "Adding")
+    .reduce((sum, item) => sum + (item.amount || 0), 0);
+
+
   useEffect(() => {
-    return () => {
-      if (chartRef.current) {
-        chartRef.current.destroy();
+    const fetchScoreHistory = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const token = user.token || "";
+        // Gọi song song cả hai loại type: Adding và Using
+        const [addingRes, usingRes] = await Promise.all([
+          api.get("/member/score-history", {
+            params: { type: "Adding" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true"
+            }
+          }),
+          api.get("/member/score-history", {
+            params: { type: "Using" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true"
+            }
+          })
+        ]);
+        const merged = [...(addingRes.data || []), ...(usingRes.data || [])];
+        setScoreHistory(merged.map((item, idx) => ({ ...item, key: idx })));
+      } catch {
+        message.error("Failed to load transaction details");
       }
     };
+
+
+    fetchScoreHistory();
   }, []);
+
   const columns = [
-    { title: "Date", dataIndex: "date", key: "date" },
-    {
-      title: "Transaction ID",
-      dataIndex: "transactionId",
-      key: "transactionId",
-    },
-    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Date", dataIndex: "date", key: "date", align: "center" },
+    { title: "Movie Name", dataIndex: "movieName", key: "movieName", align: "center" },
+    { title: "Points", dataIndex: "amount", key: "amount", align: "center" },
     {
       title: "Type",
       dataIndex: "type",
       key: "type",
+      align: "center",
       render: (type) => (
-        <Tag color={type === "add" ? "green" : "red"}>
-          {type === "add" ? "+" : "-"}
-        </Tag>
+        <Tag color={type === "Adding" ? "green" : "red"}>{type}</Tag>
       ),
-    },
-    { title: "Points", dataIndex: "points", key: "points" },
-  ];
-  const data = [
-    {
-      key: "1",
-      date: "11/06/2025",
-      transactionId: "TX000001",
-      description: "Movie ticket purchase",
-      type: "add",
-      points: 200,
-    },
-    {
-      key: "2",
-      date: "10/06/2025",
-      transactionId: "TX000002",
-      description: "Refreshments purchase",
-      type: "add",
-      points: 50,
-    },
-    {
-      key: "3",
-      date: "09/06/2025",
-      transactionId: "TX000003",
-      description: "Ticket refund points",
-      type: "minus",
-      points: 100,
-    },
-    {
-      key: "4",
-      date: "08/06/2025",
-      transactionId: "TX000004",
-      description: "Movie ticket purchase",
-      type: "add",
-      points: 300,
-    },
-    {
-      key: "5",
-      date: "07/06/2025",
-      transactionId: "TX000005",
-      description: "Movie ticket purchase",
-      type: "add",
-      points: 250,
     },
   ];
   return (
@@ -222,7 +229,7 @@ const HistoryTicket = () => {
       <div className="summary">
         <Card className="summary-card">
           <div>Total Points</div>
-          <div className="value">{totalPoints.toLocaleString()}</div>
+          <div className="value">{totalAddingPoints.toLocaleString()}</div>
         </Card>
         <Card className="summary-card">
           <div>Membership Level</div>
@@ -237,18 +244,16 @@ const HistoryTicket = () => {
       </div>
       <Card className="chart-card">
         <Line
-          ref={chartRef}
           data={chartData}
           options={chartOptions}
-          updateMode="resize"
         />
       </Card>
       <Card className="table-card">
         <h3>Transaction Details</h3>
         <Table
           columns={columns}
-          dataSource={data}
-          pagination={{ pageSize: 8 }}
+          dataSource={scoreHistory}
+          pagination={{ pageSize: 10 }}
         />
       </Card>
     </div>
