@@ -28,6 +28,9 @@ import ProductPage from "./pages/product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
+import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaymentFailed.jsx";
+import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
+import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -159,6 +162,9 @@ function Layout() {
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />
+          <Route path="/user-payment-failed/:invoiceId" element={<UserPaymentFailed />} />
+          <Route path="/user-payment-success/:invoiceId" element={<UserPaymentSuccess />} />
+          <Route path="/redirect-payment" element={<RedirectPayment />} />
           {/* Add more routes as needed */}
         </Routes>
       </main>
