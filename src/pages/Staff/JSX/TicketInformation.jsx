@@ -24,7 +24,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [change, setChange] = useState(0);
   const [ticketType, setTicketType] = useState("ADULT");
   const [responseModalVisible, setResponseModalVisible] = useState(false);
-  const [grandTotal, setGrandTotal] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchPromotion, setSearchPromotion] = useState("");
   const [promotions, setPromotions] = useState([]);
@@ -108,8 +107,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       const data = response.data;
       console.log("Ticket Details:", data);
       const paymentUrl = data?.paymentUrl;
-      if (paymentUrl) {
+      const grandTotal = data?.grandTotal;
+      if ((paymentUrl, grandTotal)) {
         localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
+        localStorage.setItem("grandTotal", grandTotal);
         console.log("Payment URL saved:", paymentUrl);
       } else {
         console.warn("No payment URL found in ticket data");
@@ -126,14 +127,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       setIsProcessing(false);
     }
   };
-
-  // Các useEffect khác giữ nguyên
-  useEffect(() => {
-    const storedGrandTotal = localStorage.getItem("grandTotal");
-    if (storedGrandTotal) {
-      setGrandTotal(storedGrandTotal);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
@@ -192,7 +185,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         }
 
         const data = await response.json();
-        setMovieImage(data[0]?.largeImage || "placeholder-image.jpg");
+        setMovieImage(data[0]?.posterImageUrl || "placeholder-image.jpg");
         setCinemaRoom(data[0]?.cinemaRoomId);
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -357,21 +350,28 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                   position: "relative",
                   width: "490px",
                   top: "10px",
+                  marginBottom: "30px",
                 }}
               >
                 <Option value="ADULT">ADULT</Option>
                 <Option value="STUDENT">STUDENT</Option>
               </Select>
+              <h5 className="Ticketnote">
+                *note:
+                <br />
+                Student: 80000 VND/seat
+                <br />
+                Adult: 120000 VND/seat
+              </h5>
             </div>
-            <div className="detail-item total">
-              <span>Total payment</span>
-              <span>VND {grandTotal || "0"}</span>
-            </div>
+
             <div className="detail-item phone-input">
               <button onClick={showModal}>Enter Phone Number</button>
             </div>
             <div className="detail-item payment-method">
-              <span>Payment Method</span>
+              <span style={{ marginTop: "10px", marginBottom: "-20" }}>
+                Payment Method
+              </span>
               <Select value={paymentMethod} onChange={setPaymentMethod}>
                 <Option value="VNPAY">VNPAY</Option>
                 <Option value="CASH">Cash</Option>
@@ -450,7 +450,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           Ticket ({ticketData?.seatNumbers?.length || 0}):{" "}
           {ticketData?.seatNumbers?.join(", ") || "N/A"}
         </p>
-        <p>Total payment: {grandTotal} VND</p>
         <br />
         <Button key="close" onClick={() => setResponseModalVisible(false)}>
           Close

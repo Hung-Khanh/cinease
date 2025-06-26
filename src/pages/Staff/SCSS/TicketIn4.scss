@@ -153,7 +153,11 @@
       &.detail-item.ticket-type {
         flex-direction: column;
       }
-
+      .Ticketnote {
+        font-size: 14px;
+        color: #dbd8d8;
+        margin: 0;
+      }
       &.transaction {
         flex-direction: column;
         gap: 5px;
@@ -272,6 +276,8 @@
     }
 
     .ticket-image {
+      position: relative;
+      margin-top: 50px;
       .movie-poster {
         width: 150px;
         height: 225px;
@@ -329,7 +335,7 @@
         font-size: 12px;
         flex-direction: column;
         gap: 5px;
-        padding: 700px; /* Có thể cần kiểm tra lại giá trị này */
+        padding: 700px;
         &.transaction {
           .transaction-details {
             padding-left: 10px;

@@ -6,6 +6,7 @@ const ConfirmPurchase = () => {
   // Lấy paymentUrl từ localStorage (bạn nên lưu với key không có dấu cách)
 
   const [paymentUrl, setPaymentUrl] = useState("");
+  const grandTotal = localStorage.getItem("grandTotal");
 
   useEffect(() => {
     const url = localStorage.getItem("paymentUrl");
@@ -21,8 +22,15 @@ const ConfirmPurchase = () => {
       <div>
         <h1>PURCHASE HERE:</h1>
       </div>
-      <div>
-        <Space direction="vertical" align="center" style={{ width: "100%" }}>
+      <div className="grand-total">
+        <h2>TOTAL: {grandTotal || "0"} VND</h2>
+      </div>
+      <div className="qr-code-container">
+        <Space
+          direction="vertical"
+          align="center"
+          style={{ width: "100%", marginBottom: "20px" }}
+        >
           <div className="qr-box">
             <QRCode value={paymentUrl || "-"} />
           </div>
