@@ -12,6 +12,15 @@
   margin: 0;
   padding: 20px;
   box-sizing: border-box;
+  color: #fff;
+}
+.qr-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 .confirm-purchase-wrapper .ant-space {
@@ -39,4 +48,17 @@
     width: 320px !important;
     height: 320px !important;
   }
+}
+.grand-total {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e4e2e2;
+  margin-top: 20px;
+}
+.refresh-button {
+  position: absolute;
+  border-radius: 5px;
+  width: 350px;
+  min-height: 40px;
+  bottom: -50px;
 }
