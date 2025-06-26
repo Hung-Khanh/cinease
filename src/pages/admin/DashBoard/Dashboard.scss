@@ -219,7 +219,7 @@ $input-bg: rgba(255, 255, 255, 0.1);
 
         .stats-row {
           display: flex;
-          justify-content: space-between;
+          justify-content: center; 
           padding: 0 16px;
           position: relative;
           z-index: 1;

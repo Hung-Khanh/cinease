@@ -1,16 +1,34 @@
-import { EditOutlined, DeleteOutlined, PlusOutlined, DownOutlined, CloseOutlined, PlusCircleOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Modal, Select, Table, message, Upload, Checkbox, TimePicker, Space, Tooltip } from 'antd';
-import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
-import './Movie.scss';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  DownOutlined,
+  EditOutlined,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Space,
+  Table,
+  TimePicker,
+  Tooltip,
+  Upload,
+} from "antd";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import "./Movie.scss";
 
 // Custom Dropdown Component
-const MultiSelectDropdown = ({
-  options,
-  value,
-  onChange,
-  placeholder
-}) => {
+const MultiSelectDropdown = ({ options, value, onChange, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Ensure value is always an array
@@ -22,14 +40,14 @@ const MultiSelectDropdown = ({
 
   const handleCheckboxChange = (checkedValues) => {
     // Ensure onChange is called with an array
-    if (typeof onChange === 'function') {
+    if (typeof onChange === "function") {
       onChange(checkedValues || []);
     }
   };
 
   const handleRemoveItem = (itemToRemove) => {
-    const newValue = safeValue.filter(item => item !== itemToRemove);
-    if (typeof onChange === 'function') {
+    const newValue = safeValue.filter((item) => item !== itemToRemove);
+    if (typeof onChange === "function") {
       onChange(newValue);
     }
   };
@@ -37,14 +55,14 @@ const MultiSelectDropdown = ({
   return (
     <div className="dropdown-multiple-select">
       <div
-        className={`dropdown-trigger ${isOpen ? 'open' : ''}`}
+        className={`dropdown-trigger ${isOpen ? "open" : ""}`}
         onClick={handleToggle}
       >
         {safeValue.length > 0 ? (
           <div className="selected-items">
-            {safeValue.map(item => (
+            {safeValue.map((item) => (
               <span key={item} className="selected-item">
-                {options.find(opt => opt.value === item)?.label || item}
+                {options.find((opt) => opt.value === item)?.label || item}
                 <CloseOutlined
                   style={{ marginLeft: 4, fontSize: 10 }}
                   onClick={(e) => {
@@ -79,12 +97,14 @@ const Movie = () => {
   const [movies, setMovies] = useState([]);
   const [movieTypes, setMovieTypes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
-  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] =
+    useState(false);
   const [movieToDelete, setMovieToDelete] = useState(null);
 
   // State for cinema rooms
@@ -100,7 +120,7 @@ const Movie = () => {
     message.success({
       content,
       duration,
-      key: 'movie-operation-success'
+      key: "movie-operation-success",
     });
   }, []);
 
@@ -108,25 +128,25 @@ const Movie = () => {
     message.error({
       content,
       duration,
-      key: 'movie-operation-error'
+      key: "movie-operation-error",
     });
   }, []);
 
   const columns = [
     {
-      title: 'Movie Name (VN)',
-      dataIndex: 'movieNameVn',
-      key: 'movieNameVn',
+      title: "Movie Name (VN)",
+      dataIndex: "movieNameVn",
+      key: "movieNameVn",
       width: 80,
       render: (text) => (
         <Tooltip title={text}>
-          <div 
-            style={{ 
-              maxWidth: '80px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: '12px'
+          <div
+            style={{
+              maxWidth: "80px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              fontSize: "12px",
             }}
           >
             {text}
@@ -135,19 +155,19 @@ const Movie = () => {
       ),
     },
     {
-      title: 'Movie Name (EN)',
-      dataIndex: 'movieNameEnglish',
-      key: 'movieNameEnglish',
+      title: "Movie Name (EN)",
+      dataIndex: "movieNameEnglish",
+      key: "movieNameEnglish",
       width: 80,
       render: (text) => (
         <Tooltip title={text}>
-          <div 
-            style={{ 
-              maxWidth: '80px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: '12px'
+          <div
+            style={{
+              maxWidth: "80px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              fontSize: "12px",
             }}
           >
             {text}
@@ -156,29 +176,29 @@ const Movie = () => {
       ),
     },
     {
-      title: 'Date Range',
-      key: 'dateRange',
+      title: "Date Range",
+      key: "dateRange",
       render: (_, record) => (
         <Tooltip title={`From: ${record.fromDate} - To: ${record.toDate}`}>
-          <div style={{ cursor: 'help' }}>
+          <div style={{ cursor: "help" }}>
             {record.fromDate} - {record.toDate}
           </div>
         </Tooltip>
       ),
     },
     {
-      title: 'Actor',
-      dataIndex: 'actor',
-      key: 'actor',
+      title: "Actor",
+      dataIndex: "actor",
+      key: "actor",
       render: (actor) => (
         <Tooltip title={actor}>
-          <div 
-            style={{ 
-              cursor: 'help',
-              maxWidth: '150px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+          <div
+            style={{
+              cursor: "help",
+              maxWidth: "150px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {actor}
@@ -187,36 +207,42 @@ const Movie = () => {
       ),
     },
     {
-      title: 'Cinema Room',
-      key: 'cinemaRoom',
+      title: "Cinema Room",
+      key: "cinemaRoom",
       render: (_, record) => {
-        const room = cinemaRooms.find(r => r.cinemaRoomId === record.cinemaRoom);
-        return room ? `${room.cinemaRoomName} (${room.seatQuantity} seats)` : 'N/A';
+        const room = cinemaRooms.find(
+          (r) => r.cinemaRoomId === record.cinemaRoom
+        );
+        return room
+          ? `${room.cinemaRoomName} (${room.seatQuantity} seats)`
+          : "N/A";
       },
     },
     {
-      title: 'Movie Type',
-      key: 'types',
+      title: "Movie Type",
+      key: "types",
       render: (_, record) => {
         // Ensure types is an array and join them
         const typeDisplay = Array.isArray(record.types)
-          ? record.types.join(', ')
-          : (record.types ? String(record.types) : 'No Type');
+          ? record.types.join(", ")
+          : record.types
+          ? String(record.types)
+          : "No Type";
 
         return typeDisplay;
       },
     },
     {
-      title: 'Duration (mins)',
-      dataIndex: 'duration',
-      key: 'duration',
+      title: "Duration (mins)",
+      dataIndex: "duration",
+      key: "duration",
       render: (duration) => `${duration} mins`,
     },
     {
-      title: 'Poster Image',
-      dataIndex: 'posterImageUrl',
-      key: 'posterImageUrl',
-      render: (posterImageUrl) => (
+      title: "Poster Image",
+      dataIndex: "posterImageUrl",
+      key: "posterImageUrl",
+      render: (posterImageUrl) =>
         posterImageUrl ? (
           <img
             src={posterImageUrl}
@@ -224,19 +250,18 @@ const Movie = () => {
             style={{
               maxWidth: 100,
               maxHeight: 100,
-              objectFit: 'cover'
+              objectFit: "cover",
             }}
           />
         ) : (
-          'No Poster'
-        )
-      ),
+          "No Poster"
+        ),
     },
     {
-      title: 'Banner Image',
-      dataIndex: 'largeImage',
-      key: 'largeImage',
-      render: (largeImage) => (
+      title: "Banner Image",
+      dataIndex: "largeImage",
+      key: "largeImage",
+      render: (largeImage) =>
         largeImage ? (
           <img
             src={largeImage}
@@ -244,42 +269,40 @@ const Movie = () => {
             style={{
               maxWidth: 150,
               maxHeight: 100,
-              objectFit: 'cover'
+              objectFit: "cover",
             }}
           />
         ) : (
-          'No Banner'
-        )
-      ),
+          "No Banner"
+        ),
     },
     {
-      title: 'Trailer',
-      dataIndex: 'trailerUrl',
-      key: 'trailerUrl',
+      title: "Trailer",
+      dataIndex: "trailerUrl",
+      key: "trailerUrl",
       width: 50,
-      render: (trailerUrl) => (
+      render: (trailerUrl) =>
         trailerUrl ? (
           <Button
             type="link"
             size="small"
-            onClick={() => window.open(trailerUrl, '_blank')}
-            style={{ 
+            onClick={() => window.open(trailerUrl, "_blank")}
+            style={{
               padding: 0,
-              fontSize: '10px',
-              height: 'auto',
-              minWidth: 0
+              fontSize: "10px",
+              height: "auto",
+              minWidth: 0,
             }}
           >
             Watch
           </Button>
         ) : (
-          <span style={{ fontSize: '10px', color: '#999' }}>No Trailer</span>
-        )
-      ),
+          <span style={{ fontSize: "10px", color: "#999" }}>No Trailer</span>
+        ),
     },
     {
-      title: 'Action',
-      key: 'action',
+      title: "Action",
+      key: "action",
       render: (_, record) => (
         <div className="action-buttons">
           <Button
@@ -306,20 +329,21 @@ const Movie = () => {
     // Prepare form values
     const editRecord = {
       ...record,
-      dateRange: record.fromDate && record.toDate
-        ? [dayjs(record.fromDate), dayjs(record.toDate)]
-        : null,
+      dateRange:
+        record.fromDate && record.toDate
+          ? [dayjs(record.fromDate), dayjs(record.toDate)]
+          : null,
       scheduleTimes: record.scheduleTimes
-        ? record.scheduleTimes.map(scheduleTime => {
-          const [date, time] = scheduleTime.split(' ');
-          return {
-            date: dayjs(date),
-            time: dayjs(time, 'HH:mm')
-          };
-        })
+        ? record.scheduleTimes.map((scheduleTime) => {
+            const [date, time] = scheduleTime.split(" ");
+            return {
+              date: dayjs(date),
+              time: dayjs(time, "HH:mm"),
+            };
+          })
         : [],
       // Set initial types using type names
-      types: record.types || []
+      types: record.types || [],
     };
 
     // Set the current movie being edited
@@ -343,7 +367,7 @@ const Movie = () => {
 
       // Validate required files for new movies
       if (!isEditing && !posterFile) {
-        message.error('Please upload a poster image');
+        message.error("Please upload a poster image");
         setUploading(false);
         return;
       }
@@ -355,8 +379,8 @@ const Movie = () => {
       const queryParams = new URLSearchParams({
         movieNameVn: values.movieNameVn,
         movieNameEnglish: values.movieNameEnglish,
-        fromDate: values.dateRange[0].format('YYYY-MM-DD'),
-        toDate: values.dateRange[1].format('YYYY-MM-DD'),
+        fromDate: values.dateRange[0].format("YYYY-MM-DD"),
+        toDate: values.dateRange[1].format("YYYY-MM-DD"),
         actor: values.actor,
         movieProductionCompany: values.movieProductionCompany,
         director: values.director,
@@ -364,67 +388,82 @@ const Movie = () => {
         version: values.version,
         content: values.content,
         cinemaRoomId: values.cinemaRoom,
-        trailerUrl: values.trailerUrl || '',
-        
+        trailerUrl: values.trailerUrl || "",
+
         // Handle type IDs
-        typeIds: values.types && values.types.length > 0
-          ? values.types.map(typeName => {
-              const type = movieTypes.find(t => t.movieTypeName === typeName);
-              return type ? type.movieTypeId : null;
-            }).filter(id => id !== null).join(',')
-          : '1', // Default to first type if none selected
-        
+        typeIds:
+          values.types && values.types.length > 0
+            ? values.types
+                .map((typeName) => {
+                  const type = movieTypes.find(
+                    (t) => t.movieTypeName === typeName
+                  );
+                  return type ? type.movieTypeId : null;
+                })
+                .filter((id) => id !== null)
+                .join(",")
+            : "1", // Default to first type if none selected
+
         // Schedule times
         scheduleTimes: values.scheduleTimes
-          ? values.scheduleTimes.map(scheduleItem =>
-              `${scheduleItem.date.format('YYYY-MM-DD')}T${scheduleItem.time.format('HH:mm:ss')}`
-            ).join(',')
-          : ''
+          ? values.scheduleTimes
+              .map(
+                (scheduleItem) =>
+                  `${scheduleItem.date.format(
+                    "YYYY-MM-DD"
+                  )}T${scheduleItem.time.format("HH:mm:ss")}`
+              )
+              .join(",")
+          : "",
       });
 
       // Add files to FormData
       if (posterFile) {
-        formData.append('poster', posterFile);
+        formData.append("poster", posterFile);
       }
       if (bannerFile) {
-        formData.append('banner', bannerFile);
+        formData.append("banner", bannerFile);
       }
 
-      console.log('Form Data:', formData);
-      console.log('Query Params:', queryParams.toString());
+      console.log("Form Data:", formData);
+      console.log("Query Params:", queryParams.toString());
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const url = isEditing
         ? `${apiUrl}/admin/movies/${editingKey}?${queryParams.toString()}`
         : `${apiUrl}/admin/movies/add?${queryParams.toString()}`;
-      
-      const method = isEditing ? 'PUT' : 'POST';
+
+      const method = isEditing ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Accept': '*/*',
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true'
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
           // Don't set Content-Type header - let browser set it for FormData
         },
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error Response:', errorText);
-        throw new Error(errorText || `Failed to ${isEditing ? 'update' : 'add'} movie`);
+        console.error("Error Response:", errorText);
+        throw new Error(
+          errorText || `Failed to ${isEditing ? "update" : "add"} movie`
+        );
       }
 
       const result = await response.json();
-      console.log('API Response:', result);
+      console.log("API Response:", result);
 
       await fetchMovies();
 
       // Success message with optimized handling
       showSuccessMessage(
-        `Movie "${values.movieNameVn}" ${isEditing ? 'updated' : 'added'} successfully!`,
+        `Movie "${values.movieNameVn}" ${
+          isEditing ? "updated" : "added"
+        } successfully!`,
         3
       );
 
@@ -437,7 +476,7 @@ const Movie = () => {
       form.resetFields();
     } catch (error) {
       showErrorMessage(
-        `Failed to ${isEditing ? 'update' : 'add'} movie: ${error.message}`, 
+        `Failed to ${isEditing ? "update" : "add"} movie: ${error.message}`,
         3
       );
     } finally {
@@ -453,36 +492,38 @@ const Movie = () => {
   const confirmDelete = async () => {
     if (movieToDelete) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${apiUrl}/admin/movies/${movieToDelete.key}`, {
-          method: "DELETE",
-          headers: {
-            "Accept": "*/*",
-            "Authorization": `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${apiUrl}/admin/movies/${movieToDelete.key}`,
+          {
+            method: "DELETE",
+            headers: {
+              Accept: "*/*",
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(errorText || `Failed to delete movie with ID ${movieToDelete.key}`);
+          throw new Error(
+            errorText || `Failed to delete movie with ID ${movieToDelete.key}`
+          );
         }
 
         await fetchMovies();
 
         // Specific delete success toast with key
         showSuccessMessage(
-          `Movie "${movieToDelete.movieNameVn}" deleted successfully`, 
+          `Movie "${movieToDelete.movieNameVn}" deleted successfully`,
           2
         );
 
         setDeleteConfirmationVisible(false);
         setMovieToDelete(null);
       } catch (error) {
-        showErrorMessage(
-          `Failed to delete movie: ${error.message}`, 
-          3
-        );
+        showErrorMessage(`Failed to delete movie: ${error.message}`, 3);
       }
     }
   };
@@ -495,27 +536,29 @@ const Movie = () => {
   // Fetch movie types
   const fetchMovieTypes = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/employee/types`, {
         method: "GET",
         headers: {
-          "Accept": "*/*",
-          "Authorization": `Bearer ${token}`,
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
       }
 
       const result = await response.json();
 
       // Map the types using the exact structure from the JSON
-      const formattedTypes = result.map(type => ({
+      const formattedTypes = result.map((type) => ({
         movieTypeId: type.typeId,
-        movieTypeName: type.typeName
+        movieTypeName: type.typeName,
       }));
 
       setMovieTypes(formattedTypes);
@@ -527,19 +570,21 @@ const Movie = () => {
   // Fetch cinema rooms
   const fetchCinemaRooms = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
         method: "GET",
         headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
       }
 
       const result = await response.json();
@@ -553,12 +598,12 @@ const Movie = () => {
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/movies/list`, {
         method: "GET",
         headers: {
-          "Accept": "*/*",
-          "Authorization": `Bearer ${token}`,
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
         },
       });
@@ -573,7 +618,9 @@ const Movie = () => {
         // Ensure types is always an array
         const movieTypes = Array.isArray(movie.types)
           ? movie.types
-          : (movie.types ? [movie.types] : []);
+          : movie.types
+          ? [movie.types]
+          : [];
 
         return {
           key: movie.movieId.toString(),
@@ -582,23 +629,24 @@ const Movie = () => {
           fromDate: movie.fromDate,
           toDate: movie.toDate,
           actor: movie.actor,
-          movieProductionCompany: movie.movieProductionCompany || 'N/A',
+          movieProductionCompany: movie.movieProductionCompany || "N/A",
           director: movie.director,
-          duration: movie.duration !== undefined && movie.duration !== null
-            ? Number(movie.duration)
-            : 0,
+          duration:
+            movie.duration !== undefined && movie.duration !== null
+              ? Number(movie.duration)
+              : 0,
           version: movie.version,
           content: movie.content,
-          
+
           // Ensure image URLs are handled correctly
-          posterImageUrl: movie.posterImageUrl || '',
-          largeImage: movie.largeImage || '',
-          
+          posterImageUrl: movie.posterImageUrl || "",
+          largeImage: movie.largeImage || "",
+
           cinemaRoom: movie.cinemaRoomId,
           trailerUrl: movie.trailerUrl,
-          
+
           // Ensure types is always an array
-          types: movieTypes
+          types: movieTypes,
         };
       });
 
@@ -622,10 +670,26 @@ const Movie = () => {
     fetchCinemaRooms();
   }, []);
 
+  // Modify the movies rendering to include search filtering
+  const filteredMovies = movies.filter((movie) =>
+    searchTerm
+      ? movie.movieNameVn.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        movie.movieNameEnglish.toLowerCase().includes(searchTerm.toLowerCase())
+      : true
+  );
+
   return (
     <div className="movies-container">
       <div className="movies-header">
         <div className="header-actions">
+          <div className="filter-dropdowns">
+            <Input
+              placeholder="Search Movie by Name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ width: 200, marginRight: 10 }}
+            />
+          </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -645,7 +709,7 @@ const Movie = () => {
 
       <Table
         columns={columns}
-        dataSource={movies}
+        dataSource={filteredMovies}
         loading={loading}
         pagination={{
           pageSize: 10,
@@ -686,7 +750,7 @@ const Movie = () => {
         width={600}
         centered
         styles={{
-          body: { maxHeight: '70vh', overflowY: 'auto' }
+          body: { maxHeight: "70vh", overflowY: "auto" },
         }}
       >
         <Form
@@ -698,7 +762,9 @@ const Movie = () => {
           <Form.Item
             name="movieNameVn"
             label="Movie Name (Vietnamese)"
-            rules={[{ required: true, message: 'Please enter Vietnamese movie name' }]}
+            rules={[
+              { required: true, message: "Please enter Vietnamese movie name" },
+            ]}
           >
             <Input placeholder="Enter Vietnamese movie name" />
           </Form.Item>
@@ -706,7 +772,9 @@ const Movie = () => {
           <Form.Item
             name="movieNameEnglish"
             label="Movie Name (English)"
-            rules={[{ required: true, message: 'Please enter English movie name' }]}
+            rules={[
+              { required: true, message: "Please enter English movie name" },
+            ]}
           >
             <Input placeholder="Enter English movie name" />
           </Form.Item>
@@ -715,11 +783,11 @@ const Movie = () => {
             name="dateRange"
             label="Date Range"
             style={{ marginBottom: 16 }}
-            rules={[{ required: true, message: 'Please select date range' }]}
+            rules={[{ required: true, message: "Please select date range" }]}
           >
             <DatePicker.RangePicker
-              style={{ width: '100%' }}
-              placeholder={['From Date', 'To Date']}
+              style={{ width: "100%" }}
+              placeholder={["From Date", "To Date"]}
             />
           </Form.Item>
 
@@ -729,7 +797,7 @@ const Movie = () => {
               {
                 validator: async (_, scheduleTimes) => {
                   if (!scheduleTimes || scheduleTimes.length === 0) {
-                    throw new Error('Please add at least one schedule time');
+                    throw new Error("Please add at least one schedule time");
                   }
                 },
               },
@@ -738,27 +806,31 @@ const Movie = () => {
             {(fields, { add, remove }, { errors }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <div key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <div
+                    key={key}
+                    style={{ display: "flex", marginBottom: 8 }}
+                    align="baseline"
+                  >
                     <Form.Item
                       {...restField}
-                      name={[name, 'date']}
-                      rules={[{ required: true, message: 'Missing date' }]}
-                      style={{ width: '45%', marginRight: '10px' }}
+                      name={[name, "date"]}
+                      rules={[{ required: true, message: "Missing date" }]}
+                      style={{ width: "45%", marginRight: "10px" }}
                     >
                       <DatePicker
-                        style={{ width: '100%' }}
+                        style={{ width: "100%" }}
                         format="YYYY-MM-DD"
                         placeholder="Select Date"
                       />
                     </Form.Item>
                     <Form.Item
                       {...restField}
-                      name={[name, 'time']}
-                      rules={[{ required: true, message: 'Missing time' }]}
-                      style={{ width: '45%', marginRight: '10px' }}
+                      name={[name, "time"]}
+                      rules={[{ required: true, message: "Missing time" }]}
+                      style={{ width: "45%", marginRight: "10px" }}
                     >
                       <TimePicker
-                        style={{ width: '100%' }}
+                        style={{ width: "100%" }}
                         format="HH:mm"
                         placeholder="Select Time"
                       />
@@ -766,7 +838,11 @@ const Movie = () => {
                     {fields.length > 1 ? (
                       <MinusCircleOutlined
                         onClick={() => remove(name)}
-                        style={{ fontSize: '20px', color: '#999', marginTop: '10px' }}
+                        style={{
+                          fontSize: "20px",
+                          color: "#999",
+                          marginTop: "10px",
+                        }}
                       />
                     ) : null}
                   </div>
@@ -787,18 +863,15 @@ const Movie = () => {
             )}
           </Form.List>
 
-          <Form.Item
-            label="Duration & Version"
-            style={{ marginBottom: 16 }}
-          >
+          <Form.Item label="Duration & Version" style={{ marginBottom: 16 }}>
             <Space.Compact block>
               <Form.Item
                 name="duration"
                 noStyle
-                rules={[{ required: true, message: 'Please input duration' }]}
+                rules={[{ required: true, message: "Please input duration" }]}
               >
                 <Input
-                  style={{ width: '48%', marginRight: '4%' }}
+                  style={{ width: "48%", marginRight: "4%" }}
                   placeholder="Duration (minutes)"
                   type="number"
                 />
@@ -806,12 +879,9 @@ const Movie = () => {
               <Form.Item
                 name="version"
                 noStyle
-                rules={[{ required: true, message: 'Please input version' }]}
+                rules={[{ required: true, message: "Please input version" }]}
               >
-                <Input
-                  style={{ width: '48%' }}
-                  placeholder="Version"
-                />
+                <Input style={{ width: "48%" }} placeholder="Version" />
               </Form.Item>
             </Space.Compact>
           </Form.Item>
@@ -819,7 +889,7 @@ const Movie = () => {
           <Form.Item
             name="actor"
             label="Actor"
-            rules={[{ required: true, message: 'Please enter actor name' }]}
+            rules={[{ required: true, message: "Please enter actor name" }]}
           >
             <Input placeholder="Enter actor name" />
           </Form.Item>
@@ -827,7 +897,9 @@ const Movie = () => {
           <Form.Item
             name="movieProductionCompany"
             label="Movie Production Company"
-            rules={[{ required: true, message: 'Please enter production company' }]}
+            rules={[
+              { required: true, message: "Please enter production company" },
+            ]}
           >
             <Input placeholder="Enter production company" />
           </Form.Item>
@@ -835,7 +907,7 @@ const Movie = () => {
           <Form.Item
             name="director"
             label="Director"
-            rules={[{ required: true, message: 'Please enter director name' }]}
+            rules={[{ required: true, message: "Please enter director name" }]}
           >
             <Input placeholder="Enter director name" />
           </Form.Item>
@@ -848,29 +920,36 @@ const Movie = () => {
               <Form.Item
                 name="cinemaRoom"
                 noStyle
-                rules={[{ required: true, message: 'Please select a cinema room' }]}
+                rules={[
+                  { required: true, message: "Please select a cinema room" },
+                ]}
               >
                 <Select
                   placeholder="Select cinema room"
-                  style={{ width: '48%', marginRight: '4%' }}
-                  options={cinemaRooms.map(room => ({
+                  style={{ width: "48%", marginRight: "4%" }}
+                  options={cinemaRooms.map((room) => ({
                     label: `${room.cinemaRoomName} (${room.seatQuantity} seats)`,
-                    value: room.cinemaRoomId
+                    value: room.cinemaRoomId,
                   }))}
                 />
               </Form.Item>
               <Form.Item
                 name="types"
                 noStyle
-                rules={[{ required: true, message: 'Please select at least one movie type' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select at least one movie type",
+                  },
+                ]}
               >
                 <Select
                   mode="multiple"
                   placeholder="Select movie types"
-                  style={{ width: '48%' }}
-                  options={movieTypes.map(type => ({
+                  style={{ width: "48%" }}
+                  options={movieTypes.map((type) => ({
                     label: type.movieTypeName,
-                    value: type.movieTypeName
+                    value: type.movieTypeName,
                   }))}
                 />
               </Form.Item>
@@ -880,42 +959,38 @@ const Movie = () => {
           <Form.Item
             name="content"
             label="Content"
-            rules={[{ required: true, message: 'Please enter content' }]}
+            rules={[{ required: true, message: "Please enter content" }]}
           >
-            <Input.TextArea
-              placeholder="Enter movie content"
-              rows={4}
-            />
+            <Input.TextArea placeholder="Enter movie content" rows={4} />
           </Form.Item>
 
-          <Form.Item
-            name="trailerUrl"
-            label="Trailer URL"
-          >
+          <Form.Item name="trailerUrl" label="Trailer URL">
             <Input placeholder="Enter trailer URL" />
           </Form.Item>
 
           {/* Simplified File Upload Section */}
           <Form.Item
             label="Movie Poster"
-            rules={[{ required: !isEditing, message: 'Please upload a poster image' }]}
+            rules={[
+              { required: !isEditing, message: "Please upload a poster image" },
+            ]}
           >
             <Upload
               accept="image/*"
               beforeUpload={(file) => {
-                const isImage = file.type.startsWith('image/');
+                const isImage = file.type.startsWith("image/");
                 const isLt2M = file.size / 1024 / 1024 < 2;
-                
+
                 if (!isImage) {
-                  message.error('You can only upload image files!');
+                  message.error("You can only upload image files!");
                   return false;
                 }
-                
+
                 if (!isLt2M) {
-                  message.error('Image must be smaller than 2MB!');
+                  message.error("Image must be smaller than 2MB!");
                   return false;
                 }
-                
+
                 setPosterFile(file);
                 return false; // Prevent automatic upload
               }}
@@ -923,36 +998,30 @@ const Movie = () => {
               onRemove={() => setPosterFile(null)}
               maxCount={1}
             >
-              <Button icon={<UploadOutlined />}>
-                Upload Poster Image
-              </Button>
+              <Button icon={<UploadOutlined />}>Upload Poster Image</Button>
             </Upload>
             {posterFile && (
-              <div style={{ marginTop: 8 }}>
-                Selected: {posterFile.name}
-              </div>
+              <div style={{ marginTop: 8 }}>Selected: {posterFile.name}</div>
             )}
           </Form.Item>
 
-          <Form.Item
-            label="Movie Banner"
-          >
+          <Form.Item label="Movie Banner">
             <Upload
               accept="image/*"
               beforeUpload={(file) => {
-                const isImage = file.type.startsWith('image/');
+                const isImage = file.type.startsWith("image/");
                 const isLt2M = file.size / 1024 / 1024 < 2;
-                
+
                 if (!isImage) {
-                  message.error('You can only upload image files!');
+                  message.error("You can only upload image files!");
                   return false;
                 }
-                
+
                 if (!isLt2M) {
-                  message.error('Image must be smaller than 2MB!');
+                  message.error("Image must be smaller than 2MB!");
                   return false;
                 }
-                
+
                 setBannerFile(file);
                 return false; // Prevent automatic upload
               }}
@@ -960,14 +1029,10 @@ const Movie = () => {
               onRemove={() => setBannerFile(null)}
               maxCount={1}
             >
-              <Button icon={<UploadOutlined />}>
-                Upload Banner Image
-              </Button>
+              <Button icon={<UploadOutlined />}>Upload Banner Image</Button>
             </Upload>
             {bannerFile && (
-              <div style={{ marginTop: 8 }}>
-                Selected: {bannerFile.name}
-              </div>
+              <div style={{ marginTop: 8 }}>Selected: {bannerFile.name}</div>
             )}
           </Form.Item>
 
@@ -1000,10 +1065,7 @@ const Movie = () => {
           <h3 className="movie-title">{movieToDelete?.movieNameVn}</h3>
           <p className="warning-text">This action cannot be undone.</p>
           <div className="delete-confirmation-actions">
-            <Button
-              onClick={cancelDelete}
-              className="cancel-btn"
-            >
+            <Button onClick={cancelDelete} className="cancel-btn">
               Cancel
             </Button>
             <Button
@@ -1014,7 +1076,7 @@ const Movie = () => {
             >
               Confirm Delete
             </Button>
-            </div>
+          </div>
         </div>
       </Modal>
     </div>
