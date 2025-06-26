@@ -143,18 +143,14 @@ const Dashboard = () => {
       const data = await response.json();
       
       // Transform API data to match component structure
-      const transformedData = Object.entries(data).map(([movieTitle, revenue], index) => {
-        // Generate some realistic mock data for fields not provided by API
-        const baseTickets = Math.floor(revenue / 10); // Rough estimate: 10 currency units per ticket
+      const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
+        // Generate capacity percentage based on relative revenue
         const capacity = Math.min(95, Math.max(30, Math.floor((revenue / Math.max(...Object.values(data))) * 100)));
         
         return {
           title: movieTitle,
-          label: index === 0 ? 'HOT' : (index === 1 ? 'NEW' : ''),
-          revenue: revenue / 1000000, // Convert to millions for display
-          ticketsSold: baseTickets,
-          capacity: capacity,
-          isNew: index === 1
+          revenue: revenue, // Keep original revenue value
+          capacity: capacity
         };
       }).sort((a, b) => b.revenue - a.revenue); // Sort by revenue descending
 
@@ -167,27 +163,18 @@ const Dashboard = () => {
       setMovieRevenueData([
         {
           title: 'Xì Trum',
-          label: 'HOT',
-          revenue: 0.876,
-          ticketsSold: 87600,
-          capacity: 95,
-          isNew: false
+          revenue: 876000,
+          capacity: 95
         },
         {
           title: 'Quỷ Ăn Tạng',
-          label: 'NEW',
-          revenue: 0.206,
-          ticketsSold: 20600,
-          capacity: 75,
-          isNew: true
+          revenue: 206000,
+          capacity: 75
         },
         {
           title: 'Gấu Trúc Kung Fu',
-          label: '',
-          revenue: 0.120,
-          ticketsSold: 12000,
-          capacity: 60,
-          isNew: false
+          revenue: 120000,
+          capacity: 60
         }
       ]);
     } finally {
@@ -207,15 +194,7 @@ const Dashboard = () => {
     : movieRevenueData.slice(0, 7);
 
   const formatRevenue = (revenue) => {
-    if (revenue >= 1) {
-      return `${revenue}VND`;
-    } else {
-      return `${(revenue * 1000)}VND`;
-    }
-  };
-
-  const formatTickets = (tickets) => {
-    return tickets.toLocaleString();
+    return `${revenue.toLocaleString()} VND`;
   };
 
   // Custom colors for charts
@@ -248,7 +227,7 @@ const Dashboard = () => {
   };
 
   // Custom Label for Pie Chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, index }) => {
+  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, index }) => {
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 10;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -367,11 +346,6 @@ const Dashboard = () => {
                 <div className="movie-title">
                   {movie.title}
                 </div>
-                {movie.label && (
-                  <span className={`movie-label ${movie.isNew ? 'new' : 'hot'}`}>
-                    {movie.label}
-                  </span>
-                )}
               </div>
 
               <div className="stats-row">
@@ -381,14 +355,6 @@ const Dashboard = () => {
                   </div>
                   <div className="stat-label">
                     Revenue
-                  </div>
-                </div>
-                <div className="tickets-stats">
-                  <div className="tickets-value">
-                    {formatTickets(movie.ticketsSold)}
-                  </div>
-                  <div className="stat-label">
-                    Tickets Sold
                   </div>
                 </div>
               </div>

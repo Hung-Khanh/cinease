@@ -73,15 +73,15 @@ const Promotions = () => {
       dataIndex: 'image',
       key: 'image',
       render: (image) => image ? (
-        <img 
-          src={image} 
-          alt="Promotion" 
-          style={{ 
-            width: '100px', 
-            height: '100px', 
-            objectFit: 'cover', 
-            borderRadius: '8px' 
-          }} 
+        <img
+          src={image}
+          alt="Promotion"
+          style={{
+            width: '100px',
+            height: '100px',
+            objectFit: 'cover',
+            borderRadius: '8px'
+          }}
         />
       ) : (
         <div style={{ color: '#999' }}>No Image</div>
@@ -99,11 +99,21 @@ const Promotions = () => {
       title: 'Start Time',
       dataIndex: 'startTime',
       key: 'startTime',
+      render: (startTime) => {
+        if (!startTime) return '-';
+        // Format the date to YYYY-MM-DD HH:mm
+        return dayjs(startTime).format('YYYY-MM-DD HH:mm:mm');
+      },
     },
     {
       title: 'End Time',
       dataIndex: 'endTime',
       key: 'endTime',
+      render: (endTime) => {
+        if (!endTime) return '-';
+        // Format the date to YYYY-MM-DD HH:mm
+        return dayjs(endTime).format('YYYY-MM-DD HH:mm:mm');
+      },
     },
     {
       title: 'Discount Level',
@@ -178,7 +188,7 @@ const Promotions = () => {
   const handleAddPromotion = async (values) => {
     try {
       const token = localStorage.getItem('token');
-      
+
       // Format dates to match the API's expected format
       const formatDate = (date) => date ? dayjs(date).format('YYYY-MM-DD HH:mm') : null;
 
@@ -295,8 +305,8 @@ const Promotions = () => {
           itemRender: (current, type, originalElement) => {
             if (type === 'prev') {
               return (
-                <Button 
-                  type="default" 
+                <Button
+                  type="default"
                   className="pagination-btn prev-btn"
                 >
                   Previous
@@ -305,8 +315,8 @@ const Promotions = () => {
             }
             if (type === 'next') {
               return (
-                <Button 
-                  type="default" 
+                <Button
+                  type="default"
                   className="pagination-btn next-btn"
                 >
                   Next
@@ -342,15 +352,15 @@ const Promotions = () => {
           <Form.Item
             name="title"
             label="Promotion Title"
-            rules={[{ 
-              required: true, 
+            rules={[{
+              required: true,
               message: 'Please enter promotion title',
               validateTrigger: ['onChange', 'onBlur']
             }]}
             hasFeedback
           >
-            <Input 
-              placeholder="Enter promotion title" 
+            <Input
+              placeholder="Enter promotion title"
               className="custom-input"
             />
           </Form.Item>
@@ -360,8 +370,8 @@ const Promotions = () => {
               name="startTime"
               label="Start Time"
               rules={[
-                { 
-                  required: true, 
+                {
+                  required: true,
                   message: 'Start date is required',
                 },
                 ({ getFieldValue }) => ({
@@ -393,8 +403,8 @@ const Promotions = () => {
               name="endTime"
               label="End Time"
               rules={[
-                { 
-                  required: true, 
+                {
+                  required: true,
                   message: 'End date is required',
                 },
                 ({ getFieldValue }) => ({
@@ -426,15 +436,15 @@ const Promotions = () => {
           <Form.Item
             name="discountLevel"
             label="Discount Level"
-            rules={[{ 
-              required: true, 
+            rules={[{
+              required: true,
               message: 'Please enter discount level',
               validateTrigger: ['onChange', 'onBlur']
             }]}
             hasFeedback
           >
-            <Input 
-              placeholder="Enter discount amount" 
+            <Input
+              placeholder="Enter discount amount"
               className="custom-input"
               type="number"
             />
@@ -443,15 +453,15 @@ const Promotions = () => {
           <Form.Item
             name="details"
             label="Promotion Details"
-            rules={[{ 
-              required: true, 
+            rules={[{
+              required: true,
               message: 'Please enter promotion details',
               validateTrigger: ['onChange', 'onBlur']
             }]}
             hasFeedback
           >
-            <Input.TextArea 
-              placeholder="Enter promotion details" 
+            <Input.TextArea
+              placeholder="Enter promotion details"
               rows={4}
               className="custom-textarea"
             />
@@ -460,25 +470,25 @@ const Promotions = () => {
           <Form.Item
             name="image"
             label="Promotion Image URL"
-            rules={[{ 
-              type: 'url', 
+            rules={[{
+              type: 'url',
               message: 'Please enter a valid image URL',
               validateTrigger: ['onChange', 'onBlur']
             }]}
             hasFeedback
           >
-            <Input 
-              placeholder="Enter image URL" 
+            <Input
+              placeholder="Enter image URL"
               className="custom-input"
               prefix={<UploadOutlined />}
             />
           </Form.Item>
 
           <Form.Item>
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              block 
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
               className="submit-btn"
             >
               {isEditing ? "Update Promotion" : "Add New Promotion"}
@@ -502,21 +512,21 @@ const Promotions = () => {
           <h3 className="promotion-title">{promotionToDelete?.title}</h3>
           <p className="warning-text">This action cannot be undone.</p>
           <div className="delete-confirmation-actions">
-            <Button 
-              onClick={cancelDelete} 
+            <Button
+              onClick={cancelDelete}
               className="cancel-btn"
             >
               Cancel
             </Button>
-            <Button 
-              type="primary" 
-              danger 
-              onClick={confirmDelete} 
+            <Button
+              type="primary"
+              danger
+              onClick={confirmDelete}
               className="confirm-delete-btn"
             >
               Confirm Delete
             </Button>
-            </div>
+          </div>
         </div>
       </Modal>
     </div>

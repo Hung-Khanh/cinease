@@ -219,21 +219,21 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
                   onClick={() => setPaymentMethod("VNPAY")}
                   title="VNPAY"
                 >
-                  <img src="fe_team_2/public/img/0oxhzjmxbksr1686814746087.png" alt="VNPAY" />
+                  <img src="/img/vnpay.png" alt="VNPAY" />
                 </button>
                 <button
                   className={`payment-option ${paymentMethod === "MOMO" ? "selected" : ""}`}
                   onClick={() => setPaymentMethod("MOMO")}
                   title="MOMO"
                 >
-                  <img src="fe_team_2/src/assets/Untitled-2-200x200.jpg" alt="MOMO" />
+                  <img src="/img/momo.png" alt="MOMO" />
                 </button>
                 <button
                   className={`payment-option ${paymentMethod === "MOMO_QR" ? "selected" : ""}`}
                   onClick={() => setPaymentMethod("MOMO_QR")}
                   title="MOMO QR"
                 >
-                  <img src="fe_team_2/public/img/momo-upload-api-220808102122-637955508824191258.webp" alt="MOMO QR" />
+                  <img src="/img/momoqr.png" alt="MOMO QR" />
                 </button>
               </div>
 </div>

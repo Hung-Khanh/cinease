@@ -181,11 +181,10 @@ const Login = () => {
       if (result.role === "ADMIN") {
         console.log(result.role);
         navigate("/admin/dashboard");
-        message.success("Login Successful");
+
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
         navigate("/staffHomePage");
-        message.success("Login Successful");
       } else {
         console.log(result.role);
         navigate("/");

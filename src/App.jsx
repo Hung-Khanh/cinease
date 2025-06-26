@@ -23,7 +23,7 @@ import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
-import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
+import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
 import ProductPage from "./pages/product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
@@ -179,7 +179,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/admin/*" element={<AdminLayout />}></Route>
-
           <Route path="/*" element={<Layout />} />
         </Routes>
       </Router>
