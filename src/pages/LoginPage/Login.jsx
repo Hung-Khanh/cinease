@@ -181,11 +181,10 @@ const Login = () => {
       if (result.role === "ADMIN") {
         console.log(result.role);
         navigate("/admin/dashboard");
-        message.success("Login Successful");
+
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
         navigate("/staffHomePage");
-        message.success("Login Successful");
       } else {
         console.log(result.role);
         navigate("/");
@@ -617,7 +616,12 @@ const Login = () => {
           <div className="toggle">
             <div className="toggle-panel toggle-left">
               <div className="logo-container">
-                <img src={logo} alt="Cinease Logo" className="logo" />
+                <img
+                  src={logo}
+                  alt="Cinease Logo"
+                  className="logo"
+                  onClick={() => navigate("/")}
+                />
               </div>
               <div className="register-section">
                 <Text className="register-text">Already have an account?</Text>
@@ -633,7 +637,12 @@ const Login = () => {
             </div>
             <div className="toggle-panel toggle-right">
               <div className="logo-container">
-                <img src={logo} alt="Cinease Logo" className="logo" />
+                <img
+                  src={logo}
+                  alt="Cinease Logo"
+                  className="logo"
+                  onClick={() => navigate("/")}
+                />
               </div>
               <div className="register-section">
                 <Text className="register-text">Don't have an account?</Text>

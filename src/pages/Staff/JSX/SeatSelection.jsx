@@ -154,9 +154,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       }
 
       const data = await response.json();
-      if (data?.grandTotal) {
-        localStorage.setItem("grandTotal", JSON.stringify(data.grandTotal));
-      }
       setIsModalVisible(false);
       navigate(`/ticketInformation/${data.invoiceId}/${scheduleId}`, {});
     } catch (error) {

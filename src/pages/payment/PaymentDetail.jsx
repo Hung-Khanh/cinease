@@ -19,7 +19,12 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [countdown, setCountdown] = useState(300); // 5 phút
 
-  const { promotion, grandTotal } = location.state || { promotion: null, grandTotal: 0 };
+  // Lấy các tham số từ location.state
+  const { promotion, grandTotal, cinemaRoomName: stateCinemaRoomName } = location.state || {
+    promotion: null,
+    grandTotal: 0,
+    cinemaRoomName: "",
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -30,6 +35,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
         navigate("/login");
         return;
       }
+
       try {
         const ticketRes = await fetch(`${apiUrl}/member/ticket-info?invoiceId=${invoiceId}`, {
           headers: {
@@ -70,7 +76,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate(-1); // Hết thời gian quay lại trang trước
+          navigate(-1);
           return 0;
         }
         return prev - 1;
@@ -86,7 +92,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
           Accept: "application/json",
-        },
+},
       });
       if (!movieRes.ok) return;
       const movie = await movieRes.json();
@@ -120,7 +126,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
         }));
       }
     } catch (err) {
-      console.error("❌ Lỗi tìm phim theo tên:", err);
+      console.error("❌ Lỗi tìm phim:", err);
     }
   };
 
@@ -146,19 +152,29 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
 
   if (loading || !ticketData) return <div>Đang tải dữ liệu...</div>;
 
-  const { movieName, cinemaRoomName = "", date, time, seat = [], price = 0, fullName, phoneNumber, identityCard } = ticketData;
+  const {
+    movieName,
+    date,
+    time,
+    seat = [],
+    price = 0,
+    fullName,
+    phoneNumber,
+    identityCard,
+    cinemaRoomName, // lấy từ API
+  } = ticketData;
+
+  const finalCinemaRoomName = stateCinemaRoomName || cinemaRoomName || "N/A";
+
   const seatCount = seat.length;
   const formattedDate = new Date(date).toLocaleDateString("vi-VN");
   const formattedTime = new Date(time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 
-  // Tổng tiền vé
   const ticketTotal = price * seatCount;
-  // Tổng tiền bắp nước
-  const snackTotal = grandTotal - ticketTotal;
-  // Giảm giá chỉ trên tiền vé
   const discountPercent = promotion?.discountLevel || 0;
-  const discountAmount = (ticketTotal * discountPercent) / 100;
-  const finalTotal = (ticketTotal - discountAmount) + snackTotal;
+  const originalTotal = grandTotal || ticketTotal;
+  const discountAmount = (originalTotal * discountPercent) / 100;
+  const finalTotal = originalTotal - discountAmount;
 
   return (
     <>
@@ -168,8 +184,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
             {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
           </div>
         </div>
-
-        <div className="content">
+<div className="content">
           <div className="poster-section">
             <img src={movieDetails.posterImageUrl} alt="Movie Poster" className="poster" />
             <h3>{movieDetails.movieName}</h3>
@@ -178,7 +193,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           <div className="payment-info">
             <h2>PAYMENT INFORMATION</h2>
             <div className="detail-row"><span>🎬 MOVIE</span><span>{movieName}</span></div>
-            <div className="detail-row"><span>🏢 CINEROOM</span><span>{cinemaRoomName || "N/A"}</span></div>
+            <div className="detail-row"><span>🏢 CINEROOM</span><span>{finalCinemaRoomName}</span></div>
             <div className="detail-row"><span>📅 DATE</span><span>{formattedDate}</span></div>
             <div className="detail-row"><span>🕒 TIME</span><span>{formattedTime}</span></div>
             <div className="detail-row"><span>💺 SEAT ({seatCount})</span><span>{seat.join(", ")}</span></div>
@@ -187,8 +202,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
             <div className="detail-row"><span>📞 PHONE</span><span>{phoneNumber}</span></div>
 
             <div className="detail-row transaction"><span>PAYMENT DETAIL</span></div>
-            <div className="detail-row"><span>💰 TICKET TOTAL</span><span>{ticketTotal.toLocaleString()} VND</span></div>
-            <div className="detail-row"><span>🍿 SNACK TOTAL</span><span>{snackTotal.toLocaleString()} VND</span></div>
+            <div className="detail-row"><span>💰 ORIGINAL TOTAL</span><span>{originalTotal.toLocaleString()} VND</span></div>
 
             {promotion && (
               <div className="detail-row"><span>🏷️ PROMOTION ({promotion.title})</span><span>{discountPercent}%</span></div>
@@ -205,24 +219,24 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
                   onClick={() => setPaymentMethod("VNPAY")}
                   title="VNPAY"
                 >
-                  <img src="fe_team_2/public/img/0oxhzjmxbksr1686814746087.png" alt="VNPAY" />
+                  <img src="/img/vnpay.png" alt="VNPAY" />
                 </button>
                 <button
                   className={`payment-option ${paymentMethod === "MOMO" ? "selected" : ""}`}
                   onClick={() => setPaymentMethod("MOMO")}
                   title="MOMO"
                 >
-                  <img src="/images/momo-logo.png" alt="MOMO" />
+                  <img src="/img/momo.png" alt="MOMO" />
                 </button>
                 <button
                   className={`payment-option ${paymentMethod === "MOMO_QR" ? "selected" : ""}`}
                   onClick={() => setPaymentMethod("MOMO_QR")}
                   title="MOMO QR"
                 >
-                  <img src="/images/momo-qr-logo.png" alt="MOMO QR" />
+                  <img src="/img/momoqr.png" alt="MOMO QR" />
                 </button>
               </div>
-            </div>
+</div>
 
             <button className="payment-button" onClick={handleConfirmPayment}>✅ CONFIRM PAYMENT</button>
             {paymentUrl && (

@@ -14,6 +14,13 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       border-color: #515c5b;
       color: #ffffff;
       box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .ant-pagination-item:hover {
+      background: #27ae60;
+      color: #fff;
+      box-shadow: 0 0 8px #27ae60, 0 0 0 2px rgba(255,255,255,0.2);
+      border-color: #27ae60;
     }
     .ant-pagination-prev, .ant-pagination-next {
       .ant-pagination-item-link {
@@ -118,6 +125,9 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
     .profile-info-form {
       flex: 1;
+      .ant-select-selector {
+        display: none !important;
+      }
 
       .profile-info-row {
         display: grid;

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Modal, Select, Input, Button } from "antd";
+import { Modal, Select, Input, Button, message, Space } from "antd";
+import { AudioOutlined } from "@ant-design/icons";
 import api from "../../../constants/axios";
-
 import "../SCSS/TicketIn4.scss";
 
 const { Option } = Select;
+const { Search } = Input;
 
 const TicketInformation = ({ apiUrl, onBack }) => {
   const [ticketData, setTicketData] = useState(null);
@@ -21,26 +22,118 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const [cashReceived, setCashReceived] = useState("");
   const [change, setChange] = useState(0);
-  const [voucherCode, setVoucherCode] = useState("");
   const [ticketType, setTicketType] = useState("ADULT");
   const [responseModalVisible, setResponseModalVisible] = useState(false);
-  const [grandTotal, setGrandTotal] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false); // Prevent multiple clicks
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [searchPromotion, setSearchPromotion] = useState("");
+  const [promotions, setPromotions] = useState([]);
+  const [promotionId, setPromotionId] = useState(null);
+  const [showPromotionList, setShowPromotionList] = useState(false); // Trạng thái kiểm soát hiển thị ul
 
-  // FIX 1: Chỉ get paymentUrl một lần khi component mount
+  // Lấy danh sách promotions
   useEffect(() => {
-    const storedGrandTotal = localStorage.getItem("grandTotal");
-    if (storedGrandTotal) {
-      setGrandTotal(storedGrandTotal);
-    }
+    const fetchPromotions = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await api.get(`/public/promotions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        });
+        const data = await response.data;
+        setPromotions(data);
+      } catch (error) {
+        message.error("Lỗi lấy Voucher: " + error.message);
+      }
+    };
+    fetchPromotions();
   }, []);
+
+  // Lọc promotions dựa trên title
+  const filteredPromotions = promotions.filter((promotion) =>
+    promotion.title.toLowerCase().includes(searchPromotion.toLowerCase())
+  );
+
+  // Xử lý tìm kiếm
+  const onSearch = (value) => {
+    setSearchPromotion(value);
+    setShowPromotionList(!!value); // Hiển thị danh sách khi có giá trị tìm kiếm
+    console.log("Search value:", value, "Show list:", !!value); // Debug
+  };
+
+  // Xử lý chọn promotion
+  const handleSelectPromotion = (selectedId, title) => {
+    setPromotionId(selectedId);
+    setSearchPromotion(title); // Đặt title vào thanh search
+    setShowPromotionList(false); // Ẩn danh sách sau khi chọn
+    console.log("Selected:", title, "ID:", selectedId); // Debug
+  };
+
+  // Xử lý purchase
+  const handlePurchase = async () => {
+    if (isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Authentication token is missing. Please log in again.");
+        return;
+      }
+
+      const payload = {
+        invoiceId: parseInt(invoiceId),
+        scheduleId: parseInt(scheduleId),
+        useScore: 0,
+        promotionId: promotionId,
+        identityCard: inputType === "id" ? inputValue : undefined,
+        phoneNumber: inputType === "phone" ? inputValue : undefined,
+        paymentMethod: paymentMethod,
+        ticketType: ticketType,
+      };
+
+      console.log("Sending payload:", payload);
+
+      const response = await api.post(`/employee/bookings/confirm`, payload, {
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      const data = response.data;
+      console.log("Ticket Details:", data);
+      const paymentUrl = data?.paymentUrl;
+      const grandTotal = data?.grandTotal;
+      if ((paymentUrl, grandTotal)) {
+        localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
+        localStorage.setItem("grandTotal", grandTotal);
+        console.log("Payment URL saved:", paymentUrl);
+      } else {
+        console.warn("No payment URL found in ticket data");
+      }
+      setResponseModalVisible(true);
+    } catch (error) {
+      console.error("Error in handlePurchase:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to confirm booking. Please try again.";
+      alert(errorMessage);
+      setResponseModalVisible(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
       const token = localStorage.getItem("token");
       try {
         const response = await fetch(
-          `${apiUrl}/employee/bookings/${invoiceId}`,
+          `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
           {
             method: "GET",
             headers: {
@@ -92,7 +185,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         }
 
         const data = await response.json();
-        setMovieImage(data[0]?.largeImage || "placeholder-image.jpg");
+        setMovieImage(data[0]?.posterImageUrl || "placeholder-image.jpg");
         setCinemaRoom(data[0]?.cinemaRoomId);
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -132,61 +225,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     setIsModalVisible(false);
   };
 
-  const handlePurchase = async () => {
-    if (isProcessing) return; // FIX 2: Prevent multiple calls
-
-    try {
-      setIsProcessing(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Authentication token is missing. Please log in again.");
-        return;
-      }
-
-      const payload = {
-        invoiceId: parseInt(invoiceId),
-        scheduleId: parseInt(scheduleId),
-        useScore: 0,
-        promotionId: voucherCode || null,
-        identityCard: inputType === "id" ? inputValue : undefined,
-        phoneNumber: inputType === "phone" ? inputValue : undefined,
-        paymentMethod: paymentMethod,
-        ticketType: ticketType,
-      };
-
-      console.log("Sending payload:", payload);
-
-      const response = await api.post(`/employee/bookings/confirm`, payload, {
-        headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      const data = response.data;
-      console.log("Ticket Details:", data);
-      const paymentUrl = data?.paymentUrl;
-      if (paymentUrl) {
-        // FIX 4: Lưu trực tiếp paymentUrl, không wrap trong object
-        localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
-        console.log("Payment URL saved:", paymentUrl); // Chỉ log một lần
-      } else {
-        console.warn("No payment URL found in ticket data");
-      }
-      setResponseModalVisible(true);
-    } catch (error) {
-      console.error("Error in handlePurchase:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to confirm booking. Please try again.";
-      alert(errorMessage);
-      setResponseModalVisible(true);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const handleCashChange = (e) => {
     const value = parseFloat(e.target.value) || 0;
     setCashReceived(value);
@@ -205,22 +243,19 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       .replace(/\//g, "/");
   };
 
-  // FIX 3: Cải thiện logic handleQRPurchase
   const handleQRPurchase = useCallback(() => {
     if (isProcessing) return;
 
     setIsProcessing(true);
 
     try {
-      // Sử dụng paymentUrl từ ticketData thay vì localStorage
-
       navigate("/confirm-purchase");
     } catch (error) {
       console.error("Error in handleQRPurchase:", error);
     } finally {
       setIsProcessing(false);
     }
-  }, [ticketData?.paymentUrl, navigate, isProcessing]);
+  }, [navigate, isProcessing]);
 
   return (
     <div className="ticket-info-wrapper">
@@ -252,48 +287,91 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <div className="detail-item">
               <span>Date</span>
-              <span>{formatDate(ticketData?.date)}</span>
+              <span>{formatDate(ticketData?.scheduleShowDate)}</span>
             </div>
             <div className="detail-item">
               <span>Time</span>
               <span>
-                {ticketData?.time
-                  ? new Date(ticketData.time).toLocaleTimeString()
+                {ticketData?.scheduleShowTime
+                  ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
                   : "N/A"}
               </span>
             </div>
             <div className="detail-item">
-              <span>Ticket ({ticketData?.seat?.length || 0})</span>
-              <span>{ticketData?.seat?.join(", ") || "N/A"}</span>
+              <span>Ticket ({ticketData?.seatNumbers?.length || 0})</span>
+              <span>{ticketData?.seatNumbers?.join(", ") || "N/A"}</span>
             </div>
-            <div className="detail-item voucher">
-              <span>Enter Voucher Code</span>
-              <Input
-                value={voucherCode}
-                onChange={(e) => setVoucherCode(e.target.value)}
-                placeholder="Enter voucher code"
-              />
+            <div className="detail-item promotion-search">
+              <span>Voucher</span>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Search
+                  placeholder="Search voucher by title..."
+                  allowClear
+                  onSearch={onSearch}
+                  value={searchPromotion}
+                  onChange={(e) => {
+                    setSearchPromotion(e.target.value);
+                    setShowPromotionList(!!e.target.value); // Cập nhật trạng thái khi thay đổi
+                  }}
+                  style={{ width: "100%", color: "gray" }}
+                />
+              </Space>
+              {showPromotionList && filteredPromotions.length > 0 && (
+                <ul
+                  className={`promotion-list ${
+                    filteredPromotions.length > 0 ? "has-results" : ""
+                  }`}
+                >
+                  {filteredPromotions.map((promotion) => (
+                    <li
+                      key={promotion.promotionId}
+                      onClick={() =>
+                        handleSelectPromotion(
+                          promotion.promotionId,
+                          promotion.title
+                        )
+                      }
+                      className={
+                        promotionId === promotion.promotionId ? "selected" : ""
+                      }
+                    >
+                      {promotion.title} ({promotion.discountLevel}% off)
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="detail-item ticket-type">
               <span>Select Ticket Type:</span>
               <Select
                 value={ticketType}
                 onChange={setTicketType}
-                style={{ width: "97%" }}
+                style={{
+                  position: "relative",
+                  width: "490px",
+                  top: "10px",
+                  marginBottom: "30px",
+                }}
               >
                 <Option value="ADULT">ADULT</Option>
                 <Option value="STUDENT">STUDENT</Option>
               </Select>
+              <h5 className="Ticketnote">
+                *note:
+                <br />
+                Student: 80000 VND/seat
+                <br />
+                Adult: 120000 VND/seat
+              </h5>
             </div>
-            <div className="detail-item total">
-              <span>Total payment</span>
-              <span>VND {grandTotal || "0"}</span>
-            </div>
+
             <div className="detail-item phone-input">
               <button onClick={showModal}>Enter Phone Number</button>
             </div>
             <div className="detail-item payment-method">
-              <span>Payment Method</span>
+              <span style={{ marginTop: "10px", marginBottom: "-20" }}>
+                Payment Method
+              </span>
               <Select value={paymentMethod} onChange={setPaymentMethod}>
                 <Option value="VNPAY">VNPAY</Option>
                 <Option value="CASH">Cash</Option>
@@ -361,18 +439,17 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         onCancel={() => setResponseModalVisible(false)}
       >
         <p>Movie Name: {ticketData?.movieName || "N/A"}</p>
-        <p>Date: {formatDate(ticketData?.date)}</p>
+        <p>Date: {formatDate(ticketData?.scheduleShowDate)}</p>
         <p>
-          Time:{""}
-          {ticketData?.time
-            ? new Date(ticketData.time).toLocaleTimeString()
+          Time:{" "}
+          {ticketData?.scheduleShowTime
+            ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
             : "N/A"}
         </p>
         <p>
-          Ticket ({ticketData?.seat?.length || 0}):{" "}
-          {ticketData?.seat?.join(", ") || "N/A"}
+          Ticket ({ticketData?.seatNumbers?.length || 0}):{" "}
+          {ticketData?.seatNumbers?.join(", ") || "N/A"}
         </p>
-        <p>Total payment: {grandTotal} VND</p>
         <br />
         <Button key="close" onClick={() => setResponseModalVisible(false)}>
           Close

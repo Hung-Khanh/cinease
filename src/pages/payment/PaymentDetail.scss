@@ -31,24 +31,26 @@
     }
   }
 
-.countdown-wrapper {
-  position: absolute;
-  top: 2rem;
-  left: 10rem; /* cách nút back 1 chút */
-  
-  .countdown-timer {
-    padding: 0.3rem 0.8rem;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #2ecc71;
-    border: 2px solid #2ecc71;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.6);
-    box-shadow: 0 0 12px rgba(46, 204, 113, 0.7);
-    width: fit-content; /* để không giãn */
-    letter-spacing: 1px;
+  .countdown-wrapper {
+    position: absolute;
+    top: 2rem;
+    left: 10rem;
+    /* cách nút back 1 chút */
+
+    .countdown-timer {
+      padding: 0.3rem 0.8rem;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2ecc71;
+      border: 2px solid #2ecc71;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 12px rgba(46, 204, 113, 0.7);
+      width: fit-content;
+      /* để không giãn */
+      letter-spacing: 1px;
+    }
   }
-}
 
 
   .content {
@@ -61,16 +63,16 @@
       grid-template-columns: 1fr;
     }
 
-  .poster-section {
-  margin-top: 2rem; // Dời poster xuống tránh dính vào timer
-  text-align: center;
+    .poster-section {
+      margin-top: 2rem; // Dời poster xuống tránh dính vào timer
+      text-align: center;
 
-  img.poster {
-    width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-  }
-}
+      img.poster {
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      }
+    }
 
 
     .payment-info {
@@ -147,18 +149,23 @@
       }
 
       .note {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  opacity: 0.7;
-  text-align: center;       /* căn giữa text */
-  white-space: nowrap;      /* không xuống dòng */
-  width: 100%;              /* chiếm toàn bộ bề ngang cha */
-  display: block;           /* bảo đảm chiếm cả dòng */
-}
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        opacity: 0.7;
+        text-align: center;
+        /* căn giữa text */
+        white-space: nowrap;
+        /* không xuống dòng */
+        width: 100%;
+        /* chiếm toàn bộ bề ngang cha */
+        display: block;
+        /* bảo đảm chiếm cả dòng */
+      }
 
     }
   }
 }
+
 .payment-method-selector {
   display: flex;
   align-items: center;
@@ -175,15 +182,21 @@
       padding: 0.25rem;
       cursor: pointer;
       transition: border 0.2s ease;
-       width: 48px;
-  height: 48px;
-  object-fit: contain;
-  display: block;
+      width: 64px;
+      /* tăng kích thước khung */
+      height: 64px;
+      display: flex;
+      /* để căn giữa hình bên trong */
+      align-items: center;
+      justify-content: center;
 
       img {
-        width: 48px;
-        height: 48px;
+        width: 100%;
+        /* phủ hết khung */
+        height: 100%;
         object-fit: contain;
+        /* không méo hình */
+        display: block;
       }
 
       &.selected {

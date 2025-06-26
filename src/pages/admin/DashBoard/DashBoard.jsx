@@ -227,7 +227,7 @@ const Dashboard = () => {
   };
 
   // Custom Label for Pie Chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, index }) => {
+  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, index }) => {
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 10;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
