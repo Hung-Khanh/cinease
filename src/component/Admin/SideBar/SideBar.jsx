@@ -8,6 +8,7 @@ import MoviesIcon from "../../../assets/admin-logo/movies-icon.svg";
 import PromotionsIcon from "../../../assets/admin-logo/promotions-icon.svg";
 import CinemaIcon from "../../../assets/admin-logo/cinema-icon.svg";
 import TicketIcon from "../../../assets/admin-logo/ticket-icon.svg";
+import MemberIcon from "../../../assets/admin-logo/member-icon.svg";
 
 const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   const location = useLocation();
@@ -22,6 +23,11 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
       path: "/admin/employees",
       icon: EmployeesIcon,
       label: "Employees",
+    },
+    {
+      path: "/admin/member",
+      icon: MemberIcon,
+      label: "Membership",
     },
     {
       path: "/admin/movies",
@@ -41,7 +47,7 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
     {
       path: "/admin/ticket",
       icon: TicketIcon,
-      label: "Ticket Booking",
+      label: "Ticket Management",
     },
   ];
 

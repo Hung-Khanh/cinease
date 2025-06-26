@@ -40,6 +40,7 @@ import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
+import Members from "./pages/admin/Members/Members.jsx";
 
 function AdminRoutes() {
   return (
@@ -49,6 +50,7 @@ function AdminRoutes() {
       <Route path="movies" element={<AdminMovies />} />
       <Route path="employees" element={<Employees />} />
       <Route path="cinema" element={<CinemaRooms />} />
+      <Route path="member" element={<Members />} />
     </Routes>
   );
 }
