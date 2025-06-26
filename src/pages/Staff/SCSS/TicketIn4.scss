@@ -87,14 +87,14 @@
         width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
         position: relative; /* Đặt vị trí tương đối để điều khiển ul */
 
-        span {
+        span.text {
           font-weight: 500;
-          color: #333;
+          color: #fff;
         }
 
         .ant-input-search {
           font-size: 14px;
-          border-radius: 4px;
+          border-radius: 4px #000;
           transition: border-color 0.3s;
 
           .ant-input {
@@ -104,6 +104,7 @@
           .ant-input:focus,
           .ant-input:hover {
             outline: none;
+            color: #000;
           }
         }
 
@@ -147,6 +148,10 @@
           color: #1890ff;
           font-weight: 500;
         }
+      }
+
+      &.detail-item.ticket-type {
+        flex-direction: column;
       }
 
       &.transaction {

@@ -29,9 +29,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [searchPromotion, setSearchPromotion] = useState("");
   const [promotions, setPromotions] = useState([]);
   const [promotionId, setPromotionId] = useState(null);
-
-  // Icon suffix cho Search
-  const suffix = <AudioOutlined />;
+  const [showPromotionList, setShowPromotionList] = useState(false); // Trạng thái kiểm soát hiển thị ul
 
   // Lấy danh sách promotions
   useEffect(() => {
@@ -62,11 +60,16 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   // Xử lý tìm kiếm
   const onSearch = (value) => {
     setSearchPromotion(value);
+    setShowPromotionList(!!value); // Hiển thị danh sách khi có giá trị tìm kiếm
+    console.log("Search value:", value, "Show list:", !!value); // Debug
   };
 
   // Xử lý chọn promotion
-  const handleSelectPromotion = (selectedId) => {
+  const handleSelectPromotion = (selectedId, title) => {
     setPromotionId(selectedId);
+    setSearchPromotion(title); // Đặt title vào thanh search
+    setShowPromotionList(false); // Ẩn danh sách sau khi chọn
+    console.log("Selected:", title, "ID:", selectedId); // Debug
   };
 
   // Xử lý purchase
@@ -137,7 +140,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       const token = localStorage.getItem("token");
       try {
         const response = await fetch(
-          `${apiUrl}/employee/bookings/${invoiceId}`,
+          `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
           {
             method: "GET",
             headers: {
@@ -291,34 +294,36 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <div className="detail-item">
               <span>Date</span>
-              <span>{formatDate(ticketData?.date)}</span>
+              <span>{formatDate(ticketData?.scheduleShowDate)}</span>
             </div>
             <div className="detail-item">
               <span>Time</span>
               <span>
-                {ticketData?.time
-                  ? new Date(ticketData.time).toLocaleTimeString()
+                {ticketData?.scheduleShowTime
+                  ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
                   : "N/A"}
               </span>
             </div>
             <div className="detail-item">
-              <span>Ticket ({ticketData?.seat?.length || 0})</span>
-              <span>{ticketData?.seat?.join(", ") || "N/A"}</span>
+              <span>Ticket ({ticketData?.seatNumbers?.length || 0})</span>
+              <span>{ticketData?.seatNumbers?.join(", ") || "N/A"}</span>
             </div>
             <div className="detail-item promotion-search">
-              <span>Search Promotions</span>
+              <span>Voucher</span>
               <Space direction="vertical" style={{ width: "100%" }}>
                 <Search
                   placeholder="Search voucher by title..."
                   allowClear
                   onSearch={onSearch}
-                  suffix={suffix}
                   value={searchPromotion}
-                  onChange={(e) => setSearchPromotion(e.target.value)}
-                  style={{ width: "100%" }}
+                  onChange={(e) => {
+                    setSearchPromotion(e.target.value);
+                    setShowPromotionList(!!e.target.value); // Cập nhật trạng thái khi thay đổi
+                  }}
+                  style={{ width: "100%", color: "gray" }}
                 />
               </Space>
-              {searchPromotion && (
+              {showPromotionList && filteredPromotions.length > 0 && (
                 <ul
                   className={`promotion-list ${
                     filteredPromotions.length > 0 ? "has-results" : ""
@@ -328,7 +333,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                     <li
                       key={promotion.promotionId}
                       onClick={() =>
-                        handleSelectPromotion(promotion.promotionId)
+                        handleSelectPromotion(
+                          promotion.promotionId,
+                          promotion.title
+                        )
                       }
                       className={
                         promotionId === promotion.promotionId ? "selected" : ""
@@ -345,7 +353,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               <Select
                 value={ticketType}
                 onChange={setTicketType}
-                style={{ width: "97%" }}
+                style={{
+                  position: "relative",
+                  width: "490px",
+                  top: "10px",
+                }}
               >
                 <Option value="ADULT">ADULT</Option>
                 <Option value="STUDENT">STUDENT</Option>
@@ -427,16 +439,16 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         onCancel={() => setResponseModalVisible(false)}
       >
         <p>Movie Name: {ticketData?.movieName || "N/A"}</p>
-        <p>Date: {formatDate(ticketData?.date)}</p>
+        <p>Date: {formatDate(ticketData?.scheduleShowDate)}</p>
         <p>
           Time:{" "}
-          {ticketData?.time
-            ? new Date(ticketData.time).toLocaleTimeString()
+          {ticketData?.scheduleShowTime
+            ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
             : "N/A"}
         </p>
         <p>
-          Ticket ({ticketData?.seat?.length || 0}):{" "}
-          {ticketData?.seat?.join(", ") || "N/A"}
+          Ticket ({ticketData?.seatNumbers?.length || 0}):{" "}
+          {ticketData?.seatNumbers?.join(", ") || "N/A"}
         </p>
         <p>Total payment: {grandTotal} VND</p>
         <br />
