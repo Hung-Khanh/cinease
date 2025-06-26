@@ -25,6 +25,10 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #1a3a2a 100%);
   color: $text-light;
   font-family: "Segoe UI", Arial, sans-serif;
+  padding-left: 100px;
+  padding-right: 100px;
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
 
 .movie-title {
@@ -86,6 +90,8 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   font-size: 1.2rem;
   font-weight: 600;
   color: $text-light;
+  padding-bottom: 20px;
+  padding-top: 20px;
 
   span {
     color: $text-light;
@@ -321,6 +327,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   transition: box-shadow 0.2s;
   color: $text-light;
   width: 220px;
+  width: auto;
   &:hover {
       transform: translateY(-6px) scale(1.03);
       box-shadow: $hover-shadow;
@@ -385,6 +392,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   padding: 3px 10px;
   border-radius: 12px;
   z-index: 2;
+  padding-bottom: 5px;
 }
 
 // Scrollbar styling for horizontal list
