@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import "./Confirm.scss";
 import Select from "react-select";
 import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { movieId: paramMovieId } = useParams();
 
   const [promotions, setPromotions] = useState([]);   // danh sách promotions đầy đủ
   const [voucher, setVoucher] = useState(null);       // promotion được chọn
@@ -135,7 +134,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           confirmationResult: result,
         },
       });
-    } catch (err) {
+    } catch {
       alert("Lỗi xác nhận vé");
     }
   };

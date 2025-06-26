@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Table, Tag, Button, message } from "antd";
+import { Card, Table, Tag, Button, message, Dropdown, Menu } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -202,6 +203,32 @@ const HistoryTicket = () => {
     fetchScoreHistory();
   }, []);
 
+  const [sortKey, setSortKey] = useState(null);
+  const [sortOrder, setSortOrder] = useState('descend');
+
+  const sortOptions = [
+    { key: "date", label: "Date" },
+    { key: "movieName", label: "Movie Name" },
+    { key: "type", label: "Type" },
+  ];
+
+  const handleMenuClick = (e) => {
+    if (sortKey === e.key) {
+      setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
+    } else {
+      setSortKey(e.key);
+      setSortOrder('descend');
+    }
+  };
+
+  const sortMenu = (
+    <Menu onClick={handleMenuClick}>
+      {sortOptions.map(opt => (
+        <Menu.Item key={opt.key}>{opt.label}</Menu.Item>
+      ))}
+    </Menu>
+  );
+
   const columns = [
     { title: "Date", dataIndex: "date", key: "date", align: "center" },
     { title: "Movie Name", dataIndex: "movieName", key: "movieName", align: "center" },
@@ -216,6 +243,29 @@ const HistoryTicket = () => {
       ),
     },
   ];
+
+  const sortedScoreHistory = React.useMemo(() => {
+    if (!sortKey) return scoreHistory;
+    let sorted = [...scoreHistory];
+    if (sortKey === "date") {
+      sorted.sort((a, b) => {
+        const d1 = new Date(a.date.split('/').reverse().join('-'));
+        const d2 = new Date(b.date.split('/').reverse().join('-'));
+        return sortOrder === "ascend" ? d1 - d2 : d2 - d1;
+      });
+    } else if (sortKey === "movieName") {
+      sorted.sort((a, b) => sortOrder === "ascend"
+        ? a.movieName.localeCompare(b.movieName)
+        : b.movieName.localeCompare(a.movieName)
+      );
+    } else if (sortKey === "type") {
+      sorted.sort((a, b) => sortOrder === "ascend"
+        ? a.type.localeCompare(b.type)
+        : b.type.localeCompare(a.type)
+      );
+    }
+    return sorted;
+  }, [scoreHistory, sortKey, sortOrder]);
   return (
     <div className="history-ticket">
       <div className="header">
@@ -249,11 +299,18 @@ const HistoryTicket = () => {
         />
       </Card>
       <Card className="table-card">
-        <h3>Transaction Details</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ margin: 0 }}>Transaction Details</h3>
+          <Dropdown overlay={sortMenu} trigger={['click']}>
+            <Button className="sort-btn" style={{ marginLeft: 12 }}>
+              Sort <DownOutlined />
+            </Button>
+          </Dropdown>
+        </div>
         <Table
           columns={columns}
-          dataSource={scoreHistory}
-          pagination={{ pageSize: 10 }}
+          dataSource={sortedScoreHistory}
+          pagination={{ pageSize: 10, showSizeChanger: false }}
         />
       </Card>
     </div>
