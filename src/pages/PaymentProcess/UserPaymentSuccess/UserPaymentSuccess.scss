@@ -40,12 +40,12 @@
 }
 
 .movie-poster {
-  width: 100%;          /* Set width to 100% to fill the container */
-  max-width: 400px;    /* Set a maximum width */
-  height: auto;        /* Maintain aspect ratio */
+  width: 400px !important;  /* Đặt chiều rộng cố định là 450px */
+  height: 250px !important; /* Đặt chiều cao cố định là 250px */
+  object-fit: cover;        /* Giữ tỉ lệ gốc mà không bị biến dạng */
   border-radius: 10px;
-  display: block;       /* Ensure it behaves like a block element */
-  margin: 0 auto;      /* Center the image */
+  display: block;
+  margin: 0 auto;
 }
 
 .info-group {

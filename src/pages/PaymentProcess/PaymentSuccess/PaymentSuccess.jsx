@@ -98,13 +98,12 @@ const PaymentSuccess = () => {
             alt="Movie Poster"
             className="movie-poster"
           />
-          <div className="poster-title">{ticketData.movieName}</div>
         </div>
         
-        {/* <div className="info-group">
-          <div className="info-label">Movie Title:</div>
-          <div className="info-value">{ticketData.movieName}</div>
-        </div> */}
+          <div className="info-group">
+            <div className="info-label">Movie Title:</div>
+            <div className="info-value">{ticketData.movieName}</div>
+          </div>
         
         <div className="info-group">
           <div className="info-label">Room:</div>
