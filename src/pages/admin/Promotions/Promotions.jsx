@@ -131,21 +131,15 @@ const Promotions = () => {
       title: "Start Time",
       dataIndex: "startTime",
       key: "startTime",
-      render: (startTime) => {
-        if (!startTime) return "-";
-        // Format the date to YYYY-MM-DD HH:mm
-        return dayjs(startTime).format("YYYY-MM-DD HH:mm");
-      },
+      render: (date) => new Date(date).toLocaleString(),
+
     },
     {
       title: "End Time",
       dataIndex: "endTime",
       key: "endTime",
-      render: (endTime) => {
-        if (!endTime) return "-";
-        // Format the date to YYYY-MM-DD HH:mm
-        return dayjs(endTime).format("YYYY-MM-DD HH:mm");
-      },
+      render: (date) => new Date(date).toLocaleString(),
+
     },
     {
       title: "Discount Level",
