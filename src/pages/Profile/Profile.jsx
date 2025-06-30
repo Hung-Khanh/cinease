@@ -4,54 +4,46 @@ import { DownOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserOutlined, CameraOutlined } from "@ant-design/icons";
 import "./Profile.scss";
-import api from "../../constants/axios";
+import { getUserInfo, getUserTickets, updateUserWithImage } from '../../api/user';
 
 const Profile = () => {
   const [historyData, setHistoryData] = useState([]);
-const [historyPage, setHistoryPage] = useState(1);
-const [historyPageSize, setHistoryPageSize] = useState(10);
-const [historyTotal, setHistoryTotal] = useState(0);
-const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPageSize, setHistoryPageSize] = useState(10);
+  const [historyTotal, setHistoryTotal] = useState(0);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
-  const fetchHistoryAndPoints = async (page = 1, size = 10) => {
-    setHistoryLoading(true);
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const token = user.token || "";
-      const ticketsRes = await api.get("/member/tickets", {
-        params: { page: page - 1, size },
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-      const ticketsData = ticketsRes.data;
-      const mapped = (ticketsData.content || []).map((item, idx) => {
-        const ticketCount = Array.isArray(item.products)
-          ? item.products.filter(p => p.itemType === "TICKET").length
-          : (item.seatNumbers ? item.seatNumbers.length : 0);
-        return {
-          key: item.invoiceId || idx,
-          date: item.bookingDate ? new Date(item.bookingDate).toLocaleDateString("vi-VN") : "",
-          movie: item.movieName,
-          tickets: ticketCount,
-          status: item.status || "",
-          grandTotal: item.grandTotal || 0
-        };
-      });
-      setHistoryData(mapped);
-      setHistoryTotal(ticketsData.totalElements || 0);
-      setHistoryPage(page);
-      setHistoryPageSize(size);
-    } catch {
-      setHistoryData([]);
-      setHistoryTotal(0);
-    }
-    setHistoryLoading(false);
-  };
-  fetchHistoryAndPoints(historyPage, historyPageSize);
-}, [historyPage, historyPageSize]);
+    const fetchHistoryAndPoints = async (page = 1, size = 10) => {
+      setHistoryLoading(true);
+      try {
+        const ticketsRes = await getUserTickets({ page: page - 1, size });
+        const ticketsData = ticketsRes.data;
+        const mapped = (ticketsData.content || []).map((item, idx) => {
+          const ticketCount = Array.isArray(item.products)
+            ? item.products.filter(p => p.itemType === "TICKET").length
+            : (item.seatNumbers ? item.seatNumbers.length : 0);
+          return {
+            key: item.invoiceId || idx,
+            date: item.bookingDate ? new Date(item.bookingDate).toLocaleDateString("vi-VN") : "",
+            movie: item.movieName,
+            tickets: ticketCount,
+            status: item.status || "",
+            grandTotal: item.grandTotal || 0
+          };
+        });
+        setHistoryData(mapped);
+        setHistoryTotal(ticketsData.totalElements || 0);
+        setHistoryPage(page);
+        setHistoryPageSize(size);
+      } catch {
+        setHistoryData([]);
+        setHistoryTotal(0);
+      }
+      setHistoryLoading(false);
+    };
+    fetchHistoryAndPoints(historyPage, historyPageSize);
+  }, [historyPage, historyPageSize]);
 
   const [form] = Form.useForm();
   const [pwdForm] = Form.useForm();
@@ -63,9 +55,6 @@ const [historyLoading, setHistoryLoading] = useState(false);
   const handleViewHistory = () => {
     navigate('/history');
   };
-
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const token = user.token || "";
 
   const [sortKey, setSortKey] = useState(null);
   const [sortOrder, setSortOrder] = useState('descend');
@@ -81,7 +70,7 @@ const [historyLoading, setHistoryLoading] = useState(false);
       setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
     } else {
       setSortKey(e.key);
-      setSortOrder('descend'); // mặc định lần đầu là giảm dần
+      setSortOrder('descend');
     }
   };
 
@@ -152,12 +141,7 @@ const [historyLoading, setHistoryLoading] = useState(false);
 
   const fetchUserInfo = React.useCallback(async () => {
     try {
-      const response = await api.get("/member/account", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      const response = await getUserInfo();
       const data = response.data;
       console.log("API response:", data);
 
@@ -197,11 +181,11 @@ const [historyLoading, setHistoryLoading] = useState(false);
       console.error("Error fetching user info:", error);
       message.error("Cannot fetch user info. Please check API or login again.");
     }
-  }, [form, token]);
+  }, [form]);
 
   useEffect(() => {
     fetchUserInfo();
-  }, [token, fetchUserInfo]);
+  }, [fetchUserInfo]);
 
   const handleProfileSave = async (values) => {
     setLoading(true);
@@ -238,13 +222,7 @@ const [historyLoading, setHistoryLoading] = useState(false);
         formData.append('image', avatarFile);
       }
 
-      const response = await api.put("/member/update-with-image", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-          "ngrok-skip-browser-warning": "true"
-        }
-      });
+      const response = await updateUserWithImage(formData);
 
       console.log("Update successful, response:", response.data);
       message.success("Profile updated successfully!");
@@ -344,13 +322,7 @@ const [historyLoading, setHistoryLoading] = useState(false);
       });
       formData.append('account', accountBlob);
 
-      await api.put("/member/update-with-image", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-          "ngrok-skip-browser-warning": "true"
-        }
-      });
+      await updateUserWithImage(formData);
 
       message.success("Password changed successfully!");
       pwdForm.resetFields();
