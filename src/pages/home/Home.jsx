@@ -210,7 +210,18 @@ const Home = () => {
                     <div className="section-header">
                         <h2>Special Promotions</h2>
                     </div>
-                    <div className="promo-list">
+                    <div className="promo-carousel-wrap">
+                        <Carousel
+                            slidesToShow={5}
+                            arrows
+                            infinite={promotions.length > 5}
+                            responsive={[
+                                { breakpoint: 1200, settings: { slidesToShow: 3 } },
+                                { breakpoint: 900, settings: { slidesToShow: 2 } },
+                                { breakpoint: 600, settings: { slidesToShow: 1 } },
+                            ]}
+                            className="promo-carousel"
+                        >
                         {promotions.map((promo, idx) => {
                             const startDate = new Date(promo.startTime);
                             const endDate = new Date(promo.endTime);
@@ -232,6 +243,7 @@ const Home = () => {
                                 </Tooltip>
                             );
                         })}
+                        </Carousel>
                     </div>
                 </section>
             </main>

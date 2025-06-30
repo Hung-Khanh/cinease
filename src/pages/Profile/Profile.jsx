@@ -518,7 +518,6 @@ const Profile = () => {
         </Form>
       </div>
 
-      {/* Transaction history */}
       <div className="profile-section profile-history-section">
         <div className="profile-history-header">
           <span className="profile-history-title">Recent Transactions</span>
