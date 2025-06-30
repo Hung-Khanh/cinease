@@ -13,7 +13,7 @@ import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
-import HomePage from "./pages/home/Home.jsx";
+import HomePage from "./pages/Home/Home.jsx";
 import Movie from "./pages/movie/Movie";
 import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
 import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
@@ -25,7 +25,7 @@ import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
-import PaymentDetail from "./pages/payment/PaymentDetail.jsx";
+import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
 import ProductPage from "./pages/product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
@@ -43,6 +43,9 @@ import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
+import Members from "./pages/admin/Members/Members.jsx";
+import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
+
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
@@ -52,6 +55,8 @@ function AdminRoutes() {
       <Route path="movies" element={<AdminMovies />} />
       <Route path="employees" element={<Employees />} />
       <Route path="cinema" element={<CinemaRooms />} />
+      <Route path="member" element={<Members />} />
+      <Route path="ticket" element={<TicketManagement />} />
     </Routes>
   );
 }

@@ -25,6 +25,25 @@ $bright-green: #0C9550;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      .filter-dropdowns {
+        display: flex;
+        gap: 12px;
+
+        .ant-input {
+          background-color: $input-bg !important;
+          border-color: $green-accent !important;
+          color: $text-color !important;
+
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+          }
+
+          &:hover,
+          &:focus {
+            border-color: $hover-color !important;
+          }
+        }
+      }
 
       
 

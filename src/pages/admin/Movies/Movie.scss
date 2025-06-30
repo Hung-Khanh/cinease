@@ -22,7 +22,7 @@ $danger-color: #e74c3c;
 
     .header-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       width: 100%;
       margin-bottom: 16px;
       align-items: center;
@@ -30,6 +30,7 @@ $danger-color: #e74c3c;
       .filter-dropdowns {
         display: flex;
         gap: 12px;
+        margin-right: auto;
 
         .ant-input {
           background-color: $input-bg !important;
@@ -598,5 +599,46 @@ $danger-color: #e74c3c;
     background-color: $cyan-border !important;
     border-color: $cyan-border !important;
     color: $text-color !important;
+  }
+}
+
+.movie-details-modal {
+  .ant-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .movie-details-content {
+    .movie-detail-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .movie-detail-label {
+        flex: 0 0 150px;
+        color: $bright-green;
+        font-weight: 600;
+        margin-right: 20px;
+      }
+
+      .movie-detail-value {
+        flex: 1;
+        word-break: break-word;
+      }
+
+      &.full-width {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .movie-detail-label {
+          margin-bottom: 10px;
+        }
+
+        .movie-detail-value {
+          width: 100%;
+        }
+      }
+    }
   }
 }

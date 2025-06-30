@@ -18,7 +18,7 @@ const Employees = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   // Fetch employees from API
-  const fetchEmployees = async (showSuccessMessage = false) => {
+  const fetchEmployees = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -169,7 +169,7 @@ const Employees = () => {
               email: values.email,
               phoneNumber: values.phoneNumber,
               address: values.address,
-            }).filter(([_, value]) => value !== undefined && value !== null)
+            }).filter(([, value]) => value !== undefined && value !== null)
           )
         : {
             image: values.image || "https://example.com/default-avatar.jpg",
@@ -294,7 +294,7 @@ const Employees = () => {
             emptyText: loading ? 'Loading...' : 'No employees found'
           }}
           pagination={{
-            pageSize: 5,
+            pageSize: 12,
             showSizeChanger: false,
             itemRender: (current, type, originalElement) => {
               if (type === 'prev') {
@@ -362,7 +362,7 @@ const Employees = () => {
         <div className="header-actions">
           <div className="filter-dropdowns">
             <Input
-              placeholder="Search employees"
+              placeholder="Search employee"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 200, marginRight: 10 }}

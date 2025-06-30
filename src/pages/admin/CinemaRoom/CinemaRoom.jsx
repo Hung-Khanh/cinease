@@ -1,5 +1,5 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Table } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import { Button, Form, Input, message, Modal, Table, Tag } from "antd";
 import { useState, useEffect } from "react";
 import "./CinemaRoom.scss";
 
@@ -14,6 +14,11 @@ const CinemaRooms = () => {
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [cinemaRoomToDelete, setCinemaRoomToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
+  
+  // New states for seat details
+  const [seatDetailsModalVisible, setSeatDetailsModalVisible] = useState(false);
+  const [seatDetails, setSeatDetails] = useState([]);
+  const [selectedCinemaRoom, setSelectedCinemaRoom] = useState(null);
 
   const fetchCinemaRooms = async (showSuccessMessage = false) => {
     setLoading(true);
@@ -217,6 +222,34 @@ const CinemaRooms = () => {
     }
   };
 
+  // Fetch seat details for a specific cinema room
+  const fetchSeatDetails = async (cinemaRoomId) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${apiUrl}/admin/cinema-room/detail/${cinemaRoomId}/seats`, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setSeatDetails(result);
+      setSeatDetailsModalVisible(true);
+    } catch (error) {
+      message.error(`Failed to fetch seat details: ${error.message}`, 1.5);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
     {
       title: "Cinema Room",
@@ -236,6 +269,17 @@ const CinemaRooms = () => {
       key: "action",
       render: (_, record) => (
         <div className="action-buttons">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            className="view-seats-btn"
+            onClick={() => {
+              setSelectedCinemaRoom(record);
+              fetchSeatDetails(record.key);
+            }}
+          >
+            View Seats
+          </Button>
           <Button
             type="link"
             icon={<EditOutlined />}
@@ -264,7 +308,7 @@ const CinemaRooms = () => {
         <div className="header-actions">
           <div className="filter-dropdowns">
             <Input
-              placeholder="Search cinema rooms"
+              placeholder="Search cinema room"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 200, marginRight: 10 }}
@@ -323,7 +367,6 @@ const CinemaRooms = () => {
         }}
         footer={null}
         className="cinema-room-modal"
-        width={600}
         centered
       >
         <Form
@@ -384,6 +427,61 @@ const CinemaRooms = () => {
             >
               Delete Cinema Room
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Seat Details Modal */}
+      <Modal
+        title="Cinema Room 1 - Seat Map"
+        open={seatDetailsModalVisible}
+        onCancel={() => setSeatDetailsModalVisible(false)}
+        footer={null}
+        width={600}
+        className="cinema-room-seat-map-modal"
+        closeIcon={<span>&times;</span>}
+      >
+        <div className="seat-map-container">
+          <div className="screen">Screen</div>
+          <div className="seating-grid">
+            {[...Array(10)].map((_, rowIndex) => (
+              <div key={`row-${rowIndex + 1}`} className="seating-row">
+                <div className="row-label">{rowIndex + 1}</div>
+                <div className="row-seats">
+                  {[...Array(10)].map((_, colIndex) => {
+                    const seatId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
+                    const seat = seatDetails.find(s => s.seatColumn + s.seatRow === seatId);
+                    const seatType = seat ? seat.seatType.toLowerCase() : 'regular';
+                    
+                    return (
+                      <div 
+                        key={seatId} 
+                        className={`seat ${seatType}`}
+                        data-seat-id={seat ? seat.seatId : null}
+                      >
+                        {seatId}
+                        {seat && (
+                          <div className="tooltip">
+                            Seat {seatId} - {seat.seatType}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="seat-legend">
+            <div className="legend-item">
+              <div className="legend-seat regular"></div>
+              <span>Regular Seats</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-seat vip"></div>
+              <span>VIP Seats</span>
+            </div>
           </div>
         </div>
       </Modal>

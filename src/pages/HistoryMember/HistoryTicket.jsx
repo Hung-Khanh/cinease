@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Table, Tag, Button, message } from "antd";
+import { Card, Table, Tag, Button, message, Dropdown, Menu } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,7 +13,7 @@ import {
   Legend
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import api from "../../constants/axios";
+import { getScoreHistory } from '../../api/ticket';
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import "./HistoryTicket.scss";
 import { useNavigate } from "react-router-dom";
@@ -35,39 +36,21 @@ const HistoryTicket = () => {
     datasets: []
   });
   const membershipLevel = "Gold";
-  const pointsToNextLevel = 850;
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const token = user.token || "";
 
   const fetchChartData = useCallback(async () => {
     try {
       const [addingRes, usingRes] = await Promise.all([
-        api.get("/member/score-history", {
-          params: { type: "Adding" },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true"
-          }
-        }),
-        api.get("/member/score-history", {
-          params: { type: "Using" },
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true"
-          }
-        })
+        getScoreHistory('Adding'),
+        getScoreHistory('Using')
       ]);
 
       const combined = [...addingRes.data, ...usingRes.data];
 
-      // Luôn tạo đủ 12 tháng của năm hiện tại
       const currentYear = new Date().getFullYear();
       const labels = Array.from({ length: 12 }, (_, i) => `${String(i + 1).padStart(2, '0')}/${currentYear}`);
-      // Khởi tạo tất cả tháng = 0
       const pointsByMonth = {};
       labels.forEach(label => { pointsByMonth[label] = 0; });
-      // Cộng dồn dữ liệu vào đúng tháng
       combined.forEach((item) => {
         if (!item.date) return;
         const d = new Date(item.date);
@@ -77,7 +60,6 @@ const HistoryTicket = () => {
           pointsByMonth[label] += item.amount * (item.type === "Adding" ? 1 : -1);
         }
       });
-      // Dữ liệu cho chart
       const data = labels.map(month => pointsByMonth[month]);
 
       setChartData({
@@ -100,7 +82,7 @@ const HistoryTicket = () => {
       console.error(error);
       message.error("Failed to load points history");
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchChartData();
@@ -172,24 +154,9 @@ const HistoryTicket = () => {
   useEffect(() => {
     const fetchScoreHistory = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-        const token = user.token || "";
-        // Gọi song song cả hai loại type: Adding và Using
         const [addingRes, usingRes] = await Promise.all([
-          api.get("/member/score-history", {
-            params: { type: "Adding" },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true"
-            }
-          }),
-          api.get("/member/score-history", {
-            params: { type: "Using" },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true"
-            }
-          })
+          getScoreHistory('Adding'),
+          getScoreHistory('Using')
         ]);
         const merged = [...(addingRes.data || []), ...(usingRes.data || [])];
         setScoreHistory(merged.map((item, idx) => ({ ...item, key: idx })));
@@ -201,6 +168,32 @@ const HistoryTicket = () => {
 
     fetchScoreHistory();
   }, []);
+
+  const [sortKey, setSortKey] = useState(null);
+  const [sortOrder, setSortOrder] = useState('descend');
+
+  const sortOptions = [
+    { key: "date", label: "Date" },
+    { key: "movieName", label: "Movie Name" },
+    { key: "type", label: "Type" },
+  ];
+
+  const handleMenuClick = (e) => {
+    if (sortKey === e.key) {
+      setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
+    } else {
+      setSortKey(e.key);
+      setSortOrder('descend');
+    }
+  };
+
+  const sortMenu = (
+    <Menu onClick={handleMenuClick}>
+      {sortOptions.map(opt => (
+        <Menu.Item key={opt.key}>{opt.label}</Menu.Item>
+      ))}
+    </Menu>
+  );
 
   const columns = [
     { title: "Date", dataIndex: "date", key: "date", align: "center" },
@@ -216,6 +209,31 @@ const HistoryTicket = () => {
       ),
     },
   ];
+
+  const sortedScoreHistory = React.useMemo(() => {
+    if (!sortKey) return scoreHistory;
+    let sorted = [...scoreHistory];
+    if (sortKey === "date") {
+      sorted.sort((a, b) => {
+        const d1 = new Date(a.date.split('/').reverse().join('-'));
+        const d2 = new Date(b.date.split('/').reverse().join('-'));
+        return sortOrder === "ascend" ? d1 - d2 : d2 - d1;
+      });
+    } else if (sortKey === "movieName") {
+      sorted.sort((a, b) => sortOrder === "ascend"
+        ? a.movieName.localeCompare(b.movieName)
+        : b.movieName.localeCompare(a.movieName)
+      );
+    } else if (sortKey === "type") {
+      sorted.sort((a, b) => sortOrder === "ascend"
+        ? a.type.localeCompare(b.type)
+        : b.type.localeCompare(a.type)
+      );
+    }
+    return sorted;
+  }, [scoreHistory, sortKey, sortOrder]);
+  const totalUsingPoints = scoreHistory ? scoreHistory.filter(i => i.type === 'Using').reduce((sum, i) => sum + (i.amount || 0), 0) : 0;
+
   return (
     <div className="history-ticket">
       <div className="header">
@@ -228,7 +246,7 @@ const HistoryTicket = () => {
       </div>
       <div className="summary">
         <Card className="summary-card">
-          <div>Total Points</div>
+          <div>Points</div>
           <div className="value">{totalAddingPoints.toLocaleString()}</div>
         </Card>
         <Card className="summary-card">
@@ -238,8 +256,8 @@ const HistoryTicket = () => {
           </div>
         </Card>
         <Card className="summary-card">
-          <div>Points to Next Level</div>
-          <div className="value">{pointsToNextLevel} points to Diamond</div>
+          <div>Points Using</div>
+          <div className="value red-value">{totalUsingPoints.toLocaleString()}</div>
         </Card>
       </div>
       <Card className="chart-card">
@@ -249,11 +267,18 @@ const HistoryTicket = () => {
         />
       </Card>
       <Card className="table-card">
-        <h3>Transaction Details</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h3 style={{ margin: 0 }}>Transaction Details</h3>
+          <Dropdown overlay={sortMenu} trigger={['click']}>
+            <Button className="sort-btn" style={{ marginLeft: 12, marginBottom: 8 }}>
+              Sort <DownOutlined />
+            </Button>
+          </Dropdown>
+        </div>
         <Table
           columns={columns}
-          dataSource={scoreHistory}
-          pagination={{ pageSize: 10 }}
+          dataSource={sortedScoreHistory}
+          pagination={{ pageSize: 10, showSizeChanger: false }}
         />
       </Card>
     </div>
