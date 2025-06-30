@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
 import React, { useState } from "react";
+import { store } from "./store/store";
+import { Provider } from "react-redux";
 
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
@@ -31,6 +33,7 @@ import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
 import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaymentFailed.jsx";
 import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
 import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
+import PhoneInput from "./pages/Staff/JSX/InputPhoneNumber.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -40,7 +43,7 @@ import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
-
+import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
@@ -123,6 +126,11 @@ function Layout() {
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/staffHomePage" element={<StaffHomePage />} />
           <Route path="/home" element={<HomePage />} />
+          <Route path="/cinema-seating" element={<CinemaSeating />} />
+          <Route
+            path="/phone-input/:invoiceId/:scheduleId"
+            element={<PhoneInput apiUrl={apiUrl} />}
+          />
           <Route
             path="/dateTimeSelection/:movieId"
             element={<DateTimeSelection apiUrl={apiUrl} />}
@@ -162,8 +170,14 @@ function Layout() {
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />
-          <Route path="/user-payment-failed/:invoiceId" element={<UserPaymentFailed />} />
-          <Route path="/user-payment-success/:invoiceId" element={<UserPaymentSuccess />} />
+          <Route
+            path="/user-payment-failed/:invoiceId"
+            element={<UserPaymentFailed />}
+          />
+          <Route
+            path="/user-payment-success/:invoiceId"
+            element={<UserPaymentSuccess />}
+          />
           <Route path="/redirect-payment" element={<RedirectPayment />} />
           {/* Add more routes as needed */}
         </Routes>
@@ -175,15 +189,17 @@ function Layout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/admin/*" element={<AdminLayout />}></Route>
+    <Provider store={store}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/admin/*" element={<AdminLayout />}></Route>
 
-          <Route path="/*" element={<Layout />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            <Route path="/*" element={<Layout />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </Provider>
   );
 }
 

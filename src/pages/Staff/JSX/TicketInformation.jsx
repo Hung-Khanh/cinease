@@ -96,25 +96,28 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
       console.log("Sending payload:", payload);
 
-      const response = await api.post(`/employee/bookings/confirm`, payload, {
+      const response = await fetch(`${apiUrl}/employee/bookings/confirm`, {
+        method: "POST",
         headers: {
           Accept: "*/*",
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify(payload),
       });
-
-      const data = response.data;
+      const data = await response.json();
       console.log("Ticket Details:", data);
       const paymentUrl = data?.paymentUrl;
       const grandTotal = data?.grandTotal;
-      if ((paymentUrl, grandTotal)) {
+      if (paymentUrl && grandTotal) {
         localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
         localStorage.setItem("grandTotal", grandTotal);
         console.log("Payment URL saved:", paymentUrl);
       } else {
         console.warn("No payment URL found in ticket data");
       }
+      setResponseModalVisible(true);
       setResponseModalVisible(true);
     } catch (error) {
       console.error("Error in handlePurchase:", error);
@@ -265,7 +268,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
       <div className="ticket-info-container">
         <div className="ticket-card">
-          <div className="ticket-image">
+          <div className="ticket-infor-image">
             <img
               src={movieImage || "placeholder-image.jpg"}
               alt={ticketData?.movieName || "Movie Poster"}

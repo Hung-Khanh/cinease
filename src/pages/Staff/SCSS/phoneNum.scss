@@ -1,0 +1,318 @@
+// Variables
+$primary-color: #667eea;
+$primary-hover: #5a6fd8;
+$success-color: #28a745;
+$success-hover: #218838;
+$danger-color: #dc3545;
+$danger-hover: #c82333;
+$light-bg: #f8f9fa;
+$light-hover: #e9ecef;
+$text-color: #333;
+$text-muted: #666;
+$border-color: #e1e5e9;
+$white: #ffffff;
+$shadow: rgba(0, 0, 0, 0.1);
+$primary-shadow: rgba(102, 126, 234, 0.1);
+
+// Mixins
+@mixin button-hover-effect {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px $shadow;
+}
+
+@mixin button-active-effect {
+  transform: translateY(0);
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+// Reset
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// Main container
+.phone-page {
+  font-family: "Montserrat", Poppins, sans-serif; // Cập nhật font-family
+  background-image: url("../../assets/bigbackground.png"); // Thêm background image
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.phone-container {
+  background: $white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px $shadow;
+  max-width: 350px;
+  width: 100%;
+
+  .phone-title {
+    text-align: center;
+    color: $text-color;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+
+// Phone display section
+.phone-display {
+  position: relative;
+  margin-bottom: 30px;
+
+  .input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .phone-icon {
+    position: absolute;
+    left: 15px;
+    font-size: 24px;
+    color: $text-muted;
+  }
+
+  .phone-input {
+    width: 100%;
+    padding: 15px 20px 15px 45px;
+    border: 2px solid $border-color;
+    border-radius: 12px;
+    font-size: 18px;
+    text-align: center;
+    background: $light-bg;
+    @include transition();
+    letter-spacing: 2px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px $primary-shadow;
+    }
+
+    &::placeholder {
+      color: $text-muted;
+      opacity: 0.7;
+    }
+  }
+
+  .phone-length {
+    text-align: center;
+    color: $text-muted;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+}
+
+// Keypad
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+
+  .key-button {
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    @include transition(all, 0.2s);
+    background: $light-bg;
+    color: $text-color;
+    border: 2px solid transparent;
+
+    &:hover {
+      background: $light-hover;
+      @include button-hover-effect();
+    }
+
+    &:active {
+      @include button-active-effect();
+    }
+
+    // Number buttons
+    &.number {
+      background: $primary-color;
+      color: $white;
+
+      &:hover {
+        background: $primary-hover;
+      }
+    }
+
+    // Delete button
+    &.delete {
+      background: $danger-color;
+      color: $white;
+      font-size: 14px;
+
+      &:hover {
+        background: $danger-hover;
+      }
+    }
+
+    // Submit button
+    &.submit {
+      background: $success-color;
+      color: $white;
+      font-size: 14px;
+
+      &:hover {
+        background: $success-hover;
+      }
+    }
+  }
+}
+
+// Messages
+.message {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 8px;
+  @include transition();
+
+  &.error-message {
+    color: $danger-color;
+    background: rgba($danger-color, 0.1);
+    border: 1px solid rgba($danger-color, 0.2);
+  }
+
+  &.success-message {
+    color: $success-color;
+    background: rgba($success-color, 0.1);
+    border: 1px solid rgba($success-color, 0.2);
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .phone-container {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .phone-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .phone-input {
+    font-size: 16px;
+    padding: 12px 15px 12px 40px;
+  }
+
+  .phone-icon {
+    left: 12px;
+    font-size: 20px;
+  }
+
+  .keypad {
+    gap: 10px;
+
+    .key-button {
+      padding: 12px;
+      font-size: 18px;
+    }
+  }
+}
+
+// Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+  .phone-page {
+    background-image: url("../../assets/bigbackground.png"); // Giữ background image trong dark mode
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .phone-container {
+    background: #1a202c;
+    color: #e2e8f0;
+
+    .phone-title {
+      color: #e2e8f0;
+    }
+  }
+
+  .phone-input {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+
+    &::placeholder {
+      color: #a0aec0;
+    }
+
+    &:focus {
+      border-color: $primary-color;
+    }
+  }
+
+  .phone-icon {
+    color: #a0aec0;
+  }
+
+  .phone-length {
+    color: #a0aec0;
+  }
+
+  .key-button {
+    background: #2d3748;
+    color: #e2e8f0;
+
+    &:hover {
+      background: #4a5568;
+    }
+
+    &.number {
+      background: $primary-color;
+      color: $white;
+
+      &:hover {
+        background: $primary-hover;
+      }
+    }
+
+    &.delete {
+      background: $danger-color;
+      color: $white;
+
+      &:hover {
+        background: $danger-hover;
+      }
+    }
+
+    &.submit {
+      background: $success-color;
+      color: $white;
+
+      &:hover {
+        background: $success-hover;
+      }
+    }
+  }
+  .modal-button {
+    color: #0c9550 !important;
+    position: relative;
+    inset: -1px;
+    opacity: 1;
+    border-radius: 10px;
+    transition: all 0.3s;
+    border-radius: inherit;
+  }
+}

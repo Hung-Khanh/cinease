@@ -75,7 +75,7 @@ const SHomePage = () => {
                           movie.posterImageUrl ||
                           "https://via.placeholder.com/200x300"
                         }
-                        alt={movie.movieNameEnglish || "Movie Poster"}
+                        alt={movie.movieNameVn || "Movie Poster"}
                         className="movie-poster"
                         onError={(e) => {
                           e.target.src = "https://via.placeholder.com/200x300";
@@ -83,7 +83,7 @@ const SHomePage = () => {
                       />
                     }
                   >
-                    <Meta title={movie.movieNameEnglish || "No Title"} />
+                    <Meta title={movie.movieNameVn || "No Title"} />
                     <Button
                       onClick={() => {
                         navigate(`/DateTimeSelection/${movie.movieId}`);

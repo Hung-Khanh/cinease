@@ -99,7 +99,9 @@ const Header = () => {
         </Link>
 
         <nav className="nav-links">
-          <Link to="/">Home</Link>
+          <Link to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"}>
+            Home
+          </Link>
           <Link to="/movie">Movies</Link>
         </nav>
 

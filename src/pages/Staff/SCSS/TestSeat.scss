@@ -1,0 +1,102 @@
+.cs-theater-layout {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cs-screen-wrapper {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.cs-screen-display {
+  background-color: #d3d3d3;
+  color: #000;
+  padding: 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.cs-seat-matrix {
+  display: grid;
+  gap: 2px;
+}
+
+.cs-column-headers {
+  display: flex;
+}
+
+.cs-empty-slot {
+  width: 50px;
+}
+
+.cs-column-marker {
+  color: #fff;
+  width: 55px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.cs-row-container {
+  display: flex;
+  align-items: center;
+}
+
+.cs-row-indicator {
+  color: #fff;
+  width: 55px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.cs-seat-button {
+  width: 55px; /* Kích thước nút giữ nguyên */
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.cs-seat-icon {
+  width: 29px;
+  height: 29px;
+
+  &.cs-regular {
+    color: #fff;
+  }
+
+  &.cs-selected {
+    color: #3b82f6;
+  }
+
+  &.cs-vip {
+    color: #ef4444; /* Màu đỏ VIP */
+  }
+
+  &.cs-unavailable {
+    color: #9ca3af;
+  }
+}
+
+.cs-seat-notes {
+  color: #fff;
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cs-note-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
