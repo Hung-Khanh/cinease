@@ -7,7 +7,7 @@ export const getNowShowingMovies = async () => {
 
 // Lấy danh sách phim sắp chiếu
 export const getComingSoonMovies = async () => {
-  return api.get('/public/movie/coming-soon');
+  return api.get('/public/movie/upcoming');
 };
 
 // Tìm kiếm phim (theo tên, thể loại, v.v.)
