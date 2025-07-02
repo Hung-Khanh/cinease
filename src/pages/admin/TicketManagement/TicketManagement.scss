@@ -10,6 +10,7 @@ $dark-input-bg: rgba(0, 50, 50, 0.4);
 $cyan-border: rgba(0, 188, 212, 0.3);
 $cyan-hover: rgba(0, 188, 212, 0.6);
 $danger-color: #e74c3c;
+$view-color: #3498db;
 
 .ticket-management-container {
   background-color: $primary-bg;
@@ -156,6 +157,33 @@ $danger-color: #e74c3c;
   .action-buttons {
     display: flex;
     gap: 8px;
+
+    .view-btn {
+      color: $view-color !important;
+
+      &:hover {
+        color: lighten($view-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .edit-btn {
+      color: $green-accent !important;
+
+      &:hover {
+        color: $hover-color !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .delete-btn {
+      color: $danger-color !important;
+
+      &:hover {
+        color: lighten($danger-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
   }
 
   .pagination-btn {

@@ -33,12 +33,17 @@ const Promotions = () => {
     useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
 
+  // Add pagination state
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyPageSize, setHistoryPageSize] = useState(10);
+  const [historyTotal, setHistoryTotal] = useState(0);
+
   // Memoized filtered promotions
   const filteredPromotions = useMemo(() => {
     if (!searchTerm) return promotions;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return promotions.filter(promotion => 
+    return promotions.filter(promotion =>
       promotion.title.toLowerCase().includes(searchTermLower)
     );
   }, [promotions, searchTerm]);
@@ -79,6 +84,7 @@ const Promotions = () => {
       });
 
       setPromotions(formattedPromotions);
+      setHistoryTotal(formattedPromotions.length);
 
       if (showSuccessMessage) {
         message.success(
@@ -97,6 +103,13 @@ const Promotions = () => {
   useEffect(() => {
     fetchPromotions();
   }, []);
+
+  // Paginated promotions
+  const paginatedPromotions = useMemo(() => {
+    const startIndex = (historyPage - 1) * historyPageSize;
+    const endIndex = startIndex + historyPageSize;
+    return filteredPromotions.slice(startIndex, endIndex);
+  }, [filteredPromotions, historyPage, historyPageSize]);
 
   const columns = [
     {
@@ -252,8 +265,7 @@ const Promotions = () => {
       if (!response.ok) {
         const responseText = await response.text();
         throw new Error(
-          `Failed to ${isEditing ? "update" : "add"} promotion. Status: ${
-            response.status
+          `Failed to ${isEditing ? "update" : "add"} promotion. Status: ${response.status
           }, Message: ${responseText}`
         );
       }
@@ -263,8 +275,7 @@ const Promotions = () => {
 
       // Show success message
       message.success(
-        `Promotion "${values.title}" ${
-          isEditing ? "updated" : "added"
+        `Promotion "${values.title}" ${isEditing ? "updated" : "added"
         } successfully!`,
         3
       );
@@ -333,7 +344,7 @@ const Promotions = () => {
       <div className="promotions-header">
         <div className="header-actions">
           <div className="filter-dropdowns">
-          <Input
+            <Input
               placeholder="Search promotion"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -353,11 +364,17 @@ const Promotions = () => {
 
       <Table
         columns={columns}
-        dataSource={filteredPromotions}
+        dataSource={paginatedPromotions}
         loading={loading}
         pagination={{
-          pageSize: 5,
+          current: historyPage,
+          pageSize: historyPageSize,
+          total: historyTotal,
           showSizeChanger: false,
+          onChange: (page, pageSize) => {
+            setHistoryPage(page);
+            setHistoryPageSize(pageSize);
+          },
           itemRender: (current, type, originalElement) => {
             if (type === "prev") {
               return (
@@ -391,6 +408,9 @@ const Promotions = () => {
         className="promotion-modal"
         width={500}
         centered
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
       >
         <Form
           form={form}

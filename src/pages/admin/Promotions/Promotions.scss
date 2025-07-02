@@ -28,12 +28,13 @@ $bright-green: #0C9550;
       .filter-dropdowns {
         display: flex;
         gap: 12px;
+        margin-right: auto;
 
         .ant-input {
           background-color: $input-bg !important;
           border-color: $green-accent !important;
           color: $text-color !important;
-
+          
           &::placeholder {
             color: rgba(255, 255, 255, 0.6) !important;
           }
@@ -44,7 +45,6 @@ $bright-green: #0C9550;
           }
         }
       }
-
       
 
       .add-promotion-btn {

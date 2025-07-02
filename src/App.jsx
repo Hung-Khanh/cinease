@@ -42,6 +42,8 @@ import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
 import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
+import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
+
 
 function AdminRoutes() {
   return (
@@ -53,6 +55,7 @@ function AdminRoutes() {
       <Route path="cinema" element={<CinemaRooms />} />
       <Route path="member" element={<Members />} />
       <Route path="ticket" element={<TicketManagement />} />
+      <Route path="productmanagement" element={<ProductManagement />} />
     </Routes>
   );
 }
