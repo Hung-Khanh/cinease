@@ -14,9 +14,9 @@ import {
   EyeOutlined
 } from "@ant-design/icons";
 import "./TicketManagement.scss";
+import axios from '../../../constants/axios';
 
 const TicketManagement = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,35 +55,22 @@ const TicketManagement = () => {
   const fetchTickets = async (page = 0, searchTerm = "") => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
-      const url = new URL(`${apiUrl}/admin/invoices`);
-      url.searchParams.append("page", page);
-      url.searchParams.append("size", 12);
-      url.searchParams.append("sortBy", sortField);
-      url.searchParams.append("sortDir", sortDirection);
-
+      const params = {
+        page: page,
+        size: 12,
+        sortBy: sortField,
+        sortDir: sortDirection,
+      };
+      
       // Add search parameter if provided
       if (searchTerm) {
-        url.searchParams.append("search", searchTerm);
+        params.search = searchTerm;
       }
 
-      const response = await fetch(url.toString(), {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const response = await axios.get('/admin/invoices', { params });
 
       // Format tickets with unique keys
-      const formattedTickets = result.content.map((ticket) => ({
+      const formattedTickets = response.data.content.map((ticket) => ({
         key: ticket.invoiceId.toString(),
         invoiceId: ticket.invoiceId,
         movieName: ticket.movieName,
@@ -101,12 +88,12 @@ const TicketManagement = () => {
 
       // Update pagination state
       setPagination({
-        current: result.number + 1,
+        current: response.data.number + 1,
         pageSize: 12,
-        total: result.totalElements
+        total: response.data.totalElements
       });
     } catch (error) {
-      showErrorMessage(`Failed to fetch tickets: ${error.message}`, 1.5);
+      showErrorMessage(`Failed to fetch tickets: ${error.response?.data?.message || error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
@@ -115,27 +102,10 @@ const TicketManagement = () => {
   // Fetch ticket details
   const fetchTicketDetails = async (ticketId) => {
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/admin/invoices/${ticketId}`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-      return result;
+      const response = await axios.get(`/admin/invoices/${ticketId}`);
+      return response.data;
     } catch (error) {
-      showErrorMessage(`Failed to fetch ticket details: ${error.message}`);
+      showErrorMessage(`Failed to fetch ticket details: ${error.response?.data?.message || error.message}`);
       return null;
     }
   };
@@ -301,6 +271,7 @@ const TicketManagement = () => {
         columns={columns}
         dataSource={tickets}
         loading={loading}
+        className="ant-table-ticket"
         pagination={{
           pageSize: 12,
           total: pagination.total,

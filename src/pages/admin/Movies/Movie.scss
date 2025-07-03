@@ -49,7 +49,7 @@ $view-color: #3498db;
         }
       }
 
-      .add-movie-btn {
+      .ant-btn-primary {
         background-color: $green-accent !important;
         border-color: $green-accent !important;
         color: $text-color !important;
@@ -71,7 +71,7 @@ $view-color: #3498db;
     }
   }
 
-  .ant-table {
+  .ant-table-movie{
     background-color: $secondary-bg !important;
 
     .ant-table-thead > tr > th {
@@ -99,32 +99,31 @@ $view-color: #3498db;
         color: $text-color !important;
       }
     }
-
     .ant-table-pagination {
       .ant-pagination-item {
         background-color: $input-bg !important;
         border-color: $green-accent !important;
-
+  
         a {
           color: $text-color !important;
         }
-
+  
         &.ant-pagination-item-active {
           background-color: $green-accent !important;
           border-color: $green-accent !important;
-
+  
           a {
             color: $text-color !important;
           }
         }
       }
-
+  
       .pagination-btn {
         background-color: #ffffff !important;
         border-color: #ffffff !important;
         color: $primary-bg !important;
         font-weight: 600;
-
+  
         &:hover,
         &:focus {
           background-color: #ffffff !important;

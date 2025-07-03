@@ -2,9 +2,9 @@ import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant
 import { Button, Form, Input, message, Modal, Table, Upload, Select } from "antd";
 import { useState, useEffect, useMemo } from "react";
 import "./ProductManagement.scss";
+import axios from '../../../constants/axios';
 
 const ProductManagement = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,28 +16,24 @@ const ProductManagement = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
+  // Helper function to format price in Vietnamese dong
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   // Fetch Products List
   const fetchProducts = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/employee/products/all`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
+      const response = await axios.get('/employee/products/all');
+  
       // Ensure each product has a unique key and all required properties
-      const formattedProducts = result.map((product) => ({
+      const formattedProducts = response.data.map((product) => ({
         key: product.productId ? product.productId.toString() : Math.random().toString(),
         productName: product.productName || 'N/A',
         category: product.category || 'N/A',
@@ -54,7 +50,7 @@ const ProductManagement = () => {
         message.success("Products list fetched successfully", 1.5);
       }
     } catch (error) {
-      message.error(`Failed to fetch products: ${error.message}`, 1.5);
+      message.error(`Failed to fetch products: ${error.response?.data?.message || error.message}`, 1.5);
       setProducts([]); // Ensure empty array on error
     } finally {
       setLoading(false);
@@ -114,6 +110,7 @@ const ProductManagement = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
+      render: (price) => formatPrice(price),
     },
     {
       title: "Stock Quantity",
@@ -153,56 +150,10 @@ const ProductManagement = () => {
     setEditingKey(record.key);
     form.setFieldsValue({
       ...record,
+      price: formatPrice(record.price), // Format price for editing
       quantity: record.stockQuantity // Rename for form consistency
     });
     setIsModalVisible(true);
-  };
-
-  // Update Product Handler
-  const handleUpdateProduct = async (values) => {
-    setLoading(true);
-    try {
-      const token = sessionStorage.getItem('token');
-      const formData = new FormData();
-
-      // Append form data
-      formData.append('productName', values.productName);
-      formData.append('price', values.price);
-      formData.append('stockQuantity', values.quantity);
-      formData.append('category', values.category);
-
-      // Append image if exists
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
-
-      const response = await fetch(`${apiUrl}/admin/products/${editingKey}`, {
-        method: "PUT",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        message.success("Product updated successfully", 1.5);
-        setIsModalVisible(false);
-        setEditingKey(null);
-        form.resetFields();
-        setImageFile(null);
-        fetchProducts();
-      } else {
-        message.error(result.message || "Failed to update product", 1.5);
-      }
-    } catch (error) {
-      message.error(`Failed to update product: ${error.message}`, 1.5);
-    } finally {
-      setLoading(false);
-    }
   };
 
   // Delete Product Handler
@@ -219,26 +170,13 @@ const ProductManagement = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/products/${productToDelete.key}`, {
-        method: "DELETE",
-        headers: {
-          "Accept": "*/*",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      await axios.delete(`/admin/products/${productToDelete.key}`);
 
-      if (response.ok) {
-        message.success("Product deleted successfully", 1.5);
-        setDeleteConfirmationVisible(false);
-        await fetchProducts();
-      } else {
-        const errorText = await response.text();
-        message.error(errorText || "Failed to delete product", 1.5);
-      }
+      message.success("Product deleted successfully", 1.5);
+      setDeleteConfirmationVisible(false);
+      await fetchProducts();
     } catch (error) {
-      message.error(`Failed to delete product: ${error.message}`, 1.5);
+      message.error(`Failed to delete product: ${error.response?.data?.message || error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
@@ -249,17 +187,19 @@ const ProductManagement = () => {
     setDeleteConfirmationVisible(false);
   };
 
-  // Add new method for handling product addition
-  const handleAddProduct = async (values) => {
+  // Update Product Handler
+  const handleUpdateProduct = async (values) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
       const formData = new FormData();
 
       // Append form data
       formData.append('productName', values.productName);
-      formData.append('description', values.description || 'null');
-      formData.append('price', values.price);
+      
+      // Remove non-numeric characters from price
+      const price = values.price ? Number(String(values.price).replace(/[^\d]/g, '')) : 0;
+      formData.append('price', price);
+      
       formData.append('stockQuantity', values.quantity);
       formData.append('category', values.category);
 
@@ -268,37 +208,68 @@ const ProductManagement = () => {
         formData.append('image', imageFile);
       }
 
-      const response = await fetch(`${apiUrl}/admin/products`, {
-        method: "POST",
+      const response = await axios.put(`/admin/products/${editingKey}`, formData, {
         headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        message.success("Product added successfully", 1.5);
-        setIsAddModalVisible(false);
-        form.resetFields();
-        setImageFile(null);
-        fetchProducts();
-      } else {
-        message.error(result.message || "Failed to add product", 1.5);
-      }
+      message.success("Product updated successfully", 1.5);
+      setIsModalVisible(false);
+      setEditingKey(null);
+      form.resetFields();
+      setImageFile(null);
+      fetchProducts();
     } catch (error) {
-      message.error(`Failed to add product: ${error.message}`, 1.5);
+      message.error(`Failed to update product: ${error.response?.data?.message || error.message}`, 1.5);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add new method for handling product addition
+  const handleAddProduct = async (values) => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      
+      // Append form data
+      formData.append('productName', values.productName);
+      formData.append('description', values.description || 'null');
+      
+      // Remove non-numeric characters from price
+      const price = values.price ? Number(String(values.price).replace(/[^\d]/g, '')) : 0;
+      formData.append('price', price);
+      
+      formData.append('stockQuantity', values.quantity);
+      formData.append('category', values.category);
+      
+      // Append image if exists
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      const response = await axios.post('/admin/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      message.success("Product added successfully", 1.5);
+      setIsAddModalVisible(false);
+      form.resetFields();
+      setImageFile(null);
+      fetchProducts();
+    } catch (error) {
+      message.error(`Failed to add product: ${error.response?.data?.message || error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="products-container">
-      <div className="products-header">
+    <div className="productmanagement">
+      <div className="productmanagement-header">
         <div className="header-actions">
           <div className="filter-dropdowns">
             <Input
@@ -326,8 +297,9 @@ const ProductManagement = () => {
         columns={columns}
         dataSource={filteredProducts}
         loading={loading}
-        locale={{
-          emptyText: 'No products found'
+        className="ant-table-product"
+        locale={{ 
+          emptyText: 'No products found' 
         }}
         pagination={{
           pageSize: 12,
@@ -385,7 +357,6 @@ const ProductManagement = () => {
             <Input placeholder="Enter product name" />
           </Form.Item>
 
-
           <Form.Item
             name="category"
             label="Category"
@@ -414,7 +385,8 @@ const ProductManagement = () => {
               },
               {
                 validator: (_, value) => {
-                  const numValue = Number(value);
+                  // Remove any non-numeric characters
+                  const numValue = Number(String(value).replace(/[^\d]/g, ''));
                   if (isNaN(numValue)) {
                     return Promise.reject(new Error("Price must be a valid number"));
                   }
@@ -426,7 +398,17 @@ const ProductManagement = () => {
               }
             ]}
           >
-            <Input type="number" min={0} placeholder="Enter product price" />
+            <Input 
+              type="text" 
+              min={0} 
+              placeholder="Enter product price" 
+              onChange={(e) => {
+                // Format input as user types
+                const value = e.target.value.replace(/[^\d]/g, '');
+                const formatted = value ? formatPrice(Number(value)) : '';
+                form.setFieldsValue({ price: formatted });
+              }}
+            />
           </Form.Item>
 
           <Form.Item
@@ -528,7 +510,7 @@ const ProductManagement = () => {
           body: {
             maxHeight: "70vh",
             overflowY: "auto",
-            paddingRight: "8px" // Add some padding for the scrollbar
+            paddingRight: "8px" 
           },
         }}
       >
@@ -583,7 +565,8 @@ const ProductManagement = () => {
               },
               {
                 validator: (_, value) => {
-                  const numValue = Number(value);
+                  // Remove any non-numeric characters
+                  const numValue = Number(String(value).replace(/[^\d]/g, ''));
                   if (isNaN(numValue)) {
                     return Promise.reject(new Error("Price must be a valid number"));
                   }
@@ -595,7 +578,17 @@ const ProductManagement = () => {
               }
             ]}
           >
-            <Input type="number" min={0} placeholder="Enter product price" />
+            <Input 
+              type="text" 
+              min={0} 
+              placeholder="Enter product price" 
+              onChange={(e) => {
+                // Format input as user types
+                const value = e.target.value.replace(/[^\d]/g, '');
+                const formatted = value ? formatPrice(Number(value)) : '';
+                form.setFieldsValue({ price: formatted });
+              }}
+            />
           </Form.Item>
 
           <Form.Item
