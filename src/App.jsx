@@ -29,7 +29,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
-import ProductPage from "./pages/product/Product.jsx";
+import ProductPage from "./pages/Product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
@@ -125,7 +125,7 @@ function Layout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 

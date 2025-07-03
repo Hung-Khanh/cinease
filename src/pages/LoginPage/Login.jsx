@@ -145,7 +145,7 @@ const Login = () => {
       message.success("Login successful!");
 
       // Lưu tạm token để gọi API lấy profile
-      localStorage.setItem(
+      sessionStorage.setItem(
         "user",
         JSON.stringify({ token: result.token, role: result.role })
       );
@@ -162,7 +162,7 @@ const Login = () => {
         );
         if (profileRes.ok) {
           const profileData = await profileRes.json();
-          localStorage.setItem(
+          sessionStorage.setItem(
             "user",
             JSON.stringify({
               ...profileData,
