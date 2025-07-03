@@ -29,12 +29,12 @@
 }
 
 .cs-empty-slot {
-  width: 50px;
+  width: 40px;
 }
 
 .cs-column-marker {
   color: #fff;
-  width: 55px;
+  width: 45px;
   text-align: center;
   font-weight: bold;
 }
@@ -46,14 +46,14 @@
 
 .cs-row-indicator {
   color: #fff;
-  width: 55px;
+  width: 45px;
   text-align: center;
   font-weight: bold;
 }
 
 .cs-seat-button {
-  width: 55px;      /* Kích thước nút giữ nguyên */
-  height: 55px;
+  width: 45px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,10 +67,6 @@
 }
 
 .cs-seat-icon {
-  font-size: 36px;  /* Icon to hơn rõ rệt */
-  width: 36px;
-  height: 36px;
-
   &.cs-regular {
     color: #fff;
   }
@@ -80,7 +76,7 @@
   }
 
   &.cs-vip {
-    color: #ef4444; /* Màu đỏ VIP */
+    color: #8b5cf6;
   }
 
   &.cs-unavailable {

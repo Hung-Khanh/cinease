@@ -7,6 +7,11 @@ import {
 import { AuthProvider } from "./constants/AuthContext";
 import React, { useState } from "react";
 
+// Redux
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+
+// Components và Pages
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
@@ -41,6 +46,7 @@ import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
+// import ErrorBoundary from "./components/ErrorBoundary";
 
 function AdminRoutes() {
   return (
@@ -110,7 +116,7 @@ function AdminLayout() {
 }
 
 function Layout() {
-  const location = useLocation(); // Add useLocation hook
+  const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
@@ -164,10 +170,15 @@ function Layout() {
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />
-          <Route path="/user-payment-failed/:invoiceId" element={<UserPaymentFailed />} />
-          <Route path="/user-payment-success/:invoiceId" element={<UserPaymentSuccess />} />
+          <Route
+            path="/user-payment-failed/:invoiceId"
+            element={<UserPaymentFailed />}
+          />
+          <Route
+            path="/user-payment-success/:invoiceId"
+            element={<UserPaymentSuccess />}
+          />
           <Route path="/redirect-payment" element={<RedirectPayment />} />
-          {/* Add more routes as needed */}
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
@@ -177,14 +188,16 @@ function Layout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/admin/*" element={<AdminLayout />}></Route>
-          <Route path="/*" element={<Layout />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/admin/*" element={<AdminLayout />} />
+            <Route path="/*" element={<Layout />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </Provider>
   );
 }
 
