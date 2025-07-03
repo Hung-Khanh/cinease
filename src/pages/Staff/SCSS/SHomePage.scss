@@ -1,91 +1,103 @@
-.shomepage-container {
+.shp-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #1a3c34 0%, #000000 100%);
-  padding: 20px;
+  padding: 24px;
   color: #fff;
   font-family: "Arial", sans-serif;
 
-  .content {
-    // Loại bỏ padding-left và padding-right cố định, thay bằng max-width
-    max-width: 1200px; // Giới hạn chiều rộng tối đa
-    margin: 0 auto; // Canh giữa nội dung
+  .shp-content {
+    max-width: 1280px; // Increased max-width slightly for modern displays
+    margin: 0 auto;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    min-height: calc(100vh - 48px); // Account for padding
 
     h1 {
-      font-size: 50px;
+      font-size: 48px;
       font-weight: bold;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      line-height: 1.2;
+
+      @media (max-width: 1024px) {
+        font-size: 40px;
+        margin-bottom: 20px;
+      }
 
       @media (max-width: 768px) {
-        font-size: 36px;
-        margin-bottom: 15px;
+        font-size: 32px;
+        margin-bottom: 16px;
       }
 
       @media (max-width: 480px) {
-        font-size: 28px;
-        margin-bottom: 10px;
+        font-size: 24px;
+        margin-bottom: 12px;
       }
     }
 
-    .carousel-wrapper {
-      width: 100%; // Sử dụng 100% để tự điều chỉnh
-      margin-top: 20px;
+    .shp-carousel-wrapper {
+      width: 100%;
+      margin-top: 24px;
+      padding: 0 40px 40px 0;
 
-      .movie-carousel {
-        width: 100%; // Sử dụng 100% để tự điều chỉnh
+      .shp-movie-carousel {
+        width: 100%;
         visibility: visible;
-        margin-right: 500px;
-        padding: 0px 20px 0px 20px;
-        .carousel-slide {
-          padding: 10px 20px 20px 20px; // Tăng padding ngang để tạo khoảng cách giữa các slide
-          box-sizing: border-box; // Đảm bảo padding không làm tăng kích thước tổng
-          margin: 20px 0 50px 0;
+        padding: 0 40px;
+
+        .shp-carousel-slide {
+          padding: 12px;
+          box-sizing: border-box;
+          margin: 16px 0;
+
+          @media (max-width: 1024px) {
+            padding: 8px;
+          }
 
           @media (max-width: 768px) {
-            padding: 0 8px;
+            padding: 6px;
           }
 
           @media (max-width: 480px) {
-            padding: 0 5px;
+            padding: 4px;
           }
         }
 
-        .movie-card {
-          width: 100%; // Sử dụng 100% để tự điều chỉnh trong slide
+        .shp-movie-card {
+          width: 100%;
           height: auto;
-          min-height: 400px;
+          min-height: 360px;
           text-align: center;
-          margin: 15px 0 0 10px;
           display: flex !important;
           flex-direction: column;
-
-          @media (max-width: 1200px) {
-            width: 100%;
-            min-height: 380px;
+          border-radius: 8px;
+          overflow: hidden;
+          transition: transform 0.3s ease;
+          margin-bottom: 30px;
+          &:hover {
+            transform: translateY(-4px);
           }
 
-          @media (max-width: 992px) {
-            width: 100%;
-            min-height: 360px;
-          }
-
-          @media (max-width: 768px) {
-            width: 100%;
+          @media (max-width: 1280px) {
             min-height: 340px;
           }
 
-          @media (max-width: 576px) {
-            width: 100%;
+          @media (max-width: 1024px) {
+            min-height: 320px;
+          }
+
+          @media (max-width: 768px) {
             min-height: 300px;
           }
 
-          @media (max-width: 480px) {
-            width: 100%;
+          @media (max-width: 576px) {
             min-height: 280px;
+          }
+
+          @media (max-width: 480px) {
+            min-height: 260px;
           }
 
           .ant-card-cover {
@@ -94,31 +106,31 @@
             flex: 1;
           }
 
-          .movie-poster {
+          .shp-movie-poster {
             width: 100%;
             height: 400px;
             object-fit: cover;
-            border-radius: 10px 10px 0 0;
+            border-radius: 8px 8px 0 0;
             display: block;
 
-            @media (max-width: 1200px) {
-              height: 340px;
-            }
-
-            @media (max-width: 992px) {
+            @media (max-width: 1280px) {
               height: 320px;
             }
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
               height: 280px;
             }
 
-            @media (max-width: 576px) {
+            @media (max-width: 768px) {
               height: 240px;
             }
 
-            @media (max-width: 480px) {
+            @media (max-width: 576px) {
               height: 200px;
+            }
+
+            @media (max-width: 480px) {
+              height: 180px;
             }
           }
 
@@ -126,65 +138,69 @@
             padding: 30px;
             flex: 0 0 auto;
 
-            @media (max-width: 768px) {
+            @media (max-width: 1024px) {
               padding: 20px;
             }
 
+            @media (max-width: 768px) {
+              padding: 16px;
+            }
+
             @media (max-width: 576px) {
-              padding: 15px;
+              padding: 12px;
             }
 
             @media (max-width: 480px) {
-              padding: 10px;
+              padding: 8px;
             }
           }
 
           .ant-card-meta-title {
-            font-size: 22px;
-            margin: 0;
-            color: #fff;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #000;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
 
             @media (max-width: 768px) {
-              font-size: 18px;
+              font-size: 14px;
             }
 
             @media (max-width: 576px) {
-              font-size: 16px;
+              font-size: 13px;
             }
 
             @media (max-width: 480px) {
-              font-size: 14px;
+              font-size: 12px;
             }
           }
 
-          .book-button {
+          .shp-book-button {
             background-color: #0c9550;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             width: 100%;
-            padding: 20px;
-            font-size: 14px;
-            margin-top: 10px;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 12px;
             cursor: pointer;
             transition: background-color 0.3s ease;
 
             @media (max-width: 768px) {
-              padding: 15px;
-              font-size: 13px;
+              padding: 10px;
+              font-size: 14px;
             }
 
             @media (max-width: 576px) {
-              padding: 12px;
-              font-size: 12px;
+              padding: 8px;
+              font-size: 13px;
             }
 
             @media (max-width: 480px) {
-              padding: 10px;
-              font-size: 11px;
+              padding: 6px;
+              font-size: 12px;
             }
 
             &:hover {
@@ -196,66 +212,84 @@
         .ant-carousel .slick-prev,
         .ant-carousel .slick-next {
           color: #fff;
-          font-size: 24px;
+          font-size: 28px;
           z-index: 1;
-          background: none;
-          border: none;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.3s ease;
 
-          @media (max-width: 992px) {
-            font-size: 20px;
+          &:hover {
+            background: rgba(0, 0, 0, 0.7);
+          }
+
+          @media (max-width: 1024px) {
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
           }
 
           @media (max-width: 768px) {
-            font-size: 18px;
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
           }
 
           @media (max-width: 576px) {
-            font-size: 16px;
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
           }
         }
 
         .ant-carousel .slick-prev {
-          left: 10px;
+          left: 16px;
 
-          @media (max-width: 992px) {
-            left: 5px;
+          @media (max-width: 1024px) {
+            left: 12px;
           }
+
           @media (max-width: 768px) {
-            left: 0;
+            left: 8px;
           }
+
           @media (max-width: 576px) {
-            left: 0;
-          }
-          @media (max-width: 480px) {
-            left: 0;
+            left: 4px;
           }
         }
 
         .ant-carousel .slick-next {
-          right: 10px;
+          right: 16px;
 
-          @media (max-width: 992px) {
-            right: 5px;
+          @media (max-width: 1024px) {
+            right: 12px;
           }
+
           @media (max-width: 768px) {
-            right: 0;
+            right: 8px;
           }
+
           @media (max-width: 576px) {
-            right: 0;
-          }
-          @media (max-width: 480px) {
-            right: 0;
+            right: 4px;
           }
         }
       }
     }
   }
 
+  @media (max-width: 1024px) {
+    padding: 20px;
+  }
+
   @media (max-width: 768px) {
-    padding: 15px;
+    padding: 16px;
   }
 
   @media (max-width: 480px) {
-    padding: 10px;
+    padding: 12px;
   }
 }

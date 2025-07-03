@@ -6,6 +6,7 @@ import "../SCSS/SHomePage.scss";
 const { Meta } = Card;
 
 const SHomePage = () => {
+  const now = new Date();
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ const SHomePage = () => {
       }
 
       const data = await response.json();
-      console.log("API response data:", data);
       setMovies(data?.content || []);
     } catch (error) {
       console.error("Error fetching movies:", error);
@@ -42,18 +42,22 @@ const SHomePage = () => {
     fetchMovies();
   }, []);
 
-  console.log("Current movies:", movies);
+  const filteredMovies = movies.filter((movie) => {
+    if (!movie.toDate) return true; // Nếu không có toDate thì vẫn hiển thị
+    const movieToDate = new Date(movie.toDate);
+    return movieToDate >= now;
+  });
 
   return (
-    <div className="shomepage-container">
-      <div className="content">
+    <div className="shp-container">
+      <div className="shp-content">
         <h1>SHOWING MOVIES</h1>
         {isLoading ? (
           <p>Loading movies...</p>
-        ) : movies.length === 0 ? (
+        ) : filteredMovies.length === 0 ? (
           <p>No movies available.</p>
         ) : (
-          <div className="carousel-wrapper">
+          <div className="shp-carousel-wrapper">
             <Carousel
               slidesToShow={4}
               slidesToScroll={1}
@@ -61,35 +65,35 @@ const SHomePage = () => {
               infinite
               autoplay={true}
               autoplaySpeed={2500}
-              className="movie-carousel"
+              className="shp-movie-carousel"
               spaceBetween={20}
             >
-              {movies.map((movie) => (
-                <div key={movie.movieId} className="carousel-slide">
+              {filteredMovies.map((movie) => (
+                <div key={movie.movieId} className="shp-carousel-slide">
                   <Card
                     hoverable
-                    className="movie-card"
+                    className="shp-movie-card"
                     cover={
                       <img
                         src={
                           movie.posterImageUrl ||
                           "https://via.placeholder.com/200x300"
                         }
-                        alt={movie.movieNameEnglish || "Movie Poster"}
-                        className="movie-poster"
+                        alt={movie.movieNameVn || "Movie Poster"}
+                        className="shp-movie-poster"
                         onError={(e) => {
                           e.target.src = "https://via.placeholder.com/200x300";
                         }}
                       />
                     }
                   >
-                    <Meta title={movie.movieNameEnglish || "No Title"} />
+                    <Meta title={movie.movieNameVn || "No Title"} />
                     <Button
                       onClick={() => {
                         navigate(`/DateTimeSelection/${movie.movieId}`);
                       }}
                       type="primary"
-                      className="book-button"
+                      className="shp-book-button"
                     >
                       Book
                     </Button>

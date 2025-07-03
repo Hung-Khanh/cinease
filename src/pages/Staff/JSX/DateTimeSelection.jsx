@@ -40,8 +40,8 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
 
       const data = await response.json();
       const movieData = data[0];
-      setMovieName(movieData?.movieNameEnglish);
-      setMovieImage(movieData?.largeImage);
+      setMovieName(movieData?.movieNameVn);
+      setMovieImage(movieData?.posterImageUrl);
     } catch (error) {
       console.error("❌ Error in fetchName:", error);
       console.error("❌ Error details:", error.message);
@@ -133,7 +133,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       return;
     }
     navigate(
-      `/Select-Seat/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
+      `/cinema-seating/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
     );
 
     message.success("Date and time selected successfully!");
