@@ -142,29 +142,29 @@ const Employees = () => {
         : null;
 
       // Determine the request body based on whether we're editing or adding
-      const requestBody = isEditing 
+      const requestBody = isEditing
         ? Object.fromEntries(
-            Object.entries({
-              fullName: values.fullName,
-              identityCard: values.identityCard,
-              email: values.email,
-              phoneNumber: values.phoneNumber,
-              address: values.address,
-            }).filter(([, value]) => value !== undefined && value !== null)
-          )
-        : {
-            image: values.image || "https://example.com/default-avatar.jpg",
-            username: values.username,
-            password: values.password,
-            confirmPassword: values.confirmPassword,
-            dateOfBirth: formattedDateOfBirth,
-            gender: values.gender,
+          Object.entries({
             fullName: values.fullName,
             identityCard: values.identityCard,
             email: values.email,
             phoneNumber: values.phoneNumber,
             address: values.address,
-          };
+          }).filter(([, value]) => value !== undefined && value !== null)
+        )
+        : {
+          image: values.image || "https://example.com/default-avatar.jpg",
+          username: values.username,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
+          dateOfBirth: formattedDateOfBirth,
+          gender: values.gender,
+          fullName: values.fullName,
+          identityCard: values.identityCard,
+          email: values.email,
+          phoneNumber: values.phoneNumber,
+          address: values.address,
+        };
 
       // Construct the URL for editing or adding
       const url = isEditing
@@ -294,7 +294,7 @@ const Employees = () => {
           name={name}
           style={{ paddingRight: '40px' }}
         />
-        <div 
+        <div
           onClick={() => setPasswordVisible(!passwordVisible)}
           style={{
             position: 'absolute',
@@ -379,8 +379,8 @@ const Employees = () => {
                   { min: 8, message: 'Password must be at least 8 characters long' }
                 ]}
               >
-                <PasswordInput 
-                  placeholder="Enter password" 
+                <PasswordInput
+                  placeholder="Enter password"
                   name="password"
                 />
               </Form.Item>
@@ -401,8 +401,8 @@ const Employees = () => {
                   }),
                 ]}
               >
-                <PasswordInput 
-                  placeholder="Confirm password" 
+                <PasswordInput
+                  placeholder="Confirm password"
                   name="confirmPassword"
                 />
               </Form.Item>

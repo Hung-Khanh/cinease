@@ -16,7 +16,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   const navigate = useNavigate();
 
   const fetchSeat = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       const response = await api.get(`/public/seats?scheduleId=${scheduleId}`, {
         headers: {
@@ -34,7 +34,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   };
 
   const fetchProduct = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     try {
       const response = await api.get(`/employee/products/all`, {
         headers: {
@@ -108,7 +108,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   };
 
   const handleCheckout = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     const selectedSeatsInfo = selectedSeats.map((seatId) => {
       const seat = findSeatBySeatId(seatId);
       return {

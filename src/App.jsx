@@ -125,7 +125,7 @@ function Layout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 

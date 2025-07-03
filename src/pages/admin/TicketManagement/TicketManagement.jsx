@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { 
-  Table, 
-  Input, 
-  Button, 
-  Modal, 
+import {
+  Table,
+  Input,
+  Button,
+  Modal,
   message,
   InputNumber,
-  Select 
+  Select
 } from "antd";
-import { 
-  EditOutlined, 
-  DeleteOutlined, 
-  EyeOutlined 
+import {
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined
 } from "@ant-design/icons";
 import "./TicketManagement.scss";
 import axios from '../../../constants/axios';
@@ -118,9 +118,9 @@ const TicketManagement = () => {
   // Filtered tickets based on search term
   const filteredTickets = useMemo(() => {
     if (!searchTerm) return tickets;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return tickets.filter(ticket => 
+    return tickets.filter(ticket =>
       ticket.movieName.toLowerCase().includes(searchTermLower) ||
       ticket.invoiceId.toString().includes(searchTermLower) ||
       ticket.status.toLowerCase().includes(searchTermLower)
@@ -139,7 +139,7 @@ const TicketManagement = () => {
       dataIndex: "movieName",
       key: "movieName",
       render: (text) => (
-        <div 
+        <div
           style={{
             maxWidth: "150px",
             overflow: "hidden",

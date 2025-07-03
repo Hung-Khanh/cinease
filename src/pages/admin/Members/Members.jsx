@@ -36,9 +36,9 @@ const Members = () => {
         point: member.point !== undefined ? member.point : 0,
         membershipLevel: member.membershipLevel || 'N/A'
       }));
-  
+
       setMembers(formattedMembers);
-      
+
       if (showSuccessMessage) {
         message.success("Members list fetched successfully", 1.5);
       }
@@ -83,9 +83,9 @@ const Members = () => {
   // Memoized filtered members for performance
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return members;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return members.filter(member => 
+    return members.filter(member =>
       member.fullName.toLowerCase().includes(searchTermLower) ||
       member.email.toLowerCase().includes(searchTermLower) ||
       member.phoneNumber.toLowerCase().includes(searchTermLower) ||
@@ -412,8 +412,8 @@ const Members = () => {
             <Button className="cancel-btn" onClick={cancelDelete}>
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
               loading={loading}
             >

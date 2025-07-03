@@ -43,9 +43,9 @@ const ProductManagement = () => {
         status: product.status || 'INACTIVE',
         description: product.description || 'No description available'
       }));
-  
+
       setProducts(formattedProducts);
-      
+
       if (showSuccessMessage) {
         message.success("Products list fetched successfully", 1.5);
       }
@@ -65,9 +65,9 @@ const ProductManagement = () => {
   // Memoized filtered products for performance
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return products.filter(product => 
+    return products.filter(product =>
       product.productName.toLowerCase().includes(searchTermLower) ||
       product.category.toLowerCase().includes(searchTermLower) ||
       product.price.toString().includes(searchTermLower)
@@ -80,17 +80,17 @@ const ProductManagement = () => {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (image) => 
+      render: (image) =>
         image ? (
-          <img 
-            src={image} 
-            alt="Product" 
-            style={{ 
-              width: "100px", 
-              height: "100px", 
-              objectFit: "cover", 
-              borderRadius: "8px" 
-            }} 
+          <img
+            src={image}
+            alt="Product"
+            style={{
+              width: "100px",
+              height: "100px",
+              objectFit: "cover",
+              borderRadius: "8px"
+            }}
           />
         ) : (
           <div style={{ color: "#999" }}>No Image</div>
@@ -192,7 +192,7 @@ const ProductManagement = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      
+
       // Append form data
       formData.append('productName', values.productName);
       
@@ -202,7 +202,7 @@ const ProductManagement = () => {
       
       formData.append('stockQuantity', values.quantity);
       formData.append('category', values.category);
-      
+
       // Append image if exists
       if (imageFile) {
         formData.append('image', imageFile);
@@ -365,7 +365,7 @@ const ProductManagement = () => {
             ]}
           >
             <Select
-              style={{ height:45, marginRight: 10 }}
+              style={{ height: 45, marginRight: 10 }}
               placeholder="Select Category"
               options={[
                 { value: 'FOOD', label: 'Food' },
@@ -379,9 +379,9 @@ const ProductManagement = () => {
             name="price"
             label="Price"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product price!" 
+              {
+                required: true,
+                message: "Please input the product price!"
               },
               {
                 validator: (_, value) => {
@@ -415,9 +415,9 @@ const ProductManagement = () => {
             name="quantity"
             label="Stock Quantity"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product quantity!" 
+              {
+                required: true,
+                message: "Please input the product quantity!"
               },
               {
                 validator: (_, value) => {
@@ -482,8 +482,8 @@ const ProductManagement = () => {
             <Button className="cancel-btn" onClick={cancelDelete}>
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
               loading={loading}
             >
@@ -507,8 +507,8 @@ const ProductManagement = () => {
         width={600}
         centered
         styles={{
-          body: { 
-            maxHeight: "70vh", 
+          body: {
+            maxHeight: "70vh",
             overflowY: "auto",
             paddingRight: "8px" 
           },
@@ -545,7 +545,7 @@ const ProductManagement = () => {
             ]}
           >
             <Select
-              style={{ height:45, marginRight: 10 }}
+              style={{ height: 45, marginRight: 10 }}
               placeholder="Select Category"
               options={[
                 { value: 'FOOD', label: 'Food' },
@@ -559,9 +559,9 @@ const ProductManagement = () => {
             name="price"
             label="Price"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product price!" 
+              {
+                required: true,
+                message: "Please input the product price!"
               },
               {
                 validator: (_, value) => {
@@ -595,9 +595,9 @@ const ProductManagement = () => {
             name="quantity"
             label="Stock Quantity"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product quantity!" 
+              {
+                required: true,
+                message: "Please input the product quantity!"
               },
               {
                 validator: (_, value) => {

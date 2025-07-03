@@ -183,12 +183,12 @@ const Movie = () => {
         // Ensure consistent formatting by always showing full date range
         const fromDate = record.fromDate || 'N/A';
         const toDate = record.toDate || 'N/A';
-        
+
         return (
           <Tooltip title={`From: ${fromDate} - To: ${toDate}`}>
-            <div 
-              style={{ 
-                cursor: "help", 
+            <div
+              style={{
+                cursor: "help",
                 minWidth: "150px",
                 maxWidth: "200px",
                 overflow: "hidden",
