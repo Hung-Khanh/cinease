@@ -11,13 +11,13 @@ $cyan-border: rgba(0, 188, 212, 0.3);
 $cyan-hover: rgba(0, 188, 212, 0.6);
 $danger-color: #e74c3c;
 
-.products-container {
+.productmanagement {
   background-color: $primary-bg;
   color: $text-color;
   padding: 24px;
   min-height: 100vh;
 
-  .products-header {
+  .productmanagement-header {
     margin-bottom: 24px;
 
     .header-actions {
@@ -110,35 +110,36 @@ $danger-color: #e74c3c;
 }
 
 
-.ant-table {
-  // background-color: $secondary-bg !important;
+.ant-table-product {
+  background-color: $secondary-bg !important;
 
-  .ant-table-thead>tr>th {
-    // background-color: $secondary-bg !important;
-    // color: $text-color !important;
-    // border-bottom: 1px solid $green-accent !important;
-    // font-weight: 600;
+  .ant-table-thead > tr > th {
+    background-color: $secondary-bg !important;
+    color: $text-color !important;
+    border-bottom: 1px solid $green-accent !important;
+    font-weight: 600;
 
-    // &::before {
-    //   display: none !important;
-    // }
+    &::before {
+      display: none !important;
+    }
   }
 
-  .ant-table-tbody>tr {
-    // background-color: $secondary-bg !important;
-    // color: $text-color !important;
+  .ant-table-tbody > tr {
+    background-color: $secondary-bg !important;
+    color: $text-color !important;
 
-    // &:hover,
-    // &:hover > td {
-    //   background-color: $secondary-bg !important;
-    // }
+    &:hover,
+    &:hover > td {
+      background-color: $secondary-bg !important;
+    }
 
-    // > td {
-    //   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    //   color: $text-color !important;
-    // }
+    > td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: $text-color !important;
+    }
   }
 
+  // Pagination
   .ant-table-pagination {
     .ant-pagination-item {
       background-color: $input-bg !important;
@@ -174,6 +175,7 @@ $danger-color: #e74c3c;
     }
   }
 }
+
 
 .action-buttons {
   display: flex;

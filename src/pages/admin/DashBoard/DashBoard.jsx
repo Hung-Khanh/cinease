@@ -12,11 +12,10 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import api from '../../../constants/axios';
 import './DashBoard.scss';
 
 const Dashboard = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-
   // State for movie revenue data
   const [movieRevenueData, setMovieRevenueData] = useState([]);
   const [movieLoading, setMovieLoading] = useState(false);
@@ -60,35 +59,19 @@ const Dashboard = () => {
     setRevenueError(null);
 
     try {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
       const dateRange = getDateRange();
       const revenuePromises = dateRange.map(async (date) => {
-        const response = await fetch(
-          `${apiUrl}/admin/invoices/revenue/range?startDate=${date}&endDate=${date}`,
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${token}`,
-              'ngrok-skip-browser-warning': 'true'
-            }
+        const response = await api.get('/admin/invoices/revenue/range', {
+          params: {
+            startDate: date,
+            endDate: date
           }
-        );
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const revenue = await response.json();
         return {
           date,
           day: getDayName(date),
-          revenue: revenue || 0 // API returns a number directly
+          revenue: response.data || 0
         };
       });
 
@@ -120,28 +103,9 @@ const Dashboard = () => {
     setMovieError(null);
 
     try {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`${apiUrl}/admin/invoices/revenue/movie`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true'
-        }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const data = await response.json();
-
+      const response = await api.get('/admin/invoices/revenue/movie');
+      const data = response.data;
+      
       // Transform API data to match component structure
       const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
         // Generate capacity percentage based on relative revenue

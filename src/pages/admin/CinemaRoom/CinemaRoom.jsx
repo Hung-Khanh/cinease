@@ -1,10 +1,10 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Table, Tag } from "antd";
+import { Button, Form, Input, message, Modal, Table } from "antd";
 import { useState, useEffect } from "react";
+import api from '../../../constants/axios';
 import "./CinemaRoom.scss";
 
 const CinemaRooms = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [cinemaRooms, setCinemaRooms] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -14,241 +14,230 @@ const CinemaRooms = () => {
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [cinemaRoomToDelete, setCinemaRoomToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // New states for seat details
   const [seatDetailsModalVisible, setSeatDetailsModalVisible] = useState(false);
   const [seatDetails, setSeatDetails] = useState([]);
   const [selectedCinemaRoom, setSelectedCinemaRoom] = useState(null);
 
-  const fetchCinemaRooms = async (showSuccessMessage = false) => {
+  // Common API handler
+  const handleApiCall = async (apiCall, successMessage, errorMessage) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await apiCall();
+      if (successMessage) {
+        message.success(successMessage, 1.5);
       }
-
-      const result = await response.json();
-      const formattedRooms = result.map((room) => ({
-        key: room.cinemaRoomId.toString(),
-        cinemaroom: room.cinemaRoomName,
-        seatQuantity: room.seatQuantity
-      }));
-
-      setCinemaRooms(formattedRooms);
-
-      // Only show success message when explicitly requested
-      if (showSuccessMessage) {
-        message.success("Cinema rooms fetched", 1.5);
-      }
+      return response;
     } catch (error) {
-      message.error(`Failed to fetch cinema rooms: ${error.message}`, 1.5);
+      const errorMsg = error.response?.data || errorMessage || error.message;
+      message.error(errorMsg, 1.5);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddCinemaRoom = async (values) => {
-    setLoading(true);
-    try {
-      // Validate input
-      if (!values.cinemaroom) {
-        message.error("Cinema room name is required", 1);
-        return;
+  // Modal visibility handlers
+  const showModal = (modalType, data = null) => {
+    const modalMap = {
+      add: () => {
+        setIsModalVisible(true);
+        setIsEditing(false);
+        form.resetFields();
+      },
+      edit: () => {
+        form.resetFields();
+        setEditingKey(data.key);
+        form.setFieldsValue(data);
+        setIsEditing(true);
+        setIsModalVisible(true);
+      },
+      delete: () => {
+        setCinemaRoomToDelete(data);
+        setDeleteConfirmationVisible(true);
+      },
+      viewSeats: () => {
+        setSelectedCinemaRoom(data);
+        fetchSeatDetails(data.key);
       }
+    };
+    modalMap[modalType]();
+  };
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        message.error("Authentication token is missing", 1);
-        return;
-      }
-
-      const url = isEditing
-        ? `${apiUrl}/admin/cinema-room/update/${editingKey}`
-        : `${apiUrl}/admin/cinema-room/add`;
-
-      const method = isEditing ? "PUT" : "POST";
-
-      // Prepare the request body
-      const requestBody = {
-        cinemaRoomName: values.cinemaroom
-      };
-
-      // Only add seatQuantity for adding a new room
-      if (!isEditing) {
-        requestBody.seatQuantity = 100;
-      }
-
-      // Clear any existing messages quickly
-      message.destroy();
-
-      // Perform the API call
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Accept": "text/plain,application/json",
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      // Get response text
-      const responseText = await response.text();
-
-      // Check response status
-      if (response.ok) {
-        // Use a shorter, more performant message display
-        message.success(responseText, 1.5);
-
-        // Use microtask to ensure UI updates are non-blocking
-        await Promise.resolve();
-
-        // Reset modal and form state
+  const closeModal = (modalType) => {
+    const modalMap = {
+      main: () => {
         setIsModalVisible(false);
         setIsEditing(false);
         setEditingKey(null);
         form.resetFields();
+      },
+      delete: () => setDeleteConfirmationVisible(false),
+      seats: () => setSeatDetailsModalVisible(false)
+    };
+    modalMap[modalType]();
+  };
 
-        // Refresh the list
-        fetchCinemaRooms();
-      } else {
-        // Simplified error handling
-        message.error(
-          responseText || `Failed to ${isEditing ? 'update' : 'add'} cinema room`,
-          1.5
-        );
-      }
-    } catch (error) {
-
-      message.error(
-        error.message || (isEditing
-          ? "Failed to update cinema room"
-          : "Failed to add cinema room"),
-        1.5
+  const fetchCinemaRooms = async (showSuccessMessage = false) => {
+    try {
+      const response = await handleApiCall(
+        () => api.get('/admin/cinema-room/list'),
+        showSuccessMessage ? "Cinema rooms fetched" : null,
+        "Failed to fetch cinema rooms"
       );
-    } finally {
-      setLoading(false);
+      
+      const formattedRooms = response.data.map(room => ({
+        key: room.cinemaRoomId.toString(),
+        cinemaroom: room.cinemaRoomName,
+        seatQuantity: room.seatQuantity
+      }));
+      
+      setCinemaRooms(formattedRooms);
+    } catch (error) {
+      // Error already handled in handleApiCall
     }
   };
 
-  // Delete Cinema Room
+  const handleAddCinemaRoom = async (values) => {
+    if (!values.cinemaroom) {
+      message.error("Cinema room name is required", 1);
+      return;
+    }
+
+    const url = isEditing 
+      ? `/admin/cinema-room/update/${editingKey}`
+      : `/admin/cinema-room/add`;
+    
+    const method = isEditing ? 'put' : 'post';
+    const requestBody = {
+      cinemaRoomName: values.cinemaroom,
+      ...(method === 'post' && { seatQuantity: 100 })
+    };
+
+    message.destroy();
+
+    try {
+      const response = await handleApiCall(
+        () => api[method](url, requestBody),
+        null,
+        isEditing ? "Failed to update cinema room" : "Failed to add cinema room"
+      );
+
+      message.success(response.data, 1.5);
+      closeModal('main');
+      fetchCinemaRooms();
+    } catch (error) {
+      // Error already handled in handleApiCall
+    }
+  };
+
   const confirmDelete = async () => {
-    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/cinema-room/delete/${cinemaRoomToDelete.key}`, {
-        method: "DELETE",
-        headers: {
-          "Accept": "text/plain,application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      // Get response text
-      const responseText = await response.text();
-
-      // Check response status
-      if (response.ok) {
-        // Use a shorter, more performant message display
-        message.success(responseText, 1.5);
-
-        // Hide the delete confirmation modal
-        setDeleteConfirmationVisible(false);
-
-        // Use microtask to ensure UI updates are non-blocking
-        await Promise.resolve();
-
-        // Refresh the list
-        fetchCinemaRooms();
-      } else {
-        // Simplified error handling
-        message.error(
-          responseText || "Failed to delete cinema room",
-          1.5
-        );
-      }
-    } catch (error) {
-      message.error(
-        error.message || "Failed to delete cinema room",
-        1.5
+      const response = await handleApiCall(
+        () => api.delete(`/admin/cinema-room/delete/${cinemaRoomToDelete.key}`),
+        null,
+        "Failed to delete cinema room"
       );
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  // Fetch cinema rooms on component mount
-  useEffect(() => {
-    fetchCinemaRooms();
-  }, []);
-
-  const handleEdit = (record) => {
-    // Reset the form
-    form.resetFields();
-
-    // Set the current cinema room being edited
-    setEditingKey(record.key);
-
-    // Set form values
-    form.setFieldsValue(record);
-
-    // Set editing state and show modal
-    setIsEditing(true);
-    setIsModalVisible(true);
-  };
-
-  const handleDelete = (record) => {
-    try {
-      // Set the cinema room to be deleted
-      setCinemaRoomToDelete(record);
-
-      // Show the delete confirmation modal
-      setDeleteConfirmationVisible(true);
-      // eslint-disable-next-line no-unused-vars
+      message.success(response.data, 1.5);
+      closeModal('delete');
+      fetchCinemaRooms();
     } catch (error) {
-      message.error("Failed to show delete confirmation");
+      // Error already handled in handleApiCall
     }
   };
 
-  // Fetch seat details for a specific cinema room
   const fetchSeatDetails = async (cinemaRoomId) => {
-    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/cinema-room/detail/${cinemaRoomId}/seats`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setSeatDetails(result);
+      const response = await handleApiCall(
+        () => api.get(`/admin/cinema-room/detail/${cinemaRoomId}/seats`),
+        null,
+        "Failed to fetch seat details"
+      );
+      
+      setSeatDetails(response.data);
       setSeatDetailsModalVisible(true);
     } catch (error) {
-      message.error(`Failed to fetch seat details: ${error.message}`, 1.5);
-    } finally {
-      setLoading(false);
+      // Error already handled in handleApiCall
     }
   };
+
+  const updateSeatType = async (seatId, newSeatType) => {
+    try {
+      const response = await handleApiCall(
+        () => api.put(`/admin/cinema-room/detail/${selectedCinemaRoom.key}/update-seat-type`, {
+          seatIds: [seatId],
+          newSeatType: newSeatType
+        }),
+        null,
+        "Failed to update seat type"
+      );
+
+      message.success(response.data, 1.5);
+      fetchSeatDetails(selectedCinemaRoom.key);
+    } catch (error) {
+      // Error already handled in handleApiCall
+    }
+  };
+
+  const createSeatGrid = () => {
+    return [...Array(10)].map((_, rowIndex) => (
+      <div key={`row-${rowIndex + 1}`} className="seating-row">
+        <div className="row-seats">
+          {[...Array(10)].map((_, colIndex) => {
+            const seatId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
+            const seat = seatDetails.find(s => s.seatColumn + s.seatRow === seatId);
+            const seatType = seat ? seat.seatType.toLowerCase() : 'regular';
+            
+            return (
+              <div 
+                key={seatId} 
+                className={`seat ${seatType}`}
+                data-seat-id={seat ? seat.seatId : null}
+                onClick={() => {
+                  if (seat) {
+                    const newSeatType = seatType === 'regular' ? 1 : 0;
+                    updateSeatType(seat.seatId, newSeatType);
+                  }
+                }}
+              >
+                {seatId}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ));
+  };
+
+  const renderSeatDetails = () => (
+    <div className="seat-map-container">
+      <div className="screen">Screen</div>
+      <div className="seating-grid">
+        {createSeatGrid()}
+      </div>
+      <div className="seat-legend">
+        <div className="legend-item">
+          <div className="legend-seat regular"></div>
+          <span>Regular Seats (Click to change to VIP)</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-seat vip"></div>
+          <span>VIP Seats (Click to change to Regular)</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  const createActionButton = (icon, className, onClick, children = null) => (
+    <Button
+      type="link"
+      icon={icon}
+      className={className}
+      onClick={onClick}
+    >
+      {children}
+    </Button>
+  );
 
   const columns = [
     {
@@ -269,38 +258,42 @@ const CinemaRooms = () => {
       key: "action",
       render: (_, record) => (
         <div className="action-buttons">
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            className="view-seats-btn"
-            onClick={() => {
-              setSelectedCinemaRoom(record);
-              fetchSeatDetails(record.key);
-            }}
-          >
-            View Seats
-          </Button>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            className="edit-btn"
-            onClick={() => handleEdit(record)}
-          />
-          <Button
-            type="link"
-            icon={<DeleteOutlined />}
-            className="delete-btn"
-            onClick={() => handleDelete(record)}
-          />
+          {createActionButton(
+            <EyeOutlined />,
+            "view-seats-btn",
+            () => showModal('viewSeats', record),
+            "View Seats"
+          )}
+          {createActionButton(
+            <EditOutlined />,
+            "edit-btn",
+            () => showModal('edit', record)
+          )}
+          {createActionButton(
+            <DeleteOutlined />,
+            "delete-btn",
+            () => showModal('delete', record)
+          )}
         </div>
       ),
     },
   ];
 
-  const cancelDelete = () => {
-    // Hide the delete confirmation modal
-    setDeleteConfirmationVisible(false);
-  };
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn ${type}-btn`}>
+      {text}
+    </Button>
+  );
+
+  const createModal = (config) => (
+    <Modal {...config}>
+      {config.content}
+    </Modal>
+  );
+
+  useEffect(() => {
+    fetchCinemaRooms();
+  }, []);
 
   return (
     <div className="cinema-rooms-container">
@@ -317,11 +310,7 @@ const CinemaRooms = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => {
-              setIsModalVisible(true);
-              setIsEditing(false);
-              form.resetFields();
-            }}
+            onClick={() => showModal('add')}
             className="add-cinema-room-btn"
           >
             Add New Cinema Room
@@ -333,158 +322,103 @@ const CinemaRooms = () => {
         columns={columns}
         dataSource={cinemaRooms}
         loading={loading}
+        className="ant-table-cinema"
         pagination={{
           pageSize: 12,
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
-            if (type === "prev") {
-              return (
-                <Button type="default" className="pagination-btn prev-btn">
-                  Previous
-                </Button>
-              );
-            }
-            if (type === "next") {
-              return (
-                <Button type="default" className="pagination-btn next-btn">
-                  Next
-                </Button>
-              );
-            }
+            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
         }}
       />
 
-      <Modal
-        title={isEditing ? "Edit Cinema Room" : "Add New Cinema Room"}
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setIsEditing(false);
-          setEditingKey(null);
-          form.resetFields();
-        }}
-        footer={null}
-        className="cinema-room-modal"
-        centered
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAddCinemaRoom}
-          className="cinema-room-form"
-        >
-          <Form.Item
-            name="cinemaroom"
-            label="Cinema Room Name"
-            rules={[
-              { required: true, message: "Please input the cinema room name!" },
-            ]}
+      {/* Main Modal */}
+      {createModal({
+        title: isEditing ? "Edit Cinema Room" : "Add New Cinema Room",
+        open: isModalVisible,
+        onCancel: () => closeModal('main'),
+        footer: null,
+        className: "cinema-room-modal",
+        centered: true,
+        content: (
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleAddCinemaRoom}
+            className="cinema-room-form"
           >
-            <Input placeholder="Enter cinema room name" />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              className="submit-btn"
-              loading={loading}
+            <Form.Item
+              name="cinemaroom"
+              label="Cinema Room Name"
+              rules={[
+                { required: true, message: "Please input the cinema room name!" },
+              ]}
             >
-              {isEditing ? "Update Cinema Room" : "Add New Cinema Room"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+              <Input placeholder="Enter cinema room name" />
+            </Form.Item>
 
-      <Modal
-        title="Confirm Delete"
-        open={deleteConfirmationVisible}
-        onOk={confirmDelete}
-        onCancel={cancelDelete}
-        okText="Delete"
-        okButtonProps={{ danger: true, loading: loading }}
-        cancelText="Cancel"
-        className="delete-confirmation-modal"
-        centered
-        width={500}
-      >
-        <div className="delete-confirmation-content">
-          <p>Are you sure you want to delete the cinema room?</p>
-          <p className="room-title">{cinemaRoomToDelete?.cinemaroom}</p>
-          <p className="warning-text">This action cannot be undone.</p>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                className="submit-btn"
+                loading={loading}
+              >
+                {isEditing ? "Update Cinema Room" : "Add New Cinema Room"}
+              </Button>
+            </Form.Item>
+          </Form>
+        )
+      })}
 
-          <div className="delete-confirmation-actions">
-            <Button className="cancel-btn" onClick={cancelDelete}>
-              Cancel
-            </Button>
-            <Button
-              className="confirm-delete-btn"
-              onClick={confirmDelete}
-              loading={loading}
-            >
-              Delete Cinema Room
-            </Button>
+      {/* Delete Confirmation Modal */}
+      {createModal({
+        title: "Confirm Delete",
+        open: deleteConfirmationVisible,
+        onOk: confirmDelete,
+        onCancel: () => closeModal('delete'),
+        okText: "Delete",
+        okButtonProps: { danger: true, loading: loading },
+        cancelText: "Cancel",
+        className: "delete-confirmation-modal",
+        centered: true,
+        width: 500,
+        content: (
+          <div className="delete-confirmation-content">
+            <p>Are you sure you want to delete the cinema room?</p>
+            <p className="room-title">{cinemaRoomToDelete?.cinemaroom}</p>
+            <p className="warning-text">This action cannot be undone.</p>
+
+            <div className="delete-confirmation-actions">
+              <Button className="cancel-btn" onClick={() => closeModal('delete')}>
+                Cancel
+              </Button>
+              <Button 
+                className="confirm-delete-btn" 
+                onClick={confirmDelete}
+                loading={loading}
+              >
+                Delete Cinema Room
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        )
+      })}
 
       {/* Seat Details Modal */}
-      <Modal
-        title="Cinema Room 1 - Seat Map"
-        open={seatDetailsModalVisible}
-        onCancel={() => setSeatDetailsModalVisible(false)}
-        footer={null}
-        width={600}
-        className="cinema-room-seat-map-modal"
-        closeIcon={<span>&times;</span>}
-      >
-        <div className="seat-map-container">
-          <div className="screen">Screen</div>
-          <div className="seating-grid">
-            {[...Array(10)].map((_, rowIndex) => (
-              <div key={`row-${rowIndex + 1}`} className="seating-row">
-                <div className="row-label">{rowIndex + 1}</div>
-                <div className="row-seats">
-                  {[...Array(10)].map((_, colIndex) => {
-                    const seatId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
-                    const seat = seatDetails.find(s => s.seatColumn + s.seatRow === seatId);
-                    const seatType = seat ? seat.seatType.toLowerCase() : 'regular';
-
-                    return (
-                      <div
-                        key={seatId}
-                        className={`seat ${seatType}`}
-                        data-seat-id={seat ? seat.seatId : null}
-                      >
-                        {seatId}
-                        {seat && (
-                          <div className="tooltip">
-                            Seat {seatId} - {seat.seatType}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="seat-legend">
-            <div className="legend-item">
-              <div className="legend-seat regular"></div>
-              <span>Regular Seats</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-seat vip"></div>
-              <span>VIP Seats</span>
-            </div>
-          </div>
-        </div>
-      </Modal>
+      {createModal({
+        title: "Cinema Room 1 - Seat Map",
+        open: seatDetailsModalVisible,
+        onCancel: () => closeModal('seats'),
+        footer: null,
+        width: 600,
+        className: "cinema-room-seat-map-modal",
+        closeIcon: <span>&times;</span>,
+        content: renderSeatDetails()
+      })}
     </div>
   );
 };
