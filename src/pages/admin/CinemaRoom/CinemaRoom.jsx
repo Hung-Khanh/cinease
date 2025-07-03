@@ -14,7 +14,7 @@ const CinemaRooms = () => {
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
   const [cinemaRoomToDelete, setCinemaRoomToDelete] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   // New states for seat details
   const [seatDetailsModalVisible, setSeatDetailsModalVisible] = useState(false);
   const [seatDetails, setSeatDetails] = useState([]);
@@ -23,7 +23,7 @@ const CinemaRooms = () => {
   const fetchCinemaRooms = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
         method: "GET",
         headers: {
@@ -32,20 +32,20 @@ const CinemaRooms = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const result = await response.json();
       const formattedRooms = result.map((room) => ({
         key: room.cinemaRoomId.toString(),
         cinemaroom: room.cinemaRoomName,
         seatQuantity: room.seatQuantity
       }));
-  
+
       setCinemaRooms(formattedRooms);
-      
+
       // Only show success message when explicitly requested
       if (showSuccessMessage) {
         message.success("Cinema rooms fetched", 1.5);
@@ -66,18 +66,18 @@ const CinemaRooms = () => {
         return;
       }
 
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       if (!token) {
         message.error("Authentication token is missing", 1);
         return;
       }
 
-      const url = isEditing 
+      const url = isEditing
         ? `${apiUrl}/admin/cinema-room/update/${editingKey}`
         : `${apiUrl}/admin/cinema-room/add`;
-      
+
       const method = isEditing ? "PUT" : "POST";
-      
+
       // Prepare the request body
       const requestBody = {
         cinemaRoomName: values.cinemaroom
@@ -110,30 +110,30 @@ const CinemaRooms = () => {
       if (response.ok) {
         // Use a shorter, more performant message display
         message.success(responseText, 1.5);
-        
+
         // Use microtask to ensure UI updates are non-blocking
         await Promise.resolve();
-        
+
         // Reset modal and form state
         setIsModalVisible(false);
         setIsEditing(false);
         setEditingKey(null);
         form.resetFields();
-        
+
         // Refresh the list
         fetchCinemaRooms();
       } else {
         // Simplified error handling
         message.error(
-          responseText || `Failed to ${isEditing ? 'update' : 'add'} cinema room`, 
+          responseText || `Failed to ${isEditing ? 'update' : 'add'} cinema room`,
           1.5
         );
       }
     } catch (error) {
-      
+
       message.error(
-        error.message || (isEditing 
-          ? "Failed to update cinema room" 
+        error.message || (isEditing
+          ? "Failed to update cinema room"
           : "Failed to add cinema room"),
         1.5
       );
@@ -146,7 +146,7 @@ const CinemaRooms = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/delete/${cinemaRoomToDelete.key}`, {
         method: "DELETE",
         headers: {
@@ -175,7 +175,7 @@ const CinemaRooms = () => {
       } else {
         // Simplified error handling
         message.error(
-          responseText || "Failed to delete cinema room", 
+          responseText || "Failed to delete cinema room",
           1.5
         );
       }
@@ -216,7 +216,7 @@ const CinemaRooms = () => {
 
       // Show the delete confirmation modal
       setDeleteConfirmationVisible(true);
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       message.error("Failed to show delete confirmation");
     }
@@ -226,7 +226,7 @@ const CinemaRooms = () => {
   const fetchSeatDetails = async (cinemaRoomId) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/detail/${cinemaRoomId}/seats`, {
         method: "GET",
         headers: {
@@ -420,8 +420,8 @@ const CinemaRooms = () => {
             <Button className="cancel-btn" onClick={cancelDelete}>
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
               loading={loading}
             >
@@ -452,10 +452,10 @@ const CinemaRooms = () => {
                     const seatId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
                     const seat = seatDetails.find(s => s.seatColumn + s.seatRow === seatId);
                     const seatType = seat ? seat.seatType.toLowerCase() : 'regular';
-                    
+
                     return (
-                      <div 
-                        key={seatId} 
+                      <div
+                        key={seatId}
                         className={`seat ${seatType}`}
                         data-seat-id={seat ? seat.seatId : null}
                       >

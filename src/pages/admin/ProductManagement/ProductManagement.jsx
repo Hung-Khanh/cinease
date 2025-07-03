@@ -20,7 +20,7 @@ const ProductManagement = () => {
   const fetchProducts = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/employee/products/all`, {
         method: "GET",
         headers: {
@@ -29,13 +29,13 @@ const ProductManagement = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const result = await response.json();
-  
+
       // Ensure each product has a unique key and all required properties
       const formattedProducts = result.map((product) => ({
         key: product.productId ? product.productId.toString() : Math.random().toString(),
@@ -47,9 +47,9 @@ const ProductManagement = () => {
         status: product.status || 'INACTIVE',
         description: product.description || 'No description available'
       }));
-  
+
       setProducts(formattedProducts);
-      
+
       if (showSuccessMessage) {
         message.success("Products list fetched successfully", 1.5);
       }
@@ -69,9 +69,9 @@ const ProductManagement = () => {
   // Memoized filtered products for performance
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return products.filter(product => 
+    return products.filter(product =>
       product.productName.toLowerCase().includes(searchTermLower) ||
       product.category.toLowerCase().includes(searchTermLower) ||
       product.price.toString().includes(searchTermLower)
@@ -84,17 +84,17 @@ const ProductManagement = () => {
       title: "Image",
       dataIndex: "image",
       key: "image",
-      render: (image) => 
+      render: (image) =>
         image ? (
-          <img 
-            src={image} 
-            alt="Product" 
-            style={{ 
-              width: "100px", 
-              height: "100px", 
-              objectFit: "cover", 
-              borderRadius: "8px" 
-            }} 
+          <img
+            src={image}
+            alt="Product"
+            style={{
+              width: "100px",
+              height: "100px",
+              objectFit: "cover",
+              borderRadius: "8px"
+            }}
           />
         ) : (
           <div style={{ color: "#999" }}>No Image</div>
@@ -162,15 +162,15 @@ const ProductManagement = () => {
   const handleUpdateProduct = async (values) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const formData = new FormData();
-      
+
       // Append form data
       formData.append('productName', values.productName);
       formData.append('price', values.price);
       formData.append('stockQuantity', values.quantity);
       formData.append('category', values.category);
-      
+
       // Append image if exists
       if (imageFile) {
         formData.append('image', imageFile);
@@ -219,7 +219,7 @@ const ProductManagement = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/products/${productToDelete.key}`, {
         method: "DELETE",
         headers: {
@@ -253,16 +253,16 @@ const ProductManagement = () => {
   const handleAddProduct = async (values) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const formData = new FormData();
-      
+
       // Append form data
       formData.append('productName', values.productName);
       formData.append('description', values.description || 'null');
       formData.append('price', values.price);
       formData.append('stockQuantity', values.quantity);
       formData.append('category', values.category);
-      
+
       // Append image if exists
       if (imageFile) {
         formData.append('image', imageFile);
@@ -326,8 +326,8 @@ const ProductManagement = () => {
         columns={columns}
         dataSource={filteredProducts}
         loading={loading}
-        locale={{ 
-          emptyText: 'No products found' 
+        locale={{
+          emptyText: 'No products found'
         }}
         pagination={{
           pageSize: 12,
@@ -394,7 +394,7 @@ const ProductManagement = () => {
             ]}
           >
             <Select
-              style={{ height:45, marginRight: 10 }}
+              style={{ height: 45, marginRight: 10 }}
               placeholder="Select Category"
               options={[
                 { value: 'FOOD', label: 'Food' },
@@ -408,9 +408,9 @@ const ProductManagement = () => {
             name="price"
             label="Price"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product price!" 
+              {
+                required: true,
+                message: "Please input the product price!"
               },
               {
                 validator: (_, value) => {
@@ -433,9 +433,9 @@ const ProductManagement = () => {
             name="quantity"
             label="Stock Quantity"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product quantity!" 
+              {
+                required: true,
+                message: "Please input the product quantity!"
               },
               {
                 validator: (_, value) => {
@@ -500,8 +500,8 @@ const ProductManagement = () => {
             <Button className="cancel-btn" onClick={cancelDelete}>
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
               loading={loading}
             >
@@ -525,8 +525,8 @@ const ProductManagement = () => {
         width={600}
         centered
         styles={{
-          body: { 
-            maxHeight: "70vh", 
+          body: {
+            maxHeight: "70vh",
             overflowY: "auto",
             paddingRight: "8px" // Add some padding for the scrollbar
           },
@@ -563,7 +563,7 @@ const ProductManagement = () => {
             ]}
           >
             <Select
-              style={{ height:45, marginRight: 10 }}
+              style={{ height: 45, marginRight: 10 }}
               placeholder="Select Category"
               options={[
                 { value: 'FOOD', label: 'Food' },
@@ -577,9 +577,9 @@ const ProductManagement = () => {
             name="price"
             label="Price"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product price!" 
+              {
+                required: true,
+                message: "Please input the product price!"
               },
               {
                 validator: (_, value) => {
@@ -602,9 +602,9 @@ const ProductManagement = () => {
             name="quantity"
             label="Stock Quantity"
             rules={[
-              { 
-                required: true, 
-                message: "Please input the product quantity!" 
+              {
+                required: true,
+                message: "Please input the product quantity!"
               },
               {
                 validator: (_, value) => {
