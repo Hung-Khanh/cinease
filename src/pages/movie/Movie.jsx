@@ -11,7 +11,7 @@ const Movie = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [genre, setGenre] = useState("all");
-  const moviesPerPage = 12;
+  const moviesPerPage = 10;
 
   useEffect(() => {
     const fetchMovies = async () => {
