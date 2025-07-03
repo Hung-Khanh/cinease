@@ -36,7 +36,7 @@ $danger-color: #e74c3c;
           background-color: $input-bg !important;
           border-color: $green-accent !important;
           color: $text-color !important;
-          
+
           &::placeholder {
             color: rgba(255, 255, 255, 0.6) !important;
           }
@@ -48,182 +48,182 @@ $danger-color: #e74c3c;
         }
 
         .ant-select {
+          .ant-select-selector {
+            background-color: $input-bg !important;
+            border-color: $green-accent !important;
+            color: $text-color !important;
+
+            .ant-select-selection-item {
+              color: $text-color !important;
+            }
+
+            .ant-select-selection-placeholder {
+              color: $text-color !important;
+            }
+          }
+
+          &:hover,
+          &.ant-select-focused {
             .ant-select-selector {
-              background-color: $input-bg !important;
-              border-color: $green-accent !important;
-              color: $text-color !important;
-  
-              .ant-select-selection-item {
-                color: $text-color !important;
-              }
-  
-              .ant-select-selection-placeholder {
-                color: $text-color !important;
-              }
-            }
-  
-            &:hover,
-            &.ant-select-focused {
-              .ant-select-selector {
-                border-color: $hover-color !important;
-              }
+              border-color: $hover-color !important;
             }
           }
-  
-          .ant-select-dropdown {
+        }
+
+        .ant-select-dropdown {
+          background-color: $secondary-bg !important;
+
+          .ant-select-item {
+            color: $text-color !important;
             background-color: $secondary-bg !important;
-            
-            .ant-select-item {
-              color: $text-color !important;
-              background-color: $secondary-bg !important;
-  
-              &:hover,
-              &.ant-select-item-selected {
-                background-color: $input-bg !important;
-                color: $hover-color !important;
-              }
+
+            &:hover,
+            &.ant-select-item-selected {
+              background-color: $input-bg !important;
+              color: $hover-color !important;
             }
           }
+        }
       }
     }
   }
 
-      .ant-btn-primary {
+  .ant-btn-primary {
+    background-color: $green-accent !important;
+    border-color: $green-accent !important;
+    color: $text-color !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover,
+    &:focus {
+      background-color: $hover-color !important;
+      border-color: $hover-color !important;
+      color: $text-color !important;
+    }
+  }
+}
+
+
+.ant-table {
+  // background-color: $secondary-bg !important;
+
+  .ant-table-thead>tr>th {
+    // background-color: $secondary-bg !important;
+    // color: $text-color !important;
+    // border-bottom: 1px solid $green-accent !important;
+    // font-weight: 600;
+
+    // &::before {
+    //   display: none !important;
+    // }
+  }
+
+  .ant-table-tbody>tr {
+    // background-color: $secondary-bg !important;
+    // color: $text-color !important;
+
+    // &:hover,
+    // &:hover > td {
+    //   background-color: $secondary-bg !important;
+    // }
+
+    // > td {
+    //   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    //   color: $text-color !important;
+    // }
+  }
+
+  .ant-table-pagination {
+    .ant-pagination-item {
+      background-color: $input-bg !important;
+      border-color: $green-accent !important;
+
+      a {
+        color: $text-color !important;
+      }
+
+      &.ant-pagination-item-active {
         background-color: $green-accent !important;
-        border-color: $green-accent !important;
-        color: $text-color !important;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 6px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-
-        &:hover,
-        &:focus {
-          background-color: $hover-color !important;
-          border-color: $hover-color !important;
-          color: $text-color !important;
-        }
-      }
-    }
-
-
-  .ant-table {
-    background-color: $secondary-bg !important;
-
-    .ant-table-thead > tr > th {
-      background-color: $secondary-bg !important;
-      color: $text-color !important;
-      border-bottom: 1px solid $green-accent !important;
-      font-weight: 600;
-
-      &::before {
-        display: none !important;
-      }
-    }
-
-    .ant-table-tbody > tr {
-      background-color: $secondary-bg !important;
-      color: $text-color !important;
-
-      &:hover,
-      &:hover > td {
-        background-color: $secondary-bg !important;
-      }
-
-      > td {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: $text-color !important;
-      }
-    }
-
-    .ant-table-pagination {
-      .ant-pagination-item {
-        background-color: $input-bg !important;
         border-color: $green-accent !important;
 
         a {
           color: $text-color !important;
         }
-
-        &.ant-pagination-item-active {
-          background-color: $green-accent !important;
-          border-color: $green-accent !important;
-
-          a {
-            color: $text-color !important;
-          }
-        }
       }
+    }
 
-      .pagination-btn {
+    .pagination-btn {
+      background-color: #ffffff !important;
+      border-color: #ffffff !important;
+      color: $primary-bg !important;
+      font-weight: 600;
+
+      &:hover,
+      &:focus {
         background-color: #ffffff !important;
         border-color: #ffffff !important;
         color: $primary-bg !important;
-        font-weight: 600;
-
-        &:hover,
-        &:focus {
-          background-color: #ffffff !important;
-          border-color: #ffffff !important;
-          color: $primary-bg !important;
-          opacity: 0.8;
-        }
+        opacity: 0.8;
       }
     }
   }
+}
 
-  .action-buttons {
-    display: flex;
-    gap: 8px;
+.action-buttons {
+  display: flex;
+  gap: 8px;
 
-    .view-btn {
+  .view-btn {
+    color: $bright-green !important;
+
+    &:hover {
       color: $bright-green !important;
-
-      &:hover {
-        color: $bright-green !important;
-        background-color: transparent !important;
-      }
+      background-color: transparent !important;
     }
+  }
 
-    .edit-btn {
+  .edit-btn {
+    color: $green-accent !important;
+
+    &:hover {
       color: $green-accent !important;
-
-      &:hover {
-        color: $green-accent !important;
-        background-color: transparent !important;
-      }
+      background-color: transparent !important;
     }
+  }
 
-    .delete-btn {
+  .delete-btn {
+    color: $danger-color !important;
+
+    &:hover {
       color: $danger-color !important;
-
-      &:hover {
-        color: $danger-color !important;
-        background-color: transparent !important;
-      }
+      background-color: transparent !important;
     }
   }
+}
 
-  .pagination-btn {
-    margin: 0 5px;
-    padding: 4px 15px;
-    border-radius: 4px;
-    
-    &.prev-btn {
-      margin-right: 10px;
-    }
-    
-    &.next-btn {
-      margin-left: 10px;
-    }
+.pagination-btn {
+  margin: 0 5px;
+  padding: 4px 15px;
+  border-radius: 4px;
+
+  &.prev-btn {
+    margin-right: 10px;
   }
+
+  &.next-btn {
+    margin-left: 10px;
+  }
+}
 
 
 .ant-modal-wrap,
-.ant-modal-mask + .ant-modal-wrap {
+.ant-modal-mask+.ant-modal-wrap {
   .product-modal {
     .ant-modal {
       max-width: 600px !important;
@@ -259,7 +259,7 @@ $danger-color: #e74c3c;
         right: 20px !important;
         width: 28px !important;
         height: 28px !important;
-        
+
         &:hover {
           color: $bright-green !important;
           background-color: rgba(0, 188, 212, 0.1) !important;
@@ -295,7 +295,7 @@ $danger-color: #e74c3c;
   .ant-form-item {
     margin-bottom: 20px !important;
 
-    .ant-form-item-label > label {
+    .ant-form-item-label>label {
       color: $bright-green !important;
       font-weight: 600 !important;
       font-size: 14px !important;
@@ -510,10 +510,10 @@ $danger-color: #e74c3c;
 
 .ant-input,
 .ant-input-affix-wrapper,
-.ant-picker-input > input,
+.ant-picker-input>input,
 .product-modal .ant-input,
 .product-modal .ant-input-affix-wrapper,
-.product-modal .ant-picker-input > input {
+.product-modal .ant-picker-input>input {
   &::placeholder {
     color: rgba(255, 255, 255, 0.6) !important;
     padding: 0 !important;
@@ -531,6 +531,7 @@ $danger-color: #e74c3c;
 
 .ant-select-single {
   .ant-select-selector {
+
     .ant-select-selection-item,
     .ant-select-selection-placeholder {
       display: block !important;
@@ -538,7 +539,7 @@ $danger-color: #e74c3c;
       line-height: 30px !important;
       transition: all 0.3s, visibility 0s !important;
       align-self: center !important;
-    color: rgba(255, 255, 255, 0.6) !important;
+      color: rgba(255, 255, 255, 0.6) !important;
     }
   }
 }

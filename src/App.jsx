@@ -4,14 +4,12 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import { AuthProvider } from "./constants/AuthContext";
+import { AuthProvider } from "./constants/AuthProvider";
 import React, { useState } from "react";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
 
-// Redux
-import { Provider } from "react-redux";
-import { store } from "./store/store";
+
 
 // Components và Pages
 import Footer from "./component/Footer/Footer.jsx";
@@ -19,7 +17,7 @@ import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
 import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
 import HomePage from "./pages/Home/Home.jsx";
-import Movie from "./pages/movie/Movie";
+import Movie from "./pages/Movie/Movie.jsx";
 import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
 import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
 import TicketInformation from "./pages/Staff/JSX/TicketInformation.jsx";
@@ -49,6 +47,8 @@ import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
+import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
+import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
 // import ErrorBoundary from "./components/ErrorBoundary";
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
@@ -125,7 +125,7 @@ function Layout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 

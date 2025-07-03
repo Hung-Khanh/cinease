@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 const handleBefore = (config) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }

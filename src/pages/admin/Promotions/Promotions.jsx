@@ -52,7 +52,7 @@ const Promotions = () => {
   const fetchPromotions = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/public/promotions`, {
         method: "GET",
         headers: {
@@ -230,7 +230,7 @@ const Promotions = () => {
 
   const handleAddPromotion = async (values) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
 
       // Format dates to match the API's expected format
       const formatDate = (date) =>
@@ -296,7 +296,7 @@ const Promotions = () => {
   const confirmDelete = async () => {
     if (promotionToDelete) {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const response = await fetch(
           `${apiUrl}/admin/promotions/${promotionToDelete.key}`,
           {

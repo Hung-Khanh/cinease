@@ -18,7 +18,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
 
   // Fetch movie name
   const fetchName = async () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     try {
       setLoading(true);
@@ -50,7 +50,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
 
   // Fetch showtimes from API
   const fetchShowtimes = async () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     try {
       const fullUrl = `${apiUrl}/public/showtimes?movieId=${movieId}`;

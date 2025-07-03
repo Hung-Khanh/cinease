@@ -23,7 +23,7 @@ const CinemaRooms = () => {
   const fetchCinemaRooms = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
         method: "GET",
         headers: {
@@ -66,7 +66,7 @@ const CinemaRooms = () => {
         return;
       }
 
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         message.error("Authentication token is missing", 1);
         return;
@@ -146,7 +146,7 @@ const CinemaRooms = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/delete/${cinemaRoomToDelete.key}`, {
         method: "DELETE",
         headers: {
@@ -226,7 +226,7 @@ const CinemaRooms = () => {
   const fetchSeatDetails = async (cinemaRoomId) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/cinema-room/detail/${cinemaRoomId}/seats`, {
         method: "GET",
         headers: {
