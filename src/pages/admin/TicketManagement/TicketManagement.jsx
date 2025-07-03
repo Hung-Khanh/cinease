@@ -55,7 +55,7 @@ const TicketManagement = () => {
   const fetchTickets = async (page = 0, searchTerm = "") => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const url = new URL(`${apiUrl}/admin/invoices`);
       url.searchParams.append("page", page);
       url.searchParams.append("size", 12);
@@ -115,7 +115,7 @@ const TicketManagement = () => {
   // Fetch ticket details
   const fetchTicketDetails = async (ticketId) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/invoices/${ticketId}`, {
         method: "GET",
         headers: {

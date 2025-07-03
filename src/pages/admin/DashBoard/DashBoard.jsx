@@ -60,7 +60,7 @@ const Dashboard = () => {
     setRevenueError(null);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       if (!token) {
         throw new Error('No authentication token found');
@@ -120,7 +120,7 @@ const Dashboard = () => {
     setMovieError(null);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       if (!token) {
         throw new Error('No authentication token found');

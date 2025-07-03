@@ -13,7 +13,7 @@ const SHomePage = () => {
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 
   const fetchMovies = async () => {
-    const token = localStorage.getItem("token") || "";
+    const token = sessionStorage.getItem("token") || "";
 
     try {
       const response = await fetch(`${apiUrl}/public/movie/now-showing`, {

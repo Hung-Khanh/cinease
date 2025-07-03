@@ -15,7 +15,7 @@ const SelectShowtime = () => {
     const [movie, setMovie] = useState(null);
     const { movieId } = useParams();
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     // Fetch movie details
     const fetchMovieDetails = async () => {
