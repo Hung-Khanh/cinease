@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  token: localStorage.getItem("token") || null,
+  token: sessionStorage.getItem("token") || null,
 };
 
 const authSlice = createSlice({
@@ -10,14 +10,31 @@ const authSlice = createSlice({
   reducers: {
     setToken(state, action) {
       state.token = action.payload;
-      localStorage.setItem("token", action.payload);
+      sessionStorage.setItem("token", action.payload);
     },
     clearToken(state) {
       state.token = null;
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+    },
+  },
+});
+
+const seatSlice = createSlice({
+  name: 'seat',
+  initialState: {
+    selectedSeats: [],
+  },
+  reducers: {
+    setSelectedSeats: (state, action) => {
+      state.selectedSeats = action.payload;
+    },
+    clearSelectedSeats: (state) => {
+      state.selectedSeats = [];
     },
   },
 });
 
 export const { setToken, clearToken } = authSlice.actions;
-export default authSlice.reducer;
+export const { setSelectedSeats, clearSelectedSeats } = seatSlice.actions;
+export const authReducer = authSlice.reducer;
+export const seatReducer = seatSlice.reducer;

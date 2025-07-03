@@ -429,7 +429,7 @@ const Movie = () => {
       console.log("Form Data:", formData);
       console.log("Query Params:", queryParams.toString());
 
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const url = isEditing
         ? `${apiUrl}/admin/movies/${editingKey}?${queryParams.toString()}`
         : `${apiUrl}/admin/movies/add?${queryParams.toString()}`;
@@ -492,7 +492,7 @@ const Movie = () => {
   const confirmDelete = async () => {
     if (movieToDelete) {
       try {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         const response = await fetch(
           `${apiUrl}/admin/movies/${movieToDelete.key}`,
           {
@@ -536,7 +536,7 @@ const Movie = () => {
   // Fetch movie types
   const fetchMovieTypes = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/employee/types`, {
         method: "GET",
         headers: {
@@ -570,7 +570,7 @@ const Movie = () => {
   // Fetch cinema rooms
   const fetchCinemaRooms = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
         method: "GET",
         headers: {
@@ -597,7 +597,7 @@ const Movie = () => {
   // Fetch movie details by ID
   const fetchMovieDetails = async (movieId) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/movies/details/${movieId}`, {
         method: "GET",
         headers: {
@@ -647,7 +647,7 @@ const Movie = () => {
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const response = await fetch(`${apiUrl}/admin/movies/list`, {
         method: "GET",
         headers: {

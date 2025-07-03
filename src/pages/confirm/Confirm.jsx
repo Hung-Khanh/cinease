@@ -48,7 +48,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const fetchMovieDetails = async (movieId) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       const res = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const fetchPromotions = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const res = await fetch(`${apiUrl}/public/promotions`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,7 +92,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
   };
 
   const handleConfirm = async () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token || !bookingData) return;
 
     const body = {

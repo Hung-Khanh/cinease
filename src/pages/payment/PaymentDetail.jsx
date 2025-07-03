@@ -29,7 +29,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token) {
         alert("Bạn chưa đăng nhập.");
         navigate("/login");
@@ -131,7 +131,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   };
 
   const handleConfirmPayment = async () => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     try {
       const res = await fetch(`${apiUrl}/member/confirm-payment`, {
         method: "POST",
