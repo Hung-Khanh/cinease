@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./UserPaymentSuccess.scss"; 
+import "./UserPaymentSuccess.scss";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const UserPaymentSuccess = () => {
@@ -8,8 +8,8 @@ const UserPaymentSuccess = () => {
   const [bookingData, setBookingData] = useState(null);
   const [serviceImage, setServiceImage] = useState("");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
@@ -130,8 +130,8 @@ const UserPaymentSuccess = () => {
   }
 
   // Format date if available
-  const dateInfo = bookingData.bookingDate || bookingData.date ? 
-    formatDate(bookingData.bookingDate || bookingData.date) : 
+  const dateInfo = bookingData.bookingDate || bookingData.date ?
+    formatDate(bookingData.bookingDate || bookingData.date) :
     { day: "N/A", month: "", weekday: "" };
 
   const handleBackToHome = () => {
@@ -154,10 +154,10 @@ const UserPaymentSuccess = () => {
           {bookingData.serviceName || bookingData.service || "Service Booking"}
         </div>
       </div>
-      
+
       <div className="success-info">
         <div className="success-header">Payment Successfully</div>
-        
+
         <div className="info-group">
           <div className="info-label">Invoice ID</div>
           <div className="info-value">{invoiceId}</div>
@@ -245,7 +245,7 @@ const UserPaymentSuccess = () => {
         )}
 
         <div className="thank-you">Thank you!</div>
-        
+
         <div className="action-buttons">
           <button className="home-btn" onClick={handleBackToHome}>
             Back to Home page

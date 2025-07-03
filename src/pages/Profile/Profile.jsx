@@ -232,15 +232,15 @@ const Profile = () => {
       await fetchUserInfo();
 
       try {
-        const oldUser = JSON.parse(sessionStorage.getItem('user')) || {};
+        const oldUser = JSON.parse(localStorage.getItem('user')) || {};
         const updatedUser = {
           ...oldUser,
           ...response.data,
         };
-        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         window.dispatchEvent(new Event('storage'));
       } catch (e) {
-        console.error('Failed to update user in sessionStorage after profile update:', e);
+        console.error('Failed to update user in localStorage after profile update:', e);
       }
 
     } catch (error) {

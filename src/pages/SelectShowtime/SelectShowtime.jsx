@@ -9,13 +9,13 @@ const SelectShowtime = () => {
     const navigate = useNavigate();
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
-    const [selectedScheduleId, setSelectedScheduleId] = useState(null); 
+    const [selectedScheduleId, setSelectedScheduleId] = useState(null);
     const [dates, setDates] = useState([]);
     const [showtimes, setShowtimes] = useState([]);
     const [movie, setMovie] = useState(null);
     const { movieId } = useParams();
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     // Fetch movie details
     const fetchMovieDetails = async () => {
@@ -82,85 +82,85 @@ const SelectShowtime = () => {
     const handleDateSelect = (date) => {
         setSelectedDate(date);
         setSelectedTime('');
-        setSelectedScheduleId(null); 
+        setSelectedScheduleId(null);
     };
 
     const handleTimeSelect = (showtime) => {
         setSelectedTime(showtime.showTime);
-        setSelectedScheduleId(showtime.scheduleId); 
+        setSelectedScheduleId(showtime.scheduleId);
 
         console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
     };
 
     return (
-    <div className="select-showtime">
-        <h1 className='select-title'>Select Showtime</h1>
-        <button className="back-button" onClick={() => navigate(-1)}>
-            <FaArrowLeft />
-        </button>
-        
-        <div className="main-content">
-            <div className="poster-section">
-                <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster-showtime" />
-                <h1 className="movie-title">{movie?.movieNameEnglish}</h1>
-            </div>
-            
-            <div className="content-section">
-                <h3>Date</h3>
-                <div className="date-selection">
-                    {uniqueDates.map((date) => (
-                        <button
-                            key={date}
-                            className={`date-button ${selectedDate === date ? 'active' : ''}`}
-                            onClick={() => handleDateSelect(date)}
-                        >
-                            <div>{date}</div>
-                            <div>{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                        </button>
-                    ))}
+        <div className="select-showtime">
+            <h1 className='select-title'>Select Showtime</h1>
+            <button className="back-button" onClick={() => navigate(-1)}>
+                <FaArrowLeft />
+            </button>
+
+            <div className="main-content">
+                <div className="poster-section">
+                    <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster-showtime" />
+                    <h1 className="movie-title">{movie?.movieNameEnglish}</h1>
                 </div>
-                
-                <h3>Cinema Complex</h3>
-                <div className="cinema-complex">
-                    <button className="location-button">Ho Chi Minh</button>
+
+                <div className="content-section">
+                    <h3>Date</h3>
+                    <div className="date-selection">
+                        {uniqueDates.map((date) => (
+                            <button
+                                key={date}
+                                className={`date-button ${selectedDate === date ? 'active' : ''}`}
+                                onClick={() => handleDateSelect(date)}
+                            >
+                                <div>{date}</div>
+                                <div>{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                            </button>
+                        ))}
+                    </div>
+
+                    <h3>Cinema Complex</h3>
+                    <div className="cinema-complex">
+                        <button className="location-button">Ho Chi Minh</button>
+                    </div>
+
+                    <h3>Showtimes</h3>
+                    <div className="time-selection">
+                        {selectedDate && groupedShowtimes[selectedDate]?.map((showtime) => (
+                            <button
+                                key={showtime.scheduleId}
+                                className={`time-button ${selectedTime === showtime.showTime ? 'active' : ''}`}
+                                onClick={() => handleTimeSelect(showtime)}
+                            >
+                                {showtime.showTime}
+                            </button>
+                        ))}
+                    </div>
+
+                    <Link
+                        to={{
+                            pathname: `/seat-select/${movieId}/${selectedScheduleId}`,
+                        }}
+                        state={{
+                            movieName: movie?.movieNameEnglish,
+                            showDate: selectedDate,
+                            showTime: selectedTime,
+                        }}
+                        className="select-seat-btn"
+                        onClick={(e) => {
+                            if (!selectedDate || !selectedTime) {
+                                e.preventDefault();
+                                message.warning("Please select both date and time");
+                            }
+                        }}
+                    >
+                        SELECT SEAT
+                    </Link>
                 </div>
-                
-                <h3>Showtimes</h3>
-                <div className="time-selection">
-                    {selectedDate && groupedShowtimes[selectedDate]?.map((showtime) => (
-                        <button
-                            key={showtime.scheduleId}
-                            className={`time-button ${selectedTime === showtime.showTime ? 'active' : ''}`}
-                            onClick={() => handleTimeSelect(showtime)}
-                        >
-                            {showtime.showTime}
-                        </button>
-                    ))}
-                </div>
-                
-                <Link
-                    to={{
-                        pathname: `/seat-select/${movieId}/${selectedScheduleId}`,
-                    }}
-                    state={{
-                        movieName: movie?.movieNameEnglish,
-                        showDate: selectedDate,
-                        showTime: selectedTime,
-                    }}
-                    className="select-seat-btn"
-                    onClick={(e) => {
-                        if (!selectedDate || !selectedTime) {
-                            e.preventDefault();
-                            message.warning("Please select both date and time");
-                        }
-                    }}
-                >
-                    SELECT SEAT
-                </Link>
             </div>
         </div>
-    </div>
-);
+    );
 }
 
-    export default SelectShowtime;
+export default SelectShowtime;

@@ -29,7 +29,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   useEffect(() => {
     const fetchPromotions = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         const response = await api.get(`/public/promotions`, {
           headers: {
@@ -69,7 +69,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
     try {
       setIsProcessing(true);
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("Authentication token is missing. Please log in again.");
         return;
@@ -101,8 +101,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       const paymentUrl = data?.paymentUrl;
       const grandTotal = data?.grandTotal;
       if (paymentUrl && grandTotal) {
-        sessionStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
-        sessionStorage.setItem("grandTotal", grandTotal);
+        localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
+        localStorage.setItem("grandTotal", grandTotal);
         console.log("Payment URL saved:", paymentUrl);
       } else {
         console.warn("No payment URL found in ticket data");
@@ -122,7 +122,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         const response = await fetch(
           `${apiUrl}/employee/bookings/summary/{invoiceId}?invoiceId=${invoiceId}`,
@@ -160,7 +160,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     const fetchMovies = async () => {
       if (!movieName) return;
 
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         const response = await fetch(`${apiUrl}/public/movies?q=${movieName}`, {
           headers: {
@@ -289,9 +289,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               </Space>
               {showPromotionList && filteredPromotions.length > 0 && (
                 <ul
-                  className={`ticket-voucher-list ${
-                    filteredPromotions.length > 0 ? "has-vouchers" : ""
-                  }`}
+                  className={`ticket-voucher-list ${filteredPromotions.length > 0 ? "has-vouchers" : ""
+                    }`}
                 >
                   {filteredPromotions.map((promotion) => (
                     <li

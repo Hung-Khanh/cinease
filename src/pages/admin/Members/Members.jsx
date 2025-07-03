@@ -20,7 +20,7 @@ const Members = () => {
   const fetchMembers = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members`, {
         method: "GET",
         headers: {
@@ -29,16 +29,16 @@ const Members = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const result = await response.json();
-      
+
       // Handle response with content array
       const membersData = result.content || result;
-  
+
       // Ensure each member has a unique key and all required properties
       const formattedMembers = membersData.map((member) => ({
         key: member.memberId ? member.memberId.toString() : Math.random().toString(),
@@ -50,9 +50,9 @@ const Members = () => {
         point: member.point !== undefined ? member.point : 0,
         membershipLevel: member.membershipLevel || 'N/A'
       }));
-  
+
       setMembers(formattedMembers);
-      
+
       if (showSuccessMessage) {
         message.success("Members list fetched successfully", 1.5);
       }
@@ -68,7 +68,7 @@ const Members = () => {
   const fetchMemberDetails = async (memberId) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/${memberId}/account`, {
         method: "GET",
         headers: {
@@ -77,13 +77,13 @@ const Members = () => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const result = await response.json();
-      
+
       // Format the details
       setMemberDetails({
         fullName: result.fullName || 'N/A',
@@ -111,9 +111,9 @@ const Members = () => {
   // Memoized filtered members for performance
   const filteredMembers = useMemo(() => {
     if (!searchTerm) return members;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
-    return members.filter(member => 
+    return members.filter(member =>
       member.fullName.toLowerCase().includes(searchTermLower) ||
       member.email.toLowerCase().includes(searchTermLower) ||
       member.phoneNumber.toLowerCase().includes(searchTermLower) ||
@@ -188,7 +188,7 @@ const Members = () => {
   const handleUpdateMember = async (values) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/${editingKey}/account`, {
         method: "PUT",
         headers: {
@@ -237,7 +237,7 @@ const Members = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/delete/${memberToDelete.key}`, {
         method: "DELETE",
         headers: {
@@ -256,7 +256,7 @@ const Members = () => {
         fetchMembers();
       } else {
         message.error(
-          responseText || "Failed to delete member", 
+          responseText || "Failed to delete member",
           1.5
         );
       }
@@ -294,8 +294,8 @@ const Members = () => {
         columns={columns}
         dataSource={filteredMembers}
         loading={loading}
-        locale={{ 
-          emptyText: 'No members found' 
+        locale={{
+          emptyText: 'No members found'
         }}
         pagination={{
           pageSize: 12,
@@ -471,8 +471,8 @@ const Members = () => {
             <Button className="cancel-btn" onClick={cancelDelete}>
               Cancel
             </Button>
-            <Button 
-              className="confirm-delete-btn" 
+            <Button
+              className="confirm-delete-btn"
               onClick={confirmDelete}
               loading={loading}
             >

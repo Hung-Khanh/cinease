@@ -22,7 +22,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("Vui lòng đăng nhập lại.");
         navigate("/login");
@@ -99,13 +99,13 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
       <div className="products-header">
         <h2>FOOD & DRINK</h2>
-<p className="products-subtitle">Enjoy the movie with our special combos</p>
+        <p className="products-subtitle">Enjoy the movie with our special combos</p>
       </div>
 
       <div className="product-list">
         {products.map((product) => {
           // ✅ API đã trả thẳng image dạng URL tuyệt đối
-          const imageSrc = product.image; 
+          const imageSrc = product.image;
 
           return (
             <div key={product.productId} className="product-card">
