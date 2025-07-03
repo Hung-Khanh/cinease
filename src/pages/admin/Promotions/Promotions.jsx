@@ -18,9 +18,9 @@ import {
 import React, { useState, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 import "./Promotions.scss";
+import axios from '../../../constants/axios';
 
 const Promotions = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -52,26 +52,9 @@ const Promotions = () => {
   const fetchPromotions = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/public/promotions`, {
-        method: "GET",
-        headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      const response = await axios.get('/public/promotions');
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-
-      const formattedPromotions = result.map((promotion) => {
+      const formattedPromotions = response.data.map((promotion) => {
         return {
           key: promotion.promotionId.toString(),
           title: promotion.title,
@@ -93,7 +76,7 @@ const Promotions = () => {
         );
       }
     } catch (error) {
-      message.error(`Failed to fetch promotions: ${error.message}`, 3);
+      message.error(`Failed to fetch promotions: ${error.response?.data?.message || error.message}`, 3);
     } finally {
       setLoading(false);
     }
@@ -230,8 +213,6 @@ const Promotions = () => {
 
   const handleAddPromotion = async (values) => {
     try {
-      const token = sessionStorage.getItem("token");
-
       // Format dates to match the API's expected format
       const formatDate = (date) =>
         date ? dayjs(date).format("YYYY-MM-DD HH:mm") : null;
@@ -247,28 +228,14 @@ const Promotions = () => {
       };
 
       const url = isEditing
-        ? `${apiUrl}/admin/promotions/${editingKey}`
-        : `${apiUrl}/admin/promotions`;
-      const method = isEditing ? "PUT" : "POST";
+        ? `/admin/promotions/${editingKey}`
+        : `/admin/promotions`;
 
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Accept: "*/*",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify(requestBody),
+      const response = await axios({
+        method: isEditing ? 'put' : 'post',
+        url: url,
+        data: requestBody,
       });
-
-      if (!response.ok) {
-        const responseText = await response.text();
-        throw new Error(
-          `Failed to ${isEditing ? "update" : "add"} promotion. Status: ${response.status
-          }, Message: ${responseText}`
-        );
-      }
 
       // Refresh the promotions list
       await fetchPromotions(true);
@@ -287,7 +254,7 @@ const Promotions = () => {
       form.resetFields();
     } catch (error) {
       message.error(
-        `Failed to ${isEditing ? "update" : "add"} promotion: ${error.message}`,
+        `Failed to ${isEditing ? "update" : "add"} promotion: ${error.response?.data?.message || error.message}`,
         3
       );
     }
@@ -296,25 +263,7 @@ const Promotions = () => {
   const confirmDelete = async () => {
     if (promotionToDelete) {
       try {
-        const token = sessionStorage.getItem("token");
-        const response = await fetch(
-          `${apiUrl}/admin/promotions/${promotionToDelete.key}`,
-          {
-            method: "DELETE",
-            headers: {
-              Accept: "*/*",
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const responseText = await response.text();
-          throw new Error(
-            `Failed to delete promotion. Status: ${response.status}, Message: ${responseText}`
-          );
-        }
+        await axios.delete(`/admin/promotions/${promotionToDelete.key}`);
 
         // Refresh the promotions list
         await fetchPromotions(true);
@@ -329,7 +278,7 @@ const Promotions = () => {
         setDeleteConfirmationVisible(false);
         setPromotionToDelete(null);
       } catch (error) {
-        message.error(`Failed to delete promotion: ${error.message}`, 3);
+        message.error(`Failed to delete promotion: ${error.response?.data?.message || error.message}`, 3);
       }
     }
   };
@@ -366,6 +315,7 @@ const Promotions = () => {
         columns={columns}
         dataSource={paginatedPromotions}
         loading={loading}
+        className="ant-table-promotion"
         pagination={{
           current: historyPage,
           pageSize: historyPageSize,

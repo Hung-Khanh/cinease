@@ -27,6 +27,7 @@ import {
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import "./Movie.scss";
+import axios from '../../../constants/axios';
 
 // Custom Dropdown Component
 const MultiSelectDropdown = ({ options, value, onChange, placeholder }) => {
@@ -94,7 +95,6 @@ const MultiSelectDropdown = ({ options, value, onChange, placeholder }) => {
 };
 
 const Movie = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [movies, setMovies] = useState([]);
   const [movieTypes, setMovieTypes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -376,8 +376,16 @@ const Movie = () => {
       // Create FormData for multipart/form-data
       const formData = new FormData();
 
-      // Add all form fields as query parameters in the URL
-      const queryParams = new URLSearchParams({
+      // Add files to FormData
+      if (posterFile) {
+        formData.append("poster", posterFile);
+      }
+      if (bannerFile) {
+        formData.append("banner", bannerFile);
+      }
+
+      // Prepare query parameters
+      const queryParams = {
         movieNameVn: values.movieNameVn,
         movieNameEnglish: values.movieNameEnglish,
         fromDate: values.dateRange[0].format("YYYY-MM-DD"),
@@ -416,47 +424,21 @@ const Movie = () => {
             )
             .join(",")
           : "",
-      });
+      };
 
-      // Add files to FormData
-      if (posterFile) {
-        formData.append("poster", posterFile);
-      }
-      if (bannerFile) {
-        formData.append("banner", bannerFile);
-      }
-
-      console.log("Form Data:", formData);
-      console.log("Query Params:", queryParams.toString());
-
-      const token = sessionStorage.getItem("token");
       const url = isEditing
-        ? `${apiUrl}/admin/movies/${editingKey}?${queryParams.toString()}`
-        : `${apiUrl}/admin/movies/add?${queryParams.toString()}`;
+        ? `/admin/movies/${editingKey}`
+        : `/admin/movies/add`;
 
-      const method = isEditing ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
+      const response = await axios({
+        method: isEditing ? 'put' : 'post',
+        url: url,
+        data: formData,
+        params: queryParams,
         headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-          // Don't set Content-Type header - let browser set it for FormData
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error Response:", errorText);
-        throw new Error(
-          errorText || `Failed to ${isEditing ? "update" : "add"} movie`
-        );
-      }
-
-      const result = await response.json();
-      console.log("API Response:", result);
 
       await fetchMovies();
 
@@ -476,7 +458,7 @@ const Movie = () => {
       form.resetFields();
     } catch (error) {
       showErrorMessage(
-        `Failed to ${isEditing ? "update" : "add"} movie: ${error.message}`,
+        `Failed to ${isEditing ? "update" : "add"} movie: ${error.response?.data?.message || error.message}`,
         3
       );
     } finally {
@@ -492,25 +474,7 @@ const Movie = () => {
   const confirmDelete = async () => {
     if (movieToDelete) {
       try {
-        const token = sessionStorage.getItem("token");
-        const response = await fetch(
-          `${apiUrl}/admin/movies/${movieToDelete.key}`,
-          {
-            method: "DELETE",
-            headers: {
-              Accept: "*/*",
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            errorText || `Failed to delete movie with ID ${movieToDelete.key}`
-          );
-        }
+        await axios.delete(`/admin/movies/${movieToDelete.key}`);
 
         await fetchMovies();
 
@@ -523,7 +487,7 @@ const Movie = () => {
         setDeleteConfirmationVisible(false);
         setMovieToDelete(null);
       } catch (error) {
-        showErrorMessage(`Failed to delete movie: ${error.message}`, 3);
+        showErrorMessage(`Failed to delete movie: ${error.response?.data?.message || error.message}`, 3);
       }
     }
   };
@@ -536,87 +500,33 @@ const Movie = () => {
   // Fetch movie types
   const fetchMovieTypes = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/employee/types`, {
-        method: "GET",
-        headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-
-      // Map the types using the exact structure from the JSON
-      const formattedTypes = result.map((type) => ({
+      const response = await axios.get('/employee/types');
+      const formattedTypes = response.data.map((type) => ({
         movieTypeId: type.typeId,
         movieTypeName: type.typeName,
       }));
-
       setMovieTypes(formattedTypes);
     } catch (error) {
-      showErrorMessage(`Failed to fetch movie types: ${error.message}`);
+      showErrorMessage(`Failed to fetch movie types: ${error.response?.data?.message || error.message}`);
     }
   };
 
   // Fetch cinema rooms
   const fetchCinemaRooms = async () => {
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/admin/cinema-room/list`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-      setCinemaRooms(result);
+      const response = await axios.get('/admin/cinema-room/list');
+      setCinemaRooms(response.data);
     } catch (error) {
-      showErrorMessage(`Failed to fetch cinema rooms: ${error.message}`);
+      showErrorMessage(`Failed to fetch cinema rooms: ${error.response?.data?.message || error.message}`);
     }
   };
 
   // Fetch movie details by ID
   const fetchMovieDetails = async (movieId) => {
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/admin/movies/details/${movieId}`, {
-        method: "GET",
-        headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      const response = await axios.get(`/admin/movies/details/${movieId}`);
+      const result = response.data;
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `HTTP error! status: ${response.status}, message: ${errorText}`
-        );
-      }
-
-      const result = await response.json();
-
-      // Format the result to match the existing movie structure
       const formattedMovie = {
         movieId: result.movieId,
         movieNameVn: result.movieNameVn,
@@ -638,7 +548,7 @@ const Movie = () => {
 
       return formattedMovie;
     } catch (error) {
-      showErrorMessage(`Failed to fetch movie details: ${error.message}`);
+      showErrorMessage(`Failed to fetch movie details: ${error.response?.data?.message || error.message}`);
       return null;
     }
   };
@@ -647,21 +557,8 @@ const Movie = () => {
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
-      const response = await fetch(`${apiUrl}/admin/movies/list`, {
-        method: "GET",
-        headers: {
-          Accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const response = await axios.get('/admin/movies/list');
+      const result = response.data;
 
       const formattedMovies = result.map((movie) => {
         // Ensure types is always an array
@@ -706,7 +603,7 @@ const Movie = () => {
         showSuccessMessage("Movies fetched successfully", 1.5);
       }
     } catch (error) {
-      showErrorMessage(`Failed to fetch movies: ${error.message}`, 1.5);
+      showErrorMessage(`Failed to fetch movies: ${error.response?.data?.message || error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
@@ -760,6 +657,7 @@ const Movie = () => {
         columns={columns}
         dataSource={filteredMovies}
         loading={loading}
+        className="ant-table-movie"
         pagination={{
           pageSize: 10,
           showSizeChanger: false,

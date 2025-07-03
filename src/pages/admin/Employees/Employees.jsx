@@ -1,10 +1,10 @@
 import { DeleteOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Table, message } from 'antd';
 import { useEffect, useState } from 'react';
+import api from '../../../constants/axios';
 import './Employees.scss';
 
 const Employees = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,24 +21,9 @@ const Employees = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/employee/list`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      const response = await api.get('/admin/employee/list');
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const result = await response.json();
-
-      const formattedEmployees = result.map((employee, index) => ({
+      const formattedEmployees = response.data.map((employee, index) => ({
         key: employee.employeeId?.toString() || index.toString(),
         fullName: employee.fullName || 'N/A',
         identityCard: employee.identityCard || 'N/A',
@@ -48,8 +33,6 @@ const Employees = () => {
       }));
 
       setEmployees(formattedEmployees);
-
-     
     } catch (error) {
       message.error(`Failed to fetch employees: ${error.message}`, 3);
       setEmployees([]); // Ensure employees is an empty array on error
@@ -153,8 +136,6 @@ const Employees = () => {
 
   const handleAddEmployee = async (values) => {
     try {
-      const token = sessionStorage.getItem('token');
-
       // Format date of birth to match backend expectation
       const formattedDateOfBirth = values.dateOfBirth
         ? new Date(values.dateOfBirth).toISOString().split('T')[0]
@@ -187,25 +168,11 @@ const Employees = () => {
 
       // Construct the URL for editing or adding
       const url = isEditing
-        ? `${apiUrl}/admin/employee/edit/${editingKey}`
-        : `${apiUrl}/admin/employee/add`;
-      const method = isEditing ? 'PUT' : 'POST';
+        ? `/admin/employee/edit/${editingKey}`
+        : `/admin/employee/add`;
+      const method = isEditing ? 'put' : 'post';
 
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true'
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) {
-        const responseText = await response.text();
-        throw new Error(`Failed to ${isEditing ? 'update' : 'add'} employee. Status: ${response.status}, Message: ${responseText}`);
-      }
+      const response = await api[method](url, requestBody);
 
       // Refresh the employees list
       await fetchEmployees(true);
@@ -219,27 +186,14 @@ const Employees = () => {
       setEditingKey(null);
       form.resetFields();
     } catch (error) {
-      message.error(`Failed to ${isEditing ? 'update' : 'add'} employee: ${error.message}`, 3);
+      message.error(`Failed to ${isEditing ? 'update' : 'add'} employee: ${error.response?.data || error.message}`, 3);
     }
   };
 
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        const token = sessionStorage.getItem('token');
-        const response = await fetch(`${apiUrl}/admin/employee/${employeeToDelete.key}`, {
-          method: "DELETE",
-          headers: {
-            "Accept": "application/json",
-            "Authorization": `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
-
-        if (!response.ok) {
-          const responseText = await response.text();
-          throw new Error(`Failed to delete employee. Status: ${response.status}, Message: ${responseText}`);
-        }
+        await api.delete(`/admin/employee/${employeeToDelete.key}`);
 
         // Refresh the employees list
         await fetchEmployees(true);
@@ -251,7 +205,7 @@ const Employees = () => {
         setDeleteConfirmationVisible(false);
         setEmployeeToDelete(null);
       } catch (error) {
-        message.error(`Failed to delete employee: ${error.message}`, 3);
+        message.error(`Failed to delete employee: ${error.response?.data || error.message}`, 3);
       }
     }
   };
@@ -290,6 +244,7 @@ const Employees = () => {
           columns={columns}
           dataSource={safeEmployees}
           loading={loading}
+          className='ant-table-employee'
           locale={{
             emptyText: loading ? 'Loading...' : 'No employees found'
           }}

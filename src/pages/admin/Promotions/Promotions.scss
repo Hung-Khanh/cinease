@@ -67,106 +67,67 @@ $bright-green: #0C9550;
   }
 
   // Table Styling
-  .ant-table {
+  .ant-table-promotion {
     background-color: $secondary-bg !important;
-
+  
     .ant-table-thead > tr > th {
       background-color: $secondary-bg !important;
       color: $text-color !important;
       border-bottom: 1px solid $green-accent !important;
       font-weight: 600;
-
+  
       &::before {
         display: none !important;
       }
     }
-
+  
     .ant-table-tbody > tr {
       background-color: $secondary-bg !important;
       color: $text-color !important;
-
-      &:hover {
-        background-color: $secondary-bg !important;
-      }
-
+  
+      &:hover,
       &:hover > td {
         background-color: $secondary-bg !important;
       }
-
+  
       > td {
         border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: $text-color !important;
       }
     }
-
+  
+    // Pagination
     .ant-table-pagination {
       .ant-pagination-item {
         background-color: $input-bg !important;
         border-color: $green-accent !important;
-
+  
         a {
           color: $text-color !important;
         }
-
+  
         &.ant-pagination-item-active {
           background-color: $green-accent !important;
           border-color: $green-accent !important;
-
+  
           a {
             color: $text-color !important;
           }
         }
       }
-
-      // Original pagination buttons (fallback)
-      .ant-pagination-prev,
-      .ant-pagination-next {
-        .ant-btn {
-          background-color: #ffffff !important;
-          border-color: #ffffff !important;
-          color: $primary-bg !important;
-          font-weight: 600;
-
-          &:hover {
-            background-color: #ffffff !important;
-            border-color: #ffffff !important;
-            color: $primary-bg !important;
-            opacity: 0.8;
-          }
-
-          &:focus {
-            background-color: #ffffff !important;
-            border-color: #ffffff !important;
-            color: $primary-bg !important;
-          }
-        }
-      }
-
-      // Custom pagination buttons styling
+  
       .pagination-btn {
         background-color: #ffffff !important;
         border-color: #ffffff !important;
         color: $primary-bg !important;
         font-weight: 600;
-
-        &:hover {
-          background-color: #ffffff !important;
-          border-color: #ffffff !important;
-          color: $primary-bg !important;
-          opacity: 0.8;
-        }
-
+  
+        &:hover,
         &:focus {
           background-color: #ffffff !important;
           border-color: #ffffff !important;
           color: $primary-bg !important;
-        }
-
-        &.prev-btn,
-        &.next-btn {
-          background-color: #ffffff !important;
-          border-color: #ffffff !important;
-          color: $primary-bg !important;
+          opacity: 0.8;
         }
       }
     }

@@ -1,10 +1,10 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message, Modal, Table } from "antd";
 import { useState, useEffect, useMemo } from "react";
+import api from '../../../constants/axios';
 import "./Members.scss";
 
 const Members = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,24 +20,10 @@ const Members = () => {
   const fetchMembers = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/members`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
+      const response = await api.get('/admin/members');
       
       // Handle response with content array
-      const membersData = result.content || result;
+      const membersData = response.data.content || response.data;
   
       // Ensure each member has a unique key and all required properties
       const formattedMembers = membersData.map((member) => ({
@@ -68,31 +54,17 @@ const Members = () => {
   const fetchMemberDetails = async (memberId) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/members/${memberId}/account`, {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
+      const response = await api.get(`/admin/members/${memberId}/account`);
       
       // Format the details
       setMemberDetails({
-        fullName: result.fullName || 'N/A',
-        dateOfBirth: result.dateOfBirth || 'N/A',
-        gender: result.gender || 'N/A',
-        email: result.email || 'N/A',
-        identityCard: result.identityCard || 'N/A',
-        phoneNumber: result.phoneNumber || 'N/A',
-        address: result.address || 'N/A'
+        fullName: response.data.fullName || 'N/A',
+        dateOfBirth: response.data.dateOfBirth || 'N/A',
+        gender: response.data.gender || 'N/A',
+        email: response.data.email || 'N/A',
+        identityCard: response.data.identityCard || 'N/A',
+        phoneNumber: response.data.phoneNumber || 'N/A',
+        address: response.data.address || 'N/A'
       });
 
       setIsDetailModalVisible(true);
@@ -188,36 +160,21 @@ const Members = () => {
   const handleUpdateMember = async (values) => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/members/${editingKey}/account`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
-          fullName: values.fullName,
-          identityCard: values.identityCard,
-          email: values.email,
-          phoneNumber: values.phoneNumber,
-          address: values.address
-        }),
+      const response = await api.put(`/admin/members/${editingKey}/account`, {
+        fullName: values.fullName,
+        identityCard: values.identityCard,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        address: values.address
       });
 
-      if (response.ok) {
-        message.success("Member updated successfully", 1.5);
-        setIsModalVisible(false);
-        setEditingKey(null);
-        form.resetFields();
-        fetchMembers();
-      } else {
-        const errorText = await response.text();
-        message.error(errorText || "Failed to update member", 1.5);
-      }
+      message.success("Member updated successfully", 1.5);
+      setIsModalVisible(false);
+      setEditingKey(null);
+      form.resetFields();
+      fetchMembers();
     } catch (error) {
-      message.error(`Failed to update member: ${error.message}`, 1.5);
+      message.error(`Failed to update member: ${error.response?.data || error.message}`, 1.5);
     } finally {
       setLoading(false);
     }
@@ -237,32 +194,15 @@ const Members = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem('token');
-      const response = await fetch(`${apiUrl}/admin/members/delete/${memberToDelete.key}`, {
-        method: "DELETE",
-        headers: {
-          "Accept": "text/plain,application/json",
-          "Authorization": `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+      const response = await api.delete(`/admin/members/delete/${memberToDelete.key}`);
 
-      const responseText = await response.text();
-
-      if (response.ok) {
-        message.success(responseText, 1.5);
-        setDeleteConfirmationVisible(false);
-        await Promise.resolve();
-        fetchMembers();
-      } else {
-        message.error(
-          responseText || "Failed to delete member", 
-          1.5
-        );
-      }
+      message.success(response.data, 1.5);
+      setDeleteConfirmationVisible(false);
+      await Promise.resolve();
+      fetchMembers();
     } catch (error) {
       message.error(
-        error.message || "Failed to delete member",
+        error.response?.data || "Failed to delete member",
         1.5
       );
     } finally {
@@ -294,6 +234,7 @@ const Members = () => {
         columns={columns}
         dataSource={filteredMembers}
         loading={loading}
+        className="ant-table-member"
         locale={{ 
           emptyText: 'No members found' 
         }}
