@@ -76,6 +76,9 @@ const PhoneInput = ({ onBack }) => {
       navigate(-1);
     }
   };
+  const handleSkip = () => {
+    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`);
+  };
   return (
     <div className="phone-page">
       <button className="dts-back-btn" onClick={handleBack}>
@@ -134,6 +137,18 @@ const PhoneInput = ({ onBack }) => {
             {message}
           </div>
         )}
+        <div className="phone-skip-button">
+          <h2 className="phone-skip-text">No Member Phone?</h2>
+          <Button
+            className="phone-skip-butt"
+            type="primary"
+            block
+            size="large"
+            onClick={handleSkip}
+          >
+            Skip
+          </Button>
+        </div>
       </div>
       <Modal
         open={isModalVisible}

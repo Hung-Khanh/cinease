@@ -1,10 +1,10 @@
 // Variables
 $primary-color: #fff;
 $primary-hover: #044824;
-$success-color: #28a745;
-$success-hover: #218838;
+$success-color: #0c9550;
+$success-hover: #044824;
 $danger-color: #dc3545;
-$danger-hover: #c82333;
+$danger-hover: #7a0914;
 $light-bg: #fff;
 $light-hover: #e9ecef;
 $text-color: #000;
@@ -341,6 +341,29 @@ $primary-shadow: rgba(102, 126, 234, 0.1);
       transform: translateY(-2px);
       color: #fff !important;
       border-color: #044824 !important;
+    }
+  }
+  .phone-skip-button {
+    flex-direction: column;
+    gap: 8px;
+    padding: 1px;
+    .phone-skip-text {
+      font-size: 30px;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      margin: 8px;
+    }
+    .phone-skip-butt {
+      margin-top: 9px;
+      background-color: #0c9550 !important;
+      color: #fff !important;
+      &:hover {
+        background-color: #044824 !important;
+        transform: translateY(-2px);
+        color: #fff !important;
+        border-color: #044824 !important;
+      }
     }
   }
 }
