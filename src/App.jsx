@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthContext";
 import React, { useState } from "react";
+import { store } from "./store/store";
+import { Provider } from "react-redux";
 
 // Redux
 import { Provider } from "react-redux";
@@ -36,6 +38,7 @@ import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
 import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaymentFailed.jsx";
 import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
 import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
+import PhoneInput from "./pages/Staff/JSX/InputPhoneNumber.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -48,6 +51,7 @@ import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
 // import ErrorBoundary from "./components/ErrorBoundary";
 
+import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
@@ -121,6 +125,8 @@ function Layout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
+  const role = localStorage.getItem("role");
+  const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 
   return (
@@ -128,24 +134,39 @@ function Layout() {
       {!isLoginRegister && !isAdmin && <Header />}
       <main className="main-content">
         <Routes>
+          {isStaff && (
+            <>
+              <Route path="/staffHomePage" element={<StaffHomePage />} />
+              <Route
+                path="/cinema-seating/:scheduleId/:movieName/:selectedDate/:selectedTime"
+                element={<CinemaSeating />}
+              />
+              <Route
+                path="/phone-input/:invoiceId/:scheduleId"
+                element={<PhoneInput apiUrl={apiUrl} />}
+              />
+              <Route
+                path="/dateTimeSelection/:movieId"
+                element={<DateTimeSelection apiUrl={apiUrl} />}
+              />
+              <Route
+                path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
+                element={<SeatSelection apiUrl={apiUrl} />}
+              />
+
+              <Route
+                path="/ticketInformation/:invoiceId/:scheduleId"
+                element={<TicketInformation apiUrl={apiUrl} />}
+              />
+              <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+            </>
+          )}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
-          <Route path="/staffHomePage" element={<StaffHomePage />} />
+
           <Route path="/home" element={<HomePage />} />
-          <Route
-            path="/dateTimeSelection/:movieId"
-            element={<DateTimeSelection apiUrl={apiUrl} />}
-          />
-          <Route
-            path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
-            element={<SeatSelection apiUrl={apiUrl} />}
-          />
-          <Route
-            path="/ticketInformation/:invoiceId/:scheduleId"
-            element={<TicketInformation apiUrl={apiUrl} />}
-          />
-          <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
           <Route

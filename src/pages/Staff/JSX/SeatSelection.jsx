@@ -12,7 +12,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { scheduleId, movieName, selectedDate, selectedTime } = useParams();
   const [productQuantities, setProductQuantities] = useState({});
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [selectedCategory, setSelectedCategory] = useState("ALL Food & Drink");
   const navigate = useNavigate();
 
   const fetchSeat = async () => {
@@ -155,7 +155,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
 
       const data = await response.json();
       setIsModalVisible(false);
-      navigate(`/ticketInformation/${data.invoiceId}/${scheduleId}`, {});
+      navigate(`/phone-input/${data.invoiceId}/${scheduleId}`, {});
     } catch (error) {
       console.error("Error in handleCheckout:", error);
       alert("Failed to select seats. Please try again.");
@@ -217,12 +217,12 @@ const SeatSelection = ({ apiUrl, onBack }) => {
   };
 
   const categories = [
-    "ALL",
+    "ALL Food & Drink",
     ...Array.from(new Set(products.map((p) => p.category))),
   ];
 
   const filteredProducts =
-    selectedCategory === "ALL"
+    selectedCategory === "ALL Food & Drink"
       ? products
       : products.filter((p) => p.category === selectedCategory);
 
@@ -269,10 +269,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
           }}
         >
           {filteredProducts.map((product) => {
-            const imagePath = product.image.startsWith("/api")
-              ? product.image.substring(4)
-              : product.image;
-            const imageSrc = `${apiUrl}${imagePath}`;
+            const imagePath = product.image;
             return (
               <Card
                 key={product.productId}
@@ -293,7 +290,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
                   {/* Adjusted height for image */}
                   <img
                     alt={product.productName}
-                    src={imageSrc}
+                    src={imagePath}
                     style={{
                       width: "100%",
                       height: "100%",
