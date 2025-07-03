@@ -9,6 +9,11 @@ import React, { useState } from "react";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
 
+// Redux
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+
+// Components và Pages
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
 import LoginPage from "./pages/LoginPage/Login.jsx";
@@ -44,9 +49,7 @@ import backgroundImage from "./assets/bigbackground.png";
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
-import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
-import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
-
+// import ErrorBoundary from "./components/ErrorBoundary";
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
@@ -119,7 +122,7 @@ function AdminLayout() {
 }
 
 function Layout() {
-  const location = useLocation(); // Add useLocation hook
+  const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
   const role = localStorage.getItem("role");
@@ -199,7 +202,6 @@ function Layout() {
             element={<UserPaymentSuccess />}
           />
           <Route path="/redirect-payment" element={<RedirectPayment />} />
-          {/* Add more routes as needed */}
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}
@@ -213,8 +215,7 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/admin/*" element={<AdminLayout />}></Route>
-
+            <Route path="/admin/*" element={<AdminLayout />} />
             <Route path="/*" element={<Layout />} />
           </Routes>
         </Router>

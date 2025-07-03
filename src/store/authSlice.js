@@ -19,5 +19,22 @@ const authSlice = createSlice({
   },
 });
 
+const seatSlice = createSlice({
+  name: 'seat',
+  initialState: {
+    selectedSeats: [],
+  },
+  reducers: {
+    setSelectedSeats: (state, action) => {
+      state.selectedSeats = action.payload;
+    },
+    clearSelectedSeats: (state) => {
+      state.selectedSeats = [];
+    },
+  },
+});
+
 export const { setToken, clearToken } = authSlice.actions;
-export default authSlice.reducer;
+export const { setSelectedSeats, clearSelectedSeats } = seatSlice.actions;
+export const authReducer = authSlice.reducer;
+export const seatReducer = seatSlice.reducer;
