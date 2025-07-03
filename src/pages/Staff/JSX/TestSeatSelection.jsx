@@ -5,14 +5,19 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { PiArmchair, PiArmchairFill, PiArmchairDuotone } from "react-icons/pi";
 import { TbArmchair2Off } from "react-icons/tb";
 import { useSelector } from "react-redux";
+import { getSeats } from "../../../api/seat";
+import { postSelectedSeats } from "../../../api/staff";
+import { StaffGetPromotions } from "../../../api/promotion";
+import { Modal, Button, Card, Flex, Select } from "antd";
 
-const SeatSelect = ({
-  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
-  onBack,
-}) => {
+const SeatSelect = ({ onBack }) => {
   const [seats, setSeats] = useState([]);
-  const [grandTotal, setGrandTotal] = useState("");
-  const { scheduleId, movieId } = useParams();
+  const [products, setProducts] = useState([]);
+  const [productQuantities, setProductQuantities] = useState({});
+  const { scheduleId, movieName, selectedDate, selectedTime } = useParams();
+  const [selectedCategory, setSelectedCategory] = useState("ALL Food & Drink");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -20,12 +25,7 @@ const SeatSelect = ({
   const token = useSelector((state) => state.auth.token);
 
   // Lấy dữ liệu từ location.state (có thể đã được navigate từ trước)
-  const {
-    movieName = "",
-    showDate = "",
-    showTime = "",
-    selectedSeats: initialSelectedSeats = [],
-  } = location.state || {};
+  const { selectedSeats: initialSelectedSeats = [] } = location.state || {};
 
   // Khởi tạo selectedSeats từ state cũ nếu có
   const [selectedSeats, setSelectedSeats] = useState(initialSelectedSeats);
@@ -39,26 +39,8 @@ const SeatSelect = ({
       return;
     }
     try {
-      const url = `${apiUrl}/public/seats?scheduleId=25`;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-          navigate("/login");
-          return;
-        }
-        throw new Error(`Failed to fetch seats: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setSeats(data);
+      const data = await getSeats(scheduleId);
+      setSeats(data.data);
     } catch (error) {
       console.error("🔥 Error in fetchSeat:", error);
       alert("Lỗi khi tải danh sách ghế. Vui lòng thử lại.");
@@ -67,10 +49,13 @@ const SeatSelect = ({
 
   useEffect(() => {
     fetchSeat();
+    fetchProduct();
   }, [scheduleId]);
 
   const findSeatBySeatId = (seatId) => {
-    return seats.find((seat) => `${seat.seatColumn}${seat.seatRow}` === seatId);
+    return seats.find(
+      (seat) => `${seat.seatColumn}${seat.seatRow}` === String(seatId)
+    );
   };
 
   const toggleSeat = (seatId) => {
@@ -82,6 +67,15 @@ const SeatSelect = ({
         ? prev.filter((s) => s !== seatId)
         : [...prev, seatId]
     );
+  };
+  const fetchProduct = async () => {
+    try {
+      const response = await StaffGetPromotions();
+      const data = await response.data;
+      setProducts(data);
+    } catch (error) {
+      console.log("Error in fetchProduct: ", error);
+    }
   };
 
   const handleCheckout = async () => {
@@ -95,6 +89,9 @@ const SeatSelect = ({
 
     const selectedSeatsInfo = selectedSeats.map((seatId) => {
       const seat = findSeatBySeatId(seatId);
+      if (!seat) {
+        console.error("Không tìm thấy seat cho seatId:", seatId);
+      }
       return {
         seatId,
         scheduleSeatId: seat?.scheduleSeatId,
@@ -102,55 +99,34 @@ const SeatSelect = ({
       };
     });
 
-    const scheduleSeatIds = selectedSeatsInfo.map(
-      (seat) => seat.scheduleSeatId
-    );
+    const scheduleSeatIds = selectedSeatsInfo
+      .map((seat) => seat.scheduleSeatId)
+      .filter((id) => typeof id === "number" && !isNaN(id));
+
+    console.log("scheduleSeatIds gửi lên API:", scheduleSeatIds);
 
     try {
-      const response = await fetch(`${apiUrl}/member/select-seats`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
-          scheduleId: parseInt(scheduleId),
-          scheduleSeatIds,
-        }),
-      });
+      const response = await postSelectedSeats(
+        scheduleId,
+        scheduleSeatIds,
+        productsForRequest
+      );
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-          navigate("/login");
-          return;
-        }
-        throw new Error(`Failed to select seats: ${response.status}`);
-      }
+      const data = await response.data;
 
-      const data = await response.json();
-      setGrandTotal(data.grandTotal);
-
-      navigate(`/product/${movieId}/${data.invoiceId}`, {
-        state: {
-          scheduleId: parseInt(scheduleId),
-          invoiceId: data.invoiceId,
-          selectedSeats, // Truyền selectedSeats sang trang Product
-          grandTotal: data.grandTotal,
-          movieId,
-          movieName,
-          showDate,
-          showTime,
-          cinemaRoomName: data.cinemaRoomName,
-        },
-      });
+      navigate(`/phone-input/${data.invoiceId}/${scheduleId}`, {});
     } catch (error) {
       console.error("Error in handleCheckout:", error);
       alert("Lỗi khi đặt ghế. Vui lòng thử lại.");
     }
   };
-
+  const productsForRequest = Object.entries(productQuantities)
+    .filter(([, quantity]) => quantity > 0)
+    .map(([productId, quantity]) => ({
+      productId: parseInt(productId),
+      quantity,
+      notes: null,
+    }));
   const renderSeats = () => {
     const seatColumns = [...new Set(seats.map((s) => s.seatColumn))].sort();
     const maxRow =
@@ -181,7 +157,8 @@ const SeatSelect = ({
               }
 
               const isSelected = selectedSeats.includes(seatId);
-              const isUnavailable = seat.seatStatus !== "AVAILABLE";
+              const isUnavailable =
+                seat.seatStatus == "BOOKED" || seat.seatStatus == "UNAVAILABLE";
               const isVip = seat.seatType === "VIP";
 
               return (
@@ -217,6 +194,12 @@ const SeatSelect = ({
       </div>
     );
   };
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
 
   const handleBack = () => {
     if (onBack) {
@@ -225,6 +208,22 @@ const SeatSelect = ({
       navigate(-1);
     }
   };
+  const handleQuantityChange = (productId, delta) => {
+    setProductQuantities((prev) => {
+      const current = prev[productId] || 0;
+      const next = Math.max(0, current + delta);
+      return { ...prev, [productId]: next };
+    });
+  };
+  const categories = [
+    "ALL Food & Drink",
+    ...Array.from(new Set(products.map((p) => p.category))),
+  ];
+
+  const filteredProducts =
+    selectedCategory === "ALL Food & Drink"
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="seat-selection-wrapper">
@@ -245,22 +244,145 @@ const SeatSelect = ({
 
         <div className="legend bottom-center">
           <div className="legend-item">
-            <div className="box available"></div>
+            <PiArmchair className="cs-seat-icon cs-regular" size={36} />
             <span>Available</span>
           </div>
           <div className="legend-item">
-            <div className="box selected"></div>
+            <PiArmchairFill className="cs-seat-icon cs-selected" size={36} />
             <span>Selected</span>
           </div>
           <div className="legend-item">
-            <div className="box sold"></div>
+            <TbArmchair2Off className="cs-seat-icon cs-unavailable" size={36} />
             <span>Unavailable</span>
           </div>
           <div className="legend-item">
-            <div className="box vip"></div>
+            <PiArmchairDuotone className="cs-seat-icon cs-vip" size={36} />
             <span>VIP</span>
           </div>
         </div>
+
+        <div className="filter-section">
+          <Select
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            style={{ width: 180, margin: "24px 0" }}
+          >
+            {categories.map((cat) => (
+              <Select.Option key={cat} value={cat}>
+                {cat}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+
+        <Flex
+          wrap="wrap"
+          gap={50}
+          justify="flex-start"
+          style={{
+            rowGap: 50,
+            columnGap: 50,
+            margin: "16px",
+          }}
+        >
+          {filteredProducts.map((product) => {
+            const imagePath = product.image;
+            return (
+              <Card
+                key={product.productId}
+                style={{
+                  width: 195,
+                  height: 310,
+                  borderRadius: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                  overflow: "hidden",
+                  backgroundColor: "#fff",
+                }}
+              >
+                <div style={{ width: "100%", height: 160 }}>
+                  {" "}
+                  {/* Adjusted height for image */}
+                  <img
+                    alt={product.productName}
+                    src={imagePath}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "16px 16px 0 0",
+                      margin: 0,
+                      padding: 0,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    padding: "12px",
+                    flexGrow: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: 0,
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}
+                    >
+                      {product.productName}
+                    </div>
+                    <div
+                      style={{ color: "#888", fontSize: 12, marginBottom: 12 }}
+                    >
+                      {product.price.toLocaleString()} VND
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 8,
+                      alignItems: "center",
+                      marginTop: "auto", // Push buttons to the bottom
+                    }}
+                  >
+                    <Button
+                      size="small"
+                      onClick={() =>
+                        handleQuantityChange(product.productId, -1)
+                      }
+                      disabled={
+                        (productQuantities[product.productId] || 0) === 0
+                      }
+                      style={{ width: 28, height: 28 }}
+                    >
+                      -
+                    </Button>
+                    <span
+                      style={{
+                        minWidth: 24,
+                        textAlign: "center",
+                        fontSize: 14,
+                      }}
+                    >
+                      {productQuantities[product.productId] || 0}
+                    </span>
+                    <Button
+                      size="small"
+                      onClick={() => handleQuantityChange(product.productId, 1)}
+                      style={{ width: 28, height: 28 }}
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </Flex>
 
         <div className="summary bottom-bar">
           <div className="summary-item">
@@ -273,20 +395,69 @@ const SeatSelect = ({
           </div>
           <div className="summary-item">
             <p className="label">DATE</p>
-            <p className="value">{showDate || "N/A"}</p>
+            <p className="value">{selectedDate || "N/A"}</p>
           </div>
           <div className="summary-item">
             <p className="label">TIME</p>
-            <p className="value">{showTime || "N/A"}</p>
+            <p className="value">{selectedTime || "N/A"}</p>
           </div>
 
           <button
             className="checkout-button"
-            onClick={handleCheckout}
+            onClick={showModal}
             disabled={selectedSeats.length === 0}
           >
             Checkout
           </button>
+          <Modal
+            title="Confirm Information"
+            open={isModalVisible}
+            onCancel={handleCancel}
+          >
+            <p>
+              <strong>Movie:</strong> {movieName || "No Movie Selected"}
+            </p>
+            <p>
+              <strong>Seats:</strong> {selectedSeats.join(", ") || "None"}
+            </p>
+            <p>
+              <strong>Combo:</strong>{" "}
+              {Object.entries(productQuantities)
+                .filter(([, quantity]) => quantity > 0)
+                .map(([productId, quantity]) => {
+                  const product = products.find(
+                    (p) => p.productId === parseInt(productId)
+                  );
+                  return product ? `${product.productName} x${quantity}` : null;
+                })
+                .filter(Boolean)
+                .join(", ") || "None"}
+            </p>
+            <p>
+              <strong>Date:</strong> {selectedDate}
+            </p>
+            <p>
+              <strong>Time:</strong> {selectedTime}
+            </p>
+            <div className="modal-buttons">
+              <Button
+                key="cancel"
+                onClick={handleCancel}
+                className="modal-cancel-button"
+              >
+                Cancel
+              </Button>
+              <Button
+                key="confirm"
+                type="primary"
+                onClick={handleCheckout}
+                disabled={selectedSeats.length === 0}
+                className="modal-confirm-button"
+              >
+                Confirm
+              </Button>
+            </div>
+          </Modal>
         </div>
       </div>
     </div>

@@ -16,9 +16,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
   const [cinemaRoom, setCinemaRoom] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [inputType, setInputType] = useState("phone");
-  const [inputValue, setInputValue] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const [cashReceived, setCashReceived] = useState("");
   const [change, setChange] = useState(0);
@@ -28,9 +25,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [searchPromotion, setSearchPromotion] = useState("");
   const [promotions, setPromotions] = useState([]);
   const [promotionId, setPromotionId] = useState(null);
-  const [showPromotionList, setShowPromotionList] = useState(false); // Trạng thái kiểm soát hiển thị ul
+  const [showPromotionList, setShowPromotionList] = useState(false);
 
-  // Lấy danh sách promotions
   useEffect(() => {
     const fetchPromotions = async () => {
       const token = localStorage.getItem("token");
@@ -51,27 +47,23 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     fetchPromotions();
   }, []);
 
-  // Lọc promotions dựa trên title
   const filteredPromotions = promotions.filter((promotion) =>
     promotion.title.toLowerCase().includes(searchPromotion.toLowerCase())
   );
 
-  // Xử lý tìm kiếm
   const onSearch = (value) => {
     setSearchPromotion(value);
-    setShowPromotionList(!!value); // Hiển thị danh sách khi có giá trị tìm kiếm
-    console.log("Search value:", value, "Show list:", !!value); // Debug
+    setShowPromotionList(!!value);
+    console.log("Search value:", value, "Show list:", !!value);
   };
 
-  // Xử lý chọn promotion
   const handleSelectPromotion = (selectedId, title) => {
     setPromotionId(selectedId);
-    setSearchPromotion(title); // Đặt title vào thanh search
-    setShowPromotionList(false); // Ẩn danh sách sau khi chọn
-    console.log("Selected:", title, "ID:", selectedId); // Debug
+    setSearchPromotion(title);
+    setShowPromotionList(false);
+    console.log("Selected:", title, "ID:", selectedId);
   };
 
-  // Xử lý purchase
   const handlePurchase = async () => {
     if (isProcessing) return;
 
@@ -88,8 +80,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         scheduleId: parseInt(scheduleId),
         useScore: 0,
         promotionId: promotionId,
-        identityCard: inputType === "id" ? inputValue : undefined,
-        phoneNumber: inputType === "phone" ? inputValue : undefined,
         paymentMethod: paymentMethod,
         ticketType: ticketType,
       };
@@ -118,7 +108,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         console.warn("No payment URL found in ticket data");
       }
       setResponseModalVisible(true);
-      setResponseModalVisible(true);
     } catch (error) {
       console.error("Error in handlePurchase:", error);
       const errorMessage =
@@ -136,7 +125,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       const token = localStorage.getItem("token");
       try {
         const response = await fetch(
-          `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
+          `${apiUrl}/employee/bookings/summary/{invoiceId}?invoiceId=${invoiceId}`,
           {
             method: "GET",
             headers: {
@@ -207,27 +196,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     }
   };
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setInputValue("");
-  };
-
-  const handleSubmit = () => {
-    if (!inputValue) {
-      alert("Please enter a valid phone number or ID card.");
-      return;
-    }
-    setIsModalVisible(false);
-  };
-
   const handleCashChange = (e) => {
     const value = parseFloat(e.target.value) || 0;
     setCashReceived(value);
@@ -261,38 +229,38 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   }, [navigate, isProcessing]);
 
   return (
-    <div className="ticket-info-wrapper">
-      <button className="dts-back-btn" onClick={handleBack}>
+    <div className="ticket-info-main">
+      <button className="back-button" onClick={handleBack}>
         <FaArrowLeft />
       </button>
 
-      <div className="ticket-info-container">
-        <div className="ticket-card">
-          <div className="ticket-infor-image">
+      <div className="ticket-info-content">
+        <div className="ticket-info-card">
+          <div className="ticket-poster-container">
             <img
               src={movieImage || "placeholder-image.jpg"}
               alt={ticketData?.movieName || "Movie Poster"}
-              className="movie-poster"
+              className="ticket-movie-poster"
             />
           </div>
-          <div className="ticket-details">
+          <div className="ticket-details-section">
             <h2>TICKET DETAIL</h2>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <h3>Schedule</h3>
             </div>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <span>Movie Title</span>
               <span>{ticketData?.movieName || "N/A"}</span>
             </div>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <span>Cinema Room</span>
               <span>{cinemaRoom || "N/A"}</span>
             </div>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <span>Date</span>
               <span>{formatDate(ticketData?.scheduleShowDate)}</span>
             </div>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <span>Time</span>
               <span>
                 {ticketData?.scheduleShowTime
@@ -300,11 +268,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                   : "N/A"}
               </span>
             </div>
-            <div className="detail-item">
+            <div className="ticket-detail-row">
               <span>Ticket ({ticketData?.seatNumbers?.length || 0})</span>
               <span>{ticketData?.seatNumbers?.join(", ") || "N/A"}</span>
             </div>
-            <div className="detail-item promotion-search">
+            <div className="ticket-detail-row ticket-voucher-search">
               <span>Voucher</span>
               <Space direction="vertical" style={{ width: "100%" }}>
                 <Search
@@ -314,15 +282,15 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                   value={searchPromotion}
                   onChange={(e) => {
                     setSearchPromotion(e.target.value);
-                    setShowPromotionList(!!e.target.value); // Cập nhật trạng thái khi thay đổi
+                    setShowPromotionList(!!e.target.value);
                   }}
                   style={{ width: "100%", color: "gray" }}
                 />
               </Space>
               {showPromotionList && filteredPromotions.length > 0 && (
                 <ul
-                  className={`promotion-list ${
-                    filteredPromotions.length > 0 ? "has-results" : ""
+                  className={`ticket-voucher-list ${
+                    filteredPromotions.length > 0 ? "has-vouchers" : ""
                   }`}
                 >
                   {filteredPromotions.map((promotion) => (
@@ -335,7 +303,9 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                         )
                       }
                       className={
-                        promotionId === promotion.promotionId ? "selected" : ""
+                        promotionId === promotion.promotionId
+                          ? "voucher-selected"
+                          : ""
                       }
                     >
                       {promotion.title} ({promotion.discountLevel}% off)
@@ -344,7 +314,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 </ul>
               )}
             </div>
-            <div className="detail-item ticket-type">
+            <div className="ticket-detail-row ticket-type-selection">
               <span>Select Ticket Type:</span>
               <Select
                 value={ticketType}
@@ -359,7 +329,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 <Option value="ADULT">ADULT</Option>
                 <Option value="STUDENT">STUDENT</Option>
               </Select>
-              <h5 className="Ticketnote">
+              <h5 className="ticket-type-note">
                 *note:
                 <br />
                 Student: 80000 VND/seat
@@ -367,15 +337,27 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 Adult: 120000 VND/seat
               </h5>
             </div>
-
-            <div className="detail-item phone-input">
-              <button onClick={showModal}>Enter Phone Number</button>
-            </div>
-            <div className="detail-item payment-method">
-              <span style={{ marginTop: "10px", marginBottom: "-20" }}>
+            <div className="ticket-detail-row ticket-payment-method">
+              <span
+                style={{
+                  marginTop: "10px",
+                  marginBottom: "-20",
+                  fontSize: "25px",
+                  justifyContent: "center",
+                  display: "flex",
+                }}
+              >
                 Payment Method
               </span>
-              <Select value={paymentMethod} onChange={setPaymentMethod}>
+              <Select
+                value={paymentMethod}
+                style={{
+                  marginBottom: "5px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+                onChange={setPaymentMethod}
+              >
                 <Option value="VNPAY">VNPAY</Option>
                 <Option value="CASH">Cash</Option>
                 <Option value="MOMO_QR">MOMO</Option>
@@ -392,9 +374,9 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 </div>
               )}
             </div>
-            <p className="note">*Purchased ticket cannot be canceled</p>
+            <p className="ticket-note">*Purchased ticket cannot be canceled</p>
             <button
-              className="purchase-button"
+              className="ticket-purchase-btn"
               onClick={handlePurchase}
               disabled={isProcessing}
             >
@@ -405,65 +387,43 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       </div>
 
       <Modal
-        title="Enter Information"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={null}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "20px",
-          transform: "translateY(-50%)",
-        }}
-      >
-        <Select
-          value={inputType}
-          onChange={setInputType}
-          style={{ width: "100%", marginBottom: "10px" }}
-        >
-          <Option value="phone">Enter Phone Number</Option>
-          <Option value="id">Enter ID Card</Option>
-        </Select>
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder={inputType === "phone" ? "Phone Number" : "ID Card"}
-        />
-        <Button key="submit" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Modal>
-
-      <Modal
         title="Purchase Response"
         open={responseModalVisible}
         onOk={() => setResponseModalVisible(false)}
         onCancel={() => setResponseModalVisible(false)}
       >
-        <p>Movie Name: {ticketData?.movieName || "N/A"}</p>
-        <p>Date: {formatDate(ticketData?.scheduleShowDate)}</p>
         <p>
-          Time:{" "}
+          <strong>Movie Name:</strong> {ticketData?.movieName || "N/A"}
+        </p>
+        <p>
+          <strong>Date:</strong> {formatDate(ticketData?.scheduleShowDate)}
+        </p>
+        <p>
+          <strong>Time:</strong>
           {ticketData?.scheduleShowTime
             ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
             : "N/A"}
         </p>
         <p>
-          Ticket ({ticketData?.seatNumbers?.length || 0}):{" "}
+          <strong>Ticket({ticketData?.seatNumbers?.length || 0}):</strong>
           {ticketData?.seatNumbers?.join(", ") || "N/A"}
         </p>
         <br />
-        <Button key="close" onClick={() => setResponseModalVisible(false)}>
-          Close
-        </Button>
-        <Button
-          key="Confirm"
-          onClick={handleQRPurchase}
-          disabled={isProcessing}
-        >
-          {isProcessing ? "Processing..." : "Purchase"}
-        </Button>
+        <div className="ticket-infor-button">
+          <Button
+            className="ticket-infor-modal-button"
+            key="Confirm"
+            type="primary"
+            block
+            style={{
+              backgroundColor: "#0c9550",
+            }}
+            onClick={handleQRPurchase}
+            disabled={isProcessing}
+          >
+            {isProcessing ? "Processing..." : "Purchase"}
+          </Button>
+        </div>
       </Modal>
     </div>
   );

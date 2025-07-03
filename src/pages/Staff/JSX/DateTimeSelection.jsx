@@ -133,7 +133,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       return;
     }
     navigate(
-      `/Select-Seat/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
+      `/cinema-seating/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
     );
 
     message.success("Date and time selected successfully!");

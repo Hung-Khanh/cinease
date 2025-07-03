@@ -1,4 +1,4 @@
-.ticket-info-wrapper {
+.ticket-info-main {
   position: relative;
   min-height: 100vh;
   background-image: url("../../../assets/bigbackground.png");
@@ -10,7 +10,7 @@
   padding: 20px;
   color: #fff;
 
-  .dts-back-btn {
+  .ticket-back-btn {
     background: none;
     border: 2px solid #0c9550;
     color: #0c9550;
@@ -34,38 +34,33 @@
     }
   }
 
-  .ticket-info-container {
+  .ticket-info-content {
     display: flex;
     justify-content: center;
-    width: 800px;
-    padding: 0 15px 50px 50px; /* Add padding for smaller screens */
+    width: 900px;
+    padding: 0 15px 50px 50px;
   }
 
-  .ticket-card {
+  .ticket-info-card {
     border-radius: 10px;
-    padding: 20px;
+    padding: 40px;
     width: 100%;
     display: flex;
-    gap: 30px;
-    flex-direction: row; /* Default for larger screens */
-    background: rgba(
-      0,
-      0,
-      0,
-      0.7
-    ); /* Add semi-transparent background for readability */
+    gap: 20px;
+    flex-direction: row;
+    background: rgba(0, 0, 0, 0.7);
   }
 
-  .ticket-image {
-    .movie-poster {
+  .ticket-poster-container {
+    .ticket-movie-poster {
       width: 250px;
       height: 460px;
-      object-fit: cover; /* Changed to cover for better image scaling */
+      object-fit: cover;
       border-radius: 15px;
     }
   }
 
-  .ticket-details {
+  .ticket-details-section {
     flex: 1;
 
     h2 {
@@ -74,18 +69,18 @@
       text-align: center;
     }
 
-    .detail-item {
+    .ticket-detail-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
       font-size: 16px;
 
-      &.promotion-search {
+      &.ticket-voucher-search {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
-        position: relative; /* Đặt vị trí tương đối để điều khiển ul */
+        width: 100%;
+        position: relative;
 
         span.text {
           font-weight: 500;
@@ -94,7 +89,7 @@
 
         .ant-input-search {
           font-size: 14px;
-          border-radius: 4px #000;
+          border-radius: 4px;
           transition: border-color 0.3s;
 
           .ant-input {
@@ -108,30 +103,29 @@
           }
         }
 
-        .promotion-list {
-          display: none; /* Ẩn ul mặc định */
+        .ticket-voucher-list {
+          display: none;
           list-style: none;
           padding: 0;
           margin: 0;
-          margin-top: 8px; /* Đảm bảo ul nằm dưới search */
+          margin-top: 8px;
           max-height: 150px;
           overflow-y: auto;
           border: 1px solid #d9d9d9;
           border-radius: 4px;
           background: #fff;
-          width: 100%; /* Đảm bảo ul chiếm toàn bộ chiều rộng */
-          position: absolute; /* Đặt ul dưới search */
-          top: 100%; /* Đặt ul ngay dưới thanh search */
-          left: 0; /* Căn trái với container */
-          z-index: 1; /* Đảm bảo ul hiển thị trên các phần tử khác */
+          width: 100%;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          z-index: 1;
         }
 
-        /* Hiện ul khi có dữ liệu tìm kiếm */
-        .promotion-list.has-results {
+        .ticket-voucher-list.has-vouchers {
           display: block;
         }
 
-        .promotion-list li {
+        .ticket-voucher-list li {
           padding: 8px 12px;
           cursor: pointer;
           font-size: 14px;
@@ -139,25 +133,29 @@
           transition: background-color 0.2s;
         }
 
-        .promotion-list li:hover {
+        .ticket-voucher-list li:hover {
           background-color: #f5f5f5;
         }
 
-        .promotion-list li.selected {
+        .ticket-voucher-list li.voucher-selected {
           background-color: #e6f7ff;
           color: #1890ff;
           font-weight: 500;
         }
       }
 
-      &.detail-item.ticket-type {
+      &.ticket-type-selection {
         flex-direction: column;
       }
-      .Ticketnote {
+
+      .ticket-type-note {
         font-size: 14px;
         color: #dbd8d8;
         margin: 0;
+        justify-content: end;
+        display: flex;
       }
+
       &.transaction {
         flex-direction: column;
         gap: 5px;
@@ -183,7 +181,7 @@
         margin-top: 20px;
       }
 
-      &.phone-input {
+      &.ticket-phone-input {
         button {
           width: 100%;
           padding: 10px;
@@ -200,7 +198,7 @@
         }
       }
 
-      &.payment-method {
+      &.ticket-payment-method {
         flex-direction: column;
         gap: 10px;
 
@@ -243,14 +241,14 @@
       }
     }
 
-    .note {
+    .ticket-note {
       font-size: 12px;
       color: #ccc;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 20px;
     }
 
-    .purchase-button {
+    .ticket-purchase-btn {
       width: 100%;
       padding: 10px;
       background-color: #28a745;
@@ -259,37 +257,35 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
-      margin-top: 20px;
-
+      margin-top: 7px;
       &:hover {
         background-color: #218838;
       }
     }
   }
 
-  /* Tablet screens (768px and below) */
   @media (max-width: 768px) {
-    .ticket-card {
+    .ticket-info-card {
       flex-direction: column;
       align-items: center;
       padding: 15px;
     }
 
-    .ticket-image {
+    .ticket-poster-container {
       position: relative;
       margin-top: 50px;
-      .movie-poster {
+      .ticket-movie-poster {
         width: 150px;
         height: 225px;
       }
     }
 
-    .ticket-details {
+    .ticket-details-section {
       h2 {
         font-size: 20px;
       }
 
-      .detail-item {
+      .ticket-detail-row {
         font-size: 14px;
       }
 
@@ -298,44 +294,43 @@
       }
     }
 
-    .dts-back-btn {
+    .ticket-back-btn {
       font-size: 20px;
       top: 15px;
       left: 15px;
     }
   }
 
-  /* Mobile screens (480px and below) */
   @media (max-width: 480px) {
     padding: 10px;
 
-    .ticket-info-container {
+    .ticket-info-content {
       padding: 0 10px;
     }
 
-    .ticket-card {
+    .ticket-info-card {
       padding: 10px;
       gap: 15px;
     }
 
-    .ticket-infor-image {
-      .movie-poster {
+    .ticket-poster-container {
+      .ticket-movie-poster {
         width: 120px;
         height: 180px;
       }
     }
 
-    .ticket-details {
+    .ticket-details-section {
       h2 {
         font-size: 18px;
         margin-bottom: 15px;
       }
 
-      .detail-item {
+      .ticket-detail-row {
         font-size: 12px;
         flex-direction: column;
         gap: 5px;
-        padding: 700px;
+        padding: 10px; /* Sửa lỗi padding quá lớn từ 700px */
         &.transaction {
           .transaction-details {
             padding-left: 10px;
@@ -347,20 +342,20 @@
         font-size: 16px;
       }
 
-      .note {
+      .ticket-note {
         font-size: 10px;
       }
 
-      .purchase-button {
+      .ticket-purchase-btn {
         font-size: 14px;
         padding: 8px;
       }
     }
 
-    .dts-back-btn {
+    .ticket-back-btn {
       font-size: 18px;
       top: 10px;
-      left: 10px;
+      left: 10ponepx;
     }
   }
 }

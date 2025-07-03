@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import "../SCSS/phoneNum.scss";
 import { Button, Modal } from "antd";
+import { FaArrowLeft } from "react-icons/fa";
 import { TiPhone } from "react-icons/ti";
-import api from "../../../constants/axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { checkMember } from "../../../api/staff";
 
-const PhoneInput = ({ apiUrl }) => {
+const PhoneInput = ({ onBack }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
-  const token = localStorage.getItem("token");
   const { invoiceId, scheduleId } = useParams();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [memberData, setMemberData] = useState(null);
@@ -29,30 +29,10 @@ const PhoneInput = ({ apiUrl }) => {
     }
 
     try {
-      const response = await fetch(`${apiUrl}/employee/bookings/check-member`, {
-        method: "POST",
-        headers: {
-          accept: "*/*",
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
-          invoiceId: invoiceId,
-          phoneNumber: phoneNumber,
-        }),
-      });
-      console.log("Invoice ID:", invoiceId);
+      const response = await checkMember(invoiceId, phoneNumber);
 
-      if (response.status === 200) {
-        const data = await response.json();
-        setMemberData(data);
-        console.log("Response data:", data);
-        setIsModalVisible(true);
-      } else {
-        setMessage("Đã xảy ra lỗi khi kiểm tra số điện thoại.");
-        setMessageType("error");
-      }
+      setMemberData(response.data);
+      setIsModalVisible(true);
     } catch (error) {
       console.error("Error in handleInputPhoneNumber:", error);
     }
@@ -77,20 +57,32 @@ const PhoneInput = ({ apiUrl }) => {
   };
 
   const formatPhoneNumber = (number) => {
-    if (number.length <= 3) return number;
-    if (number.length <= 6) return `${number.slice(0, 3)} ${number.slice(3)}`;
-    if (number.length <= 9)
-      return `${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(6)}`;
-    return `${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(
-      6,
-      9
-    )} ${number.slice(9)}`;
-  };
+    // Loại bỏ các ký tự không phải số
+    const cleaned = number.replace(/\D/g, "");
 
+    // Kiểm tra độ dài số
+    if (cleaned.length <= 4) return cleaned;
+    if (cleaned.length <= 7)
+      return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+    return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(
+      7,
+      10
+    )}`;
+  };
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
   return (
     <div className="phone-page">
+      <button className="dts-back-btn" onClick={handleBack}>
+        <FaArrowLeft />
+      </button>
       <div className="phone-container">
-        <h1 className="phone-title">Nhập số điện thoại</h1>
+        <h1 className="phone-title">Enter your phone number</h1>
 
         <div className="phone-display">
           <div className="input-container">
@@ -98,12 +90,12 @@ const PhoneInput = ({ apiUrl }) => {
               type="text"
               className="phone-input"
               value={formatPhoneNumber(phoneNumber)}
-              placeholder="Số điện thoại của bạn"
+              placeholder="Your phone number"
               readOnly
             />
             <TiPhone className="phone-icon" />
           </div>
-          <div className="phone-length">{phoneNumber.length}/11 chữ số</div>
+          <div className="phone-length">{phoneNumber.length}/11 number</div>
         </div>
 
         <div className="keypad">
@@ -143,7 +135,12 @@ const PhoneInput = ({ apiUrl }) => {
           </div>
         )}
       </div>
-      <Modal open={isModalVisible} onCancel={handleCancel} footer={null}>
+      <Modal
+        open={isModalVisible}
+        onCancel={handleCancel}
+        title="Confirm your information"
+        footer={null}
+      >
         <p>
           <strong>Phone:</strong>
           {""}
@@ -164,8 +161,13 @@ const PhoneInput = ({ apiUrl }) => {
           {""}
           {memberData?.estimatedEarnedScore}
         </p>
-        <div className="modal-button">
-          <Button type="primary" size="large" block onClick={handleNextPage}>
+        <div className="out-button">
+          <Button
+            className="modal-button"
+            size="large"
+            block
+            onClick={handleNextPage}
+          >
             Next
           </Button>
         </div>

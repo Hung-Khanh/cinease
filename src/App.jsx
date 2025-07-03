@@ -119,6 +119,8 @@ function Layout() {
   const location = useLocation(); // Add useLocation hook
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
+  const role = localStorage.getItem("role");
+  const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 
   return (
@@ -126,29 +128,39 @@ function Layout() {
       {!isLoginRegister && !isAdmin && <Header />}
       <main className="main-content">
         <Routes>
+          {isStaff && (
+            <>
+              <Route path="/staffHomePage" element={<StaffHomePage />} />
+              <Route
+                path="/cinema-seating/:scheduleId/:movieName/:selectedDate/:selectedTime"
+                element={<CinemaSeating />}
+              />
+              <Route
+                path="/phone-input/:invoiceId/:scheduleId"
+                element={<PhoneInput apiUrl={apiUrl} />}
+              />
+              <Route
+                path="/dateTimeSelection/:movieId"
+                element={<DateTimeSelection apiUrl={apiUrl} />}
+              />
+              <Route
+                path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
+                element={<SeatSelection apiUrl={apiUrl} />}
+              />
+
+              <Route
+                path="/ticketInformation/:invoiceId/:scheduleId"
+                element={<TicketInformation apiUrl={apiUrl} />}
+              />
+              <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+            </>
+          )}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
-          <Route path="/staffHomePage" element={<StaffHomePage />} />
+
           <Route path="/home" element={<HomePage />} />
-          <Route path="/cinema-seating" element={<CinemaSeating />} />
-          <Route
-            path="/phone-input/:invoiceId/:scheduleId"
-            element={<PhoneInput apiUrl={apiUrl} />}
-          />
-          <Route
-            path="/dateTimeSelection/:movieId"
-            element={<DateTimeSelection apiUrl={apiUrl} />}
-          />
-          <Route
-            path="/Select-Seat/:scheduleId/:movieName/:selectedDate/:selectedTime"
-            element={<SeatSelection apiUrl={apiUrl} />}
-          />
-          <Route
-            path="/ticketInformation/:invoiceId/:scheduleId"
-            element={<TicketInformation apiUrl={apiUrl} />}
-          />
-          <Route path="/confirm-purchase" element={<ConfirmPurchase />} />
+
           <Route path="/movie" element={<Movie />} />
           <Route path="/profile" element={<Profile />} />
           <Route
