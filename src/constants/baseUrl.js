@@ -1,3 +1,2 @@
 const baseUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-
-export { baseUrl }
+export default baseUrl;

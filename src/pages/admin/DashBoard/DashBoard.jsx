@@ -206,7 +206,7 @@ const Dashboard = () => {
       return (
         <div className="chart-tooltip bar-tooltip">
           <strong>{label}</strong><br/>
-          Revenue: ${payload[0].value}
+          Revenue: {payload[0].value} VND
         </div>
       );
     }

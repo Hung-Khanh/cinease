@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Movie.scss";
 import { useNavigate } from "react-router-dom";
+import { getNowShowingMovies, getComingSoonMovies } from '../../api/movie';
 
 const Movie = () => {
   const navigate = useNavigate();
@@ -10,27 +11,17 @@ const Movie = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [genre, setGenre] = useState("all");
-  const moviesPerPage = 12;
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = localStorage.getItem("token");
-  console.log(token);
+  const moviesPerPage = 10;
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch(`${apiUrl}/public/movie/now-showing`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
-        if (!response.ok) {
+        const response = await getNowShowingMovies();
+        if (response.status !== 200) {
           throw new Error(`HTTP error: ${response.status}`);
         }
-        const data = await response.json();
+        const data = response.data;
         const moviesData = data.content;
-        console.log("Fetched Movies Data:", data);
-
         if (Array.isArray(moviesData)) {
           const extractedMovies = moviesData.map((movie) => ({
             id: movie.movieId,
@@ -53,18 +44,10 @@ const Movie = () => {
     };
     const fetchComingSoonMovies = async () => {
       try {
-        const response = await fetch(`${apiUrl}/public/movie/upcoming`, {
-          headers: {
-            Accept: "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        });
-        console.log(response.data);
-        const data = await response.json();
-        const comingSoonData = data.content;
-
-        if (Array.isArray(comingSoonData)) {
-          const extractedComingSoonMovies = comingSoonData.map((movie) => ({
+        const response = await getComingSoonMovies();
+        const data = response.data.content;
+        if (Array.isArray(data)) {
+          const extractedComingSoonMovies = data.map((movie) => ({
             id: movie.movieId,
             title: movie.movieNameEnglish,
             poster: movie.posterImageUrl,
@@ -78,7 +61,7 @@ const Movie = () => {
           }));
           setComingSoonMovies(extractedComingSoonMovies);
         } else {
-          console.error("Data is not an array:", comingSoonData);
+          console.error("Data is not an array:", data);
           setComingSoonMovies([]);
         }
       } catch (error) {
@@ -88,7 +71,7 @@ const Movie = () => {
     };
     fetchMovies();
     fetchComingSoonMovies();
-  }, [apiUrl, token]);
+  }, []);
 
   const genreOptions = [...new Set(nowShowing.map((m) => m.genre))];
 

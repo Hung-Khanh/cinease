@@ -9,6 +9,7 @@ import PromotionsIcon from "../../../assets/admin-logo/promotions-icon.svg";
 import CinemaIcon from "../../../assets/admin-logo/cinema-icon.svg";
 import TicketIcon from "../../../assets/admin-logo/ticket-icon.svg";
 import MemberIcon from "../../../assets/admin-logo/member-icon.svg";
+import ProductIcon from "../../../assets/admin-logo/popcorn-icon.svg";
 
 const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   const location = useLocation();
@@ -47,8 +48,13 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
     {
       path: "/admin/ticket",
       icon: TicketIcon,
-      label: "Ticket Management",
+      label: "Tickets Management",
     },
+    {
+      path: "/admin/productmanagement",
+      icon: ProductIcon,
+      label: "Products Management",
+    }
   ];
 
   const isActive = (path) => location.pathname === path;

@@ -207,6 +207,15 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       min-width: 230px;
       margin: 0 14px;
     }
+    .promo-carousel {
+      width: 100%;
+      .promo-card {
+        flex: 0 0 22%;
+        max-width: 22%;
+        min-width: 230px;
+        margin: 0 12px;
+      }
+    }
   }
 
   // Style mũi tên carousel
@@ -400,11 +409,129 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   .promo-section {
     margin-top: 36px;
 
+    .promo-carousel {
+      width: 100%;
+      position: relative;
+      .slick-arrow {
+        color: #fff;
+        font-size: 32px;
+        z-index: 2;
+        background: transparent !important;
+        width: auto;
+        height: auto;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        opacity: 0.8;
+        border: none;
+        box-shadow: none;
+        top: 50%;
+        transform: translateY(-50%);
+        &:hover {
+          background: #1976d2;
+          color: #fff;
+          opacity: 1;
+        }
+        &.slick-prev {
+          left: -42px;
+          &::after {
+            box-sizing: border-box;
+            position: absolute;
+            top: 2.34px;
+            left: 2.34px;
+            display: inline-block;
+            width: 11.31px;
+            height: 11.31px;
+            border: 0 solid currentcolor;
+            border-left-width: 2px;
+            border-top-width: 2px;
+            border-radius: 1px;
+            content: "";
+            transform: rotate(-45deg);
+          }
+        }
+        &.slick-next {
+          right: -42px;
+          &::after {
+            box-sizing: border-box;
+            position: absolute;
+            top: 2.34px;
+            left: 2.34px;
+            display: inline-block;
+            width: 11.31px;
+            height: 11.31px;
+            border: 0 solid currentcolor;
+            border-right-width: 2px;
+            border-top-width: 2px;
+            border-radius: 1px;
+            content: "";
+            transform: rotate(45deg);
+          }
+        }
+        @media (max-width: 900px) {
+          font-size: 22px;
+          width: 32px;
+          height: 32px;
+          &.slick-prev {
+            left: -12px;
+          }
+          &.slick-next {
+            right: -12px;
+          }
+        }
+      }
+      .promo-card {
+        flex: 0 0 22%;
+        max-width: 22%;
+        min-width: 220px;
+        margin: 0 12px;
+        background: $dark-bg;
+        border-radius: 14px;
+        box-shadow: $card-shadow;
+        height: 270px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 20px;
+        &:hover {
+          transform: translateY(-6px) scale(1.03);
+          box-shadow: $hover-shadow;
+        }
+        .promo-img {
+          width: 100%;
+          height: 160px;
+          object-fit: cover;
+          border-radius: 14px 14px 0 0;
+          margin-bottom: 10px;
+        }
+        .promo-info {
+          padding: 10px 14px 12px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 6px;
+          .promo-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: $text-light;
+            margin-bottom: 2px;
+          }
+          .promo-date {
+            font-size: 13px;
+            color: $text-muted;
+          }
+        }
+      }
+    }
+
+
     .promo-list {
       display: flex;
       flex-wrap: nowrap;
       gap: 32px;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: stretch;
       width: 100%;
       overflow-x: hidden;
@@ -419,7 +546,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         border-radius: 14px;
         box-shadow: $card-shadow;
         width: 320px;
-        min-width: 260px;
+        min-width: 214px;
         height: 270px;
         display: flex;
         flex-direction: column;

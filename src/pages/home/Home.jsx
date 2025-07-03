@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import KM from "../../assets/KM.png";
 import "./Home.scss";
-import api from '../../constants/axios';
+import { getNowShowingMovies, getComingSoonMovies } from '../../api/movie';
+import { getPromotions } from '../../api/promotion';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -13,96 +14,76 @@ const Home = () => {
     const [trailerVisible, setTrailerVisible] = useState(null);
     useEffect(() => {
         const fetchMovies = async () => {
-            try {
-                const response = await api.get(`/public/movie/now-showing`, {
-                    headers: {
-                        Accept: "application/json",
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                });
-
-                if (response.status !== 200) {
-                    console.error("HTTP error:", response.status);
-                    return;
-                }
-
-                const data = response.data;
-                const filmData = data.content;
-
-                if (Array.isArray(filmData)) {
-                    const extractedMovies = filmData.map((movie) => ({
-                        id: movie.movieId,
-                        title: movie.movieNameEnglish,
-                        poster: movie.posterImageUrl || KM,
-                        img: movie.largeImage,
-                        rating: movie.rating,
-                        genre: movie.version || "Unknown",
-                        types: movie.types || "Unknown",
-                        showtimes: movie.duration ? `${movie.duration} min` : "120 min",
-                        trailer: movie.trailerUrl,
-                        desc: movie.content,
-                    }));
-
-                    setShowingMovies(extractedMovies);
-                } else {
-                    console.error("Dữ liệu không phải là mảng:", filmData);
-                    setShowingMovies([]);
-                }
-            } catch (error) {
-                console.error("Error fetching movies:", error);
-                setShowingMovies([]);
-            }
-        };
+    try {
+        const response = await getNowShowingMovies();
+        if (response.status !== 200) {
+            console.error("HTTP error:", response.status);
+            return;
+        }
+        const data = response.data;
+        const filmData = data.content;
+        if (Array.isArray(filmData)) {
+            const extractedMovies = filmData.map((movie) => ({
+                id: movie.movieId,
+                title: movie.movieNameEnglish,
+                poster: movie.posterImageUrl || KM,
+                img: movie.largeImage,
+                rating: movie.rating,
+                genre: movie.version || "Unknown",
+                types: movie.types || "Unknown",
+                showtimes: movie.duration ? `${movie.duration} min` : "120 min",
+                trailer: movie.trailerUrl,
+                desc: movie.content,
+            }));
+            setShowingMovies(extractedMovies);
+        } else {
+            console.error("Dữ liệu không phải là mảng:", filmData);
+            setShowingMovies([]);
+        }
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        setShowingMovies([]);
+    }
+};
 
         const fetchComingSoonMovies = async () => {
-            try {
-                const response = await api.get('/public/movie/upcoming', {
-                    headers: {
-                        Accept: "application/json",
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                });
-                console.log(response.data); // Kiểm tra dữ liệu trả về
-                const data = response.data.content;
-                const extractedComingSoonMovies = data.map((movie) => ({
-                    id: movie.movieId,
-                    title: movie.movieNameEnglish,
-                    img: movie.posterImageUrl,
-                    date: movie.fromDate || "Unknown",
-                    badge: "Coming Soon",
-                    genre: movie.version || "Unknown",
-                    types: movie.types || "Unknown",
-                }));
-                setComingSoonMovies(extractedComingSoonMovies);
-            } catch (error) {
-                console.error("Error fetching coming soon movies:", error);
-                setComingSoonMovies([]);
-            }
-        };
+    try {
+        const response = await getComingSoonMovies();
+        const data = response.data.content;
+        const extractedComingSoonMovies = data.map((movie) => ({
+            id: movie.movieId,
+            title: movie.movieNameEnglish,
+            img: movie.posterImageUrl,
+            date: movie.fromDate || "Unknown",
+            badge: "Coming Soon",
+            genre: movie.version || "Unknown",
+            types: movie.types || "Unknown",
+        }));
+        setComingSoonMovies(extractedComingSoonMovies);
+    } catch (error) {
+        console.error("Error fetching coming soon movies:", error);
+        setComingSoonMovies([]);
+    }
+};
 
         const fetchPromotions = async () => {
-            try {
-                const response = await api.get(`/public/promotions`, {
-                    headers: {
-                        Accept: "application/json",
-                        "ngrok-skip-browser-warning": "true",
-                    },
-                });
-                const data = response.data;
-                const extractedPromotions = data.map((promo) => ({
-                    id: promo.promotionId,
-                    title: promo.title,
-                    img: promo.image,
-                    detail: promo.detail,
-                    startTime: promo.startTime,
-                    endTime: promo.endTime,
-                }));
-                setPromotions(extractedPromotions);
-            } catch (error) {
-                console.error("Error fetching promotions:", error);
-                setPromotions([]);
-            }
-        };
+    try {
+        const response = await getPromotions();
+        const data = response.data;
+        const extractedPromotions = data.map((promo) => ({
+            id: promo.promotionId,
+            title: promo.title,
+            img: promo.image,
+            detail: promo.detail,
+            startTime: promo.startTime,
+            endTime: promo.endTime,
+        }));
+        setPromotions(extractedPromotions);
+    } catch (error) {
+        console.error("Error fetching promotions:", error);
+        setPromotions([]);
+    }
+};
         fetchMovies();
         fetchComingSoonMovies();
         fetchPromotions();
@@ -175,7 +156,7 @@ const Home = () => {
                                         <div className="movie-title">{movie.title}</div>
                                         <div className="movie-rating-row">
                                             <span className="movie-star">★</span>
-                                            <span className="movie-score">{movie.rating}/10</span>
+                                            <span className="movie-score">{movie.rating}9/10</span>
                                         </div>
                                         <div className="movie-extra-row">
                                             <span className="movie-minutes">{movie.showtimes}</span>
@@ -229,7 +210,18 @@ const Home = () => {
                     <div className="section-header">
                         <h2>Special Promotions</h2>
                     </div>
-                    <div className="promo-list">
+                    <div className="promo-carousel-wrap">
+                        <Carousel
+                            slidesToShow={5}
+                            arrows
+                            infinite={promotions.length > 5}
+                            responsive={[
+                                { breakpoint: 1200, settings: { slidesToShow: 3 } },
+                                { breakpoint: 900, settings: { slidesToShow: 2 } },
+                                { breakpoint: 600, settings: { slidesToShow: 1 } },
+                            ]}
+                            className="promo-carousel"
+                        >
                         {promotions.map((promo, idx) => {
                             const startDate = new Date(promo.startTime);
                             const endDate = new Date(promo.endTime);
@@ -251,6 +243,7 @@ const Home = () => {
                                 </Tooltip>
                             );
                         })}
+                        </Carousel>
                     </div>
                 </section>
             </main>

@@ -3,6 +3,7 @@ import {
   DeleteOutlined,
   DownOutlined,
   EditOutlined,
+  EyeOutlined,
   MinusCircleOutlined,
   PlusCircleOutlined,
   PlusOutlined,
@@ -115,6 +116,10 @@ const Movie = () => {
   const [bannerFile, setBannerFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
+  // Add state for movie details modal
+  const [isMovieDetailsModalVisible, setIsMovieDetailsModalVisible] = useState(false);
+  const [selectedMovieDetails, setSelectedMovieDetails] = useState(null);
+
   // Optimize message handling with debounce and key management
   const showSuccessMessage = React.useCallback((content, duration = 2) => {
     message.success({
@@ -137,16 +142,14 @@ const Movie = () => {
       title: "Movie Name (VN)",
       dataIndex: "movieNameVn",
       key: "movieNameVn",
-      width: 80,
       render: (text) => (
         <Tooltip title={text}>
           <div
             style={{
-              maxWidth: "80px",
+              maxWidth: "150px",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              fontSize: "12px",
             }}
           >
             {text}
@@ -158,16 +161,14 @@ const Movie = () => {
       title: "Movie Name (EN)",
       dataIndex: "movieNameEnglish",
       key: "movieNameEnglish",
-      width: 80,
       render: (text) => (
         <Tooltip title={text}>
           <div
             style={{
-              maxWidth: "80px",
+              maxWidth: "150px",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              fontSize: "12px",
             }}
           >
             {text}
@@ -178,65 +179,54 @@ const Movie = () => {
     {
       title: "Date Range",
       key: "dateRange",
-      render: (_, record) => (
-        <Tooltip title={`From: ${record.fromDate} - To: ${record.toDate}`}>
-          <div style={{ cursor: "help" }}>
-            {record.fromDate} - {record.toDate}
-          </div>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Actor",
-      dataIndex: "actor",
-      key: "actor",
-      render: (actor) => (
-        <Tooltip title={actor}>
-          <div
-            style={{
-              cursor: "help",
-              maxWidth: "150px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {actor}
-          </div>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Cinema Room",
-      key: "cinemaRoom",
       render: (_, record) => {
-        const room = cinemaRooms.find(
-          (r) => r.cinemaRoomId === record.cinemaRoom
+        // Ensure consistent formatting by always showing full date range
+        const fromDate = record.fromDate || 'N/A';
+        const toDate = record.toDate || 'N/A';
+        
+        return (
+          <Tooltip title={`From: ${fromDate} - To: ${toDate}`}>
+            <div 
+              style={{ 
+                cursor: "help", 
+                minWidth: "150px",
+                maxWidth: "200px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }}
+            >
+              {fromDate} - {toDate}
+            </div>
+          </Tooltip>
         );
-        return room
-          ? `${room.cinemaRoomName} (${room.seatQuantity} seats)`
-          : "N/A";
       },
     },
     {
       title: "Movie Type",
       key: "types",
       render: (_, record) => {
-        // Ensure types is an array and join them
         const typeDisplay = Array.isArray(record.types)
           ? record.types.join(", ")
           : record.types
-          ? String(record.types)
-          : "No Type";
+            ? String(record.types)
+            : "No Type";
 
-        return typeDisplay;
+        return (
+          <Tooltip title={typeDisplay}>
+            <div
+              style={{
+                maxWidth: "100px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {typeDisplay}
+            </div>
+          </Tooltip>
+        );
       },
-    },
-    {
-      title: "Duration (mins)",
-      dataIndex: "duration",
-      key: "duration",
-      render: (duration) => `${duration} mins`,
     },
     {
       title: "Poster Image",
@@ -280,7 +270,6 @@ const Movie = () => {
       title: "Trailer",
       dataIndex: "trailerUrl",
       key: "trailerUrl",
-      width: 50,
       render: (trailerUrl) =>
         trailerUrl ? (
           <Button
@@ -305,6 +294,18 @@ const Movie = () => {
       key: "action",
       render: (_, record) => (
         <div className="action-buttons">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            className="view-btn"
+            onClick={async () => {
+              const details = await fetchMovieDetails(record.key);
+              if (details) {
+                setSelectedMovieDetails(details);
+                setIsMovieDetailsModalVisible(true);
+              }
+            }}
+          />
           <Button
             type="link"
             icon={<EditOutlined />}
@@ -335,12 +336,12 @@ const Movie = () => {
           : null,
       scheduleTimes: record.scheduleTimes
         ? record.scheduleTimes.map((scheduleTime) => {
-            const [date, time] = scheduleTime.split(" ");
-            return {
-              date: dayjs(date),
-              time: dayjs(time, "HH:mm"),
-            };
-          })
+          const [date, time] = scheduleTime.split(" ");
+          return {
+            date: dayjs(date),
+            time: dayjs(time, "HH:mm"),
+          };
+        })
         : [],
       // Set initial types using type names
       types: record.types || [],
@@ -394,26 +395,26 @@ const Movie = () => {
         typeIds:
           values.types && values.types.length > 0
             ? values.types
-                .map((typeName) => {
-                  const type = movieTypes.find(
-                    (t) => t.movieTypeName === typeName
-                  );
-                  return type ? type.movieTypeId : null;
-                })
-                .filter((id) => id !== null)
-                .join(",")
+              .map((typeName) => {
+                const type = movieTypes.find(
+                  (t) => t.movieTypeName === typeName
+                );
+                return type ? type.movieTypeId : null;
+              })
+              .filter((id) => id !== null)
+              .join(",")
             : "1", // Default to first type if none selected
 
         // Schedule times
         scheduleTimes: values.scheduleTimes
           ? values.scheduleTimes
-              .map(
-                (scheduleItem) =>
-                  `${scheduleItem.date.format(
-                    "YYYY-MM-DD"
-                  )}T${scheduleItem.time.format("HH:mm:ss")}`
-              )
-              .join(",")
+            .map(
+              (scheduleItem) =>
+                `${scheduleItem.date.format(
+                  "YYYY-MM-DD"
+                )}T${scheduleItem.time.format("HH:mm:ss")}`
+            )
+            .join(",")
           : "",
       });
 
@@ -461,8 +462,7 @@ const Movie = () => {
 
       // Success message with optimized handling
       showSuccessMessage(
-        `Movie "${values.movieNameVn}" ${
-          isEditing ? "updated" : "added"
+        `Movie "${values.movieNameVn}" ${isEditing ? "updated" : "added"
         } successfully!`,
         3
       );
@@ -594,7 +594,56 @@ const Movie = () => {
     }
   };
 
-  // Modify fetchMovies to use optimized message
+  // Fetch movie details by ID
+  const fetchMovieDetails = async (movieId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${apiUrl}/admin/movies/details/${movieId}`, {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
+      }
+
+      const result = await response.json();
+
+      // Format the result to match the existing movie structure
+      const formattedMovie = {
+        movieId: result.movieId,
+        movieNameVn: result.movieNameVn,
+        movieNameEnglish: result.movieNameEnglish,
+        fromDate: result.fromDate,
+        toDate: result.toDate,
+        actor: result.actor,
+        movieProductionCompany: result.movieProductionCompany || "N/A",
+        director: result.director,
+        duration: result.duration,
+        version: result.version,
+        content: result.content,
+        posterImageUrl: result.posterImageUrl,
+        largeImage: result.largeImage,
+        cinemaRoom: result.cinemaRoomId,
+        trailerUrl: result.trailerUrl,
+        types: result.types || [],
+      };
+
+      return formattedMovie;
+    } catch (error) {
+      showErrorMessage(`Failed to fetch movie details: ${error.message}`);
+      return null;
+    }
+  };
+
+  // Modify fetchMovies function to remove sorting
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
@@ -619,8 +668,8 @@ const Movie = () => {
         const movieTypes = Array.isArray(movie.types)
           ? movie.types
           : movie.types
-          ? [movie.types]
-          : [];
+            ? [movie.types]
+            : [];
 
         return {
           key: movie.movieId.toString(),
@@ -674,7 +723,7 @@ const Movie = () => {
   const filteredMovies = movies.filter((movie) =>
     searchTerm
       ? movie.movieNameVn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        movie.movieNameEnglish.toLowerCase().includes(searchTerm.toLowerCase())
+      movie.movieNameEnglish.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
 
@@ -684,7 +733,7 @@ const Movie = () => {
         <div className="header-actions">
           <div className="filter-dropdowns">
             <Input
-              placeholder="Search Movie by Name"
+              placeholder="Search Movie"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 200, marginRight: 10 }}
@@ -1078,6 +1127,66 @@ const Movie = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Movie Details Modal */}
+      <Modal
+        title="Movie Details"
+        open={isMovieDetailsModalVisible}
+        onCancel={() => {
+          setIsMovieDetailsModalVisible(false);
+          setSelectedMovieDetails(null);
+        }}
+        footer={null}
+        className="movie-details-modal"
+        width={400}
+        centered
+      >
+        {selectedMovieDetails && (
+          <div className="movie-details-content">
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Movie Name(EN)</div>
+              <div className="movie-detail-value">{selectedMovieDetails.movieNameEnglish}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Movie Name(VN)</div>
+              <div className="movie-detail-value">{selectedMovieDetails.movieNameVn}</div>
+            </div> <div className="movie-detail-row">
+              <div className="movie-detail-label">Movie Type</div>
+              <div className="movie-detail-value">{selectedMovieDetails.types}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Date Range </div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.fromDate || 'N/A'} to {selectedMovieDetails.toDate || 'N/A'}
+              </div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Duration</div>
+              <div className="movie-detail-value">{selectedMovieDetails.duration} mins</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Version</div>
+              <div className="movie-detail-value">{selectedMovieDetails.version}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Production Company</div>
+              <div className="movie-detail-value">{selectedMovieDetails.movieProductionCompany || 'N/A'}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Director</div>
+              <div className="movie-detail-value">{selectedMovieDetails.director}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Actors</div>
+              <div className="movie-detail-value">{selectedMovieDetails.actor}</div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Content</div>
+              <div className="movie-detail-value">{selectedMovieDetails.content}</div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
