@@ -22,7 +22,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token) {
         alert("Vui lòng đăng nhập lại.");
         navigate("/login");

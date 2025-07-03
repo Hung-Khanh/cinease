@@ -21,7 +21,7 @@ const Employees = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/employee/list`, {
         method: "GET",
         headers: {
@@ -153,7 +153,7 @@ const Employees = () => {
 
   const handleAddEmployee = async (values) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       // Format date of birth to match backend expectation
       const formattedDateOfBirth = values.dateOfBirth
@@ -226,7 +226,7 @@ const Employees = () => {
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const response = await fetch(`${apiUrl}/admin/employee/${employeeToDelete.key}`, {
           method: "DELETE",
           headers: {

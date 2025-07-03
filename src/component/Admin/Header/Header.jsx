@@ -29,15 +29,15 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
     <header className="admin-header">
       <div className="header-content">
         <div className="header-left">
-          <div 
-            className="logo-menu-toggle" 
+          <div
+            className="logo-menu-toggle"
             onClick={onLogoClick}
           >
             <MenuUnfoldOutlined />
           </div>
           <h2 className="page-title">{pageTitle}</h2>
         </div>
-        
+
         <div className="header-actions">
           {/* <div className="search-container">
             <Input 
@@ -61,7 +61,6 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
                 </div>
                 {showDropdown && (
                   <div className="dropdown-menu">
-                    <div className="dropdown-item" onClick={() => navigate('/admin/profile')}>Profile</div>
                     <div className="dropdown-item" onClick={handleLogout} style={{ color: 'red', cursor: 'pointer' }}>Logout</div>
                   </div>
                 )}

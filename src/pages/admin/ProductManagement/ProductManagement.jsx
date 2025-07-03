@@ -20,7 +20,7 @@ const ProductManagement = () => {
   const fetchProducts = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/employee/products/all`, {
         method: "GET",
         headers: {
@@ -162,7 +162,7 @@ const ProductManagement = () => {
   const handleUpdateProduct = async (values) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const formData = new FormData();
 
       // Append form data
@@ -219,7 +219,7 @@ const ProductManagement = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/products/${productToDelete.key}`, {
         method: "DELETE",
         headers: {
@@ -253,7 +253,7 @@ const ProductManagement = () => {
   const handleAddProduct = async (values) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const formData = new FormData();
 
       // Append form data

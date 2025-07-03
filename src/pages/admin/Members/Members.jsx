@@ -20,7 +20,7 @@ const Members = () => {
   const fetchMembers = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members`, {
         method: "GET",
         headers: {
@@ -68,7 +68,7 @@ const Members = () => {
   const fetchMemberDetails = async (memberId) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/${memberId}/account`, {
         method: "GET",
         headers: {
@@ -188,7 +188,7 @@ const Members = () => {
   const handleUpdateMember = async (values) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/${editingKey}/account`, {
         method: "PUT",
         headers: {
@@ -237,7 +237,7 @@ const Members = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await fetch(`${apiUrl}/admin/members/delete/${memberToDelete.key}`, {
         method: "DELETE",
         headers: {
