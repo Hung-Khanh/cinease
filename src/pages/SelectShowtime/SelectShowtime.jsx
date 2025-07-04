@@ -1,23 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import './SelectShowtime.scss';
 import { FaArrowLeft } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { message } from 'antd';
-import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { setTempBooking } from '../../store/tempBookingSlice';
 
 const SelectShowtime = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const storedReduxDate = useSelector((state) => state.tempBooking.date);
+
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+
     const [dates, setDates] = useState([]);
     const [showtimes, setShowtimes] = useState([]);
     const [movie, setMovie] = useState(null);
+
     const { movieId } = useParams();
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
     const token = sessionStorage.getItem("token");
 
-    // Fetch movie details
+    const MOVIE_DETAILS_KEY = `movieDetails_${movieId}`;
+    const SHOWTIME_SELECTION_KEY = `showtimeSelection_${movieId}`;
+
+    useEffect(() => {
+        const storedMovieDetails = sessionStorage.getItem(MOVIE_DETAILS_KEY);
+        if (storedMovieDetails) {
+            try {
+                const parsedMovie = JSON.parse(storedMovieDetails);
+                setMovie(parsedMovie);
+                setDates(parsedMovie.dates || []);
+            } catch (e) {
+                console.error("Error parsing stored movie details:", e);
+                sessionStorage.removeItem(MOVIE_DETAILS_KEY);
+            }
+        } else {
+            fetchMovieDetails();
+        }
+
+        const storedSelection = sessionStorage.getItem(SHOWTIME_SELECTION_KEY);
+        if (storedSelection) {
+            try {
+                const parsedSelection = JSON.parse(storedSelection);
+                setSelectedDate(parsedSelection.selectedDate || '');
+                setSelectedTime(parsedSelection.selectedTime || '');
+                setSelectedScheduleId(parsedSelection.selectedScheduleId || null);
+
+                if (parsedSelection.selectedDate && parsedSelection.selectedDate !== storedReduxDate) {
+                     dispatch(setTempBooking({
+                         date: parsedSelection.selectedDate,
+                         showtime: []
+                     }));
+                }
+            } catch (e) {
+                console.error("Error parsing stored showtime selection:", e);
+                sessionStorage.removeItem(SHOWTIME_SELECTION_KEY);
+            }
+        } else if (storedReduxDate) {
+            setSelectedDate(storedReduxDate);
+        }
+
+        fetchShowtimes();
+
+    }, [movieId, storedReduxDate, dispatch]);
+
     const fetchMovieDetails = async () => {
         try {
             const response = await fetch(`${apiUrl}/public/movies?q=${movieId}`, {
@@ -34,8 +84,11 @@ const SelectShowtime = () => {
             const movieData = data[0];
             setMovie(movieData);
             setDates(movieData.dates || []);
+
+            sessionStorage.setItem(MOVIE_DETAILS_KEY, JSON.stringify(movieData));
         } catch (error) {
             console.error("Error fetching movie data:", error);
+            message.error("Failed to load movie details.");
         }
     };
 
@@ -60,13 +113,7 @@ const SelectShowtime = () => {
         } catch (error) {
             console.error("❌ Error fetching showtimes:", error);
             message.error("Failed to load showtimes");
-        }
-    };
-
-    useEffect(() => {
-        fetchMovieDetails();
-        fetchShowtimes();
-    }, []);
+        }    };
 
     const groupedShowtimes = showtimes.reduce((acc, showtime) => {
         const date = showtime.showDate;
@@ -77,20 +124,79 @@ const SelectShowtime = () => {
         return acc;
     }, {});
 
-    const uniqueDates = Object.keys(groupedShowtimes).sort();
+    const uniqueDates = Object.keys(groupedShowtimes).sort();    useEffect(() => {
+        if (!selectedDate && uniqueDates.length > 0) {
+            const defaultDate = uniqueDates[0];
+            setSelectedDate(defaultDate);
+            dispatch(setTempBooking({
+                date: defaultDate,
+                showtime: []
+            }));
+            sessionStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+                selectedDate: defaultDate,
+                selectedTime: '',
+                selectedScheduleId: null,
+            }));
+        }
+    }, [selectedDate, uniqueDates, dispatch, SHOWTIME_SELECTION_KEY]);    const handleDateSelect = (date) => {
+        if (selectedDate === date) {
+            setSelectedDate('');
+            setSelectedTime('');
+            setSelectedScheduleId(null);
 
-    const handleDateSelect = (date) => {
-        setSelectedDate(date);
-        setSelectedTime('');
-        setSelectedScheduleId(null);
+            dispatch(setTempBooking({
+                date: '',
+                showtime: []
+            }));
+
+            sessionStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+                selectedDate: '',
+                selectedTime: '',
+                selectedScheduleId: null,
+            }));
+        } else {
+            // Select new date
+            setSelectedDate(date);
+            setSelectedTime('');
+            setSelectedScheduleId(null);
+
+            dispatch(setTempBooking({
+                date: date,
+                showtime: []
+            }));
+
+            sessionStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+                selectedDate: date,
+                selectedTime: '',
+                selectedScheduleId: null,
+            }));
+        }
+    };    const handleTimeSelect = (showtime) => {
+        // Reset if clicking the same time
+        if (selectedTime === showtime.showTime) {
+            setSelectedTime('');
+            setSelectedScheduleId(null);
+
+            sessionStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+                selectedDate: selectedDate,
+                selectedTime: '',
+                selectedScheduleId: null,
+            }));
+        } else {
+            // Select new time
+            setSelectedTime(showtime.showTime);
+            setSelectedScheduleId(showtime.scheduleId);
+
+            sessionStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+                selectedDate: selectedDate,
+                selectedTime: showtime.showTime,
+                selectedScheduleId: showtime.scheduleId,
+            }));
+            console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
+        }
     };
 
-    const handleTimeSelect = (showtime) => {
-        setSelectedTime(showtime.showTime);
-        setSelectedScheduleId(showtime.scheduleId);
-
-        console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
-    };
+    if (!movie) return <div>Đang tải thông tin phim...</div>;
 
     return (
         <div className="select-showtime">
@@ -141,11 +247,6 @@ const SelectShowtime = () => {
                     <Link
                         to={{
                             pathname: `/seat-select/${movieId}/${selectedScheduleId}`,
-                        }}
-                        state={{
-                            movieName: movie?.movieNameEnglish,
-                            showDate: selectedDate,
-                            showTime: selectedTime,
                         }}
                         className="select-seat-btn"
                         onClick={(e) => {
