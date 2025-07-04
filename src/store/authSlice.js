@@ -2,6 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   token: sessionStorage.getItem("token") || null,
+  tempBooking: {
+    date: null,
+    showtime: [],
+  }
 };
 
 const authSlice = createSlice({
@@ -34,7 +38,19 @@ const seatSlice = createSlice({
   },
 });
 
+const tempBookingSlice = createSlice({
+  name: 'tempBooking',
+  initialState,
+  reducers: {
+    setTempBooking: (state, action) => {
+      state.tempBooking = action.payload;
+    },
+  },
+});
+
 export const { setToken, clearToken } = authSlice.actions;
 export const { setSelectedSeats, clearSelectedSeats } = seatSlice.actions;
+export const { setTempBooking } = tempBookingSlice.actions;
 export const authReducer = authSlice.reducer;
 export const seatReducer = seatSlice.reducer;
+export const tempBookingReducer = tempBookingSlice.reducer;
