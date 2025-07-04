@@ -15,9 +15,9 @@ const PaymentSuccess = () => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get(param);
   };
-  
+
   const invoiceId = getQueryParam("invoiceId");
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return {
@@ -99,52 +99,52 @@ const PaymentSuccess = () => {
             className="movie-poster"
           />
         </div>
-        
-          <div className="info-group">
-            <div className="info-label">Movie Title:</div>
-            <div className="info-value">{ticketData.movieName}</div>
-          </div>
-        
+
+        <div className="info-group">
+          <div className="info-label">Movie Title:</div>
+          <div className="info-value">{ticketData.movieName}</div>
+        </div>
+
         <div className="info-group">
           <div className="info-label">Room:</div>
           <div className="info-value">{ticketData.cinemaRoomName || "N/A"}</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Date:</div>
           <div className="info-value">{`${weekday}, ${day} ${month}`}</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Seats:</div>
           <div className="info-value">{ticketData.seatNumbers?.join(", ") || "N/A"}</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Show Time:</div>
           <div className="info-value">{ticketData.scheduleShowTime || "N/A"}</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Ticket Count:</div>
           <div className="info-value">{ticketData.ticketCount || 0}</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Products Total:</div>
           <div className="info-value">{ticketData.productsTotal?.toLocaleString() || 0} VND</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Grand Total:</div>
           <div className="info-value">{ticketData.grandTotal?.toLocaleString() || 0} VND</div>
         </div>
-        
+
         <div className="info-group">
           <div className="info-label">Status:</div>
           <div className="info-value">{ticketData.status || "PENDING"}</div>
         </div>
-        
+
         <button className="home-btn" onClick={handleBackToHome}>
           Back to Home page
         </button>

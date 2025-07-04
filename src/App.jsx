@@ -27,7 +27,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
-import ProductPage from "./pages/product/Product.jsx";
+import ProductPage from "./pages/Product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
@@ -48,6 +48,7 @@ import Members from "./pages/admin/Members/Members.jsx";
 import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
 import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
 // import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorPage from "./pages/Error/ErrorPage.jsx";
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
@@ -121,11 +122,26 @@ function AdminLayout() {
 
 function Layout() {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
   const role = sessionStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
+  const isAdmin = role === "ADMIN";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+
+  if (
+    location.pathname.startsWith("/staffHomePage") ||
+    location.pathname.startsWith("/cinema-seating") ||
+    location.pathname.startsWith("/phone-input") ||
+    location.pathname.startsWith("/dateTimeSelection") ||
+    location.pathname.startsWith("/Select-Seat") ||
+    location.pathname.startsWith("/ticketInformation") ||
+    location.pathname.startsWith("/confirm-purchase")
+  ) {
+    if (!isStaff) {
+      window.location.replace("/error");
+      return null;
+    }
+  }
 
   return (
     <div className="app-container">
@@ -200,6 +216,7 @@ function Layout() {
             element={<UserPaymentSuccess />}
           />
           <Route path="/redirect-payment" element={<RedirectPayment />} />
+          <Route path="/error" element={<ErrorPage />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}

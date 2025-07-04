@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-  PieChart, 
-  Pie, 
-  Cell, 
-  Legend 
+  PieChart,
+  Pie,
+  Cell,
+  Legend
 } from 'recharts';
+import api from '../../../constants/axios';
 import './DashBoard.scss';
 
 const Dashboard = () => {
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  
   // State for movie revenue data
   const [movieRevenueData, setMovieRevenueData] = useState([]);
   const [movieLoading, setMovieLoading] = useState(false);
@@ -60,35 +59,19 @@ const Dashboard = () => {
     setRevenueError(null);
 
     try {
-      const token = sessionStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
       const dateRange = getDateRange();
       const revenuePromises = dateRange.map(async (date) => {
-        const response = await fetch(
-          `${apiUrl}/admin/invoices/revenue/range?startDate=${date}&endDate=${date}`,
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${token}`,
-              'ngrok-skip-browser-warning': 'true'
-            }
+        const response = await api.get('/admin/invoices/revenue/range', {
+          params: {
+            startDate: date,
+            endDate: date
           }
-        );
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const revenue = await response.json();
         return {
           date,
           day: getDayName(date),
-          revenue: revenue || 0 // API returns a number directly
+          revenue: response.data || 0
         };
       });
 
@@ -98,7 +81,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching daily revenue:', error);
       setRevenueError(error.message);
-      
+
       // Fallback to mock data on error
       setRevenueData([
         { day: 'Mon', revenue: 500 },
@@ -118,35 +101,16 @@ const Dashboard = () => {
   const fetchMovieRevenue = async () => {
     setMovieLoading(true);
     setMovieError(null);
-    
+
     try {
-      const token = sessionStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`${apiUrl}/admin/invoices/revenue/movie`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true'
-        }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const data = await response.json();
+      const response = await api.get('/admin/invoices/revenue/movie');
+      const data = response.data;
       
       // Transform API data to match component structure
       const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
         // Generate capacity percentage based on relative revenue
         const capacity = Math.min(95, Math.max(30, Math.floor((revenue / Math.max(...Object.values(data))) * 100)));
-        
+
         return {
           title: movieTitle,
           revenue: revenue, // Keep original revenue value
@@ -158,7 +122,7 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching movie revenue:', error);
       setMovieError(error.message);
-      
+
       // Fallback to mock data on error
       setMovieRevenueData([
         {
@@ -189,8 +153,8 @@ const Dashboard = () => {
   }, []);
 
   // Determine movies to display
-  const displayedMovies = showMoreMovies 
-    ? movieRevenueData 
+  const displayedMovies = showMoreMovies
+    ? movieRevenueData
     : movieRevenueData.slice(0, 7);
 
   const formatRevenue = (revenue) => {
@@ -205,7 +169,7 @@ const Dashboard = () => {
     if (active && payload && payload.length) {
       return (
         <div className="chart-tooltip bar-tooltip">
-          <strong>{label}</strong><br/>
+          <strong>{label}</strong><br />
           Revenue: {payload[0].value} VND
         </div>
       );
@@ -218,7 +182,7 @@ const Dashboard = () => {
     if (active && payload && payload.length) {
       return (
         <div className="chart-tooltip">
-          <strong>{payload[0].payload.type}</strong><br/>
+          <strong>{payload[0].payload.type}</strong><br />
           Percentage: {payload[0].value}%
         </div>
       );
@@ -234,11 +198,11 @@ const Dashboard = () => {
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         fontSize="12"
       >
@@ -256,8 +220,8 @@ const Dashboard = () => {
             Daily Revenue (Last 7 Days)
             {revenueLoading && <span className="loading-indicator"> (Loading...)</span>}
             {revenueError && (
-              <button 
-                className="retry-button" 
+              <button
+                className="retry-button"
                 onClick={fetchDailyRevenue}
                 title="Retry loading data"
               >
@@ -277,9 +241,9 @@ const Dashboard = () => {
                 <XAxis dataKey="day" tick={{ fill: 'white' }} />
                 <YAxis tick={{ fill: 'white' }} />
                 <Tooltip content={<CustomBarTooltip />} />
-                <Bar 
-                  dataKey="revenue" 
-                  fill="#00E676" 
+                <Bar
+                  dataKey="revenue"
+                  fill="#00E676"
                   activeBar={{ fill: '#2ecc71' }}
                 />
               </BarChart>
@@ -321,8 +285,8 @@ const Dashboard = () => {
             Revenue by Movie
             {movieLoading && <span className="loading-indicator"> (Loading...)</span>}
             {movieError && (
-              <button 
-                className="retry-button" 
+              <button
+                className="retry-button"
                 onClick={fetchMovieRevenue}
                 title="Retry loading data"
               >
@@ -360,8 +324,8 @@ const Dashboard = () => {
               </div>
 
               <div className="progress-container">
-                <div 
-                  className="progress-bar" 
+                <div
+                  className="progress-bar"
                   style={{
                     width: `${movie.capacity}%`,
                   }}
@@ -374,13 +338,13 @@ const Dashboard = () => {
           ))}
 
           {movieRevenueData.length > 7 && (
-            <div 
-              className="movie-card show-more-card" 
+            <div
+              className="movie-card show-more-card"
               onClick={() => setShowMoreMovies(!showMoreMovies)}
             >
               <div className="show-more-content">
-                {showMoreMovies 
-                  ? 'Show Less' 
+                {showMoreMovies
+                  ? 'Show Less'
                   : 'Show More'}
               </div>
             </div>

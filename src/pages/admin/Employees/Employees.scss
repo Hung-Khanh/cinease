@@ -51,11 +51,18 @@ $danger-color: #e74c3c;
       }
 
       // Add Employee Button
-      .add-employee-btn {
+      .ant-btn-primary {
         background-color: $green-accent !important;
         border-color: $green-accent !important;
         color: $text-color !important;
-
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    
         &:hover,
         &:focus {
           background-color: $hover-color !important;
@@ -67,7 +74,7 @@ $danger-color: #e74c3c;
   }
 
   // ===== TABLE STYLING =====
-  .ant-table {
+  .ant-table-employee {
     background-color: $secondary-bg !important;
 
     .ant-table-thead > tr > th {

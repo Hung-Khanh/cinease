@@ -162,6 +162,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       font-size: 20px;
       font-weight: 700;
       color: $text-light;
+      margin-bottom: 30PX;
     }
 
     .see-all {
@@ -198,13 +199,13 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     .movie-card {
       flex: 0 0 22%;
       max-width: 22%;
-      min-width: 230px;
+      min-width: 220px;
       margin: 0 12px;
     }
     .coming-soon-card {
       flex: 0 0 20%;
       max-width: 20%;
-      min-width: 230px;
+      min-width: 220px;
       margin: 0 14px;
     }
     .promo-carousel {
@@ -212,7 +213,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       .promo-card {
         flex: 0 0 22%;
         max-width: 22%;
-        min-width: 230px;
+        min-width: 220px;
         margin: 0 12px;
       }
     }

@@ -28,7 +28,7 @@ const DescriptionMovie = () => {
             const data = await response.json();
 
             if (data) {
-                setMovie(data); 
+                setMovie(data);
             } else {
                 console.error("Movie data not found:", data);
             }

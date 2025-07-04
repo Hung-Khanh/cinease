@@ -278,9 +278,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               </Space>
               {showPromotionList && filteredPromotions.length > 0 && (
                 <ul
-                  className={`ticket-voucher-list ${
-                    filteredPromotions.length > 0 ? "has-vouchers" : ""
-                  }`}
+                  className={`ticket-voucher-list ${filteredPromotions.length > 0 ? "has-vouchers" : ""
+                    }`}
                 >
                   {filteredPromotions.map((promotion) => (
                     <li

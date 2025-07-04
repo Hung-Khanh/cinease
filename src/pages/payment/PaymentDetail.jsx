@@ -92,7 +92,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
           Accept: "application/json",
-},
+        },
       });
       if (!movieRes.ok) return;
       const movie = await movieRes.json();
@@ -184,7 +184,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
             {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
           </div>
         </div>
-<div className="content">
+        <div className="content">
           <div className="poster-section">
             <img src={movieDetails.posterImageUrl} alt="Movie Poster" className="poster" />
             <h3>{movieDetails.movieName}</h3>
@@ -236,7 +236,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
                   <img src="/img/momoqr.png" alt="MOMO QR" />
                 </button>
               </div>
-</div>
+            </div>
 
             <button className="payment-button" onClick={handleConfirmPayment}>✅ CONFIRM PAYMENT</button>
             {paymentUrl && (

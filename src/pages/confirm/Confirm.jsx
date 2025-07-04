@@ -179,7 +179,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
               placeholder="Select voucher"
               value={voucher}
               onChange={setVoucher}
-              />
+            />
 
             <div className="row-form">
               <label htmlFor="useScore">💳 USE SCORE:</label>
