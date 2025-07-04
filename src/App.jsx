@@ -9,8 +9,6 @@ import React, { useState } from "react";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
 
-
-
 // Components và Pages
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";

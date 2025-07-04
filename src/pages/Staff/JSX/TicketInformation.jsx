@@ -5,7 +5,11 @@ import { Modal, Select, Input, Button, message, Space } from "antd";
 import { AudioOutlined } from "@ant-design/icons";
 import api from "../../../constants/axios";
 import "../SCSS/TicketIn4.scss";
-
+import {
+  getMovieList,
+  staffBookingSummary,
+  applyDiscount,
+} from "../../../api/staff";
 const { Option } = Select;
 const { Search } = Input;
 
@@ -26,7 +30,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [promotions, setPromotions] = useState([]);
   const [promotionId, setPromotionId] = useState(null);
   const [showPromotionList, setShowPromotionList] = useState(false);
-
+  const [memberInfor, setMemberInfor] = useState(null);
+  const { memberData } = JSON.parse(sessionStorage.getItem("memberData")) || {};
   useEffect(() => {
     const fetchPromotions = async () => {
       const token = sessionStorage.getItem("token");
@@ -122,25 +127,9 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   useEffect(() => {
     const fetchTicketDetails = async () => {
-      const token = sessionStorage.getItem("token");
       try {
-        const response = await fetch(
-          `${apiUrl}/employee/bookings/summary/{invoiceId}?invoiceId=${invoiceId}`,
-          {
-            method: "GET",
-            headers: {
-              accept: "*/*",
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "null",
-            },
-          }
-        );
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.log("❌ Error response:", errorText);
-          throw new Error(`Failed to fetch ticket details: ${response.status}`);
-        }
-        const data = await response.json();
+        const response = await staffBookingSummary(invoiceId);
+        const data = await response.data;
         setMovieName(data.movieName);
         setTicketData(data);
       } catch (error) {
@@ -159,24 +148,9 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   useEffect(() => {
     const fetchMovies = async () => {
       if (!movieName) return;
-
-      const token = sessionStorage.getItem("token");
       try {
-        const response = await fetch(`${apiUrl}/public/movies?q=${movieName}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-            "ngrok-skip-browser-warning": "null",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `API error: ${response.status} ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
+        const response = await getMovieList(movieName);
+        const data = await response.data;
         setMovieImage(data[0]?.posterImageUrl || "placeholder-image.jpg");
         setCinemaRoom(data[0]?.cinemaRoomId);
       } catch (error) {
@@ -188,6 +162,21 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     fetchMovies();
   }, [movieName, apiUrl]);
 
+  const handleApplyDiscount = async () => {
+    console.log(memberInfor);
+
+    const response = await applyDiscount({
+      invoiceId: invoiceId,
+      scheduleId: scheduleId,
+      memberId: memberData?.memberId || 0,
+      ticketType: ticketType,
+      userScore: memberData?.userScore > 5 ? 1 : 0,
+      promotionId: promotionId || null,
+    });
+    const data = await response.data;
+    setMemberInfor(data);
+    setResponseModalVisible(true);
+  };
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -377,7 +366,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             <p className="ticket-note">*Purchased ticket cannot be canceled</p>
             <button
               className="ticket-purchase-btn"
-              onClick={handlePurchase}
+              onClick={handleApplyDiscount}
               disabled={isProcessing}
             >
               {isProcessing ? "Processing..." : "Confirm"}
