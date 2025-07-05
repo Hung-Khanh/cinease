@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import './Product.scss';
+import "./Product.scss";
 
-const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
+const Product = ({
+  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
+}) => {
   const { movieId, invoiceId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("Vui lòng đăng nhập lại.");
         navigate("/login");
@@ -85,7 +87,8 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const getTotalPrice = () =>
     products.reduce(
-      (total, product) => total + (selectedQuantities[product.productId] || 0) * product.price,
+      (total, product) =>
+        total + (selectedQuantities[product.productId] || 0) * product.price,
       0
     );
 
@@ -99,7 +102,9 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
       <div className="products-header">
         <h2>FOOD & DRINK</h2>
-        <p className="products-subtitle">Enjoy the movie with our special combos</p>
+        <p className="products-subtitle">
+          Enjoy the movie with our special combos
+        </p>
       </div>
 
       <div className="product-list">
@@ -111,10 +116,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
             <div key={product.productId} className="product-card">
               <div className="product-badge">{product.category}</div>
               <div className="product-image">
-                <img
-                  src={imageSrc}
-                  alt={product.productName}
-                />
+                <img src={imageSrc} alt={product.productName} />
               </div>
 
               <div className="product-info">

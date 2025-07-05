@@ -4,12 +4,14 @@ import Select from "react-select";
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
+const Confirm = ({
+  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [promotions, setPromotions] = useState([]);   // danh sách promotions đầy đủ
-  const [voucher, setVoucher] = useState(null);       // promotion được chọn
+  const [promotions, setPromotions] = useState([]); // danh sách promotions đầy đủ
+  const [voucher, setVoucher] = useState(null); // promotion được chọn
   const [useScore, setUseScore] = useState(0);
   const [ticketType, setTicketType] = useState("ADULT");
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,10 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     }
 
     const products = data.selectedProducts || [];
-    const productsTotal = products.reduce((sum, p) => sum + p.quantity * p.price, 0);
+    const productsTotal = products.reduce(
+      (sum, p) => sum + p.quantity * p.price,
+      0
+    );
 
     setBookingData({
       invoiceId: data.invoiceId,
@@ -39,7 +44,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
       products,
       productsTotal,
       scheduleId: data.scheduleId,
-      movieId: data.movieId
+      movieId: data.movieId,
     });
 
     fetchMovieDetails(data.movieId);
@@ -48,7 +53,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const fetchMovieDetails = async (movieId) => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,13 +72,13 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const fetchPromotions = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await fetch(`${apiUrl}/public/promotions`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "ngrok-skip-browser-warning": "true",
           Accept: "application/json",
-        }
+        },
       });
       if (res.ok) {
         const data = await res.json();
@@ -84,15 +89,15 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           }))
         );
       } else {
-        console.error('Error fetching promotions.');
+        console.error("Error fetching promotions.");
       }
     } catch (err) {
-      console.error('Error fetching promotions:', err);
+      console.error("Error fetching promotions:", err);
     }
   };
 
   const handleConfirm = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token || !bookingData) return;
 
     const body = {
@@ -139,7 +144,8 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     }
   };
 
-  if (loading || !bookingData) return <div className="confirm-wrapper">LOADING DATA...</div>;
+  if (loading || !bookingData)
+    return <div className="confirm-wrapper">LOADING DATA...</div>;
   if (error) return <div className="confirm-wrapper">{error}</div>;
 
   const seatCount = bookingData.seatNumbers.length;
@@ -155,21 +161,43 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
         <div className="ticket-box">
           <div className="poster">
             <img
-              src={movieDetails.posterImageUrl || "https://via.placeholder.com/300x450?text=No+Poster"}
+              src={
+                movieDetails.posterImageUrl ||
+                "https://via.placeholder.com/300x450?text=No+Poster"
+              }
               alt="poster"
             />
           </div>
           <div className="ticket-info">
             <h2>XÁC NHẬN ĐẶT VÉ</h2>
-            <div><b>🎬 MOVIE: </b>  {bookingData.movieName}</div>
-            <div><b>📅 DATE:</b> {bookingData.showDate}</div>
-            <div><b>⏰ TIME:</b> {bookingData.showTime}</div>
-            <div><b>💺 SEAT:</b> {bookingData.seatNumbers.join(", ")}</div>
-            <div><b>🏢 CINEROOM:</b> {bookingData.cinemaRoomName}</div>
+            <div>
+              <b>🎬 MOVIE: </b> {bookingData.movieName}
+            </div>
+            <div>
+              <b>📅 DATE:</b> {bookingData.showDate}
+            </div>
+            <div>
+              <b>⏰ TIME:</b> {bookingData.showTime}
+            </div>
+            <div>
+              <b>💺 SEAT:</b> {bookingData.seatNumbers.join(", ")}
+            </div>
+            <div>
+              <b>🏢 CINEROOM:</b> {bookingData.cinemaRoomName}
+            </div>
 
-            <div><b>🧾 TOTAL FOOD & DRINK :</b> {bookingData.productsTotal.toLocaleString()} VND</div>
-            <div><b>🎟 TICKET PRICE:</b> {`${seatCount} SEAT × ${pricePerSeat.toLocaleString()} = ${ticketPriceTotal.toLocaleString()} VND`}</div>
-            <div><b>💰 GRAND TOTAL:</b> {bookingData.grandTotal.toLocaleString()} VND</div>
+            <div>
+              <b>🧾 TOTAL FOOD & DRINK :</b>{" "}
+              {bookingData.productsTotal.toLocaleString()} VND
+            </div>
+            <div>
+              <b>🎟 TICKET PRICE:</b>{" "}
+              {`${seatCount} SEAT × ${pricePerSeat.toLocaleString()} = ${ticketPriceTotal.toLocaleString()} VND`}
+            </div>
+            <div>
+              <b>💰 GRAND TOTAL:</b> {bookingData.grandTotal.toLocaleString()}{" "}
+              VND
+            </div>
 
             {/* Select promotions */}
             <Select
@@ -206,7 +234,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
               </select>
             </div>
 
-            <button className="confirm-button" onClick={handleConfirm}>✅ CONFIRM</button>
+            <button className="confirm-button" onClick={handleConfirm}>
+              ✅ CONFIRM
+            </button>
             <p className="note">*Confirmed tickets cannot be canceled.</p>
           </div>
         </div>

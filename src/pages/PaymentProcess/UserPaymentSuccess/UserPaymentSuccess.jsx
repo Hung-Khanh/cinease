@@ -8,8 +8,8 @@ const UserPaymentSuccess = () => {
   const [bookingData, setBookingData] = useState(null);
   const [serviceImage, setServiceImage] = useState("");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
@@ -40,7 +40,9 @@ const UserPaymentSuccess = () => {
     const fetchBookingInformation = async () => {
       // Kiểm tra điều kiện cần thiết
       if (!invoiceId || status !== "success") {
-        console.error("Invalid payment information or payment was not successful");
+        console.error(
+          "Invalid payment information or payment was not successful"
+        );
         return;
       }
 
@@ -57,8 +59,8 @@ const UserPaymentSuccess = () => {
           {
             method: "GET",
             headers: {
-              "Accept": "application/json",
-              "Authorization": `Bearer ${token}`,
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
               "ngrok-skip-browser-warning": "true",
             },
           }
@@ -70,7 +72,9 @@ const UserPaymentSuccess = () => {
             navigate("/login");
             return;
           }
-          throw new Error(`Failed to fetch booking details: ${response.status}`);
+          throw new Error(
+            `Failed to fetch booking details: ${response.status}`
+          );
         }
 
         const data = await response.json();
@@ -87,8 +91,8 @@ const UserPaymentSuccess = () => {
               {
                 method: "GET",
                 headers: {
-                  "Accept": "application/json",
-                  "Authorization": `Bearer ${token}`,
+                  Accept: "application/json",
+                  Authorization: `Bearer ${token}`,
                   "ngrok-skip-browser-warning": "true",
                 },
               }
@@ -106,7 +110,6 @@ const UserPaymentSuccess = () => {
             setServiceImage("https://via.placeholder.com/220x330?text=Service");
           }
         }
-
       } catch (error) {
         console.error("Error in fetchBookingInformation:", error);
         alert("Failed to load booking details. Please try again.");
@@ -130,9 +133,10 @@ const UserPaymentSuccess = () => {
   }
 
   // Format date if available
-  const dateInfo = bookingData.bookingDate || bookingData.date ?
-    formatDate(bookingData.bookingDate || bookingData.date) :
-    { day: "N/A", month: "", weekday: "" };
+  const dateInfo =
+    bookingData.bookingDate || bookingData.date
+      ? formatDate(bookingData.bookingDate || bookingData.date)
+      : { day: "N/A", month: "", weekday: "" };
 
   const handleBackToHome = () => {
     if (role === "EMPLOYEE") {
@@ -146,7 +150,9 @@ const UserPaymentSuccess = () => {
     <div className="payment-success-page">
       <div className="poster-section">
         <img
-          src={serviceImage || "https://via.placeholder.com/220x330?text=Service"}
+          src={
+            serviceImage || "https://via.placeholder.com/220x330?text=Service"
+          }
           alt="Service Image"
           className="service-poster"
         />
@@ -166,7 +172,9 @@ const UserPaymentSuccess = () => {
         {(bookingData.serviceName || bookingData.service) && (
           <div className="info-group">
             <div className="info-label">Service</div>
-            <div className="info-value">{bookingData.serviceName || bookingData.service}</div>
+            <div className="info-value">
+              {bookingData.serviceName || bookingData.service}
+            </div>
           </div>
         )}
 
@@ -181,7 +189,8 @@ const UserPaymentSuccess = () => {
           <div className="info-group">
             <div className="info-label">Date</div>
             <div className="info-value">
-              {dateInfo.weekday ? `${dateInfo.weekday}, ` : ""}{dateInfo.day} {dateInfo.month}
+              {dateInfo.weekday ? `${dateInfo.weekday}, ` : ""}
+              {dateInfo.day} {dateInfo.month}
             </div>
           </div>
         )}
@@ -233,14 +242,22 @@ const UserPaymentSuccess = () => {
         <div className="info-group">
           <div className="info-label">Total Price</div>
           <div className="info-value total-price">
-            {(bookingData.totalAmount || bookingData.total || bookingData.amount || 0).toLocaleString('vi-VN')} VND
+            {(
+              bookingData.totalAmount ||
+              bookingData.total ||
+              bookingData.amount ||
+              0
+            ).toLocaleString("vi-VN")}{" "}
+            VND
           </div>
         </div>
 
         {bookingData.status && (
           <div className="info-group">
             <div className="info-label">Status</div>
-            <div className="info-value status-success">{bookingData.status}</div>
+            <div className="info-value status-success">
+              {bookingData.status}
+            </div>
           </div>
         )}
 
@@ -250,7 +267,10 @@ const UserPaymentSuccess = () => {
           <button className="home-btn" onClick={handleBackToHome}>
             Back to Home page
           </button>
-          <button className="booking-btn" onClick={() => navigate("/my-bookings")}>
+          <button
+            className="booking-btn"
+            onClick={() => navigate("/my-bookings")}
+          >
             View My Bookings
           </button>
         </div>

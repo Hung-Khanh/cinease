@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import { Modal, Select, Input, Button, message, Space } from "antd";
-import { AudioOutlined } from "@ant-design/icons";
+import { Modal, Input, Button, message, Space, Dropdown } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import api from "../../../constants/axios";
 import "../SCSS/TicketIn4.scss";
 import {
@@ -10,8 +10,8 @@ import {
   staffBookingSummary,
   applyDiscount,
 } from "../../../api/staff";
-const { Option } = Select;
-const { Search } = Input;
+
+const { Search } = Input; // Re-import Search from Input
 
 const TicketInformation = ({ apiUrl, onBack }) => {
   const [ticketData, setTicketData] = useState(null);
@@ -31,10 +31,11 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [promotionId, setPromotionId] = useState(null);
   const [showPromotionList, setShowPromotionList] = useState(false);
   const [memberInfor, setMemberInfor] = useState(null);
-  const { memberData } = JSON.parse(sessionStorage.getItem("memberData")) || {};
+  const { memberData } = JSON.parse(localStorage.getItem("memberData")) || {};
+
   useEffect(() => {
     const fetchPromotions = async () => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       try {
         const response = await api.get(`/public/promotions`, {
           headers: {
@@ -74,7 +75,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
     try {
       setIsProcessing(true);
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("Authentication token is missing. Please log in again.");
         return;
@@ -106,8 +107,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       const paymentUrl = data?.paymentUrl;
       const grandTotal = data?.grandTotal;
       if (paymentUrl && grandTotal) {
-        sessionStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
-        sessionStorage.setItem("grandTotal", grandTotal);
+        localStorage.setItem("paymentUrl", JSON.stringify(paymentUrl));
+        localStorage.setItem("grandTotal", grandTotal);
         console.log("Payment URL saved:", paymentUrl);
       } else {
         console.warn("No payment URL found in ticket data");
@@ -177,6 +178,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     setMemberInfor(data);
     setResponseModalVisible(true);
   };
+
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -217,6 +219,35 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     }
   }, [navigate, isProcessing]);
 
+  const ticketTypeItems = [
+    { key: "1", label: "ADULT" },
+    { key: "2", label: "STUDENT" },
+  ];
+
+  const paymentMethodItems = [
+    { key: "1", label: "VNPAY" },
+    { key: "2", label: "CASH" },
+    { key: "3", label: "MOMO_QR" },
+  ];
+
+  const handleTicketTypeSelect = ({ key }) => {
+    const selectedType = ticketTypeItems.find(
+      (item) => item.key === key
+    )?.label;
+    if (selectedType) {
+      setTicketType(selectedType);
+    }
+  };
+
+  const handlePaymentMethodSelect = ({ key }) => {
+    const selectedMethod = paymentMethodItems.find(
+      (item) => item.key === key
+    )?.label;
+    if (selectedMethod) {
+      setPaymentMethod(selectedMethod);
+    }
+  };
+
   return (
     <div className="ticket-info-main">
       <button className="back-button" onClick={handleBack}>
@@ -235,22 +266,19 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           <div className="ticket-details-section">
             <h2>TICKET DETAIL</h2>
             <div className="ticket-detail-row">
-              <h3>Schedule</h3>
-            </div>
-            <div className="ticket-detail-row">
-              <span>Movie Title</span>
+              <span>Movie Name:</span>
               <span>{ticketData?.movieName || "N/A"}</span>
             </div>
             <div className="ticket-detail-row">
-              <span>Cinema Room</span>
+              <span>Cinema Room:</span>
               <span>{cinemaRoom || "N/A"}</span>
             </div>
             <div className="ticket-detail-row">
-              <span>Date</span>
+              <span>Date:</span>
               <span>{formatDate(ticketData?.scheduleShowDate)}</span>
             </div>
             <div className="ticket-detail-row">
-              <span>Time</span>
+              <span>Time:</span>
               <span>
                 {ticketData?.scheduleShowTime
                   ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
@@ -258,10 +286,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               </span>
             </div>
             <div className="ticket-detail-row">
-              <span>Ticket ({ticketData?.seatNumbers?.length || 0})</span>
+              <span>Ticket ({ticketData?.seatNumbers?.length || 0}):</span>
               <span>{ticketData?.seatNumbers?.join(", ") || "N/A"}</span>
             </div>
-            <div className="ticket-detail-row ticket-voucher-search">
+            <div className="ticket-detail-chosen ticket-voucher-search">
               <span>Voucher</span>
               <Space direction="vertical" style={{ width: "100%" }}>
                 <Search
@@ -273,13 +301,15 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                     setSearchPromotion(e.target.value);
                     setShowPromotionList(!!e.target.value);
                   }}
-                  style={{ width: "100%", color: "gray" }}
                 />
               </Space>
               {showPromotionList && filteredPromotions.length > 0 && (
                 <ul
-                  className={`ticket-voucher-list ${filteredPromotions.length > 0 ? "has-vouchers" : ""
-                    }`}
+                  className={`ticket-voucher-list ${
+                    filteredPromotions.length > 0
+                      ? "has antd-input-search-vouchers"
+                      : ""
+                  }`}
                 >
                   {filteredPromotions.map((promotion) => (
                     <li
@@ -302,30 +332,33 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 </ul>
               )}
             </div>
-            <div className="ticket-detail-row ticket-type-selection">
+            <div className="ticket-detail-chosen ticket-type-selection">
               <span>Select Ticket Type:</span>
-              <Select
-                value={ticketType}
-                onChange={setTicketType}
-                style={{
-                  position: "relative",
-                  width: "490px",
-                  top: "10px",
-                  marginBottom: "30px",
+              <Dropdown
+                menu={{
+                  items: ticketTypeItems,
+                  onClick: handleTicketTypeSelect,
                 }}
+                trigger={["click"]}
               >
-                <Option value="ADULT">ADULT</Option>
-                <Option value="STUDENT">STUDENT</Option>
-              </Select>
-              <h5 className="ticket-type-note">
-                *note:
-                <br />
-                Student: 80000 VND/seat
-                <br />
-                Adult: 120000 VND/seat
-              </h5>
+                <Button>
+                  <a onClick={(e) => e.preventDefault()}>
+                    <Space>
+                      {ticketType}
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Button>
+              </Dropdown>
             </div>
-            <div className="ticket-detail-row ticket-payment-method">
+            <h5 className="ticket-type-note">
+              *note:
+              <br />
+              Student: 80000 VND/seat
+              <br />
+              Adult: 120000 VND/seat
+            </h5>
+            <div className="ticket-detail-chosen ticket-payment-method">
               <span
                 style={{
                   marginTop: "10px",
@@ -337,19 +370,22 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               >
                 Payment Method
               </span>
-              <Select
-                value={paymentMethod}
-                style={{
-                  marginBottom: "5px",
-                  display: "flex",
-                  justifyContent: "center",
+              <Dropdown
+                menu={{
+                  items: paymentMethodItems,
+                  onClick: handlePaymentMethodSelect,
                 }}
-                onChange={setPaymentMethod}
+                trigger={["click"]}
               >
-                <Option value="VNPAY">VNPAY</Option>
-                <Option value="CASH">Cash</Option>
-                <Option value="MOMO_QR">MOMO</Option>
-              </Select>
+                <Button size={"middle"}>
+                  <a onClick={(e) => e.preventDefault()}>
+                    <Space style={{ padding: "40px" }}>
+                      {paymentMethod}
+                      <DownOutlined />
+                    </Space>
+                  </a>
+                </Button>
+              </Dropdown>
               {paymentMethod === "CASH" && (
                 <div>
                   <Input

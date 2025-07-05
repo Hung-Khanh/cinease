@@ -35,7 +35,8 @@
   }
 
   .ticket-info-content {
-    display: flex;
+    display: grid;
+    grid-template-columns: 400px 1fr;
     justify-content: center;
     width: 900px;
     padding: 0 15px 50px 50px;
@@ -59,7 +60,16 @@
       border-radius: 15px;
     }
   }
-
+  .ticket-detail-chosen {
+    margin-bottom: 15px;
+    display: grid;
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 8px;
+    .ant-dropdown {
+      padding: 20px;
+    }
+  }
   .ticket-details-section {
     flex: 1;
 
@@ -74,13 +84,15 @@
       justify-content: space-between;
       margin-bottom: 10px;
       font-size: 16px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 
       &.ticket-voucher-search {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        width: 100%;
+        width: 400px;
         position: relative;
+        padding-left: 60px;
 
         span.text {
           font-weight: 500;
@@ -146,14 +158,8 @@
 
       &.ticket-type-selection {
         flex-direction: column;
-      }
-
-      .ticket-type-note {
-        font-size: 14px;
-        color: #dbd8d8;
-        margin: 0;
-        justify-content: end;
-        display: flex;
+        padding-left: 60px;
+        width: 400px;
       }
 
       &.transaction {
@@ -201,43 +207,8 @@
       &.ticket-payment-method {
         flex-direction: column;
         gap: 10px;
-
-        .ant-select {
-          width: 100%;
-
-          .ant-select-selector {
-            display: flex;
-            align-items: center;
-            min-height: 32px;
-            padding: 4px 11px;
-          }
-
-          .ant-select-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: translateX(-50%);
-            transform: translateY(70%);
-          }
-
-          .ant-select-selection-item {
-            display: flex;
-            align-items: center;
-            line-height: 1.5;
-          }
-        }
-
-        .ant-input {
-          margin-top: 10px;
-          padding: 4px 11px;
-          min-height: 32px;
-          display: flex;
-          align-items: center;
-        }
-
-        div {
-          margin-top: 10px;
-        }
+        width: 400px;
+        padding-left: 60px;
       }
     }
 
@@ -249,7 +220,8 @@
     }
 
     .ticket-purchase-btn {
-      width: 100%;
+      width: 400px;
+      margin-left: 40px;
       padding: 10px;
       background-color: #28a745;
       color: #fff;
@@ -263,7 +235,12 @@
       }
     }
   }
-
+  .ticket-type-note {
+    font-size: 14px;
+    color: #dbd8d8;
+    margin: 10px;
+    padding-left: 300px;
+  }
   @media (max-width: 768px) {
     .ticket-info-card {
       flex-direction: column;

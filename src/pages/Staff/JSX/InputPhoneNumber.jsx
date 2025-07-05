@@ -32,7 +32,7 @@ const PhoneInput = ({ onBack }) => {
       const response = await checkMember(invoiceId, phoneNumber);
       setMemberData(response.data);
       setIsModalVisible(true);
-      sessionStorage.setItem("memberData", JSON.stringify(response.data));
+      localStorage.setItem("memberData", JSON.stringify(response.data));
     } catch (error) {
       console.error("Error in handleInputPhoneNumber:", error);
     }
