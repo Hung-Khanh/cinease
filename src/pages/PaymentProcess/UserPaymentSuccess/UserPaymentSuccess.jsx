@@ -8,8 +8,8 @@ const UserPaymentSuccess = () => {
   const [bookingData, setBookingData] = useState(null);
   const [serviceImage, setServiceImage] = useState("");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);

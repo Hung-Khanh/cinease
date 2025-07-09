@@ -52,7 +52,7 @@
 }
 
 .cs-seat-button {
-  width: 55px;      /* Kích thước nút giữ nguyên */
+  width: 55px;      
   height: 55px;
   display: flex;
   align-items: center;
@@ -60,32 +60,31 @@
   background: none;
   border: none;
   cursor: pointer;
-
-  &:disabled {
-    cursor: not-allowed;
-  }
+}
+.cs-seat-button:disabled {
+  cursor: not-allowed;
 }
 
 .cs-seat-icon {
-  font-size: 36px;  /* Icon to hơn rõ rệt */
+  font-size: 36px; 
   width: 36px;
   height: 36px;
+}
 
-  &.cs-regular {
-    color: #fff;
-  }
+.cs-seat-icon.cs-regular {
+  color: #fff;
+}
 
-  &.cs-selected {
-    color: #3b82f6;
-  }
+.cs-seat-icon.cs-selected {
+  color: #196e17;
+}
 
-  &.cs-vip {
-    color: #ef4444; /* Màu đỏ VIP */
-  }
+.cs-seat-icon.cs-vip {
+  color: #eaea60; 
+}
 
-  &.cs-unavailable {
-    color: #9ca3af;
-  }
+.cs-seat-icon.cs-unavailable {
+  color: #9ca3af;
 }
 
 .cs-seat-notes {
@@ -100,4 +99,62 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
+}
+
+
+@media (max-width: 1024px) {
+  .cs-seat-button {
+    width: 45px;
+    height: 45px;
+  }
+
+  .cs-seat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .cs-column-marker,
+  .cs-row-indicator {
+    width: 45px;
+    font-size: 14px;
+  }
+
+  .cs-empty-slot {
+    width: 40px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .cs-seat-matrix {
+    gap: 4px;
+  }
+
+  .cs-seat-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cs-seat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .cs-column-marker,
+  .cs-row-indicator {
+    width: 36px;
+    font-size: 12px;
+  }
+
+  .cs-empty-slot {
+    width: 28px;
+  }
+
+  .cs-seat-notes {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 12px;
+  }
 }

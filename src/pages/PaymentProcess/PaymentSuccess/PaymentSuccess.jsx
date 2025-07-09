@@ -8,8 +8,8 @@ const PaymentSuccess = () => {
   const [ticketData, setTicketData] = useState(null);
   const [moviePoster, setMoviePoster] = useState("");
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = sessionStorage.getItem("token");
-  const role = sessionStorage.getItem("role");
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   const getQueryParam = (param) => {
     const searchParams = new URLSearchParams(location.search);
@@ -130,10 +130,10 @@ const PaymentSuccess = () => {
           <div className="info-value">{ticketData.ticketCount || 0}</div>
         </div>
 
-        <div className="info-group">
+        {/* <div className="info-group">
           <div className="info-label">Products Total:</div>
           <div className="info-value">{ticketData.productsTotal?.toLocaleString() || 0} VND</div>
-        </div>
+        </div> */}
 
         <div className="info-group">
           <div className="info-label">Grand Total:</div>

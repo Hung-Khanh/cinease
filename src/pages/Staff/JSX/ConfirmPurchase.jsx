@@ -3,15 +3,15 @@ import { QRCode, Space } from "antd";
 import "../SCSS/ConfirmPurchase.scss";
 
 const ConfirmPurchase = () => {
-  // Lấy paymentUrl từ sessionStorage (bạn nên lưu với key không có dấu cách)
+  // Lấy paymentUrl từ localStorage (bạn nên lưu với key không có dấu cách)
 
   const [paymentUrl, setPaymentUrl] = useState("");
-  const grandTotal = sessionStorage.getItem("grandTotal");
+  const grandTotal = localStorage.getItem("grandTotal");
 
   useEffect(() => {
-    const url = sessionStorage.getItem("paymentUrl");
+    const url = localStorage.getItem("paymentUrl");
     setPaymentUrl(url || "");
-    console.log(sessionStorage.getItem("paymentUrl"));
+    console.log(localStorage.getItem("paymentUrl"));
   }, []);
   const handleRefresh = () => {
     window.location.reload(); // Làm mới trang

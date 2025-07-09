@@ -125,7 +125,7 @@ function Layout() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
 
@@ -180,16 +180,16 @@ function Layout() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
           <Route
-            path="/seat-select/:movieId/:scheduleId"
+            path="/seat-select/:movieId/:scheduleId/"
             element={<SelectSeat />}
           />
-          <Route path="/confirm/:scheduleId" element={<Confirm />} />
+          <Route path="/confirm/:scheduleId/:sessionId" element={<Confirm />} />
           <Route
-            path="/product/:movieId/:invoiceId"
+            path="/product/:movieId/:sessionId"
             element={<ProductPage />}
           />
           <Route
-            path="/payment-detail/:invoiceId"
+            path="/payment-detail/:sessionId/:movieId"
             element={<PaymentDetail />}
           />
           <Route path="/history" element={<HistoryTicket />} />

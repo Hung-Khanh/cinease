@@ -1,180 +1,131 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import "./PaymentDetail.scss";
 
 const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
-  const { invoiceId } = useParams();
+  const { sessionId, movieId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [ticketData, setTicketData] = useState(null);
   const [movieDetails, setMovieDetails] = useState({
     posterImageUrl: "https://via.placeholder.com/300x450?text=No+Poster",
     movieName: "N/A",
   });
-
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const [paymentUrl, setPaymentUrl] = useState(null);
-  const [countdown, setCountdown] = useState(300); // 5 phút
-
-  // Lấy các tham số từ location.state
-  const { promotion, grandTotal, cinemaRoomName: stateCinemaRoomName } = location.state || {
-    promotion: null,
-    grandTotal: 0,
-    cinemaRoomName: "",
-  };
+  const [countdown, setCountdown] = useState(300); // 5 minutes
+  const token = localStorage.getItem("token");
+  const seatData = useSelector((state) => state.cart.seatData);
 
   useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      const token = sessionStorage.getItem("token");
-      if (!token) {
-        alert("Bạn chưa đăng nhập.");
-        navigate("/login");
-        return;
-      }
+    console.log("seatData:", seatData); // Debug Redux state
+    if (!seatData || !seatData.sessionId) {
+      alert("Không tìm thấy dữ liệu đặt vé. Vui lòng chọn lại.");
+      navigate("/");
+      return;
+    }
 
+    const fetchMovieDetails = async () => {
       try {
-        const ticketRes = await fetch(`${apiUrl}/member/ticket-info?invoiceId=${invoiceId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
-            Accept: "application/json",
-          },
-        });
-
-        if (!ticketRes.ok) {
-          const msg = await ticketRes.text();
-          console.warn("🛑 Lỗi lấy ticket:", msg);
+        if (!token) {
+          alert("Bạn chưa đăng nhập.");
+          navigate("/login");
           return;
         }
-
-        const ticket = await ticketRes.json();
-        setTicketData(ticket);
-
-        if (ticket.movieId) {
-          await fetchMovieDetails(ticket.movieId, token);
-        } else if (ticket.movieName) {
-          await searchMovieByName(ticket.movieName, token);
-        } else {
-          setMovieDetails((prev) => ({ ...prev, movieName: ticket.movieName || "N/A" }));
+        if (movieId) {
+          const movieRes = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+              Accept: "application/json",
+            },
+          });
+          if (!movieRes.ok) {
+            const errorData = await movieRes.json();
+            throw new Error(`Failed to fetch movie details: ${errorData.message || movieRes.status}`);
+          }
+          const movie = await movieRes.json();
+          setMovieDetails((prev) => ({
+            ...prev,
+            posterImageUrl: movie.posterImageUrl || prev.posterImageUrl,
+            movieName: movie.movieNameEnglish || movie.movieNameVn || prev.movieName,
+          }));
         }
       } catch (err) {
-        console.error("❌ Lỗi gọi API ticket:", err);
+        console.error("❌ Lỗi lấy thông tin phim:", err);
+        alert(`Lỗi lấy thông tin phim: ${err.message}`);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [invoiceId, apiUrl, navigate]);
+    fetchMovieDetails();
+  }, [apiUrl, movieId, navigate, seatData, token]);
 
   useEffect(() => {
-    if (loading || !ticketData) return;
+    if (loading) return;
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate(-1);
+          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
+          navigate("/");
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [loading, ticketData, navigate]);
-
-  const fetchMovieDetails = async (movieId, token) => {
-    try {
-      const movieRes = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-          Accept: "application/json",
-        },
-      });
-      if (!movieRes.ok) return;
-      const movie = await movieRes.json();
-      setMovieDetails((prev) => ({
-        ...prev,
-        posterImageUrl: movie.posterImageUrl || prev.posterImageUrl,
-        movieName: movie.movieNameEnglish || movie.movieNameVn || prev.movieName,
-      }));
-    } catch (err) {
-      console.error("❌ Lỗi lấy thông tin phim:", err);
-    }
-  };
-
-  const searchMovieByName = async (name, token) => {
-    try {
-      const res = await fetch(`${apiUrl}/public/movies?q=${encodeURIComponent(name)}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-          Accept: "application/json",
-        },
-      });
-      if (!res.ok) return;
-      const results = await res.json();
-      if (Array.isArray(results) && results.length > 0) {
-        const movie = results[0];
-        setMovieDetails((prev) => ({
-          ...prev,
-          posterImageUrl: movie.posterImageUrl || prev.posterImageUrl,
-          movieName: movie.movieNameEnglish || movie.movieNameVn || prev.movieName,
-        }));
-      }
-    } catch (err) {
-      console.error("❌ Lỗi tìm phim:", err);
-    }
-  };
+  }, [loading, navigate]);
 
   const handleConfirmPayment = async () => {
-    const token = sessionStorage.getItem("token");
+    if (!token) {
+      alert("Bạn chưa đăng nhập.");
+      navigate("/login");
+      return;
+    }
+
     try {
       const res = await fetch(`${apiUrl}/member/confirm-payment`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ invoiceId: invoiceId, paymentMethod }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: JSON.stringify({ sessionId, paymentMethod }),
       });
+
       if (!res.ok) {
-        const msg = await res.text();
-        alert(`Lỗi xác nhận thanh toán: ${msg}`);
-        return;
+        const errorData = await res.json();
+        if (errorData.errorCode === "SESSION_EXPIRED") {
+          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
+          navigate("/");
+          return;
+        }
+        if (errorData.errorCode === "PAYMENT_FAILED") {
+          alert("Thanh toán thất bại. Vui lòng thử lại.");
+          return;
+        }
+        throw new Error(`Failed to confirm payment: ${errorData.message || res.status}`);
       }
+
       const data = await res.json();
       setPaymentUrl(data.paymentUrl || null);
     } catch (err) {
       console.error("❌ Lỗi xác nhận thanh toán:", err);
+      alert(`Lỗi xác nhận thanh toán: ${err.message}. Vui lòng thử lại.`);
     }
   };
 
-  if (loading || !ticketData) return <div>Đang tải dữ liệu...</div>;
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+  if (!seatData || !seatData.confirmationResult) return <div>Không tìm thấy thông tin đặt vé.</div>;
 
-  const {
-    movieName,
-    date,
-    time,
-    seat = [],
-    price = 0,
-    fullName,
-    phoneNumber,
-    identityCard,
-    cinemaRoomName, // lấy từ API
-  } = ticketData;
-
-  const finalCinemaRoomName = stateCinemaRoomName || cinemaRoomName || "N/A";
-
-  const seatCount = seat.length;
-  const formattedDate = new Date(date).toLocaleDateString("vi-VN");
-  const formattedTime = new Date(time).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-
-  const ticketTotal = price * seatCount;
-  const discountPercent = promotion?.discountLevel || 0;
-  const originalTotal = grandTotal || ticketTotal;
-  const discountAmount = (originalTotal * discountPercent) / 100;
-  const finalTotal = originalTotal - discountAmount;
+  const { originalTicketTotal, finalTicketTotal, discountFromScore, discountFromPromotion, finalProductsTotal, grandTotal } = seatData.confirmationResult;
+  const seatCount = seatData.confirmationResult?.seatNumbers?.length || 0;
+  const seatsDisplay = seatData.confirmationResult?.seatNumbers?.join(", ") || "N/A";
 
   return (
     <>
@@ -192,24 +143,22 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
 
           <div className="payment-info">
             <h2>PAYMENT INFORMATION</h2>
-            <div className="detail-row"><span>🎬 MOVIE</span><span>{movieName}</span></div>
-            <div className="detail-row"><span>🏢 CINEROOM</span><span>{finalCinemaRoomName}</span></div>
-            <div className="detail-row"><span>📅 DATE</span><span>{formattedDate}</span></div>
-            <div className="detail-row"><span>🕒 TIME</span><span>{formattedTime}</span></div>
-            <div className="detail-row"><span>💺 SEAT ({seatCount})</span><span>{seat.join(", ")}</span></div>
-            <div className="detail-row"><span>👤 FULLNAME</span><span>{fullName}</span></div>
-            <div className="detail-row"><span>ID CARD</span><span>{identityCard}</span></div>
-            <div className="detail-row"><span>📞 PHONE</span><span>{phoneNumber}</span></div>
+            <div className="detail-row"><span>🎬 MOVIE</span><span>{seatData.movieName}</span></div>
+            <div className="detail-row"><span>🏢 CINEROOM</span><span>{seatData.cinemaRoomName}</span></div>
+            <div className="detail-row"><span>📅 DATE</span><span>{seatData.showDate}</span></div>
+            <div className="detail-row"><span>🕒 TIME</span><span>{seatData.showTime}</span></div>
+            <div className="detail-row"><span>💺 SEAT ({seatCount})</span><span>{seatsDisplay}</span></div>
 
             <div className="detail-row transaction"><span>PAYMENT DETAIL</span></div>
-            <div className="detail-row"><span>💰 ORIGINAL TOTAL</span><span>{originalTotal.toLocaleString()} VND</span></div>
-
-            {promotion && (
-              <div className="detail-row"><span>🏷️ PROMOTION ({promotion.title})</span><span>{discountPercent}%</span></div>
+            <div className="detail-row"><span>🎟 TICKET TOTAL</span><span>{originalTicketTotal?.toLocaleString()} VND</span></div>
+            {discountFromScore > 0 && (
+              <div className="detail-row"><span>💳 SCORE DISCOUNT</span><span>- {discountFromScore?.toLocaleString()} VND</span></div>
             )}
-
-            <div className="detail-row"><span>🔄 DISCOUNT AMOUNT</span><span>- {discountAmount.toLocaleString()} VND</span></div>
-            <div className="detail-row total"><span>💰 GRAND TOTAL</span><span>{finalTotal.toLocaleString()} VND</span></div>
+            {discountFromPromotion > 0 && (
+              <div className="detail-row"><span>🎁 PROMOTION DISCOUNT</span><span>- {discountFromPromotion?.toLocaleString()} VND</span></div>
+            )}
+            <div className="detail-row"><span>🥤 FOOD & DRINK</span><span>{finalProductsTotal?.toLocaleString()} VND</span></div>
+            <div className="detail-row total"><span>💰 GRAND TOTAL</span><span>{grandTotal?.toLocaleString()} VND</span></div>
 
             <div className="detail-row payment-method-selector">
               <span>💳 PAYMENT METHOD</span>
@@ -240,7 +189,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
 
             <button className="payment-button" onClick={handleConfirmPayment}>✅ CONFIRM PAYMENT</button>
             {paymentUrl && (
-              <a href={paymentUrl} className="payment-button" target="_blank" rel="noopener noreferrer">
+              <a href={paymentUrl} className="payment-button">
                 💳 PROCEED TO PAY
               </a>
             )}
