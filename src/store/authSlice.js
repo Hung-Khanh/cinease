@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  token: sessionStorage.getItem("token") || null,
+  token: localStorage.getItem("token") || null,
   tempBooking: {
     date: null,
     showtime: [],
@@ -14,11 +14,11 @@ const authSlice = createSlice({
   reducers: {
     setToken(state, action) {
       state.token = action.payload;
-      sessionStorage.setItem("token", action.payload);
+      localStorage.setItem("token", action.payload);
     },
     clearToken(state) {
       state.token = null;
-      sessionStorage.removeItem("token");
+      localStorage.removeItem("token");
     },
   },
 });

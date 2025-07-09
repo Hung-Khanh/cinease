@@ -14,20 +14,20 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
   const [products, setProducts] = useState([]);
   const [selectedQuantities, setSelectedQuantities] = useState({});
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const reduxSeatData = useSelector((state) => state.cart.seatData);
   const seatData = reduxSeatData || location.state || null;
   const selectedProductsRedux = useSelector((state) => state.cart.selectedProducts);
 
   useEffect(() => {
-  if (selectedProductsRedux && selectedProductsRedux.length > 0) {
-    const initialQuantities = {};
-    selectedProductsRedux.forEach((item) => {
-      initialQuantities[item.productId] = item.quantity;
-    });
-    setSelectedQuantities(initialQuantities);
-  }
-}, [selectedProductsRedux]);
+    if (selectedProductsRedux && selectedProductsRedux.length > 0) {
+      const initialQuantities = {};
+      selectedProductsRedux.forEach((item) => {
+        initialQuantities[item.productId] = item.quantity;
+      });
+      setSelectedQuantities(initialQuantities);
+    }
+  }, [selectedProductsRedux]);
 
   useEffect(() => {
     if (location.state && !reduxSeatData) {

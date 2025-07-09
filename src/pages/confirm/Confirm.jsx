@@ -21,7 +21,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
   const seatData = useSelector((state) => state.cart.seatData);
   const selectedProducts = useSelector((state) => state.cart.selectedProducts);
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (!seatData || !seatData.sessionId) {
@@ -135,9 +135,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           scheduleSeatIds,
           products: Array.isArray(bookingData.products)
             ? bookingData.products.map((p) => ({
-                productId: p.productId,
-                quantity: p.quantity,
-              }))
+              productId: p.productId,
+              quantity: p.quantity,
+            }))
             : [],
         }),
       });
@@ -175,10 +175,10 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           ticketType: ticketType || "ADULT",
           products: Array.isArray(bookingData.products)
             ? bookingData.products.map((p) => ({
-                productId: p.productId,
-                quantity: p.quantity,
-                notes: "",
-              }))
+              productId: p.productId,
+              quantity: p.quantity,
+              notes: "",
+            }))
             : [],
           skipProducts: !bookingData.products || bookingData.products.length === 0,
         }),

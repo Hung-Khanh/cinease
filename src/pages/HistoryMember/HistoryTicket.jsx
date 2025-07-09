@@ -269,7 +269,7 @@ const HistoryTicket = () => {
       <Card className="table-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0 }}>Transaction Details</h3>
-          <Dropdown overlay={sortMenu} trigger={['click']}>
+          <Dropdown menu={sortMenu} trigger={['click']}>
             <Button className="sort-btn" style={{ marginLeft: 12, marginBottom: 8 }}>
               Sort <DownOutlined />
             </Button>

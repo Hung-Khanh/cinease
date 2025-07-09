@@ -9,13 +9,6 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 // Custom pagination for profile history table
 .profile-history-table {
   .ant-pagination {
-    .ant-pagination-item {
-      background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #0a181f 100%);
-      border-color: #515c5b;
-      color: #ffffff;
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    }
     .ant-pagination-item:hover {
       background: #27ae60;
       color: #fff;

@@ -22,6 +22,9 @@ const AdminHeader = ({ onLogoClick, pageTitle = 'DASHBOARD' }) => {
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate('/login');
   };
 

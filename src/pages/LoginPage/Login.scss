@@ -12,7 +12,11 @@
   flex-direction: column;
   min-height: 100vh;
   margin: 0;
-  & { padding: 20px; }
+
+  & {
+    padding: 20px;
+  }
+
   box-sizing: border-box;
 
   .container {
@@ -54,7 +58,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      & { padding: 20px; }
+
+      & {
+        padding: 20px;
+      }
+
       box-sizing: border-box;
 
       @media (max-width: 768px) {
@@ -116,11 +124,13 @@
     }
 
     @keyframes move {
+
       0%,
       49.99% {
         opacity: 0;
         z-index: 1;
       }
+
       50%,
       100% {
         opacity: 1;
@@ -207,7 +217,11 @@
       @media (max-width: 768px) {
         position: relative;
         width: 100%;
-        & { padding: 20px; }
+
+        & {
+          padding: 20px;
+        }
+
         height: auto;
       }
 
@@ -285,6 +299,7 @@
           padding-bottom: 5px;
         }
       }
+
       .ant-form-item {
         margin-bottom: 20px;
 
@@ -292,8 +307,15 @@
           margin-bottom: 8px;
         }
       }
-      & { padding: 20px; }
-      & { width: 200%; }
+
+      & {
+        padding: 20px;
+      }
+
+      & {
+        width: 200%;
+      }
+
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -376,6 +398,7 @@
           font-size: 11px;
         }
       }
+
       .ant-form-item {
         margin-bottom: 0px;
 
@@ -387,6 +410,7 @@
           margin-bottom: 3px;
         }
       }
+
       .ant-input-status-error,
       .error-input {
         border: 2px solid #ff4d4f !important;
@@ -555,7 +579,11 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-      & { width: 200%; }
+
+      & {
+        width: 200%;
+      }
+
       justify-content: center;
       margin-right: 80px;
 
@@ -744,6 +772,7 @@
     }
 
     @media (max-width: 320px) {
+
       .login-form,
       .register-form {
         padding: 5px;
@@ -770,19 +799,20 @@
   }
 
   .login-form .ant-input::placeholder,
-.login-form .ant-input-password input::placeholder {
-  color: #888 !important;
-  font-style: italic;
-  opacity: 1 !important;
-}
-.login-form .ant-input:focus::placeholder,
-.login-form .ant-input-password input:focus::placeholder {
-  color: #888 !important;
-  font-style: italic;
-  opacity: 1 !important;
-}
+  .login-form .ant-input-password input::placeholder {
+    color: #888 !important;
+    font-style: italic;
+    opacity: 1 !important;
+  }
 
-@media (min-width: 1200px) {
+  .login-form .ant-input:focus::placeholder,
+  .login-form .ant-input-password input:focus::placeholder {
+    color: #888 !important;
+    font-style: italic;
+    opacity: 1 !important;
+  }
+
+  @media (min-width: 1200px) {
     .container {
       width: 1000px;
       height: 750px;
