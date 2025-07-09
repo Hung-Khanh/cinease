@@ -29,6 +29,7 @@
     "react-router-dom": "^7.6.1",
     "react-select": "^5.10.1",
     "recharts": "^2.15.3",
+    "redux-persist": "^6.0.0",
     "swiper": "^11.2.10",
     "tailwindcss": "^4.1.7"
   },

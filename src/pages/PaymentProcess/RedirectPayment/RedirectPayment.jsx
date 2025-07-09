@@ -10,16 +10,11 @@ const RedirectPayment = () => {
 
   React.useEffect(() => {
     const responseCode = params.vnp_ResponseCode;
-    console.log("Response Code:", responseCode);
-    if (responseCode !== '00') {
-      navigate('/user-payment-success', { 
-        state: { 
-          paymentData: params,
-          movieId: params.movieId 
-        },
-        replace: true  
-      });
+    if (responseCode === '00') {
+      // Thành công
+      navigate(`/user-payment-success?invoiceId=${params.vnp_TxnRef}`, { replace: true });
     } else {
+      // Thất bại
       navigate('/user-payment-failed', { 
         state: {
           errorCode: responseCode,
