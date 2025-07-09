@@ -74,15 +74,39 @@ const Profile = () => {
     }
   };
 
-  const sortMenu = (
-    <Menu onClick={handleMenuClick}>
-      {sortOptions.map(opt => (
-        <Menu.Item key={opt.key}>{opt.label}</Menu.Item>
-      ))}
-    </Menu>
-  );
+  const sortMenuItems = sortOptions.map(opt => ({
+    key: opt.key,
+    label: opt.label,
+  }));
 
-  const columns = [
+  // Hook để lấy width của window
+function useWindowWidth() {
+  const [width, setWidth] = React.useState(window.innerWidth);
+  React.useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+}
+
+const windowWidth = useWindowWidth();
+
+const columns = React.useMemo(() => {
+  if (windowWidth <= 576) {
+    return [
+      { title: "Day", dataIndex: "date", key: "date", align: "center" },
+      { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
+      {
+        title: "Grand Total",
+        dataIndex: "grandTotal",
+        key: "grandTotal",
+        align: "center",
+        render: v => v ? v.toLocaleString('vi-VN') + ' ₫' : ''
+      }
+    ];
+  }
+  return [
     { title: "Day", dataIndex: "date", key: "date", align: "center" },
     { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
     { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
@@ -115,6 +139,7 @@ const Profile = () => {
       }
     },
   ];
+}, [windowWidth]);
 
   const sortedHistoryData = React.useMemo(() => {
     if (!sortKey) return historyData;
@@ -232,15 +257,15 @@ const Profile = () => {
       await fetchUserInfo();
 
       try {
-        const oldUser = JSON.parse(sessionStorage.getItem('user')) || {};
+        const oldUser = JSON.parse(localStorage.getItem('user')) || {};
         const updatedUser = {
           ...oldUser,
           ...response.data,
         };
-        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         window.dispatchEvent(new Event('storage'));
       } catch (e) {
-        console.error('Failed to update user in sessionStorage after profile update:', e);
+        console.error('Failed to update user in localStorage after profile update:', e);
       }
 
     } catch (error) {
@@ -521,7 +546,10 @@ const Profile = () => {
       <div className="profile-section profile-history-section">
         <div className="profile-history-header">
           <span className="profile-history-title">Recent Transactions</span>
-          <Dropdown overlay={sortMenu} trigger={['click']}>
+          <Dropdown
+            menu={{ items: sortMenuItems, onClick: handleMenuClick }}
+            trigger={['click']}
+          >
             <Button className="sort-btn" style={{ marginLeft: 12 }}>
               Sort <DownOutlined />
             </Button>

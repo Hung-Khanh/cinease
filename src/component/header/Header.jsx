@@ -8,9 +8,9 @@ const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
-  // Function to load user from sessionStorage
+  // Function to load user from localStorage
   const loadUserFromStorage = useCallback(() => {
-    const savedUser = sessionStorage.getItem("user");
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
       // If just logged in, redirect from login page to home
@@ -43,13 +43,13 @@ const Header = () => {
 
   // Get avatar from user object (prioritize image/avatar, fallback to icon)
   const getUserAvatar = () => {
-    // Always get latest user from sessionStorage to avoid stale state after login/logout
+    // Always get latest user from localStorage to avoid stale state after login/logout
     let latestUser = user;
     try {
-      const savedUser = sessionStorage.getItem("user");
+      const savedUser = localStorage.getItem("user");
       if (savedUser) latestUser = JSON.parse(savedUser);
     } catch (e) {
-      console.error("Error parsing user from sessionStorage:", e);
+      console.error("Error parsing user from localStorage:", e);
     }
     if (!latestUser) return null;
 
@@ -70,7 +70,7 @@ const Header = () => {
     return null;
   };
   useEffect(() => {
-    const savedUser = sessionStorage.getItem("user");
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
       // Nếu vừa đăng nhập thành công, chuyển về trang home
@@ -85,11 +85,14 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("user");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
     setUser(null);
     setShowDropdown(false);
     navigate("/");
   };
+
 
   return (
     <header className="header">

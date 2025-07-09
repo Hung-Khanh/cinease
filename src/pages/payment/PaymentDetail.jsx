@@ -16,7 +16,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   const [paymentMethod, setPaymentMethod] = useState("VNPAY");
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [countdown, setCountdown] = useState(300); // 5 minutes
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const seatData = useSelector((state) => state.cart.seatData);
 
   useEffect(() => {

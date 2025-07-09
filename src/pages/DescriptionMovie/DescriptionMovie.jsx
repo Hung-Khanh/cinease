@@ -10,7 +10,7 @@ const DescriptionMovie = () => {
     const [isTrailerVisible, setTrailerVisible] = useState(false);
     const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
     const { movieId } = useParams();
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     const fetchMovieDetails = async () => {
         try {

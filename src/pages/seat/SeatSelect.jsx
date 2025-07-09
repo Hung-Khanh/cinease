@@ -22,13 +22,13 @@ const SeatSelect = ({
   const existingSeatData = useSelector((state) => state.cart.seatData);
 
   let bookingInfo = bookingInfoFromRedux;
-  if (!bookingInfo.movieName && window.sessionStorage.getItem('bookingInfo')) {
-    bookingInfo = JSON.parse(window.sessionStorage.getItem('bookingInfo'));
+  if (!bookingInfo.movieName && window.localStorage.getItem('bookingInfo')) {
+    bookingInfo = JSON.parse(window.localStorage.getItem('bookingInfo'));
   }
   const scheduleId = bookingInfo.scheduleId || paramScheduleId;
 
   const getInitialSelectedSeats = () => {
-    const seatsFromStorage = window.sessionStorage.getItem('selectedSeats');
+    const seatsFromStorage = window.localStorage.getItem('selectedSeats');
     if (seatsFromStorage) {
       try {
         return JSON.parse(seatsFromStorage);
@@ -42,7 +42,7 @@ const SeatSelect = ({
   const [selectedSeats, setSelectedSeats] = useState(getInitialSelectedSeats());
 
   useEffect(() => {
-    window.sessionStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+    window.localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
   }, [selectedSeats]);
 
   const fetchSeat = async () => {
@@ -90,7 +90,7 @@ const SeatSelect = ({
           .map((s) => `${s.seatColumn}${s.seatRow}`);
         const filtered = prev.filter((seatId) => validSeatIds.includes(seatId));
         if (filtered.length !== prev.length) {
-          window.sessionStorage.setItem('selectedSeats', JSON.stringify(filtered));
+          window.localStorage.setItem('selectedSeats', JSON.stringify(filtered));
         }
         return filtered;
       });
@@ -125,7 +125,7 @@ const SeatSelect = ({
               alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
               dispatch(clearSeatData());
               dispatch(clearSessionId());
-              window.sessionStorage.removeItem('selectedSeats');
+              window.localStorage.removeItem('selectedSeats');
               navigate("/");
               return;
             }
@@ -143,13 +143,13 @@ const SeatSelect = ({
             grandTotal: data.grandTotal,
           }));
           setSelectedSeats([]);
-          window.sessionStorage.setItem('selectedSeats', JSON.stringify([]));
+          window.localStorage.setItem('selectedSeats', JSON.stringify([]));
         } catch (error) {
           console.error("🔥 Error releasing previous seats:", error);
           if (error.message.includes("SESSION_EXPIRED")) {
             dispatch(clearSeatData());
             dispatch(clearSessionId());
-            window.sessionStorage.removeItem('selectedSeats');
+            window.localStorage.removeItem('selectedSeats');
             navigate("/");
           }
         }
@@ -240,7 +240,7 @@ const SeatSelect = ({
           alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
           dispatch(clearSeatData());
           dispatch(clearSessionId());
-          window.sessionStorage.removeItem('selectedSeats');
+          window.localStorage.removeItem('selectedSeats');
           navigate("/");
           return;
         }

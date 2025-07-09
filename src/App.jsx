@@ -73,7 +73,7 @@ function AdminLayout() {
   const [pageTitle, setPageTitle] = useState("DASHBOARD");
 
   // Check if user is admin
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
 
   // Redirect non-admin users to error page
@@ -135,7 +135,7 @@ function AdminLayout() {
 function Layout() {
   const location = useLocation();
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
   const isAdmin = role === "ADMIN";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
