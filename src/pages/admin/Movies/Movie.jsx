@@ -27,7 +27,7 @@ import {
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import "./Movie.scss";
-import axios from '../../../constants/axios';
+import axios from "../../../constants/axios";
 
 // Custom Dropdown Component
 const MultiSelectDropdown = ({ options, value, onChange, placeholder }) => {
@@ -117,7 +117,8 @@ const Movie = () => {
   const [uploading, setUploading] = useState(false);
 
   // Add state for movie details modal
-  const [isMovieDetailsModalVisible, setIsMovieDetailsModalVisible] = useState(false);
+  const [isMovieDetailsModalVisible, setIsMovieDetailsModalVisible] =
+    useState(false);
   const [selectedMovieDetails, setSelectedMovieDetails] = useState(null);
 
   // Optimize message handling with debounce and key management
@@ -181,8 +182,8 @@ const Movie = () => {
       key: "dateRange",
       render: (_, record) => {
         // Ensure consistent formatting by always showing full date range
-        const fromDate = record.fromDate || 'N/A';
-        const toDate = record.toDate || 'N/A';
+        const fromDate = record.fromDate || "N/A";
+        const toDate = record.toDate || "N/A";
 
         return (
           <Tooltip title={`From: ${fromDate} - To: ${toDate}`}>
@@ -193,7 +194,7 @@ const Movie = () => {
                 maxWidth: "200px",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                whiteSpace: "nowrap"
+                whiteSpace: "nowrap",
               }}
             >
               {fromDate} - {toDate}
@@ -209,8 +210,8 @@ const Movie = () => {
         const typeDisplay = Array.isArray(record.types)
           ? record.types.join(", ")
           : record.types
-            ? String(record.types)
-            : "No Type";
+          ? String(record.types)
+          : "No Type";
 
         return (
           <Tooltip title={typeDisplay}>
@@ -323,35 +324,139 @@ const Movie = () => {
     },
   ];
 
-  const handleEdit = (record) => {
-    // Reset the form
-    form.resetFields();
+const handleEdit = async (record) => {
+  // Reset the form
+  form.resetFields();
 
-    // Prepare form values
+  try {
+    // Fetch the complete movie details to ensure we have all the data
+    const movieDetails = await fetchMovieDetails(record.key);
+    
+    if (!movieDetails) {
+      showErrorMessage("Failed to fetch movie details for editing");
+      return;
+    }
+
+    // Prepare form values using the fetched details
     const editRecord = {
-      ...record,
+      ...movieDetails,
       dateRange:
-        record.fromDate && record.toDate
-          ? [dayjs(record.fromDate), dayjs(record.toDate)]
+        movieDetails.fromDate && movieDetails.toDate
+          ? [dayjs(movieDetails.fromDate), dayjs(movieDetails.toDate)]
           : null,
-      scheduleTimes: record.scheduleTimes
-        ? record.scheduleTimes.map((scheduleTime) => {
-          const [date, time] = scheduleTime.split(" ");
-          return {
-            date: dayjs(date),
-            time: dayjs(time, "HH:mm"),
-          };
-        })
+      scheduleTimes: movieDetails.schedules
+        ? movieDetails.schedules.map((schedule) => {
+            // Extensive logging and defensive programming
+            console.log('Raw Schedule Input:', schedule);
+
+            // Handle null or undefined schedules
+            if (schedule === null || schedule === undefined) {
+              console.warn('Skipping null/undefined schedule');
+              return null;
+            }
+
+            try {
+              let processedSchedule;
+
+              // String format handling
+              if (typeof schedule === 'string') {
+                const [date, time] = schedule.split('T');
+                processedSchedule = {
+                  date: dayjs(date),
+                  time: dayjs(time, "HH:mm:ss")
+                };
+              } 
+              // Object format handling
+              else if (typeof schedule === 'object') {
+                // Multiple possible object structures
+                const dateValue = 
+                  schedule.date || 
+                  schedule.scheduleDate || 
+                  schedule.datetime;
+                
+                const timeValue = 
+                  schedule.time || 
+                  schedule.scheduleTime || 
+                  schedule.datetime;
+
+                // Validate date and time
+                if (dateValue && timeValue) {
+                  processedSchedule = {
+                    date: dayjs(dateValue),
+                    time: dayjs(timeValue)
+                  };
+                } else {
+                  console.warn('Invalid schedule object:', schedule);
+                  return null;
+                }
+              } 
+              else {
+                console.warn('Unrecognized schedule format:', schedule);
+                return null;
+              }
+
+              // Final validation
+              if (
+                processedSchedule && 
+                dayjs.isDayjs(processedSchedule.date) && 
+                dayjs.isDayjs(processedSchedule.time)
+              ) {
+                return processedSchedule;
+              } else {
+                console.warn('Invalid processed schedule:', processedSchedule);
+                return null;
+              }
+            } catch (error) {
+              console.error('Schedule Processing Error:', {
+                schedule, 
+                error: error.message
+              });
+              return null;
+            }
+          })
+          // Remove any null entries
+          .filter(schedule => 
+            schedule !== null && 
+            schedule.date && 
+            schedule.time
+          )
         : [],
-      // Set initial types using type names
-      types: record.types || [],
+      // Ensure types are mapped correctly to their names
+      types: movieDetails.types || [],
+      // Explicitly set cinema room 
+      cinemaRoom: movieDetails.cinemaRoomId, 
     };
+
+    // Debug logging with comprehensive information
+    console.log("Edit Record Preparation:", {
+      record,
+      movieDetails,
+      editRecord: {
+        ...editRecord,
+        scheduleTimes: editRecord.scheduleTimes.map(st => ({
+          date: st.date ? st.date.format('YYYY-MM-DD') : 'Invalid Date',
+          time: st.time ? st.time.format('HH:mm:ss') : 'Invalid Time'
+        }))
+      },
+      availableCinemaRooms: cinemaRooms
+    });
 
     // Set the current movie being edited
     setEditingKey(record.key);
 
-    // Set form values
-    form.setFieldsValue(editRecord);
+    // Set form values with additional safety check
+    if (editRecord.scheduleTimes && editRecord.scheduleTimes.length > 0) {
+      form.setFieldsValue(editRecord);
+    } else {
+      // If no valid schedules, set an empty schedule
+      form.setFieldsValue({
+        ...editRecord,
+        scheduleTimes: [{ 
+          date: dayjs(), 
+          time: dayjs().startOf('hour') 
+        }]
+      });
+    }
 
     // Reset file states for editing
     setPosterFile(null);
@@ -360,23 +465,40 @@ const Movie = () => {
     // Set editing state and show modal
     setIsEditing(true);
     setIsModalVisible(true);
-  };
+  } catch (error) {
+    console.error("Error in handleEdit:", error);
+    showErrorMessage(`Error preparing movie for edit: ${error.message}`);
+  }
+};
 
   const handleAddMovie = async (values) => {
     try {
       setUploading(true);
 
-      // Validate required files for new movies
-      if (!isEditing && !posterFile) {
-        message.error("Please upload a poster image");
+      // Validate cinema room selection
+      if (!values.cinemaRoom) {
+        message.error("Please select a cinema room");
         setUploading(false);
         return;
       }
 
-      // Create FormData for multipart/form-data
-      const formData = new FormData();
+      // Prepare type names (not IDs)
+      const types = values.types && values.types.length > 0
+        ? values.types
+        : ["Romantic"]; // Default type if none selected
 
-      // Add files to FormData
+      // Prepare schedule times with robust formatting
+      const scheduleTimes = values.scheduleTimes
+        ? values.scheduleTimes.map(
+            (scheduleItem) => 
+              `${scheduleItem.date.format("YYYY-MM-DD")}T${scheduleItem.time.format("HH:mm:ss")}`
+          ).join(",")
+        : "";
+
+      // Create FormData for multipart upload
+      const formData = new FormData();
+      
+      // Add files to FormData if they exist
       if (posterFile) {
         formData.append("poster", posterFile);
       }
@@ -386,6 +508,11 @@ const Movie = () => {
 
       // Prepare query parameters
       const queryParams = {
+        cinemaroom: values.cinemaRoom,
+      };
+
+      // Prepare request body
+      const requestBody = {
         movieNameVn: values.movieNameVn,
         movieNameEnglish: values.movieNameEnglish,
         fromDate: values.dateRange[0].format("YYYY-MM-DD"),
@@ -396,55 +523,51 @@ const Movie = () => {
         duration: parseInt(values.duration),
         version: values.version,
         content: values.content,
-        cinemaRoomId: values.cinemaRoom,
         trailerUrl: values.trailerUrl || "",
-
-        // Handle type IDs
-        typeIds:
-          values.types && values.types.length > 0
-            ? values.types
-              .map((typeName) => {
-                const type = movieTypes.find(
-                  (t) => t.movieTypeName === typeName
-                );
-                return type ? type.movieTypeId : null;
-              })
-              .filter((id) => id !== null)
-              .join(",")
-            : "1", // Default to first type if none selected
-
-        // Schedule times
-        scheduleTimes: values.scheduleTimes
-          ? values.scheduleTimes
-            .map(
-              (scheduleItem) =>
-                `${scheduleItem.date.format(
-                  "YYYY-MM-DD"
-                )}T${scheduleItem.time.format("HH:mm:ss")}`
-            )
-            .join(",")
-          : "",
+        types: types,
+        scheduleTimes: scheduleTimes,
       };
 
+      // Append request body to FormData
+      Object.keys(requestBody).forEach(key => {
+        formData.append(key, requestBody[key]);
+      });
+
+      // Debug logging
+      console.log("Movie Submission Details:", {
+        isEditing,
+        editingKey,
+        queryParams,
+        requestBody,
+        files: {
+          posterFile: posterFile ? posterFile.name : 'No poster',
+          bannerFile: bannerFile ? bannerFile.name : 'No banner'
+        }
+      });
+
+      // Determine URL based on whether we're editing or adding
       const url = isEditing
         ? `/admin/movies/${editingKey}`
         : `/admin/movies/add`;
 
+      // Send request
       const response = await axios({
-        method: isEditing ? 'put' : 'post',
+        method: isEditing ? "put" : "post",
         url: url,
         data: formData,
         params: queryParams,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
+      // Refresh movies list
       await fetchMovies();
 
-      // Success message with optimized handling
+      // Success message
       showSuccessMessage(
-        `Movie "${values.movieNameVn}" ${isEditing ? "updated" : "added"
+        `Movie "${values.movieNameVn}" ${
+          isEditing ? "updated" : "added"
         } successfully!`,
         3
       );
@@ -456,9 +579,13 @@ const Movie = () => {
       setPosterFile(null);
       setBannerFile(null);
       form.resetFields();
+
     } catch (error) {
+      console.error('Full submission error:', error);
       showErrorMessage(
-        `Failed to ${isEditing ? "update" : "add"} movie: ${error.response?.data?.message || error.message}`,
+        `Failed to ${isEditing ? "update" : "add"} movie: ${
+          error.response?.data?.message || error.message
+        }`,
         3
       );
     } finally {
@@ -487,7 +614,12 @@ const Movie = () => {
         setDeleteConfirmationVisible(false);
         setMovieToDelete(null);
       } catch (error) {
-        showErrorMessage(`Failed to delete movie: ${error.response?.data?.message || error.message}`, 3);
+        showErrorMessage(
+          `Failed to delete movie: ${
+            error.response?.data?.message || error.message
+          }`,
+          3
+        );
       }
     }
   };
@@ -500,55 +632,123 @@ const Movie = () => {
   // Fetch movie types
   const fetchMovieTypes = async () => {
     try {
-      const response = await axios.get('/employee/types');
+      const response = await axios.get("/employee/types");
       const formattedTypes = response.data.map((type) => ({
         movieTypeId: type.typeId,
         movieTypeName: type.typeName,
       }));
       setMovieTypes(formattedTypes);
     } catch (error) {
-      showErrorMessage(`Failed to fetch movie types: ${error.response?.data?.message || error.message}`);
+      showErrorMessage(
+        `Failed to fetch movie types: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
   // Fetch cinema rooms
   const fetchCinemaRooms = async () => {
     try {
-      const response = await axios.get('/admin/cinema-room/list');
+      const response = await axios.get("/admin/cinema-room/list");
       setCinemaRooms(response.data);
     } catch (error) {
-      showErrorMessage(`Failed to fetch cinema rooms: ${error.response?.data?.message || error.message}`);
+      showErrorMessage(
+        `Failed to fetch cinema rooms: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
-  // Fetch movie details by ID
+  // Update fetchMovieDetails to match the backend response structure
   const fetchMovieDetails = async (movieId) => {
     try {
       const response = await axios.get(`/admin/movies/details/${movieId}`);
       const result = response.data;
 
+      // Extensive logging of raw data
+      console.log('Raw Movie Details:', {
+        movieId,
+        rawResult: result
+      });
+
       const formattedMovie = {
-        movieId: result.movieId,
-        movieNameVn: result.movieNameVn,
-        movieNameEnglish: result.movieNameEnglish,
-        fromDate: result.fromDate,
-        toDate: result.toDate,
-        actor: result.actor,
-        movieProductionCompany: result.movieProductionCompany || "N/A",
-        director: result.director,
-        duration: result.duration,
-        version: result.version,
-        content: result.content,
-        posterImageUrl: result.posterImageUrl,
-        largeImage: result.largeImage,
-        cinemaRoom: result.cinemaRoomId,
-        trailerUrl: result.trailerUrl,
-        types: result.types || [],
+        ...result,
+        // Ensure compatibility with form fields
+        cinemaRoom: result.cinemaRoomId, 
+        dateRange: result.fromDate && result.toDate
+          ? [dayjs(result.fromDate), dayjs(result.toDate)]
+          : null,
+        
+        // Robust handling of movie types
+        types: result.types 
+          ? (Array.isArray(result.types) ? result.types : [result.types])
+          : [],
+        
+        // Enhanced schedule handling with extensive error checking
+        scheduleTimes: result.schedules
+          ? result.schedules.reduce((acc, schedule) => {
+              try {
+                // Log each schedule for debugging
+                console.log('Processing schedule:', schedule);
+
+                let processedSchedule;
+                // Handle string format
+                if (typeof schedule === 'string') {
+                  const [date, time] = schedule.split('T');
+                  processedSchedule = {
+                    date: dayjs(date),
+                    time: dayjs(time, "HH:mm:ss")
+                  };
+                } 
+                
+                // Handle object format
+                if (schedule && typeof schedule === 'object') {
+                  // Check for different possible object structures
+                  const dateValue = schedule.date || 
+                                    schedule.scheduleDate || 
+                                    schedule.datetime;
+                  const timeValue = schedule.time || 
+                                    schedule.scheduleTime || 
+                                    schedule.datetime;
+
+                  if (dateValue && timeValue) {
+                    processedSchedule = {
+                      date: dayjs(dateValue),
+                      time: dayjs(timeValue)
+                    };
+                  }
+                }
+
+                // If no valid format found
+                console.warn('Unprocessable schedule format:', schedule);
+                return acc;
+              } catch (error) {
+                console.error('Error processing schedule:', {
+                  schedule, 
+                  error: error.message
+                });
+                return acc;
+              }
+            }, [])
+          : [],
       };
+
+      // Detailed debug logging
+      console.log("Formatted Movie Details for Editing:", {
+        originalSchedules: result.schedules,
+        formattedScheduleTimes: formattedMovie.scheduleTimes
+      });
 
       return formattedMovie;
     } catch (error) {
-      showErrorMessage(`Failed to fetch movie details: ${error.response?.data?.message || error.message}`);
+      console.error('Full error in fetchMovieDetails:', error);
+      showErrorMessage(
+        `Failed to fetch movie details: ${
+          error.response?.data?.message || error.message
+        }`
+      );
       return null;
     }
   };
@@ -557,7 +757,7 @@ const Movie = () => {
   const fetchMovies = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const response = await axios.get('/admin/movies/list');
+      const response = await axios.get("/admin/movies/list");
       const result = response.data;
 
       const formattedMovies = result.map((movie) => {
@@ -565,8 +765,8 @@ const Movie = () => {
         const movieTypes = Array.isArray(movie.types)
           ? movie.types
           : movie.types
-            ? [movie.types]
-            : [];
+          ? [movie.types]
+          : [];
 
         return {
           key: movie.movieId.toString(),
@@ -603,7 +803,12 @@ const Movie = () => {
         showSuccessMessage("Movies fetched successfully", 1.5);
       }
     } catch (error) {
-      showErrorMessage(`Failed to fetch movies: ${error.response?.data?.message || error.message}`, 1.5);
+      showErrorMessage(
+        `Failed to fetch movies: ${
+          error.response?.data?.message || error.message
+        }`,
+        1.5
+      );
     } finally {
       setLoading(false);
     }
@@ -620,7 +825,7 @@ const Movie = () => {
   const filteredMovies = movies.filter((movie) =>
     searchTerm
       ? movie.movieNameVn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      movie.movieNameEnglish.toLowerCase().includes(searchTerm.toLowerCase())
+        movie.movieNameEnglish.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
 
@@ -744,7 +949,24 @@ const Movie = () => {
               {
                 validator: async (_, scheduleTimes) => {
                   if (!scheduleTimes || scheduleTimes.length === 0) {
-                    throw new Error("Please add at least one schedule time");
+                    // Allow empty schedules during editing
+                    if (!isEditing) {
+                      throw new Error("Please add at least one schedule time");
+                    }
+                  }
+                  
+                  // Additional validation for unique schedule times
+                  const uniqueSchedules = new Set(
+                    scheduleTimes.map(
+                      (schedule) => 
+                        schedule.date && schedule.time 
+                          ? `${schedule.date.format('YYYY-MM-DD')}T${schedule.time.format('HH:mm')}`
+                          : null
+                    ).filter(Boolean)
+                  );
+                  
+                  if (uniqueSchedules.size !== scheduleTimes.length) {
+                    throw new Error("Duplicate schedule times are not allowed");
                   }
                 },
               },
@@ -761,13 +983,28 @@ const Movie = () => {
                     <Form.Item
                       {...restField}
                       name={[name, "date"]}
-                      rules={[{ required: true, message: "Missing date" }]}
+                      rules={[
+                        { 
+                          required: true, 
+                          message: "Missing date",
+                          validator: async (_, value) => {
+                            if (!value) {
+                              throw new Error("Please select a date");
+                            }
+                            // Optional: Add additional date validation if needed
+                          }
+                        }
+                      ]}
                       style={{ width: "45%", marginRight: "10px" }}
                     >
                       <DatePicker
                         style={{ width: "100%" }}
                         format="YYYY-MM-DD"
                         placeholder="Select Date"
+                        disabledDate={(current) => {
+                          // Optional: Disable past dates
+                          return current && current < dayjs().startOf('day');
+                        }}
                       />
                     </Form.Item>
                     <Form.Item
@@ -780,6 +1017,7 @@ const Movie = () => {
                         style={{ width: "100%" }}
                         format="HH:mm"
                         placeholder="Select Time"
+                        minuteStep={15} // Optional: Restrict to 15-minute intervals
                       />
                     </Form.Item>
                     {fields.length > 1 ? (
@@ -868,7 +1106,10 @@ const Movie = () => {
                 name="cinemaRoom"
                 noStyle
                 rules={[
-                  { required: true, message: "Please select a cinema room" },
+                  { 
+                    required: true, 
+                    message: "Please select a cinema room",
+                  }
                 ]}
               >
                 <Select
@@ -876,8 +1117,9 @@ const Movie = () => {
                   style={{ width: "48%", marginRight: "4%" }}
                   options={cinemaRooms.map((room) => ({
                     label: `${room.cinemaRoomName} (${room.seatQuantity} seats)`,
-                    value: room.cinemaRoomId,
+                    value: room.cinemaRoomId, // Explicitly use cinemaRoomId
                   }))}
+                  // Remove the valueKey prop
                 />
               </Form.Item>
               <Form.Item
@@ -919,7 +1161,10 @@ const Movie = () => {
           <Form.Item
             label="Movie Poster"
             rules={[
-              { required: !isEditing, message: "Please upload a poster image" },
+              { 
+                required: !isEditing, 
+                message: "Please upload a poster image" 
+              },
             ]}
           >
             <Upload
@@ -945,7 +1190,9 @@ const Movie = () => {
               onRemove={() => setPosterFile(null)}
               maxCount={1}
             >
-              <Button icon={<UploadOutlined />}>Upload Poster Image</Button>
+              <Button icon={<UploadOutlined />}>
+                {isEditing ? "Replace Poster Image" : "Upload Poster Image"}
+              </Button>
             </Upload>
             {posterFile && (
               <div style={{ marginTop: 8 }}>Selected: {posterFile.name}</div>
@@ -976,7 +1223,9 @@ const Movie = () => {
               onRemove={() => setBannerFile(null)}
               maxCount={1}
             >
-              <Button icon={<UploadOutlined />}>Upload Banner Image</Button>
+              <Button icon={<UploadOutlined />}>
+                {isEditing ? "Replace Banner Image" : "Upload Banner Image"}
+              </Button>
             </Upload>
             {bannerFile && (
               <div style={{ marginTop: 8 }}>Selected: {bannerFile.name}</div>
@@ -1044,44 +1293,70 @@ const Movie = () => {
           <div className="movie-details-content">
             <div className="movie-detail-row">
               <div className="movie-detail-label">Movie Name(EN)</div>
-              <div className="movie-detail-value">{selectedMovieDetails.movieNameEnglish}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.movieNameEnglish}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Movie Name(VN)</div>
-              <div className="movie-detail-value">{selectedMovieDetails.movieNameVn}</div>
-            </div> <div className="movie-detail-row">
+              <div className="movie-detail-value">
+                {selectedMovieDetails.movieNameVn}
+              </div>
+            </div>{" "}
+            <div className="movie-detail-row">
               <div className="movie-detail-label">Movie Type</div>
-              <div className="movie-detail-value">{selectedMovieDetails.types}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.types}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Date Range </div>
               <div className="movie-detail-value">
-                {selectedMovieDetails.fromDate || 'N/A'} to {selectedMovieDetails.toDate || 'N/A'}
+                {selectedMovieDetails.fromDate || "N/A"} to{" "}
+                {selectedMovieDetails.toDate || "N/A"}
               </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Duration</div>
-              <div className="movie-detail-value">{selectedMovieDetails.duration} mins</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.duration} mins
+              </div>
+            </div>
+            <div className="movie-detail-row">
+              <div className="movie-detail-label">Cinema Room</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.cinemaRoomId}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Version</div>
-              <div className="movie-detail-value">{selectedMovieDetails.version}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.version}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Production Company</div>
-              <div className="movie-detail-value">{selectedMovieDetails.movieProductionCompany || 'N/A'}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.movieProductionCompany || "N/A"}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Director</div>
-              <div className="movie-detail-value">{selectedMovieDetails.director}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.director}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Actors</div>
-              <div className="movie-detail-value">{selectedMovieDetails.actor}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.actor}
+              </div>
             </div>
             <div className="movie-detail-row">
               <div className="movie-detail-label">Content</div>
-              <div className="movie-detail-value">{selectedMovieDetails.content}</div>
+              <div className="movie-detail-value">
+                {selectedMovieDetails.content}
+              </div>
             </div>
           </div>
         )}
