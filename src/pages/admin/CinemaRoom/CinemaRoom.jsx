@@ -1,6 +1,6 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message, Modal, Table } from "antd";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from '../../../constants/axios';
 import "./CinemaRoom.scss";
 
@@ -92,6 +92,7 @@ const CinemaRooms = () => {
       }));
       
       setCinemaRooms(formattedRooms);
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -125,6 +126,7 @@ const CinemaRooms = () => {
       message.success(response.data, 1.5);
       closeModal('main');
       fetchCinemaRooms();
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -141,6 +143,7 @@ const CinemaRooms = () => {
       message.success(response.data, 1.5);
       closeModal('delete');
       fetchCinemaRooms();
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -156,6 +159,7 @@ const CinemaRooms = () => {
       
       setSeatDetails(response.data);
       setSeatDetailsModalVisible(true);
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -174,6 +178,7 @@ const CinemaRooms = () => {
 
       message.success(response.data, 1.5);
       fetchSeatDetails(selectedCinemaRoom.key);
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -293,6 +298,7 @@ const CinemaRooms = () => {
 
   useEffect(() => {
     fetchCinemaRooms();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

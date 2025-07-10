@@ -138,44 +138,51 @@ $danger-color: #e74c3c;
       color: $text-color !important;
     }
   }
+}
 
-  // Pagination
   .ant-table-pagination {
     .ant-pagination-item {
-      background-color: $input-bg !important;
+      // background-color: $input-bg !important;
       border-color: $green-accent !important;
-
-      a {
-        color: $text-color !important;
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
       }
 
       &.ant-pagination-item-active {
         background-color: $green-accent !important;
         border-color: $green-accent !important;
-
+        &:hover {
+          background-color: $green-accent !important;
+          border-color: $green-accent !important;
+        }
         a {
           color: $text-color !important;
         }
       }
     }
+  }
+  .pagination-btn {
+    margin: 0 5px;
+    padding: 4px 15px;
+    border-radius: 4px;
 
-    .pagination-btn {
-      background-color: #ffffff !important;
-      border-color: #ffffff !important;
-      color: $primary-bg !important;
-      font-weight: 600;
+    &.prev-btn {
+      margin-right: 10px;
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
+      }
+    }
 
-      &:hover,
-      &:focus {
-        background-color: #ffffff !important;
-        border-color: #ffffff !important;
-        color: $primary-bg !important;
-        opacity: 0.8;
+    &.next-btn {
+      margin-left: 10px;
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
       }
     }
   }
-}
-
 
 .action-buttons {
   display: flex;

@@ -134,12 +134,10 @@ const PaymentSuccess = () => {
           <div className="info-value">{ticketData.ticketCount || 0}</div>
         </div>
 
-        <div className="info-group">
+        {/* <div className="info-group">
           <div className="info-label">Products Total:</div>
-          <div className="info-value">
-            {ticketData.productsTotal?.toLocaleString() || 0} VND
-          </div>
-        </div>
+          <div className="info-value">{ticketData.productsTotal?.toLocaleString() || 0} VND</div>
+        </div> */}
 
         <div className="info-group">
           <div className="info-label">Grand Total:</div>

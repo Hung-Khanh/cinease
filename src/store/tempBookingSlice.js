@@ -1,21 +1,36 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  bookingDetails: {
-    date: null,           
-    selectedScheduleId: null, 
-  },
+  movieName: "",
+  showDate: "",
+  showTime: "",
+  selectedSeats: [],
+  scheduleId: null 
 };
 
 const tempBookingSlice = createSlice({
-  name: 'tempBooking', 
+  name: "tempBooking",
   initialState,
   reducers: {
-    setTempBooking: (state, action) => {
-      state.bookingDetails = { ...state.bookingDetails, ...action.payload };
+    setBookingInfo: (state, action) => {
+      const { movieName, showDate, showTime, scheduleId } = action.payload;
+      state.movieName = movieName;
+      state.showDate = showDate;
+      state.showTime = showTime;
+      state.scheduleId = scheduleId;
     },
-  },
+    setSelectedSeats: (state, action) => {
+      state.selectedSeats = action.payload;
+    },
+    clearBookingInfo: (state) => {
+      state.movieName = "";
+      state.showDate = "";
+      state.showTime = "";
+      state.selectedSeats = [];
+      state.scheduleId = null;
+    }
+  }
 });
 
-export const { setTempBooking } = tempBookingSlice.actions;
+export const { setBookingInfo, setSelectedSeats, clearBookingInfo } = tempBookingSlice.actions;
 export default tempBookingSlice.reducer;

@@ -391,7 +391,8 @@ const Login = () => {
               <Row gutter={8}>
                 <Col span={12}>
                   <Form.Item name="password" style={{ marginBottom: 0 }}>
-                    <Input.Password
+                    <Input
+                      type="password"
                       status={errors.register.password ? "error" : ""}
                       placeholder={
                         errors.register.password
@@ -408,7 +409,8 @@ const Login = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="repeatPassword" style={{ marginBottom: 0 }}>
-                    <Input.Password
+                    <Input
+                      type="password"
                       status={errors.register.repeatPassword ? "error" : ""}
                       placeholder={
                         errors.register.repeatPassword

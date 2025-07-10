@@ -92,50 +92,80 @@ const Profile = () => {
     }
   };
 
-  const sortMenu = (
-    <Menu onClick={handleMenuClick}>
-      {sortOptions.map((opt) => (
-        <Menu.Item key={opt.key}>{opt.label}</Menu.Item>
-      ))}
-    </Menu>
-  );
+  const sortMenuItems = sortOptions.map((opt) => ({
+    key: opt.key,
+    label: opt.label,
+  }));
 
-  const columns = [
-    { title: "Day", dataIndex: "date", key: "date", align: "center" },
-    { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
-    { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
-    {
-      title: "Grand Total",
-      dataIndex: "grandTotal",
-      key: "grandTotal",
-      align: "center",
-      render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (status) => {
-        const statusColors = {
-          PENDING: "orange",
-          CONFIRMED: "blue",
-          PAID: "green",
-          CANCELLED: "red",
-          EXPIRED: "gray",
-          AWAITING_PAYMENT: "yellow",
-        };
-        return (
-          <Tag
-            color={statusColors[status] || "default"}
-            style={{ minWidth: 90, textAlign: "center" }}
-          >
-            {status}
-          </Tag>
-        );
+  // Hook để lấy width của window
+  function useWindowWidth() {
+    const [width, setWidth] = React.useState(window.innerWidth);
+    React.useEffect(() => {
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    return width;
+  }
+
+  const windowWidth = useWindowWidth();
+
+  const columns = React.useMemo(() => {
+    if (windowWidth <= 576) {
+      return [
+        { title: "Day", dataIndex: "date", key: "date", align: "center" },
+        { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
+        {
+          title: "Grand Total",
+          dataIndex: "grandTotal",
+          key: "grandTotal",
+          align: "center",
+          render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
+        },
+      ];
+    }
+    return [
+      { title: "Day", dataIndex: "date", key: "date", align: "center" },
+      { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
+      {
+        title: "Tickets",
+        dataIndex: "tickets",
+        key: "tickets",
+        align: "center",
       },
-    },
-  ];
+      {
+        title: "Grand Total",
+        dataIndex: "grandTotal",
+        key: "grandTotal",
+        align: "center",
+        render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
+      },
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        align: "center",
+        render: (status) => {
+          const statusColors = {
+            PENDING: "orange",
+            CONFIRMED: "blue",
+            PAID: "green",
+            CANCELLED: "red",
+            EXPIRED: "gray",
+            AWAITING_PAYMENT: "yellow",
+          };
+          return (
+            <Tag
+              color={statusColors[status] || "default"}
+              style={{ minWidth: 90, textAlign: "center" }}
+            >
+              {status}
+            </Tag>
+          );
+        },
+      },
+    ];
+  }, [windowWidth]);
 
   const sortedHistoryData = React.useMemo(() => {
     if (!sortKey) return historyData;
@@ -595,7 +625,10 @@ const Profile = () => {
       <div className="profile-section profile-history-section">
         <div className="profile-history-header">
           <span className="profile-history-title">Recent Transactions</span>
-          <Dropdown overlay={sortMenu} trigger={["click"]}>
+          <Dropdown
+            menu={{ items: sortMenuItems, onClick: handleMenuClick }}
+            trigger={["click"]}
+          >
             <Button className="sort-btn" style={{ marginLeft: 12 }}>
               Sort <DownOutlined />
             </Button>

@@ -1,42 +1,49 @@
 import React, { useEffect, useState } from "react";
 import './SeatSelect.scss';
 import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { PiArmchair, PiArmchairFill, PiArmchairDuotone } from "react-icons/pi";
 import { TbArmchair2Off } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
-import * as seatActions from "../../store/authSlice";
+import { setSeatData, setSessionId, clearSeatData } from "../../store/cartSlice";
+
 const SeatSelect = ({
   apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
   onBack
 }) => {
   const [seats, setSeats] = useState([]);
-  const [grandTotal, setGrandTotal] = useState("");
-  const { scheduleId, movieId } = useParams();
-  const location = useLocation();
+  const { scheduleId: paramScheduleId, movieId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const token = useSelector((state) => state.auth.token);
+  const bookingInfoFromRedux = useSelector((state) => state.tempBooking);
+  const existingSessionId = useSelector((state) => state.cart.sessionId);
+  const existingSeatData = useSelector((state) => state.cart.seatData);
 
-  const reduxSelectedSeats = useSelector((state) => state.seat.selectedSeats);
+  let bookingInfo = bookingInfoFromRedux;
+  if (!bookingInfo.movieName && window.localStorage.getItem('bookingInfo')) {
+    bookingInfo = JSON.parse(window.localStorage.getItem('bookingInfo'));
+  }
+  const scheduleId = bookingInfo.scheduleId || paramScheduleId;
 
-  const {
-    movieName = "",
-    showDate = "",
-    showTime = "",
-    selectedSeats: initialSelectedSeats = []
-  } = location.state || {};
+  const getInitialSelectedSeats = () => {
+    const seatsFromStorage = window.localStorage.getItem('selectedSeats');
+    if (seatsFromStorage) {
+      try {
+        return JSON.parse(seatsFromStorage);
+      } catch {
+        return [];
+      }
+    }
+    return existingSeatData?.selectedSeats || [];
+  };
 
-
-  const [selectedSeats, setSelectedSeats] = useState(
-    reduxSelectedSeats.length > 0 ? reduxSelectedSeats : initialSelectedSeats
-  );
-
+  const [selectedSeats, setSelectedSeats] = useState(getInitialSelectedSeats());
 
   useEffect(() => {
-    dispatch(seatActions.setSelectedSeats(selectedSeats));
-  }, [selectedSeats, dispatch]);
+    window.localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+  }, [selectedSeats]);
 
   const fetchSeat = async () => {
     if (!token) {
@@ -55,25 +62,102 @@ const SeatSelect = ({
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
         if (response.status === 401) {
           alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           navigate("/login");
           return;
         }
-        throw new Error(`Failed to fetch seats: ${response.status}`);
+        if (errorData.errorCode === "SHOWTIME_NOT_FOUND") {
+          alert("Lịch chiếu không tồn tại. Vui lòng chọn lịch chiếu khác.");
+          navigate(-1);
+          return;
+        }
+        throw new Error(`Failed to fetch seats: ${errorData.message || response.status}`);
       }
 
       const data = await response.json();
       setSeats(data);
+
+      // Filter selected seats to only include those that are AVAILABLE or HOLD by the current session
+      setSelectedSeats((prev) => {
+        const sessionSeatIds = existingSeatData?.selectedSeats || [];
+        const validSeatIds = data
+          .filter((s) => {
+            const seatId = `${s.seatColumn}${s.seatRow}`;
+            return s.seatStatus === "AVAILABLE" || (s.seatStatus === "HOLD" && sessionSeatIds.includes(seatId));
+          })
+          .map((s) => `${s.seatColumn}${s.seatRow}`);
+        const filtered = prev.filter((seatId) => validSeatIds.includes(seatId));
+        if (filtered.length !== prev.length) {
+          window.localStorage.setItem('selectedSeats', JSON.stringify(filtered));
+        }
+        return filtered;
+      });
     } catch (error) {
       console.error("🔥 Error in fetchSeat:", error);
-      alert("Lỗi khi tải danh sách ghế. Vui lòng thử lại.");
+      alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`);
     }
   };
 
   useEffect(() => {
-    fetchSeat();
-  }, [scheduleId]);
+    const releasePreviousSeats = async () => {
+      if (existingSessionId && token) {
+        try {
+          const response = await fetch(`${apiUrl}/member/select-seats`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: JSON.stringify({
+              sessionId: existingSessionId,
+              scheduleId: parseInt(scheduleId),
+              scheduleSeatIds: [],
+              products: existingSeatData?.products || [],
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            if (errorData.errorCode === "SESSION_EXPIRED") {
+              alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
+              dispatch(clearSeatData());
+              dispatch(clearSessionId());
+              window.localStorage.removeItem('selectedSeats');
+              navigate("/");
+              return;
+            }
+            throw new Error(`Failed to release seats: ${errorData.message || response.status}`);
+          }
+
+          const data = await response.json();
+          dispatch(setSessionId(data.sessionId));
+          dispatch(setSeatData({
+            ...existingSeatData,
+            sessionId: data.sessionId,
+            selectedSeats: [],
+            originalTicketTotal: data.totalPrice,
+            originalProductsTotal: data.productsTotal,
+            grandTotal: data.grandTotal,
+          }));
+          setSelectedSeats([]);
+          window.localStorage.setItem('selectedSeats', JSON.stringify([]));
+        } catch (error) {
+          console.error("🔥 Error releasing previous seats:", error);
+          if (error.message.includes("SESSION_EXPIRED")) {
+            dispatch(clearSeatData());
+            dispatch(clearSessionId());
+            window.localStorage.removeItem('selectedSeats');
+            navigate("/");
+          }
+        }
+      }
+    };
+
+    releasePreviousSeats().then(fetchSeat);
+  }, [scheduleId, token, navigate, existingSessionId, dispatch]);
 
   const findSeatBySeatId = (seatId) => {
     return seats.find(
@@ -83,13 +167,27 @@ const SeatSelect = ({
 
   const toggleSeat = (seatId) => {
     const seat = findSeatBySeatId(seatId);
-    if (!seat || seat.seatStatus === "BOOKED") return;
+    if (!seat) return;
 
-    setSelectedSeats((prev) =>
-      prev.includes(seatId)
-        ? prev.filter((s) => s !== seatId)
-        : [...prev, seatId]
-    );
+    // Only allow toggling AVAILABLE seats or HOLD seats owned by the current session
+    const sessionSeatIds = existingSeatData?.selectedSeats || [];
+    if (
+      seat.seatStatus !== "AVAILABLE" &&
+      !(seat.seatStatus === "HOLD" && sessionSeatIds.includes(seatId))
+    ) {
+      return;
+    }
+
+    setSelectedSeats((prev) => {
+      if (prev.includes(seatId)) {
+        return prev.filter((s) => s !== seatId);
+      }
+      if (prev.length >= 8) {
+        alert("Bạn chỉ có thể chọn tối đa 8 ghế.");
+        return prev;
+      }
+      return [...prev, seatId];
+    });
   };
 
   const handleCheckout = async () => {
@@ -98,21 +196,16 @@ const SeatSelect = ({
       navigate("/login");
       return;
     }
-
-    const selectedSeatsInfo = selectedSeats.map((seatId) => {
-      const seat = findSeatBySeatId(seatId);
-      return {
-        seatId,
-        scheduleSeatId: seat?.scheduleSeatId,
-        seatType: seat?.seatType,
-      };
-    });
-
-    const scheduleSeatIds = selectedSeatsInfo.map(
-      (seat) => seat.scheduleSeatId
-    );
+    if (selectedSeats.length === 0) {
+      alert("Vui lòng chọn ít nhất một ghế.");
+      return;
+    }
 
     try {
+      const scheduleSeatIds = selectedSeats.map((seatId) => {
+        const seat = findSeatBySeatId(seatId);
+        return seat.scheduleSeatId;
+      });
       const response = await fetch(`${apiUrl}/member/select-seats`, {
         method: "POST",
         headers: {
@@ -121,39 +214,74 @@ const SeatSelect = ({
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
+          sessionId: existingSessionId || undefined,
           scheduleId: parseInt(scheduleId),
           scheduleSeatIds,
+          products: existingSeatData?.products || [],
         }),
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-          navigate("/login");
+        const errorData = await response.json();
+        if (errorData.errorCode === "SEAT_ALREADY_BOOKED") {
+          alert("Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại.");
+          fetchSeat();
           return;
         }
-        throw new Error(`Failed to select seats: ${response.status}`);
+        if (errorData.errorCode === "SEAT_LIMIT_EXCEEDED") {
+          alert("Bạn không thể chọn quá 8 ghế.");
+          return;
+        }
+        if (errorData.errorCode === "SEAT_GAP_VIOLATION") {
+          alert("Lựa chọn ghế không hợp lệ: không được để lại khoảng trống một ghế.");
+          return;
+        }
+        if (errorData.errorCode === "SESSION_EXPIRED") {
+          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
+          dispatch(clearSeatData());
+          dispatch(clearSessionId());
+          window.localStorage.removeItem('selectedSeats');
+          navigate("/");
+          return;
+        }
+        throw new Error(`Failed to select seats: ${errorData.message || response.status}`);
       }
 
       const data = await response.json();
-      setGrandTotal(data.grandTotal);
+      dispatch(setSessionId(data.sessionId));
+      dispatch(setSeatData({
+        sessionId: data.sessionId,
+        scheduleId: parseInt(scheduleId),
+        selectedSeats,
+        seats,
+        movieId,
+        movieName: data.movieName,
+        showDate: data.scheduleShowDate,
+        showTime: data.scheduleShowTime,
+        cinemaRoomName: data.cinemaRoomName,
+        originalTicketTotal: data.totalPrice,
+        originalProductsTotal: data.productsTotal,
+        grandTotal: data.grandTotal,
+        products: existingSeatData?.products || [],
+      }));
 
-      navigate(`/product/${movieId}/${data.invoiceId}`, {
+      navigate(`/product/${movieId}/${scheduleId}`, {
         state: {
+          sessionId: data.sessionId,
           scheduleId: parseInt(scheduleId),
-          invoiceId: data.invoiceId,
           selectedSeats,
-          grandTotal: data.grandTotal,
+          seats,
           movieId,
-          movieName,
-          showDate,
-          showTime,
+          movieName: data.movieName,
+          showDate: data.scheduleShowDate,
+          showTime: data.scheduleShowTime,
           cinemaRoomName: data.cinemaRoomName,
+          products: existingSeatData?.products || [],
         },
       });
     } catch (error) {
-      console.error("Error in handleCheckout:", error);
-      alert("Lỗi khi đặt ghế. Vui lòng thử lại.");
+      console.error("🔥 Error in handleCheckout:", error);
+      alert(`Lỗi khi chọn ghế: ${error.message}. Vui lòng thử lại.`);
     }
   };
 
@@ -161,6 +289,7 @@ const SeatSelect = ({
     const seatColumns = [...new Set(seats.map((s) => s.seatColumn))].sort();
     const maxRow = seats.length === 0 ? 0 : Math.max(...seats.map((s) => s.seatRow));
     const seatRows = Array.from({ length: maxRow }, (_, i) => i + 1);
+    const sessionSeatIds = existingSeatData?.selectedSeats || [];
 
     return (
       <div className="cs-seat-matrix">
@@ -186,7 +315,10 @@ const SeatSelect = ({
               }
 
               const isSelected = selectedSeats.includes(seatId);
-              const isUnavailable = seat.seatStatus !== "AVAILABLE";
+              // Treat HOLD seats not in the current session as unavailable
+              const isUnavailable =
+                seat.seatStatus === "BOOKED" ||
+                (seat.seatStatus === "HOLD" && !sessionSeatIds.includes(seatId));
               const isVip = seat.seatType === "VIP";
 
               return (
@@ -214,7 +346,7 @@ const SeatSelect = ({
                   ) : (
                     <PiArmchair
                       className="cs-seat-icon cs-regular"
-                      size={24}
+                      size={36}
                     />
                   )}
                 </button>
@@ -277,15 +409,15 @@ const SeatSelect = ({
           </div>
           <div className="summary-item">
             <p className="label">MOVIE</p>
-            <p className="value">{movieName || "N/A"}</p>
+            <p className="value">{bookingInfo.movieName || "N/A"}</p>
           </div>
           <div className="summary-item">
             <p className="label">DATE</p>
-            <p className="value">{showDate || "N/A"}</p>
+            <p className="value">{bookingInfo.showDate || "N/A"}</p>
           </div>
           <div className="summary-item">
             <p className="label">TIME</p>
-            <p className="value">{showTime || "N/A"}</p>
+            <p className="value">{bookingInfo.showTime || "N/A"}</p>
           </div>
 
           <button
