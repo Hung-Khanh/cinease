@@ -19,6 +19,11 @@
   display: inline-block;
 }
 
+.legend.bottom-center .legend-item .vip {
+  background-color: #b6235e;
+  border: 2px solid #b6235e;
+}
+
 .cs-seat-matrix {
   display: grid;
   gap: 8px;
@@ -52,7 +57,7 @@
 }
 
 .cs-seat-button {
-  width: 55px;      
+  width: 55px;
   height: 55px;
   display: flex;
   align-items: center;
@@ -61,12 +66,13 @@
   border: none;
   cursor: pointer;
 }
+
 .cs-seat-button:disabled {
   cursor: not-allowed;
 }
 
 .cs-seat-icon {
-  font-size: 36px; 
+  font-size: 36px;
   width: 36px;
   height: 36px;
 }
@@ -76,11 +82,11 @@
 }
 
 .cs-seat-icon.cs-selected {
-  color: #196e17;
+  color: #2ecc71 !important;
 }
 
 .cs-seat-icon.cs-vip {
-  color: #eaea60; 
+  color: #b6235e !important;
 }
 
 .cs-seat-icon.cs-unavailable {
