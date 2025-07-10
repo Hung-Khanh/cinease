@@ -48,12 +48,14 @@ import Members from "./pages/admin/Members/Members.jsx";
 import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
 import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
 // import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorPage from "./pages/Error/ErrorPage.jsx";
+
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
-      
+
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="promotions" element={<Promotions />} />
       <Route path="movies" element={<AdminMovies />} />
@@ -69,7 +71,7 @@ function AdminRoutes() {
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [pageTitle, setPageTitle] = useState("DASHBOARD");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
 
   // Redirect non-admin users to error page
@@ -130,11 +132,27 @@ function AdminLayout() {
 
 function Layout() {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
   const isLoginRegister = location.pathname.startsWith("/login");
-  const role = localStorage.getItem("role");
+  const role = sessionStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
+  const isAdmin = role === "ADMIN";
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+
+  if (
+    location.pathname.startsWith("/staffHomePage") ||
+    location.pathname.startsWith("/cinema-seating") ||
+    location.pathname.startsWith("/phone-input") ||
+    location.pathname.startsWith("/dateTimeSelection") ||
+    location.pathname.startsWith("/Select-Seat") ||
+    location.pathname.startsWith("/ticketInformation") ||
+    location.pathname.startsWith("/confirm-purchase")
+  ) {
+    if (!isStaff) {
+      window.location.replace("/error");
+      return null;
+    }
+  }
+
 
   return (
     <div className="app-container">
@@ -209,6 +227,7 @@ function Layout() {
             element={<UserPaymentSuccess />}
           />
           <Route path="/redirect-payment" element={<RedirectPayment />} />
+          <Route path="/error" element={<ErrorPage />} />
         </Routes>
       </main>
       {!isLoginRegister && !isAdmin && <Footer />}

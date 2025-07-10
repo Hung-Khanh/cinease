@@ -1,13 +1,24 @@
 
-import { configureStore } from "@reduxjs/toolkit";
-import { authReducer, seatReducer, tempBookingReducer } from "./authSlice";
-import cartReducer from "./cartSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore } from 'redux-persist';
+import { persistedReducer } from './reduxStore';
+import {
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
 
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    seat: seatReducer,
-    tempBooking: tempBookingReducer,
-    cart: cartReducer, 
-  },
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
+
+export const persistor = persistStore(store);

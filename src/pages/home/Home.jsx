@@ -210,7 +210,7 @@ const Home = () => {
                     <div className="section-header">
                         <h2>Special Promotions</h2>
                     </div>
-                    <div className="promo-carousel-wrap">
+                    <div className="movie-carousel-wrap">
                         <Carousel
                             slidesToShow={5}
                             arrows
@@ -220,7 +220,7 @@ const Home = () => {
                                 { breakpoint: 900, settings: { slidesToShow: 2 } },
                                 { breakpoint: 600, settings: { slidesToShow: 1 } },
                             ]}
-                            className="promo-carousel"
+                            className="movie-carousel"
                         >
                             {promotions.map((promo, idx) => {
                                 const startDate = new Date(promo.startTime);
