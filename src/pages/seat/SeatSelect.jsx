@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PiArmchair, PiArmchairFill, PiArmchairDuotone } from "react-icons/pi";
 import { TbArmchair2Off } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
-import { setSeatData, setSessionId, clearSeatData } from "../../store/cartSlice";
+import { setSeatData, setSessionId, clearSeatData, clearSessionId } from "../../store/cartSlice";
 
 const SeatSelect = ({
   apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
@@ -45,7 +45,7 @@ const SeatSelect = ({
     window.localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
   }, [selectedSeats]);
 
-  const fetchSeat = async () => {
+  const fetchSeat = React.useCallback(async () => {
     if (!token) {
       alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
       navigate("/login");
@@ -98,7 +98,7 @@ const SeatSelect = ({
       console.error("🔥 Error in fetchSeat:", error);
       alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`);
     }
-  };
+  }, [token, navigate, apiUrl, scheduleId, existingSeatData]);
 
   useEffect(() => {
     const releasePreviousSeats = async () => {
@@ -157,7 +157,7 @@ const SeatSelect = ({
     };
 
     releasePreviousSeats().then(fetchSeat);
-  }, [scheduleId, token, navigate, existingSessionId, dispatch]);
+  }, [scheduleId, token, navigate, existingSessionId, dispatch, apiUrl, existingSeatData, fetchSeat]);
 
   const findSeatBySeatId = (seatId) => {
     return seats.find(

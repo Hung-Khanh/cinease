@@ -187,13 +187,10 @@ const HistoryTicket = () => {
     }
   };
 
-  const sortMenu = (
-    <Menu onClick={handleMenuClick}>
-      {sortOptions.map(opt => (
-        <Menu.Item key={opt.key}>{opt.label}</Menu.Item>
-      ))}
-    </Menu>
-  );
+  const sortMenuItems = sortOptions.map(opt => ({
+    key: opt.key,
+    label: opt.label,
+  }));
 
   const columns = [
     { title: "Date", dataIndex: "date", key: "date", align: "center" },
@@ -269,7 +266,13 @@ const HistoryTicket = () => {
       <Card className="table-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0 }}>Transaction Details</h3>
-          <Dropdown menu={sortMenu} trigger={['click']}>
+          <Dropdown
+            menu={{
+              items: sortMenuItems,
+              onClick: handleMenuClick,
+            }}
+            trigger={['click']}
+          >
             <Button className="sort-btn" style={{ marginLeft: 12, marginBottom: 8 }}>
               Sort <DownOutlined />
             </Button>

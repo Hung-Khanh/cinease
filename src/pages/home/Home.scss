@@ -46,11 +46,9 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            rgba(10, 24, 31, 0.78) 40%,
-            rgba(10, 24, 31, 0.12) 100%
-          );
+          background: linear-gradient(90deg,
+              rgba(10, 24, 31, 0.78) 40%,
+              rgba(10, 24, 31, 0.12) 100%);
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -181,11 +179,14 @@
       width: 100%;
       position: relative;
       margin-bottom: 0;
+
       .ant-carousel {
         width: 100%;
+
         .slick-list {
           padding: 0 !important;
         }
+
         .slick-slide {
           display: flex;
           justify-content: center;
@@ -196,26 +197,26 @@
 
     .movie-carousel {
       width: 100%;
+
       .movie-card {
         flex: 0 0 22%;
         max-width: 22%;
         min-width: 220px;
         margin: 0 12px;
       }
+
       .coming-soon-card {
         flex: 0 0 20%;
         max-width: 20%;
         min-width: 220px;
         margin: 0 14px;
       }
-      .promo-carousel {
-        width: 100%;
-        .promo-card {
-          flex: 0 0 22%;
-          max-width: 22%;
-          min-width: 220px;
-          margin: 0 12px;
-        }
+
+      .promo-card {
+        flex: 0 0 22%;
+        max-width: 22%;
+        min-width: 220px;
+        margin: 0 12px;
       }
     }
 
@@ -237,83 +238,97 @@
       box-shadow: none;
       top: 50%;
       transform: translateY(-50%);
-      
+
       &::before {
         display: none;
       }
-      
-      &:hover, &:focus {
+
+      &:hover,
+      &:focus {
         color: $primary-color;
         opacity: 1;
         transform: translateY(-50%) scale(1.2);
         background: transparent !important;
       }
     }
-    
+
     .ant-carousel .slick-prev {
       left: -42px;
-      
+
       &::before {
         content: '❮';
         font-size: 32px;
         line-height: 1;
       }
     }
-    
+
     .ant-carousel .slick-next {
       right: -30px;
-      
+
       &::before {
         content: '❯';
         font-size: 32px;
         line-height: 1;
       }
     }
+
     // Ẩn dots điều hướng
     .ant-carousel .slick-dots {
       display: none !important;
     }
+
     @media (max-width: 1200px) {
       .movie-carousel .movie-card {
         max-width: 36%;
         min-width: 180px;
       }
+
       .movie-carousel .coming-soon-card {
         max-width: 26%;
         min-width: 200px;
       }
     }
+
     @media (max-width: 900px) {
+
       .ant-carousel .slick-prev,
       .ant-carousel .slick-next {
         font-size: 22px;
         width: 28px;
         height: 28px;
       }
+
       .ant-carousel .slick-prev {
         left: -12px;
       }
+
       .ant-carousel .slick-next {
         right: -12px;
       }
+
       .movie-carousel .movie-card {
         max-width: 54%;
         min-width: 160px;
       }
+
       .movie-carousel .coming-soon-card {
         max-width: 26%;
         min-width: 200px;
       }
     }
+
     @media (max-width: 600px) {
-  .movie-carousel .movie-card {
-        max-width: 100%;
-        min-width: 130px;
+      .movie-carousel .movie-card {
+        max-width: 90%;
+        min-width: 200px;
       }
+
       .movie-carousel .coming-soon-card {
         max-width: 100%;
         min-width: 200px;
       }
+
+
     }
 
     .coming-img-wrap {
@@ -371,7 +386,8 @@
       }
 
       .movie-info,
-      .coming-info {
+      .coming-info,
+      .promo-info {
         padding: 12px;
         display: flex;
         flex-direction: column;
@@ -379,7 +395,8 @@
       }
 
       .movie-title,
-      .coming-title {
+      .coming-title,
+      .promo-title {
         font-size: 16px;
         font-weight: 600;
         color: $text-light;
@@ -388,7 +405,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 200px;
-        
+
       }
 
       .movie-genre-btn,
@@ -413,6 +430,7 @@
       .promo-carousel {
         width: 100%;
         position: relative;
+
         .slick-arrow {
           color: #fff;
           font-size: 32px;
@@ -429,13 +447,16 @@
           box-shadow: none;
           top: 50%;
           transform: translateY(-50%);
+
           &:hover {
             background: #1976d2;
             color: #fff;
             opacity: 1;
           }
+
           &.slick-prev {
             left: -42px;
+
             &::after {
               box-sizing: border-box;
               position: absolute;
@@ -452,8 +473,10 @@
               transform: rotate(-45deg);
             }
           }
+
           &.slick-next {
             right: -42px;
+
             &::after {
               box-sizing: border-box;
               position: absolute;
@@ -470,55 +493,20 @@
               transform: rotate(45deg);
             }
           }
+
           @media (max-width: 900px) {
             font-size: 22px;
             width: 32px;
             height: 32px;
+
             &.slick-prev {
               left: -12px;
             }
+
             &.slick-next {
               right: -12px;
             }
-          }
-        }
-        .promo-card {
-          flex: 0 0 22%;
-          max-width: 22%;
-          min-width: 220px;
-          margin: 0 12px;
-          background: $dark-bg;
-          border-radius: 14px;
-          box-shadow: $card-shadow;
-          height: 270px;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          transition: transform 0.2s, box-shadow 0.2s;
-          margin-bottom: 20px;
-          &:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: $hover-shadow;
-          }
-          .promo-img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 14px 14px 0 0;
-            margin-bottom: 10px;
-          }
-          .promo-info {
-            padding: 10px 14px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 6px;
-            .promo-title {
-              font-size: 15px;
-              font-weight: 600;
-              color: $text-light;
-              margin-bottom: 2px;
-            }
+
             .promo-date {
               font-size: 13px;
               color: $text-muted;
@@ -527,64 +515,53 @@
         }
       }
 
+      .promo-card {
+        background: $dark-bg;
+        border-radius: 14px;
+        box-shadow: $card-shadow;
+        min-width: 220px;
+        height: 270px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 20px;
 
-      .promo-list {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: 32px;
-        justify-content: flex-start;
-        align-items: stretch;
-        width: 100%;
-        overflow-x: hidden;
-        scrollbar-width: none; // Firefox
-        -ms-overflow-style: none; // IE & Edge
-      }
-      .promo-list::-webkit-scrollbar {
-        display: none; // Chrome, Safari, Opera
-      }
-        .promo-card {
-          background: $dark-bg;
-          border-radius: 14px;
-          box-shadow: $card-shadow;
-          width: 320px;
-          min-width: 214px;
-          height: 270px;
+        &:hover {
+          transform: translateY(-6px) scale(1.03);
+          box-shadow: $hover-shadow;
+        }
+
+        .promo-img {
+          width: 100%;
+          height: 160px;
+          object-fit: cover;
+          border-radius: 14px 14px 0 0;
+          margin-bottom: 10px;
+        }
+
+        .promo-info {
+          padding: 10px 14px 12px;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
-          transition: transform 0.2s, box-shadow 0.2s;
-          margin-bottom: 20px;
-          &:hover {
-            transform: translateY(-6px) scale(1.03);
-            box-shadow: $hover-shadow;
+          justify-content: center;
+          gap: 6px;
+
+          .promo-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: $text-light;
+            margin-bottom: 2px;
           }
 
-          .promo-img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 14px 14px 0 0;
-            margin-bottom: 10px;
+          .promo-desc {
+            font-size: 13px;
+            color: $text-muted;
           }
-  .promo-info {
-            padding: 10px 14px 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 6px;
 
-            .promo-title {
-              font-size: 15px;
-              font-weight: 600;
-              color: $text-light;
-              margin-bottom: 2px;
-            }
-
-            .promo-desc {
-              font-size: 13px;
-              color: $text-muted;
-            }
+          .promo-date {
+            font-size: 13px;
+            color: $text-muted;
           }
         }
       }
     }
+  }
