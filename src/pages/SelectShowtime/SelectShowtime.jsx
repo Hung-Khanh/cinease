@@ -22,13 +22,13 @@ const SelectShowtime = () => {
 
   const { movieId } = useParams();
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   const MOVIE_DETAILS_KEY = `movieDetails_${movieId}`;
   const SHOWTIME_SELECTION_KEY = `showtimeSelection_${movieId}`;
 
   useEffect(() => {
-    const storedMovieDetails = sessionStorage.getItem(MOVIE_DETAILS_KEY);
+    const storedMovieDetails = localStorage.getItem(MOVIE_DETAILS_KEY);
     if (storedMovieDetails) {
       try {
         const parsedMovie = JSON.parse(storedMovieDetails);
@@ -36,13 +36,13 @@ const SelectShowtime = () => {
         setDates(parsedMovie.dates || []);
       } catch (e) {
         console.error("Error parsing stored movie details:", e);
-        sessionStorage.removeItem(MOVIE_DETAILS_KEY);
+        localStorage.removeItem(MOVIE_DETAILS_KEY);
       }
     } else {
       fetchMovieDetails();
     }
 
-    const storedSelection = sessionStorage.getItem(SHOWTIME_SELECTION_KEY);
+    const storedSelection = localStorage.getItem(SHOWTIME_SELECTION_KEY);
     if (storedSelection) {
       try {
         const parsedSelection = JSON.parse(storedSelection);
@@ -63,7 +63,7 @@ const SelectShowtime = () => {
         }
       } catch (e) {
         console.error("Error parsing stored showtime selection:", e);
-        sessionStorage.removeItem(SHOWTIME_SELECTION_KEY);
+        localStorage.removeItem(SHOWTIME_SELECTION_KEY);
       }
     } else if (storedReduxDate) {
       setSelectedDate(storedReduxDate);
@@ -89,7 +89,7 @@ const SelectShowtime = () => {
       setMovie(movieData);
       setDates(movieData.dates || []);
 
-      sessionStorage.setItem(MOVIE_DETAILS_KEY, JSON.stringify(movieData));
+      localStorage.setItem(MOVIE_DETAILS_KEY, JSON.stringify(movieData));
     } catch (error) {
       console.error("Error fetching movie data:", error);
       message.error("Failed to load movie details.");
@@ -140,7 +140,7 @@ const SelectShowtime = () => {
           showtime: [],
         })
       );
-      sessionStorage.setItem(
+      localStorage.setItem(
         SHOWTIME_SELECTION_KEY,
         JSON.stringify({
           selectedDate: defaultDate,
@@ -163,7 +163,7 @@ const SelectShowtime = () => {
         })
       );
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         SHOWTIME_SELECTION_KEY,
         JSON.stringify({
           selectedDate: "",
@@ -184,7 +184,7 @@ const SelectShowtime = () => {
         })
       );
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         SHOWTIME_SELECTION_KEY,
         JSON.stringify({
           selectedDate: date,
@@ -200,7 +200,7 @@ const SelectShowtime = () => {
       setSelectedTime("");
       setSelectedScheduleId(null);
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         SHOWTIME_SELECTION_KEY,
         JSON.stringify({
           selectedDate: selectedDate,
@@ -213,7 +213,7 @@ const SelectShowtime = () => {
       setSelectedTime(showtime.showTime);
       setSelectedScheduleId(showtime.scheduleId);
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         SHOWTIME_SELECTION_KEY,
         JSON.stringify({
           selectedDate: selectedDate,

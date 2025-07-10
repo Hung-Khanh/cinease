@@ -109,31 +109,49 @@ export const getMovieList = async (movieName) => {
   }
 };
 
-export const applyDiscount = async (
-  invoiceId,
-  scheduleId,
-  memberId,
-  ticketType,
-  userScore,
-  promotionId
-) => {
+export const applyDiscount = async (payload) => {
   try {
+    // Xóa promotionId nếu không có
+    const data = { ...payload };
+    if (!data.promotionId) {
+      delete data.promotionId;
+    }
+    if (!data.memberId) {
+      delete data.memberId;
+    }
+    if (!data.useScore) {
+      delete data.useScore;
+    }
     const response = await api.post(
       `/employee/bookings/apply-discounts`,
+      data,
       {
         headers: {
           "ngrok-skip-browser-warning": "true",
         },
-      },
-      {
-        invoiceId: invoiceId,
-        scheduleId: scheduleId,
-        memberId: memberId,
-        ticketType: ticketType,
-        userScore: userScore,
-        promotionId: promotionId,
       }
     );
+    return response;
+  } catch (error) {
+    alert(error);
+    throw error;
+  }
+};
+
+export const confirmPayment = async (confirmData) => {
+  try {
+    const data = { ...confirmData };
+    if (!data.memberId) {
+      delete data.memberId;
+    }
+    if (!data.useScore) {
+      delete data.useScore;
+    }
+    const response = await api.post(`/employee/bookings/confirm`, data, {
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
     return response;
   } catch (error) {
     alert(error);

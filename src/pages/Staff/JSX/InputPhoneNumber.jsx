@@ -39,7 +39,9 @@ const PhoneInput = ({ onBack }) => {
   };
   const handleNextPage = () => {
     setIsModalVisible(false);
-    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`);
+    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`, {
+      state: memberData,
+    });
   };
   const handleCancel = () => {
     setIsModalVisible(false);
