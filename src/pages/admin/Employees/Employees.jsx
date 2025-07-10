@@ -257,7 +257,7 @@ const Employees = () => {
                 return (
                   <Button
                     type="default"
-                    className="pagination-btn prev-btn"
+                    className="pagination-btn-employees prev-btn"
                   >
                     Previous
                   </Button>
@@ -267,7 +267,7 @@ const Employees = () => {
                 return (
                   <Button
                     type="default"
-                    className="pagination-btn next-btn"
+                    className="pagination-btn-employees next-btn"
                   >
                     Next
                   </Button>

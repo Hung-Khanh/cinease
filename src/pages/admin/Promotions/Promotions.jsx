@@ -316,6 +316,9 @@ const Promotions = () => {
         dataSource={paginatedPromotions}
         loading={loading}
         className="ant-table-promotion"
+        locale={{ 
+          emptyText: 'No promotions found' 
+        }}
         pagination={{
           current: historyPage,
           pageSize: historyPageSize,
@@ -328,14 +331,14 @@ const Promotions = () => {
           itemRender: (current, type, originalElement) => {
             if (type === "prev") {
               return (
-                <Button type="default" className="pagination-btn prev-btn">
+                <Button type="default" className="pagination-btn-promotion prev-btn">
                   Previous
                 </Button>
               );
             }
             if (type === "next") {
               return (
-                <Button type="default" className="pagination-btn next-btn">
+                <Button type="default" className="pagination-btn-promotion next-btn">
                   Next
                 </Button>
               );

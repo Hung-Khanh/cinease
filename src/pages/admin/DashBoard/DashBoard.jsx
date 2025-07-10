@@ -53,6 +53,71 @@ const Dashboard = () => {
     return days[date.getDay()];
   };
 
+  // Format revenue with thousand separators and VND currency
+  const formatCurrency = (value) => {
+    // Ensure the value is a number and use absolute value
+    const numValue = Math.abs(Number(value));
+    return numValue.toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    });
+  };
+
+  // Custom Tooltip for Bar Chart
+  const CustomBarTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      // Log tooltip data for debugging
+      console.log('Daily Revenue Tooltip Data:', {
+        label,
+        rawValue: payload[0].value,
+        formattedValue: formatCurrency(payload[0].value)
+      });
+
+      return (
+        <div className="chart-tooltip bar-tooltip">
+          <strong>{label}</strong><br />
+          Revenue: {formatCurrency(payload[0].value)}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Tooltip for Pie Chart
+  const CustomPieTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="chart-tooltip">
+          <strong>{payload[0].payload.type}</strong><br />
+          Percentage: {payload[0].value}%
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Label for Pie Chart
+  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 10;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+      
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        fontSize="12"
+      >
+        {ticketDistributionData[index].type}
+      </text>
+    );
+  };
+
   // Fetch daily revenue data from API
   const fetchDailyRevenue = async () => {
     setRevenueLoading(true);
@@ -61,21 +126,40 @@ const Dashboard = () => {
     try {
       const dateRange = getDateRange();
       const revenuePromises = dateRange.map(async (date) => {
-        const response = await api.get('/admin/invoices/revenue/range', {
-          params: {
-            startDate: date,
-            endDate: date
-          }
-        });
+        try {
+          const response = await api.get('/admin/invoices/revenue/range', {
+            params: {
+              startDate: date,
+              endDate: date
+            }
+          });
 
-        return {
-          date,
-          day: getDayName(date),
-          revenue: response.data || 0
-        };
+          // Log raw response for each date
+          console.log(`Daily Revenue for ${date}:`, {
+            rawResponse: response.data,
+            parsedValue: Number(response.data)
+          });
+
+          return {
+            date,
+            day: getDayName(date),
+            revenue: Math.abs(Number(response.data)) || 0 // Ensure positive numeric value
+          };
+        } catch (dateError) {
+          console.error(`Error fetching revenue for ${date}:`, dateError);
+          return {
+            date,
+            day: getDayName(date),
+            revenue: 0
+          };
+        }
       });
 
       const results = await Promise.all(revenuePromises);
+      
+      // Log final results
+      console.log('Daily Revenue Results:', results);
+
       setRevenueData(results);
 
     } catch (error) {
@@ -84,13 +168,13 @@ const Dashboard = () => {
 
       // Fallback to mock data on error
       setRevenueData([
-        { day: 'Mon', revenue: 500 },
-        { day: 'Tue', revenue: 750 },
-        { day: 'Wed', revenue: 350 },
-        { day: 'Thu', revenue: 1200 },
-        { day: 'Fri', revenue: 1800 },
-        { day: 'Sat', revenue: 2000 },
-        { day: 'Sun', revenue: 1600 }
+        { day: 'Mon', revenue: 500000 },
+        { day: 'Tue', revenue: 750000 },
+        { day: 'Wed', revenue: 350000 },
+        { day: 'Thu', revenue: 1200000 },
+        { day: 'Fri', revenue: 1800000 },
+        { day: 'Sat', revenue: 2000000 },
+        { day: 'Sun', revenue: 1600000 }
       ]);
     } finally {
       setRevenueLoading(false);
@@ -106,17 +190,29 @@ const Dashboard = () => {
       const response = await api.get('/admin/invoices/revenue/movie');
       const data = response.data;
       
+      // Log raw data for debugging
+      console.log('Raw Movie Revenue Data:', data);
+      
       // Transform API data to match component structure
       const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
+        // Ensure revenue is a number and handle potential negative values
+        const parsedRevenue = Math.abs(Number(revenue));
+        
+        // Log individual movie revenue for debugging
+        console.log(`Movie: ${movieTitle}, Raw Revenue: ${revenue}, Parsed Revenue: ${parsedRevenue}`);
+
         // Generate capacity percentage based on relative revenue
-        const capacity = Math.min(95, Math.max(30, Math.floor((revenue / Math.max(...Object.values(data))) * 100)));
+        const capacity = Math.min(95, Math.max(30, Math.floor((parsedRevenue / Math.max(...Object.values(data).map(Number))) * 100)));
 
         return {
           title: movieTitle,
-          revenue: revenue, // Keep original revenue value
+          revenue: parsedRevenue, // Use absolute value
           capacity: capacity
         };
       }).sort((a, b) => b.revenue - a.revenue); // Sort by revenue descending
+
+      // Log transformed data
+      console.log('Transformed Movie Revenue Data:', transformedData);
 
       setMovieRevenueData(transformedData);
     } catch (error) {
@@ -158,58 +254,16 @@ const Dashboard = () => {
     : movieRevenueData.slice(0, 7);
 
   const formatRevenue = (revenue) => {
-    return `${revenue.toLocaleString()} VND`;
+    // Ensure absolute value and format with thousand separators
+    const absRevenue = Math.abs(revenue);
+    return `${absRevenue.toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    })}`;
   };
 
   // Custom colors for charts
   const COLORS = ['#00E676', '#2ecc71', '#3498db', '#e67e22'];
-
-  // Custom Tooltip for Bar Chart
-  const CustomBarTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="chart-tooltip bar-tooltip">
-          <strong>{label}</strong><br />
-          Revenue: {payload[0].value} VND
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom Tooltip for Pie Chart
-  const CustomPieTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="chart-tooltip">
-          <strong>{payload[0].payload.type}</strong><br />
-          Percentage: {payload[0].value}%
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom Label for Pie Chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, index }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius + 10;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        fontSize="12"
-      >
-        {ticketDistributionData[index].type}
-      </text>
-    );
-  };
 
   return (
     <div className="dashboard-container">
@@ -239,12 +293,9 @@ const Dashboard = () => {
               <BarChart data={revenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis dataKey="day" tick={{ fill: 'white' }} />
-                <YAxis tick={{ fill: 'white' }} />
                 <Tooltip content={<CustomBarTooltip />} />
                 <Bar
                   dataKey="revenue"
-                  fill="#00E676"
-                  activeBar={{ fill: '#2ecc71' }}
                 />
               </BarChart>
             </ResponsiveContainer>
