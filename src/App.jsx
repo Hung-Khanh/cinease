@@ -35,6 +35,7 @@ import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaym
 import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
 import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
 import PhoneInput from "./pages/Staff/JSX/InputPhoneNumber.jsx";
+import PaymentCashSuccess from "./pages/PaymentProcess/PaymentCashSuccess/PaymentCashSuccess.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -53,7 +54,6 @@ import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
-      
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="promotions" element={<Promotions />} />
       <Route path="movies" element={<AdminMovies />} />
@@ -69,7 +69,7 @@ function AdminRoutes() {
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [pageTitle, setPageTitle] = useState("DASHBOARD");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
 
   // Redirect non-admin users to error page
@@ -143,6 +143,7 @@ function Layout() {
         <Routes>
           {isStaff && (
             <>
+              <Route path="payment-cash" element={<PaymentCashSuccess />} />
               <Route path="/staffHomePage" element={<StaffHomePage />} />
               <Route
                 path="/cinema-seating/:scheduleId/:movieName/:selectedDate/:selectedTime"

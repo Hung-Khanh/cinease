@@ -26,6 +26,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [change, setChange] = useState(0);
   const [ticketType, setTicketType] = useState("ADULT");
   const [responseModalVisible, setResponseModalVisible] = useState(false);
+  const [responseModalCashVisible, setResponseModalCashVisible] =
+    useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchPromotion, setSearchPromotion] = useState("");
   const [promotions, setPromotions] = useState([]);
@@ -174,8 +176,12 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   const handleCashChange = (e) => {
     const value = parseFloat(e.target.value) || 0;
+    // Lấy tổng tiền từ memberInfor.finalPrice, nếu không có thì là 0
+    const total =
+      typeof memberInfor?.finalPrice === "number" ? memberInfor.finalPrice : 0;
+    const adjustedTotal = total < 0 ? 0 : total;
     setCashReceived(value);
-    setChange(value - (ticketData?.total || 0));
+    setChange(value - adjustedTotal);
   };
 
   const formatDate = (dateString) => {
@@ -219,12 +225,47 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     }
   };
 
+  const handleCashPurchase = async () => {
+    if (isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Authentication token is missing. Please log in again.");
+        return;
+      }
+
+      const confirmData = {
+        invoiceId: parseInt(invoiceId),
+        scheduleId: parseInt(scheduleId),
+        memberId: memberData?.memberId || 0,
+        ticketType: ticketType,
+        paymentMethod: paymentMethod,
+      };
+      const response = await confirmPayment(confirmData);
+      const data = response.data;
+      const PaymentData = {
+        invoiceId: data?.invoiceId,
+        totalPrice: data?.finalAmount,
+      };
+      navigate(`/payment-cash`, { state: PaymentData });
+    } catch (error) {
+      console.error("Error in handlePurchase:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to confirm booking. Please try again.";
+      alert(errorMessage);
+      setResponseModalVisible(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   return (
     <div className="tix-info-main">
       <button className="tix-back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
-
       <div className="tix-info-content">
         <div className="tix-info-card">
           <div className="tix-poster-container">
@@ -364,22 +405,18 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                   </a>
                 </Button>
               </Dropdown>
-              {paymentMethod === "CASH" && (
-                <div>
-                  <Input
-                    placeholder="Cash Received"
-                    value={cashReceived}
-                    onChange={handleCashChange}
-                    type="number"
-                  />
-                  <div>Change: VND {change.toLocaleString()}</div>
-                </div>
-              )}
             </div>
             <p className="tix-note">*Purchased ticket cannot be canceled</p>
             <button
               className="tix-purchase-btn"
-              onClick={handleApplyDiscount}
+              onClick={async () => {
+                await handleApplyDiscount();
+                if (paymentMethod === "CASH") {
+                  setResponseModalCashVisible(true);
+                } else {
+                  setResponseModalVisible(true);
+                }
+              }}
               disabled={isProcessing}
             >
               {isProcessing ? "Processing..." : "Confirm"}
@@ -387,9 +424,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           </div>
         </div>
       </div>
-
       <Modal
-        title="Purchase Response"
+        title="Confirm Purchase"
         open={responseModalVisible}
         onOk={() => setResponseModalVisible(false)}
         onCancel={() => setResponseModalVisible(false)}
@@ -428,6 +464,62 @@ const TicketInformation = ({ apiUrl, onBack }) => {
               backgroundColor: "#0c9550",
             }}
             onClick={handlePurchase}
+            disabled={isProcessing}
+          >
+            {isProcessing ? "Processing..." : "Purchase"}
+          </Button>
+        </div>
+      </Modal>
+      {/* cash modal */}
+      <Modal
+        title="Confirm Purchase"
+        open={responseModalCashVisible}
+        onOk={() => setResponseModalCashVisible(false)}
+        onCancel={() => setResponseModalCashVisible(false)}
+      >
+        {" "}
+        <p>
+          <strong>Movie Name:</strong> {ticketData?.movieName || "N/A"}
+        </p>
+        <p>
+          <strong>Date:</strong> {formatDate(ticketData?.scheduleShowDate)}
+        </p>
+        <p>
+          <strong>Time:</strong>
+          {ticketData?.scheduleShowTime
+            ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
+            : "N/A"}
+        </p>
+        <p>
+          <strong>Ticket({ticketData?.seatNumbers?.length || 0}):</strong>
+          {ticketData?.seatNumbers?.join(", ") || "N/A"}
+        </p>
+        <p>
+          <strong>Total:</strong>
+          {typeof memberInfor?.finalPrice === "number"
+            ? memberInfor.finalPrice.toLocaleString("vi-VN")
+            : "0"}{" "}
+          VND
+        </p>
+        <Input
+          placeholder="Cash Received"
+          value={cashReceived}
+          onChange={handleCashChange}
+          type="number"
+          style={{ margin: "10px 0" }}
+        />
+        <div>Change: VND {(change < 0 ? 0 : change).toLocaleString()}</div>{" "}
+        <br />
+        <div className="tix-infor-button">
+          <Button
+            className="tix-infor-modal-button"
+            key="Confirm"
+            type="primary"
+            block
+            style={{
+              backgroundColor: "#0c9550",
+            }}
+            onClick={handleCashPurchase}
             disabled={isProcessing}
           >
             {isProcessing ? "Processing..." : "Purchase"}
