@@ -26,8 +26,8 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
-import "./Movie.scss";
 import axios from "../../../constants/axios";
+import "./Movie.scss";
 
 // Custom Dropdown Component
 const MultiSelectDropdown = ({ options, value, onChange, placeholder }) => {
@@ -324,152 +324,156 @@ const Movie = () => {
     },
   ];
 
-const handleEdit = async (record) => {
-  // Reset the form
-  form.resetFields();
+  const handleEdit = async (record) => {
+    // Reset the form
+    form.resetFields();
 
-  try {
-    // Fetch the complete movie details to ensure we have all the data
-    const movieDetails = await fetchMovieDetails(record.key);
-    
-    if (!movieDetails) {
-      showErrorMessage("Failed to fetch movie details for editing");
-      return;
-    }
+    try {
+      // Fetch the complete movie details to ensure we have all the data
+      const movieDetails = await fetchMovieDetails(record.key);
 
-    // Prepare form values using the fetched details
-    const editRecord = {
-      ...movieDetails,
-      dateRange:
-        movieDetails.fromDate && movieDetails.toDate
-          ? [dayjs(movieDetails.fromDate), dayjs(movieDetails.toDate)]
-          : null,
-      scheduleTimes: movieDetails.schedules
-        ? movieDetails.schedules.map((schedule) => {
-            // Extensive logging and defensive programming
-            console.log('Raw Schedule Input:', schedule);
+      if (!movieDetails) {
+        showErrorMessage("Failed to fetch movie details for editing");
+        return;
+      }
 
-            // Handle null or undefined schedules
-            if (schedule === null || schedule === undefined) {
-              console.warn('Skipping null/undefined schedule');
-              return null;
-            }
+      // Prepare form values using the fetched details
+      const editRecord = {
+        ...movieDetails,
+        dateRange:
+          movieDetails.fromDate && movieDetails.toDate
+            ? [dayjs(movieDetails.fromDate), dayjs(movieDetails.toDate)]
+            : null,
+        scheduleTimes: movieDetails.schedules
+          ? movieDetails.schedules
+              .map((schedule) => {
+                // Extensive logging and defensive programming
+                console.log("Raw Schedule Input:", schedule);
 
-            try {
-              let processedSchedule;
-
-              // String format handling
-              if (typeof schedule === 'string') {
-                const [date, time] = schedule.split('T');
-                processedSchedule = {
-                  date: dayjs(date),
-                  time: dayjs(time, "HH:mm:ss")
-                };
-              } 
-              // Object format handling
-              else if (typeof schedule === 'object') {
-                // Multiple possible object structures
-                const dateValue = 
-                  schedule.date || 
-                  schedule.scheduleDate || 
-                  schedule.datetime;
-                
-                const timeValue = 
-                  schedule.time || 
-                  schedule.scheduleTime || 
-                  schedule.datetime;
-
-                // Validate date and time
-                if (dateValue && timeValue) {
-                  processedSchedule = {
-                    date: dayjs(dateValue),
-                    time: dayjs(timeValue)
-                  };
-                } else {
-                  console.warn('Invalid schedule object:', schedule);
+                // Handle null or undefined schedules
+                if (schedule === null || schedule === undefined) {
+                  console.warn("Skipping null/undefined schedule");
                   return null;
                 }
-              } 
-              else {
-                console.warn('Unrecognized schedule format:', schedule);
-                return null;
-              }
 
-              // Final validation
-              if (
-                processedSchedule && 
-                dayjs.isDayjs(processedSchedule.date) && 
-                dayjs.isDayjs(processedSchedule.time)
-              ) {
-                return processedSchedule;
-              } else {
-                console.warn('Invalid processed schedule:', processedSchedule);
-                return null;
-              }
-            } catch (error) {
-              console.error('Schedule Processing Error:', {
-                schedule, 
-                error: error.message
-              });
-              return null;
-            }
-          })
-          // Remove any null entries
-          .filter(schedule => 
-            schedule !== null && 
-            schedule.date && 
-            schedule.time
-          )
-        : [],
-      // Ensure types are mapped correctly to their names
-      types: movieDetails.types || [],
-      // Explicitly set cinema room 
-      cinemaRoom: movieDetails.cinemaRoomId, 
-    };
+                try {
+                  let processedSchedule;
 
-    // Debug logging with comprehensive information
-    console.log("Edit Record Preparation:", {
-      record,
-      movieDetails,
-      editRecord: {
-        ...editRecord,
-        scheduleTimes: editRecord.scheduleTimes.map(st => ({
-          date: st.date ? st.date.format('YYYY-MM-DD') : 'Invalid Date',
-          time: st.time ? st.time.format('HH:mm:ss') : 'Invalid Time'
-        }))
-      },
-      availableCinemaRooms: cinemaRooms
-    });
+                  // String format handling
+                  if (typeof schedule === "string") {
+                    const [date, time] = schedule.split("T");
+                    processedSchedule = {
+                      date: dayjs(date),
+                      time: dayjs(time, "HH:mm:ss"),
+                    };
+                  }
+                  // Object format handling
+                  else if (typeof schedule === "object") {
+                    // Multiple possible object structures
+                    const dateValue =
+                      schedule.date ||
+                      schedule.scheduleDate ||
+                      schedule.datetime;
 
-    // Set the current movie being edited
-    setEditingKey(record.key);
+                    const timeValue =
+                      schedule.time ||
+                      schedule.scheduleTime ||
+                      schedule.datetime;
 
-    // Set form values with additional safety check
-    if (editRecord.scheduleTimes && editRecord.scheduleTimes.length > 0) {
-      form.setFieldsValue(editRecord);
-    } else {
-      // If no valid schedules, set an empty schedule
-      form.setFieldsValue({
-        ...editRecord,
-        scheduleTimes: [{ 
-          date: dayjs(), 
-          time: dayjs().startOf('hour') 
-        }]
+                    // Validate date and time
+                    if (dateValue && timeValue) {
+                      processedSchedule = {
+                        date: dayjs(dateValue),
+                        time: dayjs(timeValue),
+                      };
+                    } else {
+                      console.warn("Invalid schedule object:", schedule);
+                      return null;
+                    }
+                  } else {
+                    console.warn("Unrecognized schedule format:", schedule);
+                    return null;
+                  }
+
+                  // Final validation
+                  if (
+                    processedSchedule &&
+                    dayjs.isDayjs(processedSchedule.date) &&
+                    dayjs.isDayjs(processedSchedule.time)
+                  ) {
+                    return processedSchedule;
+                  } else {
+                    console.warn(
+                      "Invalid processed schedule:",
+                      processedSchedule
+                    );
+                    return null;
+                  }
+                } catch (error) {
+                  console.error("Schedule Processing Error:", {
+                    schedule,
+                    error: error.message,
+                  });
+                  return null;
+                }
+              })
+              // Remove any null entries
+              .filter(
+                (schedule) =>
+                  schedule !== null && schedule.date && schedule.time
+              )
+          : [],
+        // Ensure types are mapped correctly to their names
+        types: movieDetails.types || [],
+        // Explicitly set cinema room
+        cinemaRoom: movieDetails.cinemaRoomId,
+      };
+
+      // Debug logging with comprehensive information
+      console.log("Edit Record Preparation:", {
+        record,
+        movieDetails,
+        editRecord: {
+          ...editRecord,
+          scheduleTimes: editRecord.scheduleTimes.map((st) => ({
+            date: st.date ? st.date.format("YYYY-MM-DD") : "Invalid Date",
+            time: st.time ? st.time.format("HH:mm:ss") : "Invalid Time",
+          })),
+        },
+        availableCinemaRooms: cinemaRooms,
       });
+
+      // Set the current movie being edited
+      setEditingKey(record.key);
+
+      // Set form values with additional safety check
+      if (editRecord.scheduleTimes && editRecord.scheduleTimes.length > 0) {
+        form.setFieldsValue(editRecord);
+      } else {
+        // If no valid schedules, set an empty schedule
+        form.setFieldsValue({
+          ...editRecord,
+          scheduleTimes: [
+            {
+              date: dayjs(),
+              time: dayjs().startOf("hour"),
+            },
+          ],
+        });
+      }
+
+      // Reset file states for editing
+      setPosterFile(null);
+      setBannerFile(null);
+
+      // Set editing state and show modal
+      setIsEditing(true);
+      setIsModalVisible(true);
+    } catch (error) {
+      console.error("Error in handleEdit:", error);
+      showErrorMessage(`Error preparing movie for edit: ${error.message}`);
     }
-
-    // Reset file states for editing
-    setPosterFile(null);
-    setBannerFile(null);
-
-    // Set editing state and show modal
-    setIsEditing(true);
-    setIsModalVisible(true);
-  } catch (error) {
-    console.error("Error in handleEdit:", error);
-    showErrorMessage(`Error preparing movie for edit: ${error.message}`);
-  }
-};
+  };
 
   const handleAddMovie = async (values) => {
     try {
@@ -483,21 +487,24 @@ const handleEdit = async (record) => {
       }
 
       // Prepare type names (not IDs)
-      const types = values.types && values.types.length > 0
-        ? values.types
-        : ["Romantic"]; // Default type if none selected
+      const types =
+        values.types && values.types.length > 0 ? values.types : ["Romantic"]; // Default type if none selected
 
       // Prepare schedule times with robust formatting
       const scheduleTimes = values.scheduleTimes
-        ? values.scheduleTimes.map(
-            (scheduleItem) => 
-              `${scheduleItem.date.format("YYYY-MM-DD")}T${scheduleItem.time.format("HH:mm:ss")}`
-          ).join(",")
+        ? values.scheduleTimes
+            .map(
+              (scheduleItem) =>
+                `${scheduleItem.date.format(
+                  "YYYY-MM-DD"
+                )}T${scheduleItem.time.format("HH:mm:ss")}`
+            )
+            .join(",")
         : "";
 
       // Create FormData for multipart upload
       const formData = new FormData();
-      
+
       // Add files to FormData if they exist
       if (posterFile) {
         formData.append("poster", posterFile);
@@ -529,7 +536,7 @@ const handleEdit = async (record) => {
       };
 
       // Append request body to FormData
-      Object.keys(requestBody).forEach(key => {
+      Object.keys(requestBody).forEach((key) => {
         formData.append(key, requestBody[key]);
       });
 
@@ -540,9 +547,9 @@ const handleEdit = async (record) => {
         queryParams,
         requestBody,
         files: {
-          posterFile: posterFile ? posterFile.name : 'No poster',
-          bannerFile: bannerFile ? bannerFile.name : 'No banner'
-        }
+          posterFile: posterFile ? posterFile.name : "No poster",
+          bannerFile: bannerFile ? bannerFile.name : "No banner",
+        },
       });
 
       // Determine URL based on whether we're editing or adding
@@ -551,6 +558,7 @@ const handleEdit = async (record) => {
         : `/admin/movies/add`;
 
       // Send request
+      // eslint-disable-next-line no-unused-vars
       const response = await axios({
         method: isEditing ? "put" : "post",
         url: url,
@@ -579,9 +587,8 @@ const handleEdit = async (record) => {
       setPosterFile(null);
       setBannerFile(null);
       form.resetFields();
-
     } catch (error) {
-      console.error('Full submission error:', error);
+      console.error("Full submission error:", error);
       showErrorMessage(
         `Failed to ${isEditing ? "update" : "add"} movie: ${
           error.response?.data?.message || error.message
@@ -668,66 +675,68 @@ const handleEdit = async (record) => {
       const result = response.data;
 
       // Extensive logging of raw data
-      console.log('Raw Movie Details:', {
+      console.log("Raw Movie Details:", {
         movieId,
-        rawResult: result
+        rawResult: result,
       });
 
       const formattedMovie = {
         ...result,
         // Ensure compatibility with form fields
-        cinemaRoom: result.cinemaRoomId, 
-        dateRange: result.fromDate && result.toDate
-          ? [dayjs(result.fromDate), dayjs(result.toDate)]
-          : null,
-        
+        cinemaRoom: result.cinemaRoomId,
+        dateRange:
+          result.fromDate && result.toDate
+            ? [dayjs(result.fromDate), dayjs(result.toDate)]
+            : null,
+
         // Robust handling of movie types
-        types: result.types 
-          ? (Array.isArray(result.types) ? result.types : [result.types])
+        types: result.types
+          ? Array.isArray(result.types)
+            ? result.types
+            : [result.types]
           : [],
-        
+
         // Enhanced schedule handling with extensive error checking
         scheduleTimes: result.schedules
           ? result.schedules.reduce((acc, schedule) => {
               try {
                 // Log each schedule for debugging
-                console.log('Processing schedule:', schedule);
+                console.log("Processing schedule:", schedule);
 
                 let processedSchedule;
                 // Handle string format
-                if (typeof schedule === 'string') {
-                  const [date, time] = schedule.split('T');
+                if (typeof schedule === "string") {
+                  const [date, time] = schedule.split("T");
                   processedSchedule = {
                     date: dayjs(date),
-                    time: dayjs(time, "HH:mm:ss")
+                    time: dayjs(time, "HH:mm:ss"),
                   };
-                } 
-                
+                }
+
                 // Handle object format
-                if (schedule && typeof schedule === 'object') {
+                if (schedule && typeof schedule === "object") {
                   // Check for different possible object structures
-                  const dateValue = schedule.date || 
-                                    schedule.scheduleDate || 
-                                    schedule.datetime;
-                  const timeValue = schedule.time || 
-                                    schedule.scheduleTime || 
-                                    schedule.datetime;
+                  const dateValue =
+                    schedule.date || schedule.scheduleDate || schedule.datetime;
+                  const timeValue =
+                    schedule.time || schedule.scheduleTime || schedule.datetime;
 
                   if (dateValue && timeValue) {
+                    // eslint-disable-next-line no-unused-vars
                     processedSchedule = {
                       date: dayjs(dateValue),
-                      time: dayjs(timeValue)
+                      time: dayjs(timeValue),
                     };
                   }
                 }
 
                 // If no valid format found
-                console.warn('Unprocessable schedule format:', schedule);
+                console.warn("Unprocessable schedule format:", schedule);
                 return acc;
               } catch (error) {
-                console.error('Error processing schedule:', {
-                  schedule, 
-                  error: error.message
+                console.error("Error processing schedule:", {
+                  schedule,
+                  error: error.message,
                 });
                 return acc;
               }
@@ -738,12 +747,12 @@ const handleEdit = async (record) => {
       // Detailed debug logging
       console.log("Formatted Movie Details for Editing:", {
         originalSchedules: result.schedules,
-        formattedScheduleTimes: formattedMovie.scheduleTimes
+        formattedScheduleTimes: formattedMovie.scheduleTimes,
       });
 
       return formattedMovie;
     } catch (error) {
-      console.error('Full error in fetchMovieDetails:', error);
+      console.error("Full error in fetchMovieDetails:", error);
       showErrorMessage(
         `Failed to fetch movie details: ${
           error.response?.data?.message || error.message
@@ -819,6 +828,7 @@ const handleEdit = async (record) => {
     fetchMovies();
     fetchMovieTypes();
     fetchCinemaRooms();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Modify the movies rendering to include search filtering
@@ -945,27 +955,39 @@ const handleEdit = async (record) => {
 
           <Form.List
             name="scheduleTimes"
+            initialValue={[{ date: dayjs(), time: dayjs().startOf('hour') }]}
             rules={[
               {
                 validator: async (_, scheduleTimes) => {
-                  if (!scheduleTimes || scheduleTimes.length === 0) {
-                    // Allow empty schedules during editing
+                  // Ensure scheduleTimes is an array and not empty
+                  if (!Array.isArray(scheduleTimes) || scheduleTimes.length === 0) {
                     if (!isEditing) {
                       throw new Error("Please add at least one schedule time");
                     }
+                    return;
                   }
-                  
+
+                  // Validate each schedule time
+                  for (const schedule of scheduleTimes) {
+                    if (!schedule || !schedule.date || !schedule.time) {
+                      throw new Error("Invalid schedule: date and time are required");
+                    }
+                  }
+
                   // Additional validation for unique schedule times
                   const uniqueSchedules = new Set(
-                    scheduleTimes.map(
-                      (schedule) => 
-                        schedule.date && schedule.time 
-                          ? `${schedule.date.format('YYYY-MM-DD')}T${schedule.time.format('HH:mm')}`
-                          : null
-                    ).filter(Boolean)
+                    scheduleTimes
+                      .map((schedule) => {
+                        // Safely handle potential undefined values
+                        if (schedule && schedule.date && schedule.time) {
+                          return `${schedule.date.format("YYYY-MM-DD")}T${schedule.time.format("HH:mm")}`;
+                        }
+                        return null;
+                      })
+                      .filter(Boolean)
                   );
-                  
-                  if (uniqueSchedules.size !== scheduleTimes.length) {
+
+                  if (uniqueSchedules.size !== scheduleTimes.filter(schedule => schedule && schedule.date && schedule.time).length) {
                     throw new Error("Duplicate schedule times are not allowed");
                   }
                 },
@@ -984,16 +1006,15 @@ const handleEdit = async (record) => {
                       {...restField}
                       name={[name, "date"]}
                       rules={[
-                        { 
-                          required: true, 
+                        {
+                          required: true,
                           message: "Missing date",
                           validator: async (_, value) => {
-                            if (!value) {
-                              throw new Error("Please select a date");
+                            if (!value || !dayjs.isDayjs(value)) {
+                              throw new Error("Please select a valid date");
                             }
-                            // Optional: Add additional date validation if needed
-                          }
-                        }
+                          },
+                        },
                       ]}
                       style={{ width: "45%", marginRight: "10px" }}
                     >
@@ -1003,14 +1024,24 @@ const handleEdit = async (record) => {
                         placeholder="Select Date"
                         disabledDate={(current) => {
                           // Optional: Disable past dates
-                          return current && current < dayjs().startOf('day');
+                          return current && current < dayjs().startOf("day");
                         }}
                       />
                     </Form.Item>
                     <Form.Item
                       {...restField}
                       name={[name, "time"]}
-                      rules={[{ required: true, message: "Missing time" }]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Missing time",
+                          validator: async (_, value) => {
+                            if (!value || !dayjs.isDayjs(value)) {
+                              throw new Error("Please select a valid time");
+                            }
+                          },
+                        },
+                      ]}
                       style={{ width: "45%", marginRight: "10px" }}
                     >
                       <TimePicker
@@ -1035,7 +1066,13 @@ const handleEdit = async (record) => {
                 <Form.Item>
                   <Button
                     type="dashed"
-                    onClick={() => add()}
+                    onClick={() => {
+                      // Ensure a valid date and time are added
+                      add({ 
+                        date: dayjs(), 
+                        time: dayjs().startOf('hour') 
+                      }, 0);
+                    }}
                     block
                     icon={<PlusCircleOutlined />}
                     className="add-schedule-btn"
@@ -1106,10 +1143,10 @@ const handleEdit = async (record) => {
                 name="cinemaRoom"
                 noStyle
                 rules={[
-                  { 
-                    required: true, 
+                  {
+                    required: true,
                     message: "Please select a cinema room",
-                  }
+                  },
                 ]}
               >
                 <Select
@@ -1161,9 +1198,9 @@ const handleEdit = async (record) => {
           <Form.Item
             label="Movie Poster"
             rules={[
-              { 
-                required: !isEditing, 
-                message: "Please upload a poster image" 
+              {
+                required: !isEditing,
+                message: "Please upload a poster image",
               },
             ]}
           >
@@ -1325,7 +1362,7 @@ const handleEdit = async (record) => {
             <div className="movie-detail-row">
               <div className="movie-detail-label">Cinema Room</div>
               <div className="movie-detail-value">
-                {selectedMovieDetails.cinemaRoomId}
+                {selectedMovieDetails.cinemaRoomName}
               </div>
             </div>
             <div className="movie-detail-row">

@@ -9,8 +9,6 @@ import React, { useState } from "react";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
 
-
-
 // Components và Pages
 import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
@@ -55,6 +53,7 @@ import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
+      
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="promotions" element={<Promotions />} />
       <Route path="movies" element={<AdminMovies />} />
@@ -70,6 +69,14 @@ function AdminRoutes() {
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [pageTitle, setPageTitle] = useState("DASHBOARD");
+  const role = sessionStorage.getItem("role");
+  const isAdmin = role === "ADMIN";
+
+  // Redirect non-admin users to error page
+  if (!isAdmin) {
+    window.location.replace("/error");
+    return null;
+  }
 
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
