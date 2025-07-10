@@ -103,43 +103,22 @@ $danger-color: #e74c3c;
       }
     }
   }
-  .ant-table-pagination {
-    .ant-pagination-item {
-      // background-color: $input-bg !important;
-      border-color: $green-accent !important;
-      &:hover {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-      }
-
-      &.ant-pagination-item-active {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-        &:hover {
-          background-color: $green-accent !important;
-          border-color: $green-accent !important;
-        }
-        a {
-          color: $text-color !important;
-        }
-      }
-    }
-  }
-  .pagination-btn {
-    margin: 0 5px;
-    padding: 4px 15px;
+ 
+  .pagination-btn-cinema {
+    margin: 0 12px;
+    padding: 4x 15px;
     border-radius: 4px;
 
     &.prev-btn {
       margin-right: 10px;
-      &:hover {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-      }
     }
 
     &.next-btn {
       margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
       &:hover {
         background-color: $green-accent !important;
         border-color: $green-accent !important;

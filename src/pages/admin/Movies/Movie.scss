@@ -20,6 +20,7 @@ $view-color: #3498db;
   padding: 24px;
   min-height: 100vh;
 
+  // Header Section
   .movies-header {
     margin-bottom: 24px;
 
@@ -73,9 +74,23 @@ $view-color: #3498db;
     }
   }
 
+  // Table Section
   .ant-table-movie {
     background-color: $secondary-bg !important;
 
+    // Table cell padding
+    .ant-table-wrapper .ant-table-cell,
+    .ant-table-wrapper .ant-table-thead > tr > th,
+    .ant-table-wrapper .ant-table-tbody > tr > th,
+    .ant-table-wrapper .ant-table-tbody > tr > td,
+    .ant-table-wrapper tfoot > tr > th,
+    .ant-table-wrapper tfoot > tr > td {
+      padding: 8px;
+      position: relative;
+      overflow-wrap: break-word;
+    }
+
+    // Table header styling
     .ant-table-thead > tr > th {
       background-color: $secondary-bg !important;
       color: $text-color !important;
@@ -87,9 +102,11 @@ $view-color: #3498db;
       }
     }
 
+    // Table body styling
     .ant-table-tbody > tr {
       background-color: $secondary-bg !important;
       color: $text-color !important;
+      height: 100%;
 
       &:hover,
       &:hover > td {
@@ -101,58 +118,57 @@ $view-color: #3498db;
         color: $text-color !important;
       }
     }
-  }
-  .ant-table-pagination {
-    .ant-pagination-item {
-      // background-color: $input-bg !important;
-      border-color: $green-accent !important;
-      &:hover {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-      }
 
-      &.ant-pagination-item-active {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-        &:hover {
-          background-color: $green-accent !important;
-          border-color: $green-accent !important;
-        }
-        a {
-          color: $text-color !important;
-        }
-      }
+    // Images within table cells
+    img {
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
     }
   }
-  .pagination-btn {
-    margin: 0 5px;
+  .pagination-btn-movie {
+    margin: 0 12px;
     padding: 4px 15px;
     border-radius: 4px;
 
     &.prev-btn {
       margin-right: 10px;
       &:hover {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
+        border-color: $green-accent !important; 
       }
+      
     }
 
     &.next-btn {
       margin-left: 10px;
       &:hover {
-        background-color: $green-accent !important;
         border-color: $green-accent !important;
       }
     }
   }
+
+  // Action Buttons Section
   .action-buttons {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 4px;
+
+    .ant-btn-link {
+      padding: 2px 4px;
+      height: auto;
+      min-height: 0;
+      transition: all 0.3s ease;
+
+      .anticon {
+        font-size: 14px;
+      }
+    }
 
     .view-btn {
       color: $view-color !important;
 
-      &:hover {
+      &:hover,
+      &:focus {
         color: lighten($view-color, 10%) !important;
         background-color: transparent !important;
       }
@@ -161,7 +177,8 @@ $view-color: #3498db;
     .edit-btn {
       color: $green-accent !important;
 
-      &:hover {
+      &:hover,
+      &:focus {
         color: $hover-color !important;
         background-color: transparent !important;
       }
@@ -170,8 +187,19 @@ $view-color: #3498db;
     .delete-btn {
       color: $danger-color !important;
 
-      &:hover {
+      &:hover,
+      &:focus {
         color: color.adjust($danger-color, $lightness: 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .add-schedule-btn-icon {
+      color: yellowgreen !important; // Consider using a variable instead of hardcoded yellow
+
+      &:hover,
+      &:focus {
+        color: $hover-color !important;
         background-color: transparent !important;
       }
     }
@@ -182,7 +210,7 @@ $view-color: #3498db;
 .ant-modal-mask + .ant-modal-wrap {
   .movie-modal {
     .ant-modal {
-      max-width: 600px !important;
+      max-width: 700px !important;
       width: 95% !important;
 
       .ant-modal-content {
@@ -596,7 +624,7 @@ $view-color: #3498db;
   }
 }
 
-.add-schedule-btn {
+.add-schedule-btn{
   background: rgba(0, 60, 60, 0.5) !important;
   border-color: $cyan-border !important;
   color: $text-color !important;

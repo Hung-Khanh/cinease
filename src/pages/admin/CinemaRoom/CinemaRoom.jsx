@@ -285,7 +285,7 @@ const CinemaRooms = () => {
   ];
 
   const createPaginationButton = (type, text) => (
-    <Button type="default" className={`pagination-btn ${type}-btn`}>
+    <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
       {text}
     </Button>
   );
@@ -329,6 +329,9 @@ const CinemaRooms = () => {
         dataSource={cinemaRooms}
         loading={loading}
         className="ant-table-cinema"
+        locale={{ 
+          emptyText: 'No cinema rooms found' 
+        }}
         pagination={{
           pageSize: 12,
           showSizeChanger: false,

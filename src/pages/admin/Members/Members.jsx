@@ -244,14 +244,14 @@ const Members = () => {
           itemRender: (current, type, originalElement) => {
             if (type === "prev") {
               return (
-                <Button type="default" className="pagination-btn prev-btn">
+                <Button type="default" className="pagination-btn-member prev-btn">
                   Previous
                 </Button>
               );
             }
             if (type === "next") {
               return (
-                <Button type="default" className="pagination-btn next-btn">
+                <Button type="default" className="pagination-btn-member next-btn">
                   Next
                 </Button>
               );
