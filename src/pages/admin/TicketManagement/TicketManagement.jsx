@@ -272,6 +272,9 @@ const TicketManagement = () => {
         dataSource={tickets}
         loading={loading}
         className="ant-table-ticket"
+        locale={{ 
+          emptyText: 'No tickets found' 
+        }}
         pagination={{
           pageSize: 12,
           total: pagination.total,
@@ -280,14 +283,14 @@ const TicketManagement = () => {
           itemRender: (current, type, originalElement) => {
             if (type === "prev") {
               return (
-                <Button type="default" className="pagination-btn prev-btn">
+                <Button type="default" className="pagination-btn-ticket prev-btn">
                   Previous
                 </Button>
               );
             }
             if (type === "next") {
               return (
-                <Button type="default" className="pagination-btn next-btn">
+                <Button type="default" className="pagination-btn-ticket next-btn">
                   Next
                 </Button>
               );

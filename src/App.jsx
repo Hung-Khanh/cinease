@@ -69,7 +69,7 @@ function AdminRoutes() {
 function AdminLayout() {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [pageTitle, setPageTitle] = useState("DASHBOARD");
-  const role = sessionStorage.getItem("role");
+  const role = localStorage.getItem("role");
   const isAdmin = role === "ADMIN";
 
   // Redirect non-admin users to error page
