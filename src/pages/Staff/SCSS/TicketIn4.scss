@@ -1,4 +1,4 @@
-.ticket-info-main {
+.tix-info-main {
   position: relative;
   min-height: 100vh;
   background-image: url("../../../assets/bigbackground.png");
@@ -10,18 +10,22 @@
   padding: 20px;
   color: #fff;
 
-  .ticket-back-btn {
+  .tix-back-btn {
     background: none;
     border: 2px solid #0c9550;
     color: #0c9550;
     font-size: 24px;
     border-radius: 50%;
     cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
     left: 50px;
-    top: 50px;
+    top: 200px;
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+
     &:hover {
       background-color: #0c9550;
       color: white;
@@ -34,33 +38,49 @@
     }
   }
 
-  .ticket-info-content {
-    display: flex;
+  .tix-info-content {
+    display: grid;
+    grid-template-columns: 400px 1fr;
     justify-content: center;
     width: 900px;
     padding: 0 15px 50px 50px;
   }
 
-  .ticket-info-card {
-    border-radius: 10px;
-    padding: 40px;
+  .tix-info-card {
+    border-radius: 20px;
+    padding: 450px;
+    height: 170px;
     width: 100%;
     display: flex;
-    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
     flex-direction: row;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgb(0, 0, 1);
   }
 
-  .ticket-poster-container {
-    .ticket-movie-poster {
-      width: 250px;
-      height: 460px;
+  .tix-poster-container {
+    .tix-movie-poster {
+      width: 350px;
+      height: 550px;
       object-fit: cover;
       border-radius: 15px;
     }
   }
 
-  .ticket-details-section {
+  .tix-detail-chosen {
+    margin-bottom: 15px;
+    display: grid;
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 8px;
+
+    .ant-dropdown {
+      padding: 20px;
+    }
+  }
+
+  .tix-details-section {
     flex: 1;
 
     h2 {
@@ -69,18 +89,20 @@
       text-align: center;
     }
 
-    .ticket-detail-row {
+    .tix-detail-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
       font-size: 16px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 
-      &.ticket-voucher-search {
+      &.tix-voucher-search {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        width: 100%;
+        width: 400px;
         position: relative;
+        padding-left: 60px;
 
         span.text {
           font-weight: 500;
@@ -91,6 +113,7 @@
           font-size: 14px;
           border-radius: 4px;
           transition: border-color 0.3s;
+          width: 100%;
 
           .ant-input {
             padding: 8px;
@@ -103,64 +126,103 @@
           }
         }
 
-        .ticket-voucher-list {
-          display: none;
+        .tix-voucher-list {
+          display: block;
           list-style: none;
           padding: 0;
           margin: 0;
-          margin-top: 8px;
+          margin-top: 9px;
           max-height: 150px;
           overflow-y: auto;
-          border: 1px solid #d9d9d9;
-          border-radius: 4px;
-          background: #fff;
+
           width: 100%;
           position: absolute;
-          top: 100%;
+          top: 48px;
           left: 0;
-          z-index: 1;
-        }
+          z-index: 10;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          ul {
+            list-style: linear-gradient(45deg, white, black);
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
 
-        .ticket-voucher-list.has-vouchers {
+            li {
+              padding: 8px 12px;
+              cursor: pointer;
+              font-size: 14px;
+              color: #333;
+              transition: background-color 0.2s;
+              border: none;
+            }
+
+            li:hover {
+              background-color: #4a4949;
+            }
+
+            li.tix-voucher-selected {
+              background-color: #e6f7ff;
+              color: #1890ff;
+              font-weight: 500;
+            }
+          }
+        }
+        &.tix-has-vouchers {
           display: block;
         }
-
-        .ticket-voucher-list li {
-          padding: 8px 12px;
-          cursor: pointer;
-          font-size: 14px;
-          color: #333;
-          transition: background-color 0.2s;
-        }
-
-        .ticket-voucher-list li:hover {
-          background-color: #f5f5f5;
-        }
-
-        .ticket-voucher-list li.voucher-selected {
-          background-color: #e6f7ff;
-          color: #1890ff;
-          font-weight: 500;
-        }
       }
 
-      &.ticket-type-selection {
+      &.tix-type-selection {
         flex-direction: column;
+        padding-left: 60px;
+        width: 400px;
+
+        .ant-btn {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          text-align: left;
+          padding: 0 16px;
+        }
+
+        .ant-btn .ant-space {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+        }
       }
 
-      .ticket-type-note {
-        font-size: 14px;
-        color: #dbd8d8;
-        margin: 0;
-        justify-content: end;
-        display: flex;
+      &.tix-payment-method {
+        flex-direction: column;
+        gap: 10px;
+        width: 400px;
+        padding-left: 60px;
+
+        .ant-btn {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          text-align: left;
+          padding: 0 16px;
+        }
+
+        .ant-btn .ant-space {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          margin: 100px !important;
+        }
       }
 
-      &.transaction {
+      &.tix-transaction {
         flex-direction: column;
         gap: 5px;
 
-        .transaction-details {
+        .tix-transaction-details {
           display: flex;
           flex-direction: column;
           gap: 2px;
@@ -175,13 +237,13 @@
         }
       }
 
-      &.total {
+      &.tix-total {
         font-size: 20px;
         font-weight: bold;
         margin-top: 20px;
       }
 
-      &.ticket-phone-input {
+      &.tix-phone-input {
         button {
           width: 100%;
           padding: 10px;
@@ -191,65 +253,25 @@
           border-radius: 5px;
           font-size: 16px;
           cursor: pointer;
+          transition: background-color 0.3s;
 
           &:hover {
             background-color: #218838;
           }
         }
       }
-
-      &.ticket-payment-method {
-        flex-direction: column;
-        gap: 10px;
-
-        .ant-select {
-          width: 100%;
-
-          .ant-select-selector {
-            display: flex;
-            align-items: center;
-            min-height: 32px;
-            padding: 4px 11px;
-          }
-
-          .ant-select-arrow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transform: translateX(-50%);
-            transform: translateY(70%);
-          }
-
-          .ant-select-selection-item {
-            display: flex;
-            align-items: center;
-            line-height: 1.5;
-          }
-        }
-
-        .ant-input {
-          margin-top: 10px;
-          padding: 4px 11px;
-          min-height: 32px;
-          display: flex;
-          align-items: center;
-        }
-
-        div {
-          margin-top: 10px;
-        }
-      }
     }
 
-    .ticket-note {
+    .tix-note {
       font-size: 12px;
       color: #ccc;
       text-align: center;
       margin-top: 20px;
     }
 
-    .ticket-purchase-btn {
-      width: 100%;
+    .tix-purchase-btn {
+      width: 500px;
+      margin-left: 0px;
       padding: 10px;
       background-color: #28a745;
       color: #fff;
@@ -258,104 +280,154 @@
       font-size: 16px;
       cursor: pointer;
       margin-top: 7px;
+      transition: background-color 0.3s;
+
       &:hover {
         background-color: #218838;
       }
     }
   }
 
+  .tix-type-note {
+    font-size: 14px;
+    color: #dbd8d8;
+    margin: 10px;
+    padding-left: 300px;
+  }
+
+  .tix-infor-button {
+    display: flex;
+    justify-content: center;
+  }
+
+  .tix-infor-modal-button {
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #0a7b42 !important;
+    }
+  }
+
   @media (max-width: 768px) {
-    .ticket-info-card {
+    .tix-info-card {
       flex-direction: column;
       align-items: center;
       padding: 15px;
     }
 
-    .ticket-poster-container {
+    .tix-poster-container {
       position: relative;
       margin-top: 50px;
-      .ticket-movie-poster {
+
+      .tix-movie-poster {
         width: 150px;
         height: 225px;
       }
     }
 
-    .ticket-details-section {
+    .tix-details-section {
       h2 {
         font-size: 20px;
       }
 
-      .ticket-detail-row {
+      .tix-detail-row {
         font-size: 14px;
+
+        &.tix-voucher-search,
+        &.tix-type-selection,
+        &.tix-payment-method {
+          width: 100%;
+          padding-left: 0;
+        }
+
+        &.tix-purchase-btn {
+          width: 100%;
+          margin-left: 0;
+        }
       }
 
-      .total {
+      .tix-total {
         font-size: 18px;
       }
     }
 
-    .ticket-back-btn {
+    .tix-back-btn {
       font-size: 20px;
       top: 15px;
       left: 15px;
+    }
+
+    .tix-type-note {
+      padding-left: 0;
+      text-align: center;
     }
   }
 
   @media (max-width: 480px) {
     padding: 10px;
 
-    .ticket-info-content {
+    .tix-info-content {
       padding: 0 10px;
     }
 
-    .ticket-info-card {
+    .tix-info-card {
       padding: 10px;
       gap: 15px;
     }
 
-    .ticket-poster-container {
-      .ticket-movie-poster {
+    .tix-poster-container {
+      .tix-movie-poster {
         width: 120px;
         height: 180px;
       }
     }
 
-    .ticket-details-section {
+    .tix-details-section {
       h2 {
         font-size: 18px;
         margin-bottom: 15px;
       }
 
-      .ticket-detail-row {
+      .tix-detail-row {
         font-size: 12px;
         flex-direction: column;
         gap: 5px;
-        padding: 10px; /* Sửa lỗi padding quá lớn từ 700px */
-        &.transaction {
-          .transaction-details {
+        padding: 10px;
+
+        &.tix-transaction {
+          .tix-transaction-details {
             padding-left: 10px;
           }
         }
+
+        &.tix-voucher-search,
+        &.tix-type-selection,
+        &.tix-payment-method {
+          width: 100%;
+          padding-left: 0;
+        }
       }
 
-      .total {
+      .tix-total {
         font-size: 16px;
       }
 
-      .ticket-note {
+      .tix-note {
         font-size: 10px;
       }
 
-      .ticket-purchase-btn {
+      .tix-purchase-btn {
         font-size: 14px;
         padding: 8px;
+        width: 100%;
+        margin-left: 0;
       }
     }
 
-    .ticket-back-btn {
+    .tix-back-btn {
       font-size: 18px;
       top: 10px;
-      left: 10ponepx;
+      left: 10px;
     }
   }
 }

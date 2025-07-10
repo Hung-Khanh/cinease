@@ -93,7 +93,6 @@ const Header = () => {
     navigate("/");
   };
 
-
   return (
     <header className="header">
       <div className="header-container">

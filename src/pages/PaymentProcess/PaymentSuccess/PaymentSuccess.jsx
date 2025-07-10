@@ -117,12 +117,16 @@ const PaymentSuccess = () => {
 
         <div className="info-group">
           <div className="info-label">Seats:</div>
-          <div className="info-value">{ticketData.seatNumbers?.join(", ") || "N/A"}</div>
+          <div className="info-value">
+            {ticketData.seatNumbers?.join(", ") || "N/A"}
+          </div>
         </div>
 
         <div className="info-group">
           <div className="info-label">Show Time:</div>
-          <div className="info-value">{ticketData.scheduleShowTime || "N/A"}</div>
+          <div className="info-value">
+            {ticketData.scheduleShowTime || "N/A"}
+          </div>
         </div>
 
         <div className="info-group">
@@ -137,7 +141,9 @@ const PaymentSuccess = () => {
 
         <div className="info-group">
           <div className="info-label">Grand Total:</div>
-          <div className="info-value">{ticketData.grandTotal?.toLocaleString() || 0} VND</div>
+          <div className="info-value">
+            {ticketData.grandTotal?.toLocaleString() || 0} VND
+          </div>
         </div>
 
         <div className="info-group">

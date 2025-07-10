@@ -14,6 +14,27 @@
   box-sizing: border-box;
   color: #fff;
 }
+.confirm-back-btn {
+  background: none;
+  border: 2px solid #0c9550;
+  color: #0c9550;
+  font-size: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50px;
+  top: 180px;
+  padding: 10px;
+  transition: background-color 0.3s, color 0.3s;
+
+  &:hover {
+    background-color: #0c9550;
+    color: white;
+  }
+}
 .qr-code-container {
   display: flex;
   flex-direction: column;

@@ -6,7 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setSeatData } from "../../store/cartSlice";
 
-const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
+const Confirm = ({
+  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [promotions, setPromotions] = useState([]);
@@ -61,7 +63,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(`Failed to fetch movie details: ${errorData.message || res.status}`);
+        throw new Error(
+          `Failed to fetch movie details: ${errorData.message || res.status}`
+        );
       }
       const movie = await res.json();
       setMovieDetails(movie);
@@ -84,7 +88,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(`Failed to fetch promotions: ${errorData.message || res.status}`);
+        throw new Error(
+          `Failed to fetch promotions: ${errorData.message || res.status}`
+        );
       }
       const data = await res.json();
       setPromotions(
@@ -94,13 +100,15 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
         }))
       );
     } catch (err) {
-      console.error('Error fetching promotions:', err);
+      console.error("Error fetching promotions:", err);
     }
   };
 
   const handleConfirm = async () => {
     if (!token || !bookingData) {
-      alert("Không tìm thấy dữ liệu đặt vé hoặc phiên đăng nhập. Vui lòng đăng nhập lại.");
+      alert(
+        "Không tìm thấy dữ liệu đặt vé hoặc phiên đăng nhập. Vui lòng đăng nhập lại."
+      );
       navigate("/login");
       return;
     }
@@ -135,9 +143,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           scheduleSeatIds,
           products: Array.isArray(bookingData.products)
             ? bookingData.products.map((p) => ({
-              productId: p.productId,
-              quantity: p.quantity,
-            }))
+                productId: p.productId,
+                quantity: p.quantity,
+              }))
             : [],
         }),
       });
@@ -150,11 +158,15 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           return;
         }
         if (errorData.errorCode === "SEAT_ALREADY_BOOKED") {
-          alert("Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại.");
+          alert(
+            "Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại."
+          );
           navigate(-1);
           return;
         }
-        throw new Error(`Failed to select seats: ${errorData.message || selectRes.status}`);
+        throw new Error(
+          `Failed to select seats: ${errorData.message || selectRes.status}`
+        );
       }
 
       const selectData = await selectRes.json();
@@ -175,12 +187,13 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           ticketType: ticketType || "ADULT",
           products: Array.isArray(bookingData.products)
             ? bookingData.products.map((p) => ({
-              productId: p.productId,
-              quantity: p.quantity,
-              notes: "",
-            }))
+                productId: p.productId,
+                quantity: p.quantity,
+                notes: "",
+              }))
             : [],
-          skipProducts: !bookingData.products || bookingData.products.length === 0,
+          skipProducts:
+            !bookingData.products || bookingData.products.length === 0,
         }),
       });
 
@@ -199,46 +212,54 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           alert("Mã khuyến mãi không hợp lệ hoặc đã hết hạn.");
           return;
         }
-        throw new Error(`Failed to confirm prices: ${errorData.message || confirmRes.status}`);
+        throw new Error(
+          `Failed to confirm prices: ${errorData.message || confirmRes.status}`
+        );
       }
 
       const confirmData = await confirmRes.json();
       setConfirmResult(confirmData);
 
       // Update Redux store with confirmation data
-      dispatch(setSeatData({
-        ...bookingData,
-        sessionId: confirmData.sessionId,
-        originalTicketTotal: confirmData.originalTicketTotal,
-        finalTicketTotal: confirmData.finalTicketTotal,
-        discountFromScore: confirmData.discountFromScore,
-        discountFromPromotion: confirmData.discountFromPromotion,
-        finalProductsTotal: confirmData.finalProductsTotal,
-        grandTotal: confirmData.grandTotal,
-        confirmationResult: confirmData,
-      }));
-
-      navigate(`/payment-detail/${confirmData.sessionId}/${bookingData.movieId}`, {
-        state: {
+      dispatch(
+        setSeatData({
           ...bookingData,
           sessionId: confirmData.sessionId,
-          promotion: voucher?.value || null,
-          confirmationResult: confirmData,
           originalTicketTotal: confirmData.originalTicketTotal,
           finalTicketTotal: confirmData.finalTicketTotal,
           discountFromScore: confirmData.discountFromScore,
           discountFromPromotion: confirmData.discountFromPromotion,
           finalProductsTotal: confirmData.finalProductsTotal,
           grandTotal: confirmData.grandTotal,
-        },
-      });
+          confirmationResult: confirmData,
+        })
+      );
+
+      navigate(
+        `/payment-detail/${confirmData.sessionId}/${bookingData.movieId}`,
+        {
+          state: {
+            ...bookingData,
+            sessionId: confirmData.sessionId,
+            promotion: voucher?.value || null,
+            confirmationResult: confirmData,
+            originalTicketTotal: confirmData.originalTicketTotal,
+            finalTicketTotal: confirmData.finalTicketTotal,
+            discountFromScore: confirmData.discountFromScore,
+            discountFromPromotion: confirmData.discountFromPromotion,
+            finalProductsTotal: confirmData.finalProductsTotal,
+            grandTotal: confirmData.grandTotal,
+          },
+        }
+      );
     } catch (err) {
       console.error("Lỗi xác nhận vé:", err);
       alert(`Lỗi xác nhận vé: ${err.message}. Vui lòng thử lại.`);
     }
   };
 
-  if (loading || !bookingData) return <div className="confirm-wrapper">LOADING DATA...</div>;
+  if (loading || !bookingData)
+    return <div className="confirm-wrapper">LOADING DATA...</div>;
   if (error) return <div className="confirm-wrapper">{error}</div>;
 
   const displayData = confirmResult || bookingData;
@@ -252,26 +273,56 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
         <div className="ticket-box">
           <div className="poster">
             <img
-              src={movieDetails.posterImageUrl || "https://via.placeholder.com/300x450?text=No+Poster"}
+              src={
+                movieDetails.posterImageUrl ||
+                "https://via.placeholder.com/300x450?text=No+Poster"
+              }
               alt="poster"
             />
           </div>
           <div className="ticket-info">
             <h2>XÁC NHẬN ĐẶT VÉ</h2>
-            <div><b>🎬 MOVIE:</b> {displayData.movieName}</div>
-            <div><b>📅 DATE:</b> {displayData.showDate}</div>
-            <div><b>⏰ TIME:</b> {displayData.showTime}</div>
-            <div><b>💺 SEAT:</b> {displayData.seatNumbers.join(", ")}</div>
-            <div><b>🏢 CINEROOM:</b> {displayData.cinemaRoomName}</div>
-            <div><b>🎟️ TICKET TOTAL:</b> {displayData.originalTicketTotal?.toLocaleString()} VND</div>
+            <div>
+              <b>🎬 MOVIE:</b> {displayData.movieName}
+            </div>
+            <div>
+              <b>📅 DATE:</b> {displayData.showDate}
+            </div>
+            <div>
+              <b>⏰ TIME:</b> {displayData.showTime}
+            </div>
+            <div>
+              <b>💺 SEAT:</b> {displayData.seatNumbers.join(", ")}
+            </div>
+            <div>
+              <b>🏢 CINEROOM:</b> {displayData.cinemaRoomName}
+            </div>
+            <div>
+              <b>🎟️ TICKET TOTAL:</b>{" "}
+              {displayData.originalTicketTotal?.toLocaleString()} VND
+            </div>
             {displayData.discountFromScore > 0 && (
-              <div><b>💳 SCORE DISCOUNT:</b> - {displayData.discountFromScore?.toLocaleString()} VND</div>
+              <div>
+                <b>💳 SCORE DISCOUNT:</b> -{" "}
+                {displayData.discountFromScore?.toLocaleString()} VND
+              </div>
             )}
             {displayData.discountFromPromotion > 0 && (
-              <div><b>🎁 PROMOTION DISCOUNT:</b> - {displayData.discountFromPromotion?.toLocaleString()} VND</div>
+              <div>
+                <b>🎁 PROMOTION DISCOUNT:</b> -{" "}
+                {displayData.discountFromPromotion?.toLocaleString()} VND
+              </div>
             )}
-            <div><b>🧾 TOTAL FOOD & DRINK:</b> {displayData.finalProductsTotal?.toLocaleString() || displayData.productsTotal?.toLocaleString()} VND</div>
-            <div><b>💰 GRAND TOTAL:</b> {displayData.grandTotal?.toLocaleString()} VND</div>
+            <div>
+              <b>🧾 TOTAL FOOD & DRINK:</b>{" "}
+              {displayData.finalProductsTotal?.toLocaleString() ||
+                displayData.productsTotal?.toLocaleString()}{" "}
+              VND
+            </div>
+            <div>
+              <b>💰 GRAND TOTAL:</b> {displayData.grandTotal?.toLocaleString()}{" "}
+              VND
+            </div>
 
             <Select
               classNamePrefix="voucher"
@@ -308,7 +359,9 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
               </select>
             </div>
 
-            <button className="confirm-button" onClick={handleConfirm}>✅ CONFIRM</button>
+            <button className="confirm-button" onClick={handleConfirm}>
+              ✅ CONFIRM
+            </button>
             <p className="note">*Confirmed tickets cannot be canceled.</p>
           </div>
         </div>

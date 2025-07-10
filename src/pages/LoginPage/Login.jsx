@@ -181,7 +181,6 @@ const Login = () => {
       if (result.role === "ADMIN") {
         console.log(result.role);
         navigate("/admin/dashboard");
-
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
         navigate("/staffHomePage");

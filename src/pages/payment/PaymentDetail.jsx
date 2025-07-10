@@ -4,7 +4,9 @@ import { FaArrowLeft } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import "./PaymentDetail.scss";
 
-const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
+const PaymentDetail = ({
+  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
+}) => {
   const { sessionId, movieId } = useParams();
   const navigate = useNavigate();
 
@@ -35,22 +37,30 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           return;
         }
         if (movieId) {
-          const movieRes = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-              Accept: "application/json",
-            },
-          });
+          const movieRes = await fetch(
+            `${apiUrl}/public/movies/details/${movieId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+                Accept: "application/json",
+              },
+            }
+          );
           if (!movieRes.ok) {
             const errorData = await movieRes.json();
-            throw new Error(`Failed to fetch movie details: ${errorData.message || movieRes.status}`);
+            throw new Error(
+              `Failed to fetch movie details: ${
+                errorData.message || movieRes.status
+              }`
+            );
           }
           const movie = await movieRes.json();
           setMovieDetails((prev) => ({
             ...prev,
             posterImageUrl: movie.posterImageUrl || prev.posterImageUrl,
-            movieName: movie.movieNameEnglish || movie.movieNameVn || prev.movieName,
+            movieName:
+              movie.movieNameEnglish || movie.movieNameVn || prev.movieName,
           }));
         }
       } catch (err) {
@@ -109,7 +119,9 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           alert("Thanh toán thất bại. Vui lòng thử lại.");
           return;
         }
-        throw new Error(`Failed to confirm payment: ${errorData.message || res.status}`);
+        throw new Error(
+          `Failed to confirm payment: ${errorData.message || res.status}`
+        );
       }
 
       const data = await res.json();
@@ -121,64 +133,116 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   };
 
   if (loading) return <div>Đang tải dữ liệu...</div>;
-  if (!seatData || !seatData.confirmationResult) return <div>Không tìm thấy thông tin đặt vé.</div>;
+  if (!seatData || !seatData.confirmationResult)
+    return <div>Không tìm thấy thông tin đặt vé.</div>;
 
-  const { originalTicketTotal, finalTicketTotal, discountFromScore, discountFromPromotion, finalProductsTotal, grandTotal } = seatData.confirmationResult;
+  const {
+    originalTicketTotal,
+    finalTicketTotal,
+    discountFromScore,
+    discountFromPromotion,
+    finalProductsTotal,
+    grandTotal,
+  } = seatData.confirmationResult;
   const seatCount = seatData.confirmationResult?.seatNumbers?.length || 0;
-  const seatsDisplay = seatData.confirmationResult?.seatNumbers?.join(", ") || "N/A";
+  const seatsDisplay =
+    seatData.confirmationResult?.seatNumbers?.join(", ") || "N/A";
 
   return (
     <>
       <div className="payment-detail-wrapper">
         <div className="countdown-wrapper">
           <div className="countdown-timer">
-            {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
+            {Math.floor(countdown / 60)}:
+            {String(countdown % 60).padStart(2, "0")}
           </div>
         </div>
         <div className="content">
           <div className="poster-section">
-            <img src={movieDetails.posterImageUrl} alt="Movie Poster" className="poster" />
+            <img
+              src={movieDetails.posterImageUrl}
+              alt="Movie Poster"
+              className="poster"
+            />
             <h3>{movieDetails.movieName}</h3>
           </div>
 
           <div className="payment-info">
             <h2>PAYMENT INFORMATION</h2>
-            <div className="detail-row"><span>🎬 MOVIE</span><span>{seatData.movieName}</span></div>
-            <div className="detail-row"><span>🏢 CINEROOM</span><span>{seatData.cinemaRoomName}</span></div>
-            <div className="detail-row"><span>📅 DATE</span><span>{seatData.showDate}</span></div>
-            <div className="detail-row"><span>🕒 TIME</span><span>{seatData.showTime}</span></div>
-            <div className="detail-row"><span>💺 SEAT ({seatCount})</span><span>{seatsDisplay}</span></div>
+            <div className="detail-row">
+              <span>🎬 MOVIE</span>
+              <span>{seatData.movieName}</span>
+            </div>
+            <div className="detail-row">
+              <span>🏢 CINEROOM</span>
+              <span>{seatData.cinemaRoomName}</span>
+            </div>
+            <div className="detail-row">
+              <span>📅 DATE</span>
+              <span>{seatData.showDate}</span>
+            </div>
+            <div className="detail-row">
+              <span>🕒 TIME</span>
+              <span>{seatData.showTime}</span>
+            </div>
+            <div className="detail-row">
+              <span>💺 SEAT ({seatCount})</span>
+              <span>{seatsDisplay}</span>
+            </div>
 
-            <div className="detail-row transaction"><span>PAYMENT DETAIL</span></div>
-            <div className="detail-row"><span>🎟 TICKET TOTAL</span><span>{originalTicketTotal?.toLocaleString()} VND</span></div>
+            <div className="detail-row transaction">
+              <span>PAYMENT DETAIL</span>
+            </div>
+            <div className="detail-row">
+              <span>🎟 TICKET TOTAL</span>
+              <span>{originalTicketTotal?.toLocaleString()} VND</span>
+            </div>
             {discountFromScore > 0 && (
-              <div className="detail-row"><span>💳 SCORE DISCOUNT</span><span>- {discountFromScore?.toLocaleString()} VND</span></div>
+              <div className="detail-row">
+                <span>💳 SCORE DISCOUNT</span>
+                <span>- {discountFromScore?.toLocaleString()} VND</span>
+              </div>
             )}
             {discountFromPromotion > 0 && (
-              <div className="detail-row"><span>🎁 PROMOTION DISCOUNT</span><span>- {discountFromPromotion?.toLocaleString()} VND</span></div>
+              <div className="detail-row">
+                <span>🎁 PROMOTION DISCOUNT</span>
+                <span>- {discountFromPromotion?.toLocaleString()} VND</span>
+              </div>
             )}
-            <div className="detail-row"><span>🥤 FOOD & DRINK</span><span>{finalProductsTotal?.toLocaleString()} VND</span></div>
-            <div className="detail-row total"><span>💰 GRAND TOTAL</span><span>{grandTotal?.toLocaleString()} VND</span></div>
+            <div className="detail-row">
+              <span>🥤 FOOD & DRINK</span>
+              <span>{finalProductsTotal?.toLocaleString()} VND</span>
+            </div>
+            <div className="detail-row total">
+              <span>💰 GRAND TOTAL</span>
+              <span>{grandTotal?.toLocaleString()} VND</span>
+            </div>
 
             <div className="detail-row payment-method-selector">
               <span>💳 PAYMENT METHOD</span>
               <div className="payment-options">
                 <button
-                  className={`payment-option ${paymentMethod === "VNPAY" ? "selected" : ""}`}
+                  className={`payment-option ${
+                    paymentMethod === "VNPAY" ? "selected" : ""
+                  }`}
                   onClick={() => setPaymentMethod("VNPAY")}
                   title="VNPAY"
                 >
                   <img src="/img/vnpay.png" alt="VNPAY" />
                 </button>
                 <button
-                  className={`payment-option ${paymentMethod === "MOMO" ? "selected" : ""}`}
+                  className={`payment-option ${
+                    paymentMethod === "MOMO" ? "selected" : ""
+                  }`}
                   onClick={() => setPaymentMethod("MOMO")}
                   title="MOMO"
                 >
                   <img src="/img/momo.png" alt="MOMO" />
                 </button>
                 <button
-                  className={`payment-option ${paymentMethod === "MOMO_QR" ? "selected" : ""}`}
+                  className={`payment-option ${
+                    paymentMethod === "MOMO_QR" ? "selected" : ""
+                  }`}
                   onClick={() => setPaymentMethod("MOMO_QR")}
                   title="MOMO QR"
                 >
@@ -187,14 +251,19 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
               </div>
             </div>
 
-            <button className="payment-button" onClick={handleConfirmPayment}>✅ CONFIRM PAYMENT</button>
+            <button className="payment-button" onClick={handleConfirmPayment}>
+              ✅ CONFIRM PAYMENT
+            </button>
             {paymentUrl && (
               <a href={paymentUrl} className="payment-button">
                 💳 PROCEED TO PAY
               </a>
             )}
 
-            <p className="note">* Please visit counter to receive tickets after successful payment.</p>
+            <p className="note">
+              * Please visit counter to receive tickets after successful
+              payment.
+            </p>
           </div>
         </div>
       </div>

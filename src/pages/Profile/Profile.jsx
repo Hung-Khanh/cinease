@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Input, Button, Form, Table, message, Upload, Tag, Dropdown, Menu } from "antd";
+import {
+  Input,
+  Button,
+  Form,
+  Table,
+  message,
+  Upload,
+  Tag,
+  Dropdown,
+  Menu,
+} from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { UserOutlined, CameraOutlined } from "@ant-design/icons";
 import "./Profile.scss";
-import { getUserInfo, getUserTickets, updateUserWithImage } from '../../api/user';
+import {
+  getUserInfo,
+  getUserTickets,
+  updateUserWithImage,
+} from "../../api/user";
 
 const Profile = () => {
   const [historyData, setHistoryData] = useState([]);
@@ -21,15 +35,19 @@ const Profile = () => {
         const ticketsData = ticketsRes.data;
         const mapped = (ticketsData.content || []).map((item, idx) => {
           const ticketCount = Array.isArray(item.products)
-            ? item.products.filter(p => p.itemType === "TICKET").length
-            : (item.seatNumbers ? item.seatNumbers.length : 0);
+            ? item.products.filter((p) => p.itemType === "TICKET").length
+            : item.seatNumbers
+            ? item.seatNumbers.length
+            : 0;
           return {
             key: item.invoiceId || idx,
-            date: item.bookingDate ? new Date(item.bookingDate).toLocaleDateString("vi-VN") : "",
+            date: item.bookingDate
+              ? new Date(item.bookingDate).toLocaleDateString("vi-VN")
+              : "",
             movie: item.movieName,
             tickets: ticketCount,
             status: item.status || "",
-            grandTotal: item.grandTotal || 0
+            grandTotal: item.grandTotal || 0,
           };
         });
         setHistoryData(mapped);
@@ -53,11 +71,11 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const handleViewHistory = () => {
-    navigate('/history');
+    navigate("/history");
   };
 
   const [sortKey, setSortKey] = useState(null);
-  const [sortOrder, setSortOrder] = useState('descend');
+  const [sortOrder, setSortOrder] = useState("descend");
 
   const sortOptions = [
     { key: "date", label: "Day" },
@@ -70,95 +88,105 @@ const Profile = () => {
       setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
     } else {
       setSortKey(e.key);
-      setSortOrder('descend');
+      setSortOrder("descend");
     }
   };
 
-  const sortMenuItems = sortOptions.map(opt => ({
+  const sortMenuItems = sortOptions.map((opt) => ({
     key: opt.key,
     label: opt.label,
   }));
 
   // Hook để lấy width của window
-function useWindowWidth() {
-  const [width, setWidth] = React.useState(window.innerWidth);
-  React.useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  return width;
-}
+  function useWindowWidth() {
+    const [width, setWidth] = React.useState(window.innerWidth);
+    React.useEffect(() => {
+      const handleResize = () => setWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    return width;
+  }
 
-const windowWidth = useWindowWidth();
+  const windowWidth = useWindowWidth();
 
-const columns = React.useMemo(() => {
-  if (windowWidth <= 576) {
+  const columns = React.useMemo(() => {
+    if (windowWidth <= 576) {
+      return [
+        { title: "Day", dataIndex: "date", key: "date", align: "center" },
+        { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
+        {
+          title: "Grand Total",
+          dataIndex: "grandTotal",
+          key: "grandTotal",
+          align: "center",
+          render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
+        },
+      ];
+    }
     return [
       { title: "Day", dataIndex: "date", key: "date", align: "center" },
       { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
+      {
+        title: "Tickets",
+        dataIndex: "tickets",
+        key: "tickets",
+        align: "center",
+      },
       {
         title: "Grand Total",
         dataIndex: "grandTotal",
         key: "grandTotal",
         align: "center",
-        render: v => v ? v.toLocaleString('vi-VN') + ' ₫' : ''
-      }
+        render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
+      },
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        align: "center",
+        render: (status) => {
+          const statusColors = {
+            PENDING: "orange",
+            CONFIRMED: "blue",
+            PAID: "green",
+            CANCELLED: "red",
+            EXPIRED: "gray",
+            AWAITING_PAYMENT: "yellow",
+          };
+          return (
+            <Tag
+              color={statusColors[status] || "default"}
+              style={{ minWidth: 90, textAlign: "center" }}
+            >
+              {status}
+            </Tag>
+          );
+        },
+      },
     ];
-  }
-  return [
-    { title: "Day", dataIndex: "date", key: "date", align: "center" },
-    { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
-    { title: "Tickets", dataIndex: "tickets", key: "tickets", align: "center" },
-    {
-      title: "Grand Total",
-      dataIndex: "grandTotal",
-      key: "grandTotal",
-      align: "center",
-      render: v => v ? v.toLocaleString('vi-VN') + ' ₫' : ''
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      align: "center",
-      render: (status) => {
-        const statusColors = {
-          PENDING: "orange",
-          CONFIRMED: "blue",
-          PAID: "green",
-          CANCELLED: "red",
-          EXPIRED: "gray",
-          AWAITING_PAYMENT: "yellow"
-        };
-        return (
-          <Tag color={statusColors[status] || "default"} style={{ minWidth: 90, textAlign: "center" }}>
-            {status}
-          </Tag>
-        );
-      }
-    },
-  ];
-}, [windowWidth]);
+  }, [windowWidth]);
 
   const sortedHistoryData = React.useMemo(() => {
     if (!sortKey) return historyData;
     let sorted = [...historyData];
     if (sortKey === "date") {
       sorted.sort((a, b) => {
-        const d1 = new Date(a.date.split('/').reverse().join('-'));
-        const d2 = new Date(b.date.split('/').reverse().join('-'));
+        const d1 = new Date(a.date.split("/").reverse().join("-"));
+        const d2 = new Date(b.date.split("/").reverse().join("-"));
         return sortOrder === "ascend" ? d1 - d2 : d2 - d1;
       });
     } else if (sortKey === "movie") {
-      sorted.sort((a, b) => sortOrder === "ascend"
-        ? a.movie.localeCompare(b.movie)
-        : b.movie.localeCompare(a.movie)
+      sorted.sort((a, b) =>
+        sortOrder === "ascend"
+          ? a.movie.localeCompare(b.movie)
+          : b.movie.localeCompare(a.movie)
       );
     } else if (sortKey === "grandTotal") {
-      sorted.sort((a, b) => sortOrder === "ascend"
-        ? a.grandTotal - b.grandTotal
-        : b.grandTotal - a.grandTotal
+      sorted.sort((a, b) =>
+        sortOrder === "ascend"
+          ? a.grandTotal - b.grandTotal
+          : b.grandTotal - a.grandTotal
       );
     }
     return sorted;
@@ -182,21 +210,25 @@ const columns = React.useMemo(() => {
       });
 
       if (data.image) {
-        if (data.image.startsWith('data:')) {
+        if (data.image.startsWith("data:")) {
           setPreviewAvatar(data.image);
-        } else if (data.image.startsWith('http')) {
+        } else if (data.image.startsWith("http")) {
           setPreviewAvatar(data.image);
         } else {
-          const baseUrl = 'https://legally-actual-mollusk.ngrok-free.app';
-          const imagePath = data.image.startsWith('/') ? data.image : `/${data.image}`;
+          const baseUrl = "https://legally-actual-mollusk.ngrok-free.app";
+          const imagePath = data.image.startsWith("/")
+            ? data.image
+            : `/${data.image}`;
           setPreviewAvatar(`${baseUrl}${imagePath}`);
         }
       } else if (data.avatar) {
-        if (data.avatar.startsWith('http') || data.avatar.startsWith('data:')) {
+        if (data.avatar.startsWith("http") || data.avatar.startsWith("data:")) {
           setPreviewAvatar(data.avatar);
         } else {
-          const baseUrl = 'https://legally-actual-mollusk.ngrok-free.app';
-          const imagePath = data.avatar.startsWith('/') ? data.avatar : `/${data.avatar}`;
+          const baseUrl = "https://legally-actual-mollusk.ngrok-free.app";
+          const imagePath = data.avatar.startsWith("/")
+            ? data.avatar
+            : `/${data.avatar}`;
           setPreviewAvatar(`${baseUrl}${imagePath}`);
         }
       } else {
@@ -215,7 +247,7 @@ const columns = React.useMemo(() => {
   const handleProfileSave = async (values) => {
     setLoading(true);
     try {
-      console.log('Starting profile update with values:', values);
+      console.log("Starting profile update with values:", values);
 
       const formData = new FormData();
 
@@ -229,8 +261,13 @@ const columns = React.useMemo(() => {
         phoneNumber: values.phoneNumber || null,
       };
 
-      Object.keys(accountData).forEach(key => {
-        if (key !== "gender" && (accountData[key] === null || accountData[key] === "" || accountData[key] === undefined)) {
+      Object.keys(accountData).forEach((key) => {
+        if (
+          key !== "gender" &&
+          (accountData[key] === null ||
+            accountData[key] === "" ||
+            accountData[key] === undefined)
+        ) {
           delete accountData[key];
         }
       });
@@ -238,13 +275,13 @@ const columns = React.useMemo(() => {
       console.log("Account data being sent:", accountData);
 
       const accountBlob = new Blob([JSON.stringify(accountData)], {
-        type: 'application/json'
+        type: "application/json",
       });
-      formData.append('account', accountBlob);
+      formData.append("account", accountBlob);
 
       if (avatarFile) {
-        console.log('Adding new avatar file:', avatarFile.name);
-        formData.append('image', avatarFile);
+        console.log("Adding new avatar file:", avatarFile.name);
+        formData.append("image", avatarFile);
       }
 
       const response = await updateUserWithImage(formData);
@@ -257,35 +294,38 @@ const columns = React.useMemo(() => {
       await fetchUserInfo();
 
       try {
-        const oldUser = JSON.parse(localStorage.getItem('user')) || {};
+        const oldUser = JSON.parse(localStorage.getItem("user")) || {};
         const updatedUser = {
           ...oldUser,
           ...response.data,
         };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        window.dispatchEvent(new Event('storage'));
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        window.dispatchEvent(new Event("storage"));
       } catch (e) {
-        console.error('Failed to update user in localStorage after profile update:', e);
+        console.error(
+          "Failed to update user in localStorage after profile update:",
+          e
+        );
       }
-
     } catch (error) {
       console.error("Update profile error:", {
         error: error,
         responseData: error?.response?.data,
         responseStatus: error?.response?.status,
-        responseHeaders: error?.response?.headers
+        responseHeaders: error?.response?.headers,
       });
 
       let errorMessage = "Update profile failed. Please try again.";
       if (error?.response?.data?.code) {
         switch (error.response.data.code) {
-          case 'EMAIL_EXISTS':
+          case "EMAIL_EXISTS":
             errorMessage = "This email is already in use by another account.";
             break;
-          case 'PHONE_EXISTS':
-            errorMessage = "This phone number is already in use by another account.";
+          case "PHONE_EXISTS":
+            errorMessage =
+              "This phone number is already in use by another account.";
             break;
-          case 'ACCOUNT_NOT_FOUND':
+          case "ACCOUNT_NOT_FOUND":
             errorMessage = "Account not found. Please login again.";
             break;
           default:
@@ -332,36 +372,44 @@ const columns = React.useMemo(() => {
         phoneNumber: currentValues.phoneNumber || null,
         currentPassword: currentPwd,
         newPassword: newPwd,
-        confirmPassword: confirmPwd
+        confirmPassword: confirmPwd,
       };
 
-      Object.keys(accountData).forEach(key => {
-        if (!['gender', 'currentPassword', 'newPassword', 'confirmPassword'].includes(key) &&
-          (accountData[key] === null || accountData[key] === "" || accountData[key] === undefined)) {
+      Object.keys(accountData).forEach((key) => {
+        if (
+          ![
+            "gender",
+            "currentPassword",
+            "newPassword",
+            "confirmPassword",
+          ].includes(key) &&
+          (accountData[key] === null ||
+            accountData[key] === "" ||
+            accountData[key] === undefined)
+        ) {
           delete accountData[key];
         }
       });
 
       const accountBlob = new Blob([JSON.stringify(accountData)], {
-        type: 'application/json'
+        type: "application/json",
       });
-      formData.append('account', accountBlob);
+      formData.append("account", accountBlob);
 
       await updateUserWithImage(formData);
 
       message.success("Password changed successfully!");
       pwdForm.resetFields();
-
     } catch (error) {
       console.error("Password change error:", error);
 
       let errorMessage = "Password change failed!";
       if (error?.response?.data?.code) {
         switch (error.response.data.code) {
-          case 'INVALID_CURRENT_PASSWORD':
+          case "INVALID_CURRENT_PASSWORD":
             errorMessage = "Current password is incorrect.";
             break;
-          case 'PASSWORD_MISMATCH':
+          case "PASSWORD_MISMATCH":
             errorMessage = "New password and confirm password do not match.";
             break;
           default:
@@ -389,13 +437,13 @@ const columns = React.useMemo(() => {
           <Upload
             showUploadList={false}
             beforeUpload={(file) => {
-              if (!file.type.startsWith('image/')) {
-                message.error('Please select an image file');
+              if (!file.type.startsWith("image/")) {
+                message.error("Please select an image file");
                 return false;
               }
 
               if (file.size > 5 * 1024 * 1024) {
-                message.error('File size should be less than 5MB');
+                message.error("File size should be less than 5MB");
                 return false;
               }
 
@@ -425,7 +473,11 @@ const columns = React.useMemo(() => {
               label="Full Name"
               name="fullName"
               rules={[
-                { min: 2, max: 100, message: "Full name must be between 2 and 100 characters" }
+                {
+                  min: 2,
+                  max: 100,
+                  message: "Full name must be between 2 and 100 characters",
+                },
               ]}
             >
               <Input />
@@ -439,9 +491,7 @@ const columns = React.useMemo(() => {
             <Form.Item
               label="Email"
               name="email"
-              rules={[
-                { type: 'email', message: 'Invalid email format' }
-              ]}
+              rules={[{ type: "email", message: "Invalid email format" }]}
             >
               <Input />
             </Form.Item>
@@ -450,7 +500,14 @@ const columns = React.useMemo(() => {
           <div className="profile-info-row">
             <Form.Item label="Sex" name="gender">
               <select
-                style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #222', background: 'rgba(255,255,255,0.08)', color: '#fff' }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "6px",
+                  border: "1px solid #222",
+                  background: "rgba(255,255,255,0.08)",
+                  color: "#fff",
+                }}
               >
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
@@ -467,7 +524,10 @@ const columns = React.useMemo(() => {
               label="Phone Number"
               name="phoneNumber"
               rules={[
-                { pattern: /^\d{10}$/, message: "Phone number must be 10 digits" }
+                {
+                  pattern: /^\d{10}$/,
+                  message: "Phone number must be 10 digits",
+                },
               ]}
             >
               <Input />
@@ -487,7 +547,6 @@ const columns = React.useMemo(() => {
         </Form>
       </div>
 
-
       <div className="profile-section profile-password-section">
         <h3 className="profile-password-title">Change Password</h3>
         <Form
@@ -501,8 +560,15 @@ const columns = React.useMemo(() => {
               label="Current Password"
               name="currentPwd"
               rules={[
-                { required: true, message: "Please enter your current password!" },
-                { min: 8, max: 50, message: "Password must be between 8 and 50 characters" }
+                {
+                  required: true,
+                  message: "Please enter your current password!",
+                },
+                {
+                  min: 8,
+                  max: 50,
+                  message: "Password must be between 8 and 50 characters",
+                },
               ]}
             >
               <Input.Password placeholder="Enter current password" />
@@ -512,7 +578,11 @@ const columns = React.useMemo(() => {
               name="newPwd"
               rules={[
                 { required: true, message: "Please enter a new password!" },
-                { min: 8, max: 50, message: "Password must be between 8 and 50 characters" }
+                {
+                  min: 8,
+                  max: 50,
+                  message: "Password must be between 8 and 50 characters",
+                },
               ]}
             >
               <Input.Password placeholder="Enter new password" />
@@ -522,14 +592,23 @@ const columns = React.useMemo(() => {
               name="confirmPwd"
               dependencies={["newPwd"]}
               rules={[
-                { required: true, message: "Please confirm your new password!" },
-                { min: 8, max: 50, message: "Password must be between 8 and 50 characters" },
+                {
+                  required: true,
+                  message: "Please confirm your new password!",
+                },
+                {
+                  min: 8,
+                  max: 50,
+                  message: "Password must be between 8 and 50 characters",
+                },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("newPwd") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Password confirmation does not match!"));
+                    return Promise.reject(
+                      new Error("Password confirmation does not match!")
+                    );
                   },
                 }),
               ]}
@@ -548,7 +627,7 @@ const columns = React.useMemo(() => {
           <span className="profile-history-title">Recent Transactions</span>
           <Dropdown
             menu={{ items: sortMenuItems, onClick: handleMenuClick }}
-            trigger={['click']}
+            trigger={["click"]}
           >
             <Button className="sort-btn" style={{ marginLeft: 12 }}>
               Sort <DownOutlined />
@@ -567,17 +646,19 @@ const columns = React.useMemo(() => {
             onChange: (page, pageSize) => {
               setHistoryPage(page);
               setHistoryPageSize(pageSize);
-            }
+            },
           }}
           className="profile-history-table"
           rowKey="key"
         />
         <div className="profile-history-footer">
-          <Button className="profile-history-btn" onClick={handleViewHistory}>See All History</Button>
+          <Button className="profile-history-btn" onClick={handleViewHistory}>
+            See All History
+          </Button>
         </div>
       </div>
     </div>
   );
 };
-  
+
 export default Profile;

@@ -30,16 +30,18 @@ const PhoneInput = ({ onBack }) => {
 
     try {
       const response = await checkMember(invoiceId, phoneNumber);
-
       setMemberData(response.data);
       setIsModalVisible(true);
+      localStorage.setItem("memberData", JSON.stringify(response.data));
     } catch (error) {
       console.error("Error in handleInputPhoneNumber:", error);
     }
   };
   const handleNextPage = () => {
     setIsModalVisible(false);
-    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`);
+    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`, {
+      state: memberData,
+    });
   };
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -75,6 +77,9 @@ const PhoneInput = ({ onBack }) => {
     } else {
       navigate(-1);
     }
+  };
+  const handleSkip = () => {
+    navigate(`/ticketInformation/${invoiceId}/${scheduleId}`);
   };
   return (
     <div className="phone-page">
@@ -134,6 +139,18 @@ const PhoneInput = ({ onBack }) => {
             {message}
           </div>
         )}
+        <div className="phone-skip-button">
+          <h2 className="phone-skip-text">No Member Phone?</h2>
+          <Button
+            className="phone-skip-butt"
+            type="primary"
+            block
+            size="large"
+            onClick={handleSkip}
+          >
+            Skip
+          </Button>
+        </div>
       </div>
       <Modal
         open={isModalVisible}

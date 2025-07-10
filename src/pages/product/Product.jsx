@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FaArrowLeft } from "react-icons/fa";
-import { setSeatData, setSelectedProducts, setSessionId } from "../../store/cartSlice";
-import './Product.scss';
+import {
+  setSeatData,
+  setSelectedProducts,
+  setSessionId,
+} from "../../store/cartSlice";
+import "./Product.scss";
 
-const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
+const Product = ({
+  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
+}) => {
   const { movieId, sessionId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,7 +23,9 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
   const token = localStorage.getItem("token");
   const reduxSeatData = useSelector((state) => state.cart.seatData);
   const seatData = reduxSeatData || location.state || null;
-  const selectedProductsRedux = useSelector((state) => state.cart.selectedProducts);
+  const selectedProductsRedux = useSelector(
+    (state) => state.cart.selectedProducts
+  );
 
   useEffect(() => {
     if (selectedProductsRedux && selectedProductsRedux.length > 0) {
@@ -66,14 +74,18 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
             navigate("/login");
             return;
           }
-          throw new Error(`Failed to fetch products: ${errorData.message || response.status}`);
+          throw new Error(
+            `Failed to fetch products: ${errorData.message || response.status}`
+          );
         }
 
         const data = await response.json();
         setProducts(Array.isArray(data) ? data : [data]);
       } catch (error) {
         console.error("❌ Fetch products error:", error);
-        alert(`Không thể tải danh sách bắp nước: ${error.message}. Vui lòng thử lại.`);
+        alert(
+          `Không thể tải danh sách bắp nước: ${error.message}. Vui lòng thử lại.`
+        );
       }
     };
     fetchProducts();
@@ -130,8 +142,10 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
     }
 
     try {
-      const scheduleSeatIds = seatData.selectedSeats.map(seatId => {
-        const seat = seatData.seats.find(s => `${s.seatColumn}${s.seatRow}` === seatId);
+      const scheduleSeatIds = seatData.selectedSeats.map((seatId) => {
+        const seat = seatData.seats.find(
+          (s) => `${s.seatColumn}${s.seatRow}` === seatId
+        );
         return seat.scheduleSeatId;
       });
 
@@ -161,16 +175,22 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
           alert("Yêu cầu không hợp lệ. Vui lòng kiểm tra lại.");
           return;
         }
-        throw new Error(`Failed to update booking session: ${errorData.message || response.status}`);
+        throw new Error(
+          `Failed to update booking session: ${
+            errorData.message || response.status
+          }`
+        );
       }
 
       const data = await response.json();
       dispatch(setSelectedProducts(selectedProducts));
-      dispatch(setSeatData({
-        ...seatData,
-        originalProductsTotal: data.productsTotal,
-        grandTotal: data.grandTotal,
-      }));
+      dispatch(
+        setSeatData({
+          ...seatData,
+          originalProductsTotal: data.productsTotal,
+          grandTotal: data.grandTotal,
+        })
+      );
 
       navigate(`/confirm/${seatData.sessionId}/${seatData.scheduleId}`, {
         state: {
@@ -196,7 +216,9 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
 
       <div className="products-header">
         <h2>FOOD & DRINK</h2>
-        <p className="products-subtitle">Enjoy the movie with our special combos</p>
+        <p className="products-subtitle">
+          Enjoy the movie with our special combos
+        </p>
       </div>
 
       <div className="product-list">
@@ -207,10 +229,7 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
             <div key={product.productId} className="product-card">
               <div className="product-badge">{product.category}</div>
               <div className="product-image">
-                <img
-                  src={imageSrc}
-                  alt={product.productName}
-                />
+                <img src={imageSrc} alt={product.productName} />
               </div>
 
               <div className="product-info">

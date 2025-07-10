@@ -8,7 +8,8 @@ import { useSelector } from "react-redux";
 import { getSeats } from "../../../api/seat";
 import { postSelectedSeats } from "../../../api/staff";
 import { StaffGetPromotions } from "../../../api/promotion";
-import { Modal, Button, Card, Flex, Select } from "antd";
+import { Modal, Button, Card, Flex, Dropdown, Space } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 
 const SeatSelect = ({ onBack }) => {
   const [seats, setSeats] = useState([]);
@@ -68,6 +69,7 @@ const SeatSelect = ({ onBack }) => {
         : [...prev, seatId]
     );
   };
+
   const fetchProduct = async () => {
     try {
       const response = await StaffGetPromotions();
@@ -120,6 +122,7 @@ const SeatSelect = ({ onBack }) => {
       alert("Lỗi khi đặt ghế. Vui lòng thử lại.");
     }
   };
+
   const productsForRequest = Object.entries(productQuantities)
     .filter(([, quantity]) => quantity > 0)
     .map(([productId, quantity]) => ({
@@ -127,6 +130,7 @@ const SeatSelect = ({ onBack }) => {
       quantity,
       notes: null,
     }));
+
   const renderSeats = () => {
     const seatColumns = [...new Set(seats.map((s) => s.seatColumn))].sort();
     const maxRow =
@@ -194,9 +198,11 @@ const SeatSelect = ({ onBack }) => {
       </div>
     );
   };
+
   const showModal = () => {
     setIsModalVisible(true);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
@@ -208,6 +214,7 @@ const SeatSelect = ({ onBack }) => {
       navigate(-1);
     }
   };
+
   const handleQuantityChange = (productId, delta) => {
     setProductQuantities((prev) => {
       const current = prev[productId] || 0;
@@ -215,10 +222,20 @@ const SeatSelect = ({ onBack }) => {
       return { ...prev, [productId]: next };
     });
   };
+
   const categories = [
     "ALL Food & Drink",
     ...Array.from(new Set(products.map((p) => p.category))),
   ];
+
+  const dropdownItems = categories.map((cat, index) => ({
+    key: `${index}`,
+    label: cat,
+  }));
+
+  const handleCategorySelect = ({ key }) => {
+    setSelectedCategory(categories[parseInt(key)]);
+  };
 
   const filteredProducts =
     selectedCategory === "ALL Food & Drink"
@@ -262,17 +279,17 @@ const SeatSelect = ({ onBack }) => {
         </div>
 
         <div className="filter-section">
-          <Select
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-            style={{ width: 180, margin: "24px 0" }}
+          <Dropdown
+            menu={{ items: dropdownItems, onClick: handleCategorySelect }}
+            trigger={["click"]}
           >
-            {categories.map((cat) => (
-              <Select.Option key={cat} value={cat}>
-                {cat}
-              </Select.Option>
-            ))}
-          </Select>
+            <a onClick={(e) => e.preventDefault()}>
+              <Space>
+                {selectedCategory}
+                <DownOutlined />
+              </Space>
+            </a>
+          </Dropdown>
         </div>
 
         <Flex
@@ -303,8 +320,6 @@ const SeatSelect = ({ onBack }) => {
                 }}
               >
                 <div style={{ width: "100%", height: 160 }}>
-                  {" "}
-                  {/* Adjusted height for image */}
                   <img
                     alt={product.productName}
                     src={imagePath}
@@ -346,7 +361,7 @@ const SeatSelect = ({ onBack }) => {
                       justifyContent: "center",
                       gap: 8,
                       alignItems: "center",
-                      marginTop: "auto", // Push buttons to the bottom
+                      marginTop: "auto",
                     }}
                   >
                     <Button

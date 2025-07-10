@@ -5,7 +5,7 @@ const initialState = {
   tempBooking: {
     date: null,
     showtime: [],
-  }
+  },
 };
 
 const authSlice = createSlice({
@@ -24,7 +24,7 @@ const authSlice = createSlice({
 });
 
 const seatSlice = createSlice({
-  name: 'seat',
+  name: "seat",
   initialState: {
     selectedSeats: [],
   },
@@ -39,7 +39,7 @@ const seatSlice = createSlice({
 });
 
 const tempBookingSlice = createSlice({
-  name: 'tempBooking',
+  name: "tempBooking",
   initialState,
   reducers: {
     setTempBooking: (state, action) => {

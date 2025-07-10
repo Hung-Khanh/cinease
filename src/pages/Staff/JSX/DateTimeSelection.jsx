@@ -182,8 +182,9 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
                 return (
                   <Button
                     key={date}
-                    className={`dts-date-btn ${selectedDate === date ? "selected" : ""
-                      }`}
+                    className={`dts-date-btn ${
+                      selectedDate === date ? "selected" : ""
+                    }`}
                     onClick={() => handleDateSelect(date)}
                   >
                     <div className="dts-date-content">
@@ -205,8 +206,9 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
                 groupedShowtimes[selectedDate]?.map((showtime) => (
                   <Button
                     key={`${showtime.showDate}-${showtime.showTime}-${showtime.scheduleId}`}
-                    className={`dts-time-btn ${selectedTime === showtime.showTime ? "selected" : ""
-                      }`}
+                    className={`dts-time-btn ${
+                      selectedTime === showtime.showTime ? "selected" : ""
+                    }`}
                     onClick={() => handleTimeSelect(showtime)} // Truyền toàn bộ showtime object
                   >
                     <div className="dts-time-content">
