@@ -6,9 +6,9 @@ import { PiArmchair, PiArmchairFill, PiArmchairDuotone } from "react-icons/pi";
 import { TbArmchair2Off } from "react-icons/tb";
 import { useSelector, useDispatch } from "react-redux";
 import { setSeatData, setSessionId, clearSeatData, clearSessionId } from "../../store/cartSlice";
+import api from '../../constants/axios';
 
 const SeatSelect = ({
-  apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api",
   onBack
 }) => {
   const [seats, setSeats] = useState([]);
@@ -16,18 +16,30 @@ const SeatSelect = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Lấy token từ Redux (đã tối ưu slice auth)
   const token = useSelector((state) => state.auth.token);
+  // Lấy thông tin booking tạm thời (nếu có)
   const bookingInfoFromRedux = useSelector((state) => state.tempBooking);
+  // Lấy sessionId và seatData từ Redux cart
   const existingSessionId = useSelector((state) => state.cart.sessionId);
   const existingSeatData = useSelector((state) => state.cart.seatData);
 
-  let bookingInfo = bookingInfoFromRedux;
-  if (!bookingInfo.movieName && window.localStorage.getItem('bookingInfo')) {
-    bookingInfo = JSON.parse(window.localStorage.getItem('bookingInfo'));
+  // Ưu tiên lấy bookingInfo từ Redux, nếu không có thì lấy từ localStorage
+  let bookingInfo = bookingInfoFromRedux && bookingInfoFromRedux.movieName ? bookingInfoFromRedux : null;
+  if (!bookingInfo && window.localStorage.getItem('bookingInfo')) {
+    try {
+      bookingInfo = JSON.parse(window.localStorage.getItem('bookingInfo'));
+    } catch {
+      bookingInfo = {};
+    }
   }
-  const scheduleId = bookingInfo.scheduleId || paramScheduleId;
+  const scheduleId = bookingInfo?.scheduleId || paramScheduleId;
 
+  // Tối ưu khởi tạo selectedSeats: ưu tiên Redux, sau đó localStorage, cuối cùng là []
   const getInitialSelectedSeats = () => {
+    if (existingSeatData?.selectedSeats && existingSeatData.selectedSeats.length > 0) {
+      return existingSeatData.selectedSeats;
+    }
     const seatsFromStorage = window.localStorage.getItem('selectedSeats');
     if (seatsFromStorage) {
       try {
@@ -36,7 +48,7 @@ const SeatSelect = ({
         return [];
       }
     }
-    return existingSeatData?.selectedSeats || [];
+    return [];
   };
 
   const [selectedSeats, setSelectedSeats] = useState(getInitialSelectedSeats());
@@ -52,31 +64,7 @@ const SeatSelect = ({
       return;
     }
     try {
-      const url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (response.status === 401) {
-          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-          navigate("/login");
-          return;
-        }
-        if (errorData.errorCode === "SHOWTIME_NOT_FOUND") {
-          alert("Lịch chiếu không tồn tại. Vui lòng chọn lịch chiếu khác.");
-          navigate(-1);
-          return;
-        }
-        throw new Error(`Failed to fetch seats: ${errorData.message || response.status}`);
-      }
-
-      const data = await response.json();
+      const { data } = await api.get(`/public/seats?scheduleId=${scheduleId}`);
       setSeats(data);
 
       // Filter selected seats to only include those that are AVAILABLE or HOLD by the current session
@@ -98,41 +86,18 @@ const SeatSelect = ({
       console.error("🔥 Error in fetchSeat:", error);
       alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`);
     }
-  }, [token, navigate, apiUrl, scheduleId, existingSeatData]);
+  }, [token, navigate, scheduleId, existingSeatData]);
 
   useEffect(() => {
     const releasePreviousSeats = async () => {
       if (existingSessionId && token) {
         try {
-          const response = await fetch(`${apiUrl}/member/select-seats`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-            body: JSON.stringify({
-              sessionId: existingSessionId,
-              scheduleId: parseInt(scheduleId),
-              scheduleSeatIds: [],
-              products: existingSeatData?.products || [],
-            }),
+          const { data } = await api.post(`/member/select-seats`, {
+            sessionId: existingSessionId,
+            scheduleId: parseInt(scheduleId),
+            scheduleSeatIds: [],
+            products: existingSeatData?.products || [],
           });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            if (errorData.errorCode === "SESSION_EXPIRED") {
-              alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
-              dispatch(clearSeatData());
-              dispatch(clearSessionId());
-              window.localStorage.removeItem('selectedSeats');
-              navigate("/");
-              return;
-            }
-            throw new Error(`Failed to release seats: ${errorData.message || response.status}`);
-          }
-
-          const data = await response.json();
           dispatch(setSessionId(data.sessionId));
           dispatch(setSeatData({
             ...existingSeatData,
@@ -157,7 +122,7 @@ const SeatSelect = ({
     };
 
     releasePreviousSeats().then(fetchSeat);
-  }, [scheduleId, token, navigate, existingSessionId, dispatch, apiUrl, existingSeatData, fetchSeat]);
+  }, [scheduleId, token, navigate, existingSessionId, dispatch, existingSeatData, fetchSeat]);
 
   const findSeatBySeatId = (seatId) => {
     return seats.find(
@@ -206,23 +171,45 @@ const SeatSelect = ({
         const seat = findSeatBySeatId(seatId);
         return seat.scheduleSeatId;
       });
-      const response = await fetch(`${apiUrl}/member/select-seats`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-        body: JSON.stringify({
+      try {
+        const { data } = await api.post(`/member/select-seats`, {
           sessionId: existingSessionId || undefined,
           scheduleId: parseInt(scheduleId),
           scheduleSeatIds,
           products: existingSeatData?.products || [],
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
+        });
+        dispatch(setSessionId(data.sessionId));
+        dispatch(setSeatData({
+          sessionId: data.sessionId,
+          scheduleId: parseInt(scheduleId),
+          selectedSeats,
+          seats,
+          movieId,
+          movieName: data.movieName,
+          showDate: data.scheduleShowDate,
+          showTime: data.scheduleShowTime,
+          cinemaRoomName: data.cinemaRoomName,
+          originalTicketTotal: data.totalPrice,
+          originalProductsTotal: data.productsTotal,
+          grandTotal: data.grandTotal,
+          products: existingSeatData?.products || [],
+        }));
+        navigate(`/product/${movieId}/${scheduleId}`, {
+          state: {
+            sessionId: data.sessionId,
+            scheduleId: parseInt(scheduleId),
+            selectedSeats,
+            seats,
+            movieId,
+            movieName: data.movieName,
+            showDate: data.scheduleShowDate,
+            showTime: data.scheduleShowTime,
+            cinemaRoomName: data.cinemaRoomName,
+            products: existingSeatData?.products || [],
+          },
+        });
+      } catch (error) {
+        const errorData = error.response?.data || {};
         if (errorData.errorCode === "SEAT_ALREADY_BOOKED") {
           alert("Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại.");
           fetchSeat();
@@ -244,46 +231,35 @@ const SeatSelect = ({
           navigate("/");
           return;
         }
-        throw new Error(`Failed to select seats: ${errorData.message || response.status}`);
+        alert(`Lỗi khi chọn ghế: ${error.message}. Vui lòng thử lại.`);
       }
-
-      const data = await response.json();
-      dispatch(setSessionId(data.sessionId));
-      dispatch(setSeatData({
-        sessionId: data.sessionId,
-        scheduleId: parseInt(scheduleId),
-        selectedSeats,
-        seats,
-        movieId,
-        movieName: data.movieName,
-        showDate: data.scheduleShowDate,
-        showTime: data.scheduleShowTime,
-        cinemaRoomName: data.cinemaRoomName,
-        originalTicketTotal: data.totalPrice,
-        originalProductsTotal: data.productsTotal,
-        grandTotal: data.grandTotal,
-        products: existingSeatData?.products || [],
-      }));
-
-      navigate(`/product/${movieId}/${scheduleId}`, {
-        state: {
-          sessionId: data.sessionId,
-          scheduleId: parseInt(scheduleId),
-          selectedSeats,
-          seats,
-          movieId,
-          movieName: data.movieName,
-          showDate: data.scheduleShowDate,
-          showTime: data.scheduleShowTime,
-          cinemaRoomName: data.cinemaRoomName,
-          products: existingSeatData?.products || [],
-        },
-      });
     } catch (error) {
-      console.error("🔥 Error in handleCheckout:", error);
+      const errorData = error.response?.data || {};
+      if (errorData.errorCode === "SEAT_ALREADY_BOOKED") {
+        alert("Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại.");
+        fetchSeat();
+        return;
+      }
+      if (errorData.errorCode === "SEAT_LIMIT_EXCEEDED") {
+        alert("Bạn không thể chọn quá 8 ghế.");
+        return;
+      }
+      if (errorData.errorCode === "SEAT_GAP_VIOLATION") {
+        alert("Lựa chọn ghế không hợp lệ: không được để lại khoảng trống một ghế.");
+        return;
+      }
+      if (errorData.errorCode === "SESSION_EXPIRED") {
+        alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.");
+        dispatch(clearSeatData());
+        dispatch(clearSessionId());
+        window.localStorage.removeItem('selectedSeats');
+        navigate("/");
+        return;
+      }
       alert(`Lỗi khi chọn ghế: ${error.message}. Vui lòng thử lại.`);
     }
   };
+
 
   const renderSeats = () => {
     const seatColumns = [...new Set(seats.map((s) => s.seatColumn))].sort();

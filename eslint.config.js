@@ -30,4 +30,14 @@ export default [
       ],
     },
   },
+  // Block cho file test: nhận diện jest globals
+  {
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+      },
+    },
+  },
 ]
