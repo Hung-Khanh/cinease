@@ -50,12 +50,10 @@ import ProductManagement from "./pages/admin/ProductManagement/ProductManagement
 // import ErrorBoundary from "./components/ErrorBoundary";
 import ErrorPage from "./pages/Error/ErrorPage.jsx";
 
-
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
-
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="promotions" element={<Promotions />} />
       <Route path="movies" element={<AdminMovies />} />

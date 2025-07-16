@@ -181,6 +181,7 @@ const Login = () => {
       if (result.role === "ADMIN") {
         console.log(result.role);
         navigate("/admin/dashboard");
+
       } else if (result.role === "EMPLOYEE") {
         console.log(result.role);
         navigate("/staffHomePage");
@@ -288,6 +289,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="login-username"
                 status={errors.login.username ? "error" : ""}
                 placeholder={
                   errors.login.username
@@ -307,6 +309,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input.Password
+                data-testid="login-password"
                 status={errors.login.password ? "error" : ""}
                 placeholder={
                   errors.login.password
@@ -367,6 +370,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-username"
                 status={errors.register.username ? "error" : ""}
                 placeholder={
                   errors.register.username
@@ -391,8 +395,8 @@ const Login = () => {
               <Row gutter={8}>
                 <Col span={12}>
                   <Form.Item name="password" style={{ marginBottom: 0 }}>
-                    <Input
-                      type="password"
+                    <Input.Password
+                      data-testid="register-password"
                       status={errors.register.password ? "error" : ""}
                       placeholder={
                         errors.register.password
@@ -409,8 +413,8 @@ const Login = () => {
                 </Col>
                 <Col span={12}>
                   <Form.Item name="repeatPassword" style={{ marginBottom: 0 }}>
-                    <Input
-                      type="password"
+                    <Input.Password
+                      data-testid="register-repeat-password"
                       status={errors.register.repeatPassword ? "error" : ""}
                       placeholder={
                         errors.register.repeatPassword
@@ -439,6 +443,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-fullname"
                 status={errors.register.fullName ? "error" : ""}
                 placeholder={
                   errors.register.fullName
@@ -462,6 +467,7 @@ const Login = () => {
                   wrapperCol={{ span: 24 }}
                 >
                   <Input
+                    data-testid="register-dob"
                     type="date"
                     status={errors.register.dob ? "error" : ""}
                     placeholder={
@@ -485,6 +491,7 @@ const Login = () => {
                   wrapperCol={{ span: 24 }}
                 >
                   <Select
+                    data-testid="register-sex"
                     status={errors.register.sex ? "error" : ""}
                     placeholder={
                       errors.register.sex
@@ -517,6 +524,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-email"
                 status={errors.register.email ? "error" : ""}
                 placeholder={
                   errors.register.email
@@ -540,6 +548,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-cardNumber"
                 status={errors.register.cardNumber ? "error" : ""}
                 placeholder={
                   errors.register.cardNumber
@@ -561,6 +570,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-phone"
                 status={errors.register.phone ? "error" : ""}
                 placeholder={
                   errors.register.phone
@@ -584,6 +594,7 @@ const Login = () => {
               wrapperCol={{ span: 24 }}
             >
               <Input
+                data-testid="register-address"
                 status={errors.register.address ? "error" : ""}
                 placeholder={
                   errors.register.address
