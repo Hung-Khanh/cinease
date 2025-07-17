@@ -6,14 +6,15 @@ import "./Header.scss";
 const Header = () => {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
-  // Function to load user from localStorage
+  // Load user từ localStorage
   const loadUserFromStorage = useCallback(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
-      // If just logged in, redirect from login page to home
       if (window.location.pathname === "/login") {
         navigate("/");
       }
@@ -23,74 +24,91 @@ const Header = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Initial load of user data
     loadUserFromStorage();
-
-    // Add event listener for storage changes
     const handleStorageChange = (e) => {
       if (e.key === "user") {
         loadUserFromStorage();
       }
     };
-
     window.addEventListener("storage", handleStorageChange);
-
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, [navigate, loadUserFromStorage]);
 
-  // Get avatar from user object (prioritize image/avatar, fallback to icon)
+ // ...existing code...
+useEffect(() => {
+  const storedNotifications = localStorage.getItem("notifications");
+  if (storedNotifications) {
+    setNotifications(JSON.parse(storedNotifications));
+  }
+
+  // Lắng nghe sự kiện thay đổi localStorage (từ các tab khác hoặc cùng tab)
+  const handleStorageChange = (e) => {
+    if (e.key === "notifications") {
+      setNotifications(JSON.parse(e.newValue || "[]"));
+    }
+  };
+  window.addEventListener("storage", handleStorageChange);
+
+
+  const handleCustomNotification = () => {
+    const updated = localStorage.getItem("notifications");
+    setNotifications(updated ? JSON.parse(updated) : []);
+  };
+  window.addEventListener("notificationUpdate", handleCustomNotification);
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+    window.removeEventListener("notificationUpdate", handleCustomNotification);
+  };
+}, []);
+
+
+  // Toggle dropdown avatar
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
+  // Toggle dropdown thông báo
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+
+    // Đánh dấu đã đọc
+    const updated = notifications.map((n) => ({ ...n, read: true }));
+    localStorage.setItem("notifications", JSON.stringify(updated));
+    setNotifications(updated);
+  };
+
+  // Đếm số thông báo chưa đọc
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    setShowDropdown(false);
+    navigate("/");
+  };
+
   const getUserAvatar = () => {
-    // Always get latest user from localStorage to avoid stale state after login/logout
     let latestUser = user;
     try {
       const savedUser = localStorage.getItem("user");
       if (savedUser) latestUser = JSON.parse(savedUser);
     } catch (e) {
-      console.error("Error parsing user from localStorage:", e);
+console.error("Error parsing user from localStorage:", e);
     }
     if (!latestUser) return null;
-
-    // Ưu tiên lấy image hoặc avatar từ server
     const img = latestUser.image || latestUser.avatar;
     if (img) {
-      // Nếu ảnh là base64 hoặc link đầy đủ
       if (img.startsWith("data:") || img.startsWith("http")) {
         return img;
       }
-      // Nếu chỉ là relative path từ server trả về
       const baseUrl = "https://legally-actual-mollusk.ngrok-free.app";
       const imagePath = img.startsWith("/") ? img : `/${img}`;
       return `${baseUrl}${imagePath}`;
     }
-
-    // Không có avatar thì trả về null để dùng UserOutlined
     return null;
-  };
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      // Nếu vừa đăng nhập thành công, chuyển về trang home
-      if (window.location.pathname === "/login") {
-        navigate("/");
-      }
-    }
-  }, [navigate]);
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setUser(null);
-    setShowDropdown(false);
-    navigate("/");
   };
 
   return (
@@ -107,9 +125,28 @@ const Header = () => {
           <Link to="/movie">Movies</Link>
         </nav>
 
-        <div className="notification-icon">
-          <BellOutlined />
+        {/* Bell Icon + Notification */}
+        <div className="notification-icon" onClick={toggleNotifications}>
+          <BellOutlined style={{ fontSize: 20, color: "#fff", cursor: "pointer" }} />
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+          {showNotifications && (
+            <div className="notification-dropdown">
+              {notifications.length === 0 ? (
+                <div className="notification-empty">Không có thông báo</div>
+              ) : (
+                notifications.map((n) => (
+                  <div key={n.id} className="notification-item">
+                    🎬 Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Avatar + Dropdown */}
         {user ? (
           <div className="user-avatar-container">
             <div className="avatar" onClick={toggleDropdown}>
@@ -132,10 +169,7 @@ const Header = () => {
             </div>
             {showDropdown && (
               <div className="dropdown-menu">
-                <div
-                  className="dropdown-item"
-                  onClick={() => navigate("/profile")}
-                >
+                <div className="dropdown-item" onClick={() => navigate("/profile")}>
                   Profile
                 </div>
                 <div
@@ -148,7 +182,7 @@ const Header = () => {
               </div>
             )}
           </div>
-        ) : (
+) : (
           <div className="auth-links">
             <Link to="/login" className="login-link">
               Sign In

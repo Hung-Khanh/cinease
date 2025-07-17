@@ -25,7 +25,7 @@ import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.js
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/Seat/SeatSelect.jsx";
-import Confirm from "./pages/confirm/Confirm.jsx";
+import Confirm from "./pages/Confirm/Confirm.jsx";
 import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
 import ProductPage from "./pages/product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
