@@ -15,6 +15,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
+  const [movieBanner, setMovieBanner] = useState("");
 
   // Fetch movie name
   const fetchName = async () => {
@@ -42,6 +43,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       const movieData = data[0];
       setMovieName(movieData?.movieNameVn);
       setMovieImage(movieData?.posterImageUrl);
+      setMovieBanner(movieData?.largeImage);
     } catch (error) {
       console.error("❌ Error in fetchName:", error);
       console.error("❌ Error details:", error.message);
@@ -153,7 +155,19 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   }
 
   return (
-    <div className="dts-container">
+    <div
+      className="dts-container"
+      style={
+        movieBanner
+          ? {
+              backgroundImage: `linear-gradient(135deg, rgba(26,77,58,0.4) 0%, rgba(13,40,24,0.6) 100%), url(${movieBanner})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }
+          : {}
+      }
+    >
       <div className="dts-header">
         <Button
           type="text"
