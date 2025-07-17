@@ -261,7 +261,7 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
             <div><b>🎬 MOVIE:</b> {displayData.movieName}</div>
             <div><b>📅 DATE:</b> {displayData.showDate}</div>
             <div><b>⏰ TIME:</b> {displayData.showTime}</div>
-            <div><b>💺 SEAT:</b> {displayData.seatNumbers.join(", ")}</div>
+            <div><b>💺 SEAT:</b> {(displayData.seatNumbers || []).join(", ")}</div>
             <div><b>🏢 CINEROOM:</b> {displayData.cinemaRoomName}</div>
             <div><b>🎟️ TICKET TOTAL:</b> {displayData.originalTicketTotal?.toLocaleString()} VND</div>
             {displayData.discountFromScore > 0 && (

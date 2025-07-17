@@ -118,7 +118,7 @@ $input-bg: rgba(255, 255, 255, 0.1);
         top: 110%;
         right: 0;
         background-color: $primary-bg;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         min-width: 180px;
@@ -144,4 +144,69 @@ $input-bg: rgba(255, 255, 255, 0.1);
       }
     }
   }
+}
+.notification-icon {
+  position: relative;
+  margin-right: 20px;
+
+  .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  }
+
+  .notification-dropdown {
+    position: absolute;
+    right: 0;
+    top: 48px; // Đẩy xuống dưới bell icon
+    background: #fff;
+    color: #222;
+    width: 270px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    z-index: 9999;
+    padding: 12px 0;
+    max-height: 350px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    animation: fadeIn 0.2s;
+  }
+
+  .notification-item {
+    padding: 12px 18px;
+    border-bottom: 1px solid #f2f2f2;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      background: #f6f6f6;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .notification-empty {
+    text-align: center;
+    padding: 24px 0;
+    color: #aaa;
+    font-style: italic;
+    font-size: 15px;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity: 1; transform: translateY(0);}
 }

@@ -101,6 +101,11 @@ const ForgotPassword = () => {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
     }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setErrors({});
     try {
@@ -180,8 +185,6 @@ const ForgotPassword = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={errors.password}
-        showToggle={true}
-        onToggle={() => setShowPassword(!showPassword)}
         style={{ marginBottom: "15px" }}
       />
       <div className="reset-password-text">Confirm new password:</div>
@@ -191,8 +194,6 @@ const ForgotPassword = () => {
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         error={errors.confirmPassword}
-        showToggle={true}
-        onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
       />
       <Button
         onClick={handleChangePassword}
