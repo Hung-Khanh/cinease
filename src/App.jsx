@@ -24,7 +24,7 @@ import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
 import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
 import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
 import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
-import SelectSeat from "./pages/seat/SeatSelect.jsx";
+import SelectSeat from "./pages/Seat/SeatSelect.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
 import ProductPage from "./pages/product/Product.jsx";

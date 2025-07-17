@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
-import "./SelectShowtime.scss";
-import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
-import { message } from "antd";
-import { useSelector, useDispatch } from "react-redux";
-import { setBookingInfo } from "../../store/tempBookingSlice";
+import React, { useState, useEffect } from 'react';
+import './SelectShowtime.scss';
+import { FaArrowLeft } from 'react-icons/fa';
+import { useNavigate, useParams } from 'react-router-dom';
+import { message } from 'antd';
+import { useSelector, useDispatch } from 'react-redux';
+import { setBookingInfo } from '../../store/tempBookingSlice';
 
 const SelectShowtime = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
   const [selectedScheduleId, setSelectedScheduleId] = useState(null);
 
   const [dates, setDates] = useState([]);
@@ -44,8 +44,8 @@ const SelectShowtime = () => {
     if (storedSelection) {
       try {
         const parsedSelection = JSON.parse(storedSelection);
-        setSelectedDate(parsedSelection.selectedDate || "");
-        setSelectedTime(parsedSelection.selectedTime || "");
+        setSelectedDate(parsedSelection.selectedDate || '');
+        setSelectedTime(parsedSelection.selectedTime || '');
         setSelectedScheduleId(parsedSelection.selectedScheduleId || null);
       } catch (e) {
         console.error("Error parsing stored showtime selection:", e);
@@ -120,72 +120,57 @@ const SelectShowtime = () => {
       const defaultDate = uniqueDates[0];
       setSelectedDate(defaultDate);
 
-      localStorage.setItem(
-        SHOWTIME_SELECTION_KEY,
-        JSON.stringify({
-          selectedDate: defaultDate,
-          selectedTime: "",
-          selectedScheduleId: null,
-        })
-      );
+      localStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+        selectedDate: defaultDate,
+        selectedTime: '',
+        selectedScheduleId: null,
+      }));
     }
   }, [selectedDate, uniqueDates]);
 
   const handleDateSelect = (date) => {
     if (selectedDate === date) {
-      setSelectedDate("");
-      setSelectedTime("");
+      setSelectedDate('');
+      setSelectedTime('');
       setSelectedScheduleId(null);
 
-      localStorage.setItem(
-        SHOWTIME_SELECTION_KEY,
-        JSON.stringify({
-          selectedDate: "",
-          selectedTime: "",
-          selectedScheduleId: null,
-        })
-      );
+      localStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+        selectedDate: '',
+        selectedTime: '',
+        selectedScheduleId: null,
+      }));
     } else {
       setSelectedDate(date);
-      setSelectedTime("");
+      setSelectedTime('');
       setSelectedScheduleId(null);
 
-      localStorage.setItem(
-        SHOWTIME_SELECTION_KEY,
-        JSON.stringify({
-          selectedDate: date,
-          selectedTime: "",
-          selectedScheduleId: null,
-        })
-      );
+      localStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+        selectedDate: date,
+        selectedTime: '',
+        selectedScheduleId: null,
+      }));
     }
   };
 
   const handleTimeSelect = (showtime) => {
     if (selectedTime === showtime.showTime) {
-      setSelectedTime("");
+      setSelectedTime('');
       setSelectedScheduleId(null);
 
-      localStorage.setItem(
-        SHOWTIME_SELECTION_KEY,
-        JSON.stringify({
-          selectedDate: selectedDate,
-          selectedTime: "",
-          selectedScheduleId: null,
-        })
-      );
+      localStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+        selectedDate: selectedDate,
+        selectedTime: '',
+        selectedScheduleId: null,
+      }));
     } else {
       setSelectedTime(showtime.showTime);
       setSelectedScheduleId(showtime.scheduleId);
 
-      localStorage.setItem(
-        SHOWTIME_SELECTION_KEY,
-        JSON.stringify({
-          selectedDate: selectedDate,
-          selectedTime: showtime.showTime,
-          selectedScheduleId: showtime.scheduleId,
-        })
-      );
+      localStorage.setItem(SHOWTIME_SELECTION_KEY, JSON.stringify({
+        selectedDate: selectedDate,
+        selectedTime: showtime.showTime,
+        selectedScheduleId: showtime.scheduleId,
+      }));
       console.log("🎬 Selected Schedule ID:", showtime.scheduleId);
     }
   };
@@ -194,18 +179,14 @@ const SelectShowtime = () => {
 
   return (
     <div className="select-showtime">
-      <h1 className="select-title">Select Showtime</h1>
+      <h1 className='select-title'>Select Showtime</h1>
       <button className="back-button" onClick={() => navigate(-1)}>
         <FaArrowLeft />
       </button>
 
       <div className="main-content">
         <div className="poster-section">
-          <img
-            src={movie?.posterImageUrl}
-            alt={movie?.movieNameEnglish}
-            className="movie-poster-showtime"
-          />
+          <img src={movie?.posterImageUrl} alt={movie?.movieNameEnglish} className="movie-poster-showtime" />
           <h1 className="movie-title">{movie?.movieNameEnglish}</h1>
         </div>
 
@@ -215,17 +196,11 @@ const SelectShowtime = () => {
             {uniqueDates.map((date) => (
               <button
                 key={date}
-                className={`date-button ${
-                  selectedDate === date ? "active" : ""
-                }`}
+                className={`date-button ${selectedDate === date ? 'active' : ''}`}
                 onClick={() => handleDateSelect(date)}
               >
                 <div>{date}</div>
-                <div>
-                  {new Date(date).toLocaleDateString("en-US", {
-                    weekday: "short",
-                  })}
-                </div>
+                <div>{new Date(date).toLocaleDateString('en-US', { weekday: 'short' })}</div>
               </button>
             ))}
           </div>
@@ -237,18 +212,15 @@ const SelectShowtime = () => {
 
           <h3>Showtimes</h3>
           <div className="time-selection">
-            {selectedDate &&
-              groupedShowtimes[selectedDate]?.map((showtime) => (
-                <button
-                  key={showtime.scheduleId}
-                  className={`time-button ${
-                    selectedTime === showtime.showTime ? "active" : ""
-                  }`}
-                  onClick={() => handleTimeSelect(showtime)}
-                >
-                  {showtime.showTime}
-                </button>
-              ))}
+            {selectedDate && groupedShowtimes[selectedDate]?.map((showtime) => (
+              <button
+                key={showtime.scheduleId}
+                className={`time-button ${selectedTime === showtime.showTime ? 'active' : ''}`}
+                onClick={() => handleTimeSelect(showtime)}
+              >
+                {showtime.showTime}
+              </button>
+            ))}
           </div>
 
           <button
@@ -258,23 +230,18 @@ const SelectShowtime = () => {
                 message.warning("Please select both date and time");
                 return;
               }
-              dispatch(
-                setBookingInfo({
-                  movieName: movie?.movieNameEnglish,
-                  showDate: selectedDate,
-                  showTime: selectedTime,
-                  scheduleId: selectedScheduleId,
-                })
-              );
-              localStorage.setItem(
-                "bookingInfo",
-                JSON.stringify({
-                  movieName: movie?.movieNameEnglish,
-                  showDate: selectedDate,
-                  showTime: selectedTime,
-                  scheduleId: selectedScheduleId,
-                })
-              );
+              dispatch(setBookingInfo({
+                movieName: movie?.movieNameEnglish,
+                showDate: selectedDate,
+                showTime: selectedTime,
+                scheduleId: selectedScheduleId
+              }));
+              localStorage.setItem('bookingInfo', JSON.stringify({
+                movieName: movie?.movieNameEnglish,
+                showDate: selectedDate,
+                showTime: selectedTime,
+                scheduleId: selectedScheduleId
+              }));
               navigate(`/seat-select/${movieId}/${selectedScheduleId}`);
             }}
           >
@@ -284,6 +251,6 @@ const SelectShowtime = () => {
       </div>
     </div>
   );
-};
+}
 
 export default SelectShowtime;
