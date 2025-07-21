@@ -66,12 +66,22 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         },
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("❌ Error response:", errorText);
+        throw new Error(`Failed to fetch showtimes: ${response.status}`);
+      }
+
       const data = await response.json();
-      setShowtimes(data);
+      // Giả sử dữ liệu trả về có cấu trúc { movies: [{ showtimes: [...] }] }
+      const showtimesData =
+        data.movies && data.movies[0] ? data.movies[0].showtimes : [];
+      setShowtimes(showtimesData); // Đảm bảo showtimes là mảng
     } catch (error) {
       console.error("❌ Error fetching showtimes:", error);
       console.error("❌ Showtimes error details:", error.message);
-      message.error("Failed to load showtimes");
+      message.error("Không thể tải danh sách lịch chiếu");
+      setShowtimes([]); // Đặt giá trị mặc định là mảng rỗng trong trường hợp lỗi
     } finally {
       setLoading(false);
     }
