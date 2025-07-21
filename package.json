@@ -53,6 +53,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
+    "redux-mock-store": "^1.5.5",
     "sass-embedded": "^1.89.1",
     "vite": "^6.3.5"
   }

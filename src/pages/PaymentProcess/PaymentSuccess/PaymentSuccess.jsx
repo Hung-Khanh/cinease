@@ -27,13 +27,53 @@ const PaymentSuccess = () => {
     };
   };
 
-  useEffect(() => {
-    const fetchTicketInformation = async () => {
-      if (!invoiceId) return;
+  // ...existing code...
+useEffect(() => {
+  const fetchTicketInformation = async () => {
+    if (!invoiceId) return;
 
-      try {
-        const response = await fetch(
-          `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
+    try {
+      const response = await fetch(
+        `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
+        {
+          method: "GET",
+          headers: {
+            accept: "*/*",
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ticket details: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setTicketData(data);
+
+
+     if (data && data.movieName) {
+  const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+  // Kiểm tra đã có thông báo cho invoiceId này chưa
+  const existed = notifications.some(n => n.invoiceId === invoiceId);
+  if (!existed) {
+    notifications.unshift({
+      id: Date.now(),
+      title: data.movieName,
+      quantity: data.ticketCount,
+      read: false,
+      invoiceId, 
+    });
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+    window.dispatchEvent(new Event("notificationUpdate"));
+  }
+}
+
+
+      if (data.movieName) {
+        const movieResponse = await fetch(
+          `${apiUrl}/public/movies?q=${encodeURIComponent(data.movieName)}`,
           {
             method: "GET",
             headers: {
@@ -44,43 +84,22 @@ const PaymentSuccess = () => {
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch ticket details: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setTicketData(data);
-
-        if (data.movieName) {
-          const movieResponse = await fetch(
-            `${apiUrl}/public/movies?q=${encodeURIComponent(data.movieName)}`,
-            {
-              method: "GET",
-              headers: {
-                accept: "*/*",
-                Authorization: `Bearer ${token}`,
-                "ngrok-skip-browser-warning": "true",
-              },
-            }
-          );
-
-          if (movieResponse.ok) {
-            const movieData = await movieResponse.json();
-            if (movieData.length > 0) {
-              setMoviePoster(movieData[0].largeImage);
-            }
+        if (movieResponse.ok) {
+          const movieData = await movieResponse.json();
+          if (movieData.length > 0) {
+            setMoviePoster(movieData[0].largeImage);
           }
         }
-      } catch (error) {
-        console.error("Error in fetchTicketDetails:", error);
-        alert("Failed to load ticket details. Please try again.");
       }
-    };
+    } catch (error) {
+      console.error("Error in fetchTicketDetails:", error);
+      alert("Failed to load ticket details. Please try again.");
+    }
+  };
 
-    fetchTicketInformation();
-  }, [invoiceId, apiUrl, token]);
-
-  if (!ticketData) return <div>Loading...</div>;
+  fetchTicketInformation();
+}, [invoiceId, apiUrl, token]);
+if (!ticketData) return <div>Loading...</div>;
 
   const { day, month, weekday } = formatDate(ticketData.scheduleShowDate);
 

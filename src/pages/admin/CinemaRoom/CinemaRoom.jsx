@@ -114,7 +114,9 @@ const CinemaRooms = () => {
       ...(method === 'post' && { seatQuantity: 100 })
     };
 
-    message.destroy();
+    if (typeof message.destroy === 'function') {
+      message.destroy();
+    }
 
     try {
       const response = await handleApiCall(
