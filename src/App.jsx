@@ -35,6 +35,7 @@ import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaym
 import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
 import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
 import PhoneInput from "./pages/Staff/JSX/InputPhoneNumber.jsx";
+import PaymentCashSuccess from "./pages/PaymentProcess/PaymentCashSuccess/PaymentCashSuccess.jsx";
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
@@ -151,7 +152,6 @@ function Layout() {
     }
   }
 
-
   return (
     <div className="app-container">
       {!isLoginRegister && !isAdmin && <Header />}
@@ -159,6 +159,7 @@ function Layout() {
         <Routes>
           {isStaff && (
             <>
+              <Route path="payment-cash" element={<PaymentCashSuccess />} />
               <Route path="/staffHomePage" element={<StaffHomePage />} />
               <Route
                 path="/cinema-seating/:scheduleId/:movieName/:selectedDate/:selectedTime"

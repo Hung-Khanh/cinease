@@ -15,6 +15,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
+  const [movieBanner, setMovieBanner] = useState("");
 
   // Fetch movie name
   const fetchName = async () => {
@@ -42,6 +43,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       const movieData = data[0];
       setMovieName(movieData?.movieNameVn);
       setMovieImage(movieData?.posterImageUrl);
+      setMovieBanner(movieData?.largeImage);
     } catch (error) {
       console.error("❌ Error in fetchName:", error);
       console.error("❌ Error details:", error.message);
@@ -64,12 +66,22 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         },
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("❌ Error response:", errorText);
+        throw new Error(`Failed to fetch showtimes: ${response.status}`);
+      }
+
       const data = await response.json();
-      setShowtimes(data);
+      // Giả sử dữ liệu trả về có cấu trúc { movies: [{ showtimes: [...] }] }
+      const showtimesData =
+        data.movies && data.movies[0] ? data.movies[0].showtimes : [];
+      setShowtimes(showtimesData); // Đảm bảo showtimes là mảng
     } catch (error) {
       console.error("❌ Error fetching showtimes:", error);
       console.error("❌ Showtimes error details:", error.message);
-      message.error("Failed to load showtimes");
+      message.error("Không thể tải danh sách lịch chiếu");
+      setShowtimes([]); // Đặt giá trị mặc định là mảng rỗng trong trường hợp lỗi
     } finally {
       setLoading(false);
     }
@@ -153,7 +165,19 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   }
 
   return (
-    <div className="dts-container">
+    <div
+      className="dts-container"
+      style={
+        movieBanner
+          ? {
+              backgroundImage: `linear-gradient(135deg, rgba(26,77,58,0.4) 0%, rgba(13,40,24,0.6) 100%), url(${movieBanner})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }
+          : {}
+      }
+    >
       <div className="dts-header">
         <Button
           type="text"
