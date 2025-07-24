@@ -12,10 +12,12 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
     .ant-pagination-item:hover {
       background: #27ae60;
       color: #fff;
-      box-shadow: 0 0 8px #27ae60, 0 0 0 2px rgba(255,255,255,0.2);
+      box-shadow: 0 0 8px #27ae60, 0 0 0 2px rgba(255, 255, 255, 0.2);
       border-color: #27ae60;
     }
-    .ant-pagination-prev, .ant-pagination-next {
+
+    .ant-pagination-prev,
+    .ant-pagination-next {
       .ant-pagination-item-link {
         background: transparent;
         border: none;
@@ -28,10 +30,12 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
         transition: color 0.2s;
       }
     }
+
     .ant-pagination-disabled .ant-pagination-item-link {
       color: #ffffff;
       opacity: 0.4;
     }
+
     .ant-pagination-item-active a {
       color: #ffffff;
     }
@@ -118,6 +122,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 
     .profile-info-form {
       flex: 1;
+
       .ant-select-selector {
         display: none !important;
       }
@@ -441,5 +446,32 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       border-radius: 8px;
       backdrop-filter: blur(10px);
     }
+  }
+
+  .ant-tabs-tab-btn {
+    color: white !important;
+
+    &:hover {
+      color: #e0e0e0 !important;
+    }
+  }
+
+  .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: white !important;
+  }
+
+  .ant-tabs-nav::before {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .ant-tabs-ink-bar {
+    background: #1890ff !important;
+  }
+
+  .feedback-details {
+    background: rgba(255, 255, 255, 0.1); // Slightly transparent background
+    border-radius: 10px; // Rounded corners
+    padding: 20px; // Padding inside the details section
+    color: #ffffff; // Text color
   }
 }

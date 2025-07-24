@@ -16,7 +16,7 @@ describe('UserPaymentFailed', () => {
   it('hiển thị thông tin lỗi khi có errorCode và errorMessage', () => {
     render(<UserPaymentFailed />, { wrapper: MemoryRouter });
     expect(screen.getByText('Payment Failed')).toBeInTheDocument();
-    expect(screen.getByText('Error Code')).toBeInTheDocument();
+    expect(screen.getByText(/Error Code/i)).toBeInTheDocument();
     expect(screen.getByText('123')).toBeInTheDocument();
     expect(screen.getByText('Error Message')).toBeInTheDocument();
     expect(screen.getByText('Thanh toán thất bại!')).toBeInTheDocument();

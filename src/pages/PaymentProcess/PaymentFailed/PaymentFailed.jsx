@@ -1,5 +1,5 @@
 import "./PaymentFailed.scss";
-import poster from "../../../assets/poster.jpg";
+import poster from "../../../assets/poster.jpg"; 
 import { useNavigate } from "react-router-dom";
 
 const PaymentFailed = () => {
@@ -41,9 +41,7 @@ const PaymentFailed = () => {
           <div className="info-value">15:40</div>
         </div>
 
-        <h2 className="error-note">
-          Please check your payment details or try again later!
-        </h2>
+        <h2 className="error-note">Please check your payment details or try again later!</h2>
 
         <button className="payment-btn" onClick={() => navigate("/payment")}>
           Payment again

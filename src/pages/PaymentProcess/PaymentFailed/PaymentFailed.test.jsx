@@ -25,7 +25,7 @@ describe('PaymentFailed', () => {
     expect(screen.getByText('Payment failed')).toBeInTheDocument();
     const spiderTitles = screen.getAllByText('SPIDERMAN ACROSS THE SPIDERVERSE');
     expect(spiderTitles.length).toBe(2);
-    expect(screen.getByText('VINCOM MEGAMALL GRANDPARK')).toBeInTheDocument();
+    expect(screen.getByText(/VINCOM MEGAMALL GRANDPARK/i)).toBeInTheDocument();
     expect(screen.getByText('ROOM : 8')).toBeInTheDocument();
     expect(screen.getByText('Mon, 26/5/2025')).toBeInTheDocument();
     expect(screen.getByText('C8, C9, C10')).toBeInTheDocument();

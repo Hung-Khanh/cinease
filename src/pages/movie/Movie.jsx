@@ -27,7 +27,7 @@ const Movie = () => {
             id: movie.movieId,
             title: movie.movieNameEnglish,
             poster: movie.posterImageUrl,
-            rating: movie.rating || 9.0,
+            rating: Math.round((movie.avgFeedback || 0) * 10) / 10,
             duration: movie.duration ? `${movie.duration} min` : "120 min",
             genre: movie.version || "Unknown",
             types: movie.types || "Unknown",
@@ -91,7 +91,7 @@ const Movie = () => {
 
   return (
     <div className="movie-page">
-      <h2 className="movie-title">Search Movie</h2>
+      <h2 className="movie-title-search">Search Movie</h2>
       <div className="movie-search-bar">
         <input
           type="text"
@@ -146,10 +146,10 @@ const Movie = () => {
             >
               <img src={movie.poster} alt={movie.title} className="movie-img" />
               <div className="movie-info">
-                <div className="movie-title">{movie.title}</div>
+                <div className="movie-title-now">{movie.title}</div>
                 <div className="movie-rating-row">
+                  <span className="movie-score">{movie.rating}</span>
                   <span className="movie-star">★</span>
-                  <span className="movie-score">{movie.rating}/10</span>
                 </div>
                 <div className="movie-extra-row">
                   <span>{movie.duration}</span>
