@@ -1,254 +1,386 @@
-import { Carousel, Rate, Badge, Tooltip } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import KM from "../../assets/KM.png";
-import "./Home.scss";
-import { getNowShowingMovies, getComingSoonMovies } from '../../api/movie';
-import { getPromotions } from '../../api/promotion';
+"use client"
+
+import { useEffect, useState, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import "./Home.scss"
+import { getNowShowingMovies, getComingSoonMovies } from "../../api/movie"
+import { getPromotions } from "../../api/promotion"
+import KM from "../../assets/KM.png"
+import LoadingCurtain from "../../component/LoadingCurtain/LoadingCurtain"
 
 const Home = () => {
-    const navigate = useNavigate();
-    const [showingMovies, setShowingMovies] = useState([]);
-    const [comingSoonMovies, setComingSoonMovies] = useState([]);
-    const [promotions, setPromotions] = useState([]);
-    const [trailerVisible, setTrailerVisible] = useState(null);
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const response = await getNowShowingMovies();
-                if (response.status !== 200) {
-                    console.error("HTTP error:", response.status);
-                    return;
-                }
-                const data = response.data;
-                const filmData = data.content;
-                if (Array.isArray(filmData)) {
-                    const extractedMovies = filmData.map((movie) => ({
-                        id: movie.movieId,
-                        title: movie.movieNameEnglish,
-                        poster: movie.posterImageUrl || KM,
-                        img: movie.largeImage,
-                        rating: movie.rating,
-                        genre: movie.version || "Unknown",
-                        types: movie.types || "Unknown",
-                        showtimes: movie.duration ? `${movie.duration} min` : "120 min",
-                        trailer: movie.trailerUrl,
-                        desc: movie.content,
-                    }));
-                    setShowingMovies(extractedMovies);
-                } else {
-                    console.error("Dữ liệu không phải là mảng:", filmData);
-                    setShowingMovies([]);
-                }
-            } catch (error) {
-                console.error("Error fetching movies:", error);
-                setShowingMovies([]);
-            }
-        };
+  const navigate = useNavigate()
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [heroMovies, setHeroMovies] = useState([])
+  const [showingMovies, setShowingMovies] = useState([])
+  const [comingSoonMovies, setComingSoonMovies] = useState([])
+  const [promotions, setPromotions] = useState([])
+  const [trailerVisible, setTrailerVisible] = useState(null)
+  const [showCurtain, setShowCurtain] = useState(false) // Changed to false initially
+  const [isLoading, setIsLoading] = useState(false) // Changed to false initially
 
-        const fetchComingSoonMovies = async () => {
-            try {
-                const response = await getComingSoonMovies();
-                const data = response.data.content;
-                const extractedComingSoonMovies = data.map((movie) => ({
-                    id: movie.movieId,
-                    title: movie.movieNameEnglish,
-                    img: movie.posterImageUrl,
-                    date: movie.fromDate || "Unknown",
-                    badge: "Coming Soon",
-                    genre: movie.version || "Unknown",
-                    types: movie.types || "Unknown",
-                }));
-                setComingSoonMovies(extractedComingSoonMovies);
-            } catch (error) {
-                console.error("Error fetching coming soon movies:", error);
-                setComingSoonMovies([]);
-            }
-        };
+  // Use ref to prevent double execution
+  const hasProcessedLogin = useRef(false)
 
-        const fetchPromotions = async () => {
-            try {
-                const response = await getPromotions();
-                const data = response.data;
-                const extractedPromotions = data.map((promo) => ({
-                    id: promo.promotionId,
-                    title: promo.title,
-                    img: promo.image,
-                    detail: promo.detail,
-                    startTime: promo.startTime,
-                    endTime: promo.endTime,
-                }));
-                setPromotions(extractedPromotions);
-            } catch (error) {
-                console.error("Error fetching promotions:", error);
-                setPromotions([]);
-            }
-        };
-        fetchMovies();
-        fetchComingSoonMovies();
-        fetchPromotions();
-    }, []);
+  const handleCurtainAnimationComplete = () => {
+    console.log("✅ Curtain animation completed")
+    setShowCurtain(false)
+  }
+
+  useEffect(() => {
+    // Prevent double execution
+    if (hasProcessedLogin.current) {
+      console.log("🚫 Already processed login, skipping...")
+      return
+    }
+
+    // Check for fresh login flag
+    const loginSuccess = localStorage.getItem("loginSuccess")
+    const isFromLogin = loginSuccess === "true"
+
+    console.log("🔍 Checking login status:", { loginSuccess, isFromLogin })
+
+    // Mark as processed
+    hasProcessedLogin.current = true
+
+    // Clear the flag immediately
+    if (loginSuccess) {
+      localStorage.removeItem("loginSuccess")
+      console.log("🧹 Cleared loginSuccess flag")
+    }
+
+    // Determine if we should show curtain
+    if (isFromLogin) {
+      console.log("🎭 Fresh login detected - showing curtain")
+      setShowCurtain(true)
+      setIsLoading(true)
+      fetchAllDataWithCurtain()
+    } else {
+      console.log("🔄 Normal page load - no curtain")
+      setShowCurtain(false)
+      setIsLoading(false)
+      fetchAllDataNormal()
+    }
+  }, [])
+
+  const fetchAllDataWithCurtain = async () => {
+    console.log("🎪 Fetching data with curtain animation")
+    try {
+      // Minimum loading time for curtain animation
+      const minLoadingTime = new Promise((resolve) => setTimeout(resolve, 1200))
+
+      await Promise.all([fetchMovies(), fetchComing(), fetchPromo(), minLoadingTime])
+
+      // Start curtain opening animation
+      setTimeout(() => {
+        console.log("🎬 Starting curtain opening")
+        setIsLoading(false) // This triggers the curtain opening
+      }, 300)
+    } catch (error) {
+      console.error("Error loading data:", error)
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 300)
+    }
+  }
+
+  const fetchAllDataNormal = async () => {
+    console.log("📊 Fetching data normally (no curtain)")
+    try {
+      await Promise.all([fetchMovies(), fetchComing(), fetchPromo()])
+    } catch (error) {
+      console.error("Error loading data:", error)
+    }
+  }
+
+  const fetchMovies = async () => {
+    try {
+      const response = await getNowShowingMovies()
+      if (response.status !== 200) return
+      const data = response.data?.content || []
+      const extractedMovies = data.map((movie) => ({
+        id: movie.movieId,
+        title: movie.movieNameEnglish,
+        poster: movie.posterImageUrl || KM,
+        img: movie.largeImage || "/placeholder.svg?height=600&width=1200",
+        rating: Math.round((movie.avgFeedback || 0) * 10) / 10,
+        genre: movie.version || "Unknown",
+        types: movie.types || "Unknown",
+        duration: movie.duration ? `${movie.duration} min` : "120 min",
+        trailer: movie.trailerUrl,
+        desc: movie.content || "No description available",
+      }))
+      setShowingMovies(extractedMovies)
+      setHeroMovies(extractedMovies)
+    } catch {
+      setShowingMovies([])
+      setHeroMovies([])
+    }
+  }
+
+  const fetchComing = async () => {
+    try {
+      const response = await getComingSoonMovies()
+      const data = response.data.content || []
+      const extractedComingSoonMovies = data.map((movie) => ({
+        id: movie.movieId,
+        title: movie.movieNameEnglish,
+        img: movie.posterImageUrl || "/placeholder.svg?height=400&width=300",
+        date: movie.fromDate || "Unknown",
+        genre: movie.version || "Unknown",
+        types: movie.types || "Unknown",
+      }))
+      setComingSoonMovies(extractedComingSoonMovies)
+    } catch {
+      setComingSoonMovies([])
+    }
+  }
+
+  const fetchPromo = async () => {
+    try {
+      const response = await getPromotions()
+      const data = response.data || []
+      const extractedPromotions = data.map((promo) => ({
+        id: promo.promotionId,
+        title: promo.title,
+        img: promo.image || "/placeholder.svg?height=200&width=300",
+        startTime: promo.startTime,
+        endTime: promo.endTime,
+      }))
+      setPromotions(extractedPromotions)
+    } catch {
+      setPromotions([])
+    }
+  }
+
+  // Auto-slide effect for hero section
+  useEffect(() => {
+    if (heroMovies.length === 0) return
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroMovies.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [heroMovies.length])
+
+  const currentMovie = heroMovies[currentSlide]
+  
+  const handleTrailerClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (currentMovie?.trailer) {
+      setTrailerVisible(currentMovie.trailer);
+    }
+  }
+
+  const CustomCarousel = ({ children, itemsPerView = 5 }) => {
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const totalItems = children.length
+    const maxIndex = Math.max(0, totalItems - itemsPerView)
 
     return (
-        <div className="home">
-            <main className="home-content">
-                <section className="home-slide">
-                    <div className="slide-container">
-                        <Carousel autoplay effect="fade" style={{ width: "100%", height: "auto", maxHeight: "450px" }}>
-                            {showingMovies.map((movie, index) => (
-                                <div className="slide-item" key={index}>
-                                    <img src={movie.img} alt={movie.title} />
-                                    <div className="slide-overlay">
-                                        <h1 className="slide-title">{movie.title}</h1>
-                                        <p className="slide-desc">{movie.desc}</p>
-                                        <div className="slide-cta">
-                                            <button className="slide-btn buy" onClick={() => navigate(`/select-showtime/${movie.id}`)}>Buy Ticket</button>
-                                            <button
-                                                className="slide-btn trailer"
-                                                onClick={() => setTrailerVisible(movie.trailer)} // Use state to show trailer overlay
-                                            >
-                                                Watch Trailer
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </Carousel>
-                    </div>
-                </section>
-
-                {trailerVisible && (
-                    <div className="trailer-overlay" onClick={() => setTrailerVisible(null)}>
-                        <div className="trailer-container" onClick={(e) => e.stopPropagation()}>
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                src={trailerVisible}
-                                title="Trailer"
-                                frameBorder="0"
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                    </div>
-                )}
-                <section className="movie-section">
-                    <div className="section-header">
-                        <h2>Now Showing</h2>
-                        <Link to="/movie" className="see-all">See All &rarr;</Link>
-                    </div>
-                    <div className="movie-carousel-wrap">
-                        <Carousel
-                            slidesToShow={5}
-                            arrows
-                            infinite={showingMovies.length > 5}
-                            responsive={[
-                                { breakpoint: 1200, settings: { slidesToShow: 3 } },
-                                { breakpoint: 900, settings: { slidesToShow: 2 } },
-                                { breakpoint: 600, settings: { slidesToShow: 1 } },
-                            ]}
-                            className="movie-carousel"
-                        >
-                            {showingMovies.map((movie, idx) => (
-                                <Tooltip title={movie.title} key={idx}>
-                                    <div className="movie-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
-                                        <img src={movie.poster} alt={movie.title} className="movie-img" />
-                                        <div className="movie-info">
-                                            <div className="movie-title">{movie.title}</div>
-                                            <div className="movie-rating-row">
-                                                <span className="movie-star">★</span>
-                                                <span className="movie-score">{movie.rating}9/10</span>
-                                            </div>
-                                            <div className="movie-extra-row">
-                                                <span className="movie-minutes">{movie.showtimes}</span>
-                                                <span className="movie-genre-btn">{movie.genre}</span>
-                                                <span className="movie-genre-btn">{movie.types}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Tooltip>
-                            ))}
-                        </Carousel>
-                    </div>
-                </section>
-                <section className="movie-section">
-                    <div className="section-header">
-                        <h2>Coming Soon</h2>
-                    </div>
-                    <div className="movie-carousel-wrap">
-                        <Carousel
-                            slidesToShow={5}
-                            arrows
-                            infinite={comingSoonMovies.length > 5}
-                            responsive={[
-                                { breakpoint: 1200, settings: { slidesToShow: 3 } },
-                                { breakpoint: 900, settings: { slidesToShow: 2 } },
-                                { breakpoint: 600, settings: { slidesToShow: 1 } },
-                            ]}
-                            className="movie-carousel"
-                        >
-                            {comingSoonMovies.map((movie, idx) => (
-                                <Tooltip title={movie.title} key={idx}>
-                                    <div className="coming-soon-card" key={idx} onClick={() => navigate(`/description-movie/${movie.id}`)} style={{ cursor: 'pointer' }}>
-                                        <div className="coming-img-wrap">
-                                            <img src={movie.img} alt={movie.title} className="coming-img" />
-                                            <div className="coming-badge">{movie.badge}</div>
-                                        </div>
-                                        <div className="coming-info">
-                                            <div className="coming-title">{movie.title || 'Movie Title'}</div>
-                                            <div className="coming-date">Release Date: {movie.date || '06/30/2025'}</div>
-                                            {movie.genre && (
-                                                <span className="coming-genre-btn">{movie.genre}</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Tooltip>
-                            ))}
-                        </Carousel>
-                    </div>
-                </section>
-                <section className="promo-section">
-                    <div className="section-header">
-                        <h2>Special Promotions</h2>
-                    </div>
-                    <div className="movie-carousel-wrap">
-                        <Carousel
-                            slidesToShow={5}
-                            arrows
-                            infinite={promotions.length > 5}
-                            responsive={[
-                                { breakpoint: 1200, settings: { slidesToShow: 3 } },
-                                { breakpoint: 900, settings: { slidesToShow: 2 } },
-                                { breakpoint: 600, settings: { slidesToShow: 1 } },
-                            ]}
-                            className="movie-carousel"
-                        >
-                            {promotions.map((promo, idx) => {
-                                const startDate = new Date(promo.startTime);
-                                const endDate = new Date(promo.endTime);
-                                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                                const formattedStartDate = startDate.toLocaleDateString('en-US', options);
-                                const formattedEndDate = endDate.toLocaleDateString('en-US', options);
-
-                                return (
-                                    <Tooltip title={promo.title} key={idx}>
-                                        <div className="promo-card" key={idx}>
-                                            <img src={promo.img} alt={promo.title} className="promo-img" />
-                                            <div className="promo-info">
-                                                <div className="promo-title">{promo.title}</div>
-                                                {/* Display formatted dates */}
-                                                <div className="promo-date">Start: {formattedStartDate}</div>
-                                                <div className="promo-date">End: {formattedEndDate}</div>
-                                            </div>
-                                        </div>
-                                    </Tooltip>
-                                );
-                            })}
-                        </Carousel>
-                    </div>
-                </section>
-            </main>
+      <div className="custom-carousel">
+        <button
+          className="carousel-btn prev"
+          onClick={() => setCurrentIndex(Math.max(currentIndex - 1, 0))}
+          disabled={currentIndex === 0}
+        >
+          ❮
+        </button>
+        <div className="carousel-container">
+          <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}>
+            {children}
+          </div>
         </div>
-    );
-};
+        <button
+          className="carousel-btn next"
+          onClick={() => setCurrentIndex(Math.min(currentIndex + 1, maxIndex))}
+          disabled={currentIndex >= maxIndex}
+        >
+          ❯
+        </button>
+      </div>
+    )
+  }
 
-export default Home;
+  return (
+    <>
+      {/* Only render LoadingCurtain when explicitly needed */}
+      {showCurtain && (
+        <LoadingCurtain
+          isLoading={isLoading}
+          onAnimationComplete={handleCurtainAnimationComplete}
+          trigger={showCurtain}
+        />
+      )}
+      <div className={`home ${showCurtain && isLoading ? "loading" : ""}`}>
+        <main className="home-content">
+          <section className="hero-section-home">
+            <div className="hero-slider">
+              {heroMovies.map((movie, index) => (
+                <div
+                  key={movie.id}
+                  className={`hero-slide ${index === currentSlide ? "active" : ""}`}
+                  style={{ pointerEvents: index === currentSlide ? "auto" : "none" }}
+                >
+                  <img src={movie.img || "/placeholder.svg"} alt={movie.title} />
+                  <div className="hero-overlay">
+                    <div className="hero-content">
+                      <h1 className="hero-title">{movie.title}</h1>
+                      <p className="hero-desc">{movie.desc}</p>
+                      <div className="hero-actions">
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => navigate(`/select-showtime/${currentMovie?.id}`)}
+                        >
+                          <span>▶</span> Buy Ticket
+                        </button>
+                        <button className="btn btn-secondary" onClick={handleTrailerClick}>
+                          <span>🎬</span> Watch Trailer
+                        </button>
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => navigate(`/description-movie/${currentMovie?.id}`)}
+                        >
+                          <span>ℹ</span> More Info
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                className="hero-nav prev"
+                onClick={() => setCurrentSlide((currentSlide - 1 + heroMovies.length) % heroMovies.length)}
+              >
+                ❮
+              </button>
+              <button className="hero-nav next" onClick={() => setCurrentSlide((currentSlide + 1) % heroMovies.length)}>
+                ❯
+              </button>
+              <div className="hero-indicators">
+                {heroMovies.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`indicator ${index === currentSlide ? "active" : ""}`}
+                    onClick={() => setCurrentSlide(index)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {trailerVisible && (
+            <div 
+              className={`trailer-modal${trailerVisible ? ' visible' : ''}`}
+              onClick={() => setTrailerVisible(null)}
+            >
+              <div className="trailer-container" onClick={e => e.stopPropagation()}>
+                <button 
+                  className="close-btn"
+                  onClick={() => setTrailerVisible(null)}
+                  aria-label="Close trailer"
+                >
+                  ✕
+                </button>
+                <iframe
+                  src={trailerVisible}
+                  title="Movie Trailer"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              
+            </div>
+          )}
+
+          <section className="movie-section">
+            <div className="section-header">
+              <h2>Now Showing</h2>
+              <button className="see-all-btn" onClick={() => navigate("/movie")}>
+                See All →
+              </button>
+            </div>
+            <CustomCarousel itemsPerView={4}>
+              {showingMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  className="coming-soon-card"
+                  onClick={() => navigate(`/description-movie/${movie.id}`)}
+                >
+                  <div className="coming-poster">
+                    <img src={movie.poster || "/placeholder.svg"} alt={movie.title} />
+                    <div className="coming-badge">Now Showing</div>
+                  </div>
+                  <div className="coming-info">
+                    <h3 className="coming-title">{movie.title}</h3>
+                    <p className="release-date">Duration: {movie.duration}</p>
+                    <div className="coming-genres">
+                      <span className="genre-tag">{movie.genre}</span>
+                      <span className="genre-tag">{movie.types}</span>
+                      <span className="genre-tag">
+                        Rating: {movie.rating} <span style={{ color: "#f7b731" }}>★</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CustomCarousel>
+          </section>
+
+          <section className="movie-section">
+            <div className="section-header">
+              <h2>Coming Soon</h2>
+            </div>
+            <CustomCarousel itemsPerView={4}>
+              {comingSoonMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  className="coming-soon-card"
+                  onClick={() => navigate(`/description-movie/${movie.id}`)}
+                >
+                  <div className="coming-poster">
+                    <img src={movie.img || "/placeholder.svg"} alt={movie.title} />
+                    <div className="coming-badge">Coming Soon</div>
+                  </div>
+                  <div className="coming-info">
+                    <h3 className="coming-title">{movie.title}</h3>
+                    <p className="release-date">Release: {new Date(movie.date).toLocaleDateString()}</p>
+                    <div className="coming-genres">
+                      <span className="genre-tag">{movie.genre}</span>
+                      <span className="genre-tag">{movie.types}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CustomCarousel>
+          </section>
+
+          <section className="movie-section">
+            <div className="section-header">
+              <h2>Special Promotions</h2>
+            </div>
+            <CustomCarousel itemsPerView={3}>
+              {promotions.map((promo) => (
+                <div key={promo.id} className="promo-card">
+                  <div className="promo-image">
+                    <img src={promo.img || "/placeholder.svg"} alt={promo.title} />
+                  </div>
+                  <div className="promo-info">
+                    <h3 className="promo-title">{promo.title}</h3>
+                    <p className="promo-period">
+                      {new Date(promo.startTime).toLocaleDateString()} - {new Date(promo.endTime).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </CustomCarousel>
+          </section>
+        </main>
+      </div>
+    </>
+  )
+}
+
+export default Home

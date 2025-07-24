@@ -1,7 +1,29 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { UserOutlined, BellOutlined } from "@ant-design/icons";
+import Cookies from "js-cookie";
 import "./Header.scss";
+
+const MAX_NOTIFICATIONS = 20;
+
+const getNotificationsByUser = (userName) => {
+  const key = `notifications_${userName}`;
+  const data = Cookies.get(key);
+  return data ? JSON.parse(data) : [];
+};
+
+const saveNotificationsByUser = (userName, notifications) => {
+  const key = `notifications_${userName}`;
+  const updated = notifications.slice(0, MAX_NOTIFICATIONS);
+  Cookies.set(key, JSON.stringify(updated), { expires: 7 });
+};
+
+const markAllAsRead = (userName) => {
+  const current = getNotificationsByUser(userName);
+  const updated = current.map((n) => ({ ...n, read: true }));
+  saveNotificationsByUser(userName, updated);
+  return updated;
+};
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -10,11 +32,11 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
-  // Load user từ localStorage
   const loadUserFromStorage = useCallback(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsed = JSON.parse(savedUser);
+      setUser(parsed);
       if (window.location.pathname === "/login") {
         navigate("/");
       }
@@ -23,69 +45,62 @@ const Header = () => {
     }
   }, [navigate]);
 
+  const loadNotifications = useCallback((userName) => {
+    if (!userName) return;
+    const notis = getNotificationsByUser(userName);
+    setNotifications(notis);
+  }, []);
+
   useEffect(() => {
     loadUserFromStorage();
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      const userObj = JSON.parse(savedUser);
+      loadNotifications(userObj.username);
+    }
+
+    // Lắng nghe thay đổi storage để load user lại
     const handleStorageChange = (e) => {
       if (e.key === "user") {
         loadUserFromStorage();
       }
     };
     window.addEventListener("storage", handleStorageChange);
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [navigate, loadUserFromStorage]);
+  }, [navigate, loadUserFromStorage, loadNotifications]);
 
- // ...existing code...
-useEffect(() => {
-  const storedNotifications = localStorage.getItem("notifications");
-  if (storedNotifications) {
-    setNotifications(JSON.parse(storedNotifications));
-  }
+  useEffect(() => {
+    const handleCustomNotification = () => {
+      if (user) {
+        loadNotifications(user.username);
+      }
+    };
+    window.addEventListener("notificationUpdate", handleCustomNotification);
 
-  // Lắng nghe sự kiện thay đổi localStorage (từ các tab khác hoặc cùng tab)
-  const handleStorageChange = (e) => {
-    if (e.key === "notifications") {
-      setNotifications(JSON.parse(e.newValue || "[]"));
-    }
-  };
-  window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("notificationUpdate", handleCustomNotification);
+    };
+  }, [user, loadNotifications]);
 
-
-  const handleCustomNotification = () => {
-    const updated = localStorage.getItem("notifications");
-    setNotifications(updated ? JSON.parse(updated) : []);
-  };
-  window.addEventListener("notificationUpdate", handleCustomNotification);
-
-  return () => {
-    window.removeEventListener("storage", handleStorageChange);
-    window.removeEventListener("notificationUpdate", handleCustomNotification);
-  };
-}, []);
-
-
-  // Toggle dropdown avatar
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  // Toggle dropdown thông báo
   const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-
-    // Đánh dấu đã đọc
-    const updated = notifications.map((n) => ({ ...n, read: true }));
-    localStorage.setItem("notifications", JSON.stringify(updated));
+    if (!user) return;
+    const updated = markAllAsRead(user.username);
     setNotifications(updated);
+    setShowNotifications(!showNotifications);
   };
 
-  // Đếm số thông báo chưa đọc
   const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const handleLogout = () => {
+const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
+    setNotifications([]);
     setShowDropdown(false);
     navigate("/");
   };
@@ -96,7 +111,7 @@ useEffect(() => {
       const savedUser = localStorage.getItem("user");
       if (savedUser) latestUser = JSON.parse(savedUser);
     } catch (e) {
-console.error("Error parsing user from localStorage:", e);
+      console.error("Error parsing user from localStorage:", e);
     }
     if (!latestUser) return null;
     const img = latestUser.image || latestUser.avatar;
@@ -133,16 +148,30 @@ console.error("Error parsing user from localStorage:", e);
           )}
           {showNotifications && (
             <div className="notification-dropdown">
-              {notifications.length === 0 ? (
-                <div className="notification-empty">Không có thông báo</div>
-              ) : (
-                notifications.map((n) => (
-                  <div key={n.id} className="notification-item">
-                    🎬 Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
-                  </div>
-                ))
-              )}
-            </div>
+  {notifications.length === 0 ? (
+    <div className="notification-empty">Không có thông báo</div>
+  ) : (
+    notifications.map((n) => (
+      <div
+        key={n.id}
+        className={`notification-item ${!n.read ? "unread" : ""}`}
+        onClick={() => {
+          setShowNotifications(false);
+          navigate(`/payment-success?invoiceId=${n.invoiceId}`);
+        }}
+      >
+        <div className="notification-item-icon">🎬</div>
+        <div className="notification-text">
+          <div className="notification-title">
+            Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
+          </div>
+          {n.time && <div className="notification-time">{n.time}</div>}
+        </div>
+      </div>
+    ))
+  )}
+</div>
+
           )}
         </div>
 
@@ -160,7 +189,7 @@ console.error("Error parsing user from localStorage:", e);
                     borderRadius: "50%",
                     objectFit: "cover",
                     border: "2px solid #fff",
-                    background: "#222",
+background: "#222",
                   }}
                 />
               ) : (
@@ -182,7 +211,7 @@ console.error("Error parsing user from localStorage:", e);
               </div>
             )}
           </div>
-) : (
+        ) : (
           <div className="auth-links">
             <Link to="/login" className="login-link">
               Sign In

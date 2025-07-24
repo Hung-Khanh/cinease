@@ -1,6 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Profile from './Profile';
+import Profile from "./Profile";
+jest.mock('../../api/feedback', () => ({
+  getCurrentUserFeedbacks: jest.fn().mockResolvedValue([]),
+  getEligibleInvoicesForFeedback: jest.fn().mockResolvedValue({ data: [] }),
+  getCurrentUserFeedbackForInvoice: jest.fn().mockResolvedValue({}),
+  updateFeedback: jest.fn().mockResolvedValue({}),
+}));
 import { BrowserRouter } from 'react-router-dom';
 import * as userApi from '../../api/user';
 
@@ -45,6 +51,14 @@ const mockTickets = {
   },
 };
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
+    if (typeof msg === 'string' && msg.includes('[antd: Tabs] `Tabs.TabPane` is deprecated')) return;
+    // Call original console.error for other messages
+    return jest.requireActual('console').error(msg, ...args);
+  });
+});
+
 describe('Profile', () => {
   const { message } = require('antd');
   beforeEach(() => {
@@ -66,7 +80,7 @@ describe('Profile', () => {
   test('renders user info', async () => {
     renderComponent();
     await waitFor(() => {
-      expect(screen.getByDisplayValue('testuser')).toBeInTheDocument();
+      expect(screen.getByDisplayValue(/testuser/i)).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test User')).toBeInTheDocument();
       expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Address')).toBeInTheDocument();
@@ -75,11 +89,23 @@ describe('Profile', () => {
 
   test('renders transaction history', async () => {
     renderComponent();
+    // Switch to the Transactions tab to render transaction table
+    const transactionsTab = screen.getByRole('tab', { name: /comment Transactions/i });
+    fireEvent.click(transactionsTab);
     await waitFor(() => {
-      expect(screen.getByText('Movie 1')).toBeInTheDocument();
-      expect(screen.getByText('PAID')).toBeInTheDocument();
-      const found = Array.from(document.querySelectorAll('td')).some(td => /200\.000/.test(td.textContent));
-      expect(found).toBe(true);
+      // Wait for table to appear
+      const table = document.querySelector('.ant-table');
+      expect(table).toBeTruthy();
+      // Find all table cells
+      const tdNodes = Array.from(table.querySelectorAll('td'));
+      const allCellTexts = tdNodes.map(td => td.textContent.trim()).filter(Boolean);
+      // eslint-disable-next-line no-console
+      console.log('Profile transaction table cell texts:', allCellTexts);
+      // Flexible matcher: join all cell texts and search for substrings
+      const joined = allCellTexts.join(' ');
+      expect(joined).toMatch(/Movie\s*1/);
+      expect(joined).toMatch(/PAID/);
+      expect(joined).toMatch(/200[.,]000/);
     });
   });
 

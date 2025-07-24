@@ -44,7 +44,7 @@ describe('UserPaymentSuccess', () => {
     render(<UserPaymentSuccess />, { wrapper: MemoryRouter });
     // Kiểm tra các label và giá trị thực tế trên UI
     expect(await screen.findByText('Invoice ID')).toBeInTheDocument();
-    expect(screen.getByText('123')).toBeInTheDocument();
+    expect(screen.getByText(/123/)).toBeInTheDocument();
     expect(screen.getByText('Total Price')).toBeInTheDocument();
     expect(screen.getByText(/COMPLETED/i)).toBeInTheDocument();
   });

@@ -96,10 +96,10 @@ describe("DateTimeSelection", () => {
     });
 
     // Tìm nút ngày đầu tiên thay vì tìm "20 Tháng 7"
-    const dateButtons = await screen.findAllByRole("button", {
-      name: /Tháng 7/,
-    });
-    const dateButton = dateButtons[0]; // Chọn nút ngày đầu tiên
+    const dateButtons = await screen.findAllByRole("button");
+const dateButton = dateButtons.find(btn => btn.textContent.includes("Jul"));
+expect(dateButton).toBeDefined(); // Ensure button is found
+fireEvent.click(dateButton);
     expect(dateButton).toBeInTheDocument();
     fireEvent.click(dateButton);
     expect(dateButton).toHaveClass("selected");

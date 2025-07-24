@@ -9,23 +9,64 @@ import {
   Tag,
   Dropdown,
   Menu,
+  Tabs,
+  Badge,
+  Modal,
+  Space,
+  Typography,
+  Rate,
 } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, StarOutlined, CommentOutlined, UserOutlined, CameraOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { UserOutlined, CameraOutlined } from "@ant-design/icons";
 import "./Profile.scss";
 import {
   getUserInfo,
   getUserTickets,
   updateUserWithImage,
 } from "../../api/user";
+import { getCurrentUserFeedbacks, submitFeedbackForInvoice, getCurrentUserFeedbackForInvoice } from "../../api/feedback";
+import { FeedbackModal } from "../Feedback/FeedbackModal.jsx";
+import Feedback from "../Feedback/Feedback";
+
+const { TabPane } = Tabs;
+const { Text } = Typography;
 
 const Profile = () => {
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [transactionModalVisible, setTransactionModalVisible] = useState(false);
   const [historyData, setHistoryData] = useState([]);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
   const [historyTotal, setHistoryTotal] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [eligibleFeedbackCount, setEligibleFeedbackCount] = useState(0);
+  const [userFeedbacks, setUserFeedbacks] = useState([]);
+  const [form] = Form.useForm();
+  const [pwdForm] = Form.useForm();
+  const [previewAvatar, setPreviewAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [viewFeedbackModalVisible, setViewFeedbackModalVisible] = useState(false);
+  const [viewFeedbackLoading, setViewFeedbackLoading] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const navigate = useNavigate();
+
+  // Function to fetch feedback for a specific invoice
+  const fetchFeedbackForInvoice = async (invoiceId) => {
+    setViewFeedbackLoading(true);
+    try {
+      const response = await getCurrentUserFeedbackForInvoice(invoiceId);
+      return response.data;
+    } catch (error) {
+      message.error("Failed to fetch feedback. Please try again.");
+      return null;
+    } finally {
+      setViewFeedbackLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchHistoryAndPoints = async (page = 1, size = 10) => {
@@ -37,8 +78,8 @@ const Profile = () => {
           const ticketCount = Array.isArray(item.products)
             ? item.products.filter((p) => p.itemType === "TICKET").length
             : item.seatNumbers
-            ? item.seatNumbers.length
-            : 0;
+              ? item.seatNumbers.length
+              : 0;
           return {
             key: item.invoiceId || idx,
             date: item.bookingDate
@@ -48,6 +89,9 @@ const Profile = () => {
             tickets: ticketCount,
             status: item.status || "",
             grandTotal: item.grandTotal || 0,
+            invoiceId: item.invoiceId,
+            movieName: item.movieName,
+            bookingDate: item.bookingDate,
           };
         });
         setHistoryData(mapped);
@@ -60,18 +104,60 @@ const Profile = () => {
       }
       setHistoryLoading(false);
     };
-    fetchHistoryAndPoints(historyPage, historyPageSize);
-  }, [historyPage, historyPageSize]);
 
-  const [form] = Form.useForm();
-  const [pwdForm] = Form.useForm();
-  const [previewAvatar, setPreviewAvatar] = useState(null);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+    const fetchEligibleFeedbackCount = async () => {
+      try {
+        const response = await getCurrentUserFeedbacks();
+        setUserFeedbacks(response.data || []);
+        setEligibleFeedbackCount(
+          response.data?.filter((f) => !f.feedbackId).length || 0
+        );
+      } catch (error) {
+        console.error("Error fetching feedback count:", error);
+        setEligibleFeedbackCount(0);
+        setUserFeedbacks([]);
+      }
+    };
+
+    fetchHistoryAndPoints(historyPage, historyPageSize);
+    fetchEligibleFeedbackCount();
+  }, [historyPage, historyPageSize]);
 
   const handleViewHistory = () => {
     navigate("/history");
+  };
+
+  const handleAddFeedback = (invoice) => {
+    setSelectedInvoice(invoice);
+    setModalVisible(true);
+  };
+
+  const handleViewFeedback = async (invoice) => {
+    const feedback = await fetchFeedbackForInvoice(invoice.invoiceId);
+    if (feedback) {
+      setSelectedFeedback(feedback);
+      setViewFeedbackModalVisible(true);
+    }
+  };
+
+  const handleSubmitFeedback = async (values) => {
+    try {
+      await submitFeedbackForInvoice(selectedInvoice.invoiceId, {
+        rating: values.rating,
+        comment: values.comment,
+      });
+      message.success("Feedback added successfully!");
+      setModalVisible(false);
+      setSelectedInvoice(null);
+      const response = await getCurrentUserFeedbacks();
+      setUserFeedbacks(response.data || []);
+      setEligibleFeedbackCount(
+        response.data?.filter((f) => !f.feedbackId).length || 0
+      );
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      message.error("Failed to submit feedback. Please try again.");
+    }
   };
 
   const [sortKey, setSortKey] = useState(null);
@@ -83,6 +169,11 @@ const Profile = () => {
     { key: "grandTotal", label: "Grand Total" },
   ];
 
+  const sortMenuItems = sortOptions.map((opt) => ({
+    key: opt.key,
+    label: opt.label,
+  }));
+
   const handleMenuClick = (e) => {
     if (sortKey === e.key) {
       setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
@@ -92,12 +183,6 @@ const Profile = () => {
     }
   };
 
-  const sortMenuItems = sortOptions.map((opt) => ({
-    key: opt.key,
-    label: opt.label,
-  }));
-
-  // Hook để lấy width của window
   function useWindowWidth() {
     const [width, setWidth] = React.useState(window.innerWidth);
     React.useEffect(() => {
@@ -111,28 +196,9 @@ const Profile = () => {
   const windowWidth = useWindowWidth();
 
   const columns = React.useMemo(() => {
-    if (windowWidth <= 576) {
-      return [
-        { title: "Day", dataIndex: "date", key: "date", align: "center" },
-        { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
-        {
-          title: "Grand Total",
-          dataIndex: "grandTotal",
-          key: "grandTotal",
-          align: "center",
-          render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
-        },
-      ];
-    }
-    return [
+    const baseColumns = [
       { title: "Day", dataIndex: "date", key: "date", align: "center" },
       { title: "Movie", dataIndex: "movie", key: "movie", align: "center" },
-      {
-        title: "Tickets",
-        dataIndex: "tickets",
-        key: "tickets",
-        align: "center",
-      },
       {
         title: "Grand Total",
         dataIndex: "grandTotal",
@@ -140,7 +206,16 @@ const Profile = () => {
         align: "center",
         render: (v) => (v ? v.toLocaleString("vi-VN") + " ₫" : ""),
       },
-      {
+    ];
+
+    if (windowWidth > 576) {
+      baseColumns.splice(2, 0, {
+        title: "Tickets",
+        dataIndex: "tickets",
+        key: "tickets",
+        align: "center",
+      });
+      baseColumns.push({
         title: "Status",
         dataIndex: "status",
         key: "status",
@@ -163,9 +238,55 @@ const Profile = () => {
             </Tag>
           );
         },
-      },
-    ];
-  }, [windowWidth]);
+      });
+      baseColumns.push({
+        title: "Feedback",
+        dataIndex: "feedback",
+        key: "feedback",
+        align: "center",
+        render: (_, record) => {
+          if (record.status !== "PAID") {
+            return null;
+          }
+          const existingFeedback = userFeedbacks.find(
+            (f) => f.invoiceId === record.invoiceId && f.feedbackId
+          );
+          if (existingFeedback) {
+            return (
+              <Button
+                type="default"
+                icon={<CommentOutlined />}
+                onClick={() => handleViewFeedback(record)}
+                style={{
+                  color: '#ffd700', // Text color
+                  background: 'rgba(255, 215, 0, 0.15)', // Background color
+                  border: 'none', // Remove border for better aesthetics
+                }}
+              >
+                View Feedback
+              </Button>
+            );
+          }
+          return (
+            <Button
+              type="primary"
+              icon={<StarOutlined />}
+              onClick={() => handleAddFeedback(record)}
+              style={{
+                color: '#10b981', // Text color for contrast
+                background: 'rgba(16, 185, 129, 0.15)', // Muted green background
+                border: 'none', // Remove border for better aesthetics
+              }}
+            >
+              Add Feedback
+            </Button>
+          );
+        },
+      });
+    }
+
+    return baseColumns;
+  }, [windowWidth, userFeedbacks]);
 
   const sortedHistoryData = React.useMemo(() => {
     if (!sortKey) return historyData;
@@ -196,8 +317,6 @@ const Profile = () => {
     try {
       const response = await getUserInfo();
       const data = response.data;
-      console.log("API response:", data);
-
       form.setFieldsValue({
         username: data.username || "",
         fullName: data.fullName || "",
@@ -210,15 +329,11 @@ const Profile = () => {
       });
 
       if (data.image) {
-        if (data.image.startsWith("data:")) {
-          setPreviewAvatar(data.image);
-        } else if (data.image.startsWith("http")) {
+        if (data.image.startsWith("data:") || data.image.startsWith("http")) {
           setPreviewAvatar(data.image);
         } else {
           const baseUrl = "https://legally-actual-mollusk.ngrok-free.app";
-          const imagePath = data.image.startsWith("/")
-            ? data.image
-            : `/${data.image}`;
+          const imagePath = data.image.startsWith("/") ? data.image : `/${data.image}`;
           setPreviewAvatar(`${baseUrl}${imagePath}`);
         }
       } else if (data.avatar) {
@@ -226,9 +341,7 @@ const Profile = () => {
           setPreviewAvatar(data.avatar);
         } else {
           const baseUrl = "https://legally-actual-mollusk.ngrok-free.app";
-          const imagePath = data.avatar.startsWith("/")
-            ? data.avatar
-            : `/${data.avatar}`;
+          const imagePath = data.avatar.startsWith("/") ? data.avatar : `/${data.avatar}`;
           setPreviewAvatar(`${baseUrl}${imagePath}`);
         }
       } else {
@@ -247,10 +360,7 @@ const Profile = () => {
   const handleProfileSave = async (values) => {
     setLoading(true);
     try {
-      console.log("Starting profile update with values:", values);
-
       const formData = new FormData();
-
       const accountData = {
         fullName: values.fullName || null,
         address: values.address || null,
@@ -272,25 +382,18 @@ const Profile = () => {
         }
       });
 
-      console.log("Account data being sent:", accountData);
-
       const accountBlob = new Blob([JSON.stringify(accountData)], {
         type: "application/json",
       });
       formData.append("account", accountBlob);
 
       if (avatarFile) {
-        console.log("Adding new avatar file:", avatarFile.name);
         formData.append("image", avatarFile);
       }
 
       const response = await updateUserWithImage(formData);
-
-      console.log("Update successful, response:", response.data);
       message.success("Profile updated successfully!");
-
       setAvatarFile(null);
-
       await fetchUserInfo();
 
       try {
@@ -302,19 +405,10 @@ const Profile = () => {
         localStorage.setItem("user", JSON.stringify(updatedUser));
         window.dispatchEvent(new Event("storage"));
       } catch (e) {
-        console.error(
-          "Failed to update user in localStorage after profile update:",
-          e
-        );
+        console.error("Failed to update user in localStorage:", e);
       }
     } catch (error) {
-      console.error("Update profile error:", {
-        error: error,
-        responseData: error?.response?.data,
-        responseStatus: error?.response?.status,
-        responseHeaders: error?.response?.headers,
-      });
-
+      console.error("Update profile error:", error);
       let errorMessage = "Update profile failed. Please try again.";
       if (error?.response?.data?.code) {
         switch (error.response.data.code) {
@@ -322,8 +416,7 @@ const Profile = () => {
             errorMessage = "This email is already in use by another account.";
             break;
           case "PHONE_EXISTS":
-            errorMessage =
-              "This phone number is already in use by another account.";
+            errorMessage = "This phone number is already in use by another account.";
             break;
           case "ACCOUNT_NOT_FOUND":
             errorMessage = "Account not found. Please login again.";
@@ -332,7 +425,6 @@ const Profile = () => {
             errorMessage = error.response.data.message || errorMessage;
         }
       }
-
       message.error(errorMessage);
     } finally {
       setLoading(false);
@@ -359,9 +451,7 @@ const Profile = () => {
 
     try {
       const formData = new FormData();
-
       const currentValues = form.getFieldsValue();
-
       const accountData = {
         fullName: currentValues.fullName || null,
         address: currentValues.address || null,
@@ -377,15 +467,8 @@ const Profile = () => {
 
       Object.keys(accountData).forEach((key) => {
         if (
-          ![
-            "gender",
-            "currentPassword",
-            "newPassword",
-            "confirmPassword",
-          ].includes(key) &&
-          (accountData[key] === null ||
-            accountData[key] === "" ||
-            accountData[key] === undefined)
+          !["gender", "currentPassword", "newPassword", "confirmPassword"].includes(key) &&
+          (accountData[key] === null || accountData[key] === "" || accountData[key] === undefined)
         ) {
           delete accountData[key];
         }
@@ -397,12 +480,10 @@ const Profile = () => {
       formData.append("account", accountBlob);
 
       await updateUserWithImage(formData);
-
       message.success("Password changed successfully!");
       pwdForm.resetFields();
     } catch (error) {
       console.error("Password change error:", error);
-
       let errorMessage = "Password change failed!";
       if (error?.response?.data?.code) {
         switch (error.response.data.code) {
@@ -416,7 +497,6 @@ const Profile = () => {
             errorMessage = error.response.data.message || errorMessage;
         }
       }
-
       message.error(errorMessage);
     }
   };
@@ -424,239 +504,441 @@ const Profile = () => {
   return (
     <div className="profile-page">
       <h2 className="profile-title">Profile</h2>
-
-      <div className="profile-section profile-info-section">
-        <div className="profile-avatar-block">
-          <div className="profile-avatar">
-            {previewAvatar ? (
-              <img src={previewAvatar} alt="avatar" />
-            ) : (
-              <UserOutlined style={{ fontSize: 64, padding: 20 }} />
-            )}
-          </div>
-          <Upload
-            showUploadList={false}
-            beforeUpload={(file) => {
-              if (!file.type.startsWith("image/")) {
-                message.error("Please select an image file");
-                return false;
-              }
-
-              if (file.size > 5 * 1024 * 1024) {
-                message.error("File size should be less than 5MB");
-                return false;
-              }
-
-              setPreviewAvatar(URL.createObjectURL(file));
-              setAvatarFile(file);
-              return false;
-            }}
-            accept="image/*"
-          >
-            <Button icon={<CameraOutlined />} className="profile-avatar-btn">
-              Choose Avatar
-            </Button>
-          </Upload>
-        </div>
-
-        <Form
-          form={form}
-          layout="vertical"
-          className="profile-info-form"
-          onFinish={handleProfileSave}
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        className="profile-tabs"
+      >
+        <TabPane
+          tab={
+            <span>
+              <UserOutlined /> Profile
+            </span>
+          }
+          key="profile"
         >
-          <div className="profile-info-row">
-            <Form.Item label="Username" name="username">
-              <Input disabled />
-            </Form.Item>
-            <Form.Item
-              label="Full Name"
-              name="fullName"
-              rules={[
-                {
-                  min: 2,
-                  max: 100,
-                  message: "Full name must be between 2 and 100 characters",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </div>
-
-          <div className="profile-info-row">
-            <Form.Item label="Date Of Birth" name="dateOfBirth">
-              <Input type="date" />
-            </Form.Item>
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[{ type: "email", message: "Invalid email format" }]}
-            >
-              <Input />
-            </Form.Item>
-          </div>
-
-          <div className="profile-info-row">
-            <Form.Item label="Sex" name="gender">
-              <select
-                style={{
-                  width: "100%",
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #222",
-                  background: "rgba(255,255,255,0.08)",
-                  color: "#fff",
+          <div className="profile-section profile-info-section">
+            <div className="profile-avatar-block">
+              <div className="profile-avatar">
+                {previewAvatar ? (
+                  <img src={previewAvatar} alt="avatar" />
+                ) : (
+                  <UserOutlined style={{ fontSize: 64, padding: 20 }} />
+                )}
+              </div>
+              <Upload
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  if (!file.type.startsWith("image/")) {
+                    message.error("Please select an image file");
+                    return false;
+                  }
+                  if (file.size > 5 * 1024 * 1024) {
+                    message.error("File size should be less than 5MB");
+                    return false;
+                  }
+                  setPreviewAvatar(URL.createObjectURL(file));
+                  setAvatarFile(file);
+                  return false;
                 }}
+                accept="image/*"
               >
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </Form.Item>
-            <Form.Item label="Identity Card" name="identityCard">
-              <Input />
-            </Form.Item>
-          </div>
+                <Button icon={<CameraOutlined />} className="profile-avatar-btn">
+                  Choose Avatar
+                </Button>
+              </Upload>
+            </div>
 
-          <div className="profile-info-row">
-            <Form.Item
-              label="Phone Number"
-              name="phoneNumber"
-              rules={[
-                {
-                  pattern: /^\d{10}$/,
-                  message: "Phone number must be 10 digits",
-                },
-              ]}
+            <Form
+              form={form}
+              layout="vertical"
+              className="profile-info-form"
+              onFinish={handleProfileSave}
             >
-              <Input />
-            </Form.Item>
-            <Form.Item label="Address" name="address">
-              <Input />
-            </Form.Item>
+              <div className="profile-info-row">
+                <Form.Item label="Username" name="username">
+                  <Input disabled />
+                </Form.Item>
+                <Form.Item
+                  label="Full Name"
+                  name="fullName"
+                  rules={[
+                    {
+                      min: 2,
+                      max: 100,
+                      message: "Full name must be between 2 and 100 characters",
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </div>
+
+              <div className="profile-info-row">
+                <Form.Item label="Date Of Birth" name="dateOfBirth">
+                  <Input type="date" />
+                </Form.Item>
+                <Form.Item
+                  label="Email"
+                  name="email"
+                  rules={[{ type: "email", message: "Invalid email format" }]}
+                >
+                  <Input />
+                </Form.Item>
+              </div>
+
+              <div className="profile-info-row">
+                <Form.Item label="Sex" name="gender">
+                  <select
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      borderRadius: "6px",
+                      border: "1px solid #222",
+                      background: "rgba(255,255,255,0.08)",
+                      color: "#fff",
+                    }}
+                  >
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </Form.Item>
+                <Form.Item label="Identity Card" name="identityCard">
+                  <Input />
+                </Form.Item>
+              </div>
+
+              <div className="profile-info-row">
+                <Form.Item
+                  label="Phone Number"
+                  name="phoneNumber"
+                  rules={[
+                    {
+                      pattern: /^\d{10}$/,
+                      message: "Phone number must be 10 digits",
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item label="Address" name="address">
+                  <Input />
+                </Form.Item>
+              </div>
+
+              <Button
+                htmlType="submit"
+                className="profile-save-btn"
+                loading={loading}
+              >
+                Save Changes
+              </Button>
+            </Form>
           </div>
 
-          <Button
-            htmlType="submit"
-            className="profile-save-btn"
-            loading={loading}
-          >
-            Save Changes
-          </Button>
-        </Form>
-      </div>
+          <div className="profile-section profile-password-section">
+            <h3 className="profile-password-title">Change Password</h3>
+            <Form
+              form={pwdForm}
+              layout="vertical"
+              className="profile-password-form"
+              onFinish={handlePwdChange}
+            >
+              <div className="profile-info-row">
+                <Form.Item
+                  label="Current Password"
+                  name="currentPwd"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your current password!",
+                    },
+                    {
+                      min: 8,
+                      max: 50,
+                      message: "Password must be between 8 and 50 characters",
+                    },
+                  ]}
+                >
+                  <Input.Password placeholder="Enter current password" />
+                </Form.Item>
+                <Form.Item
+                  label="New Password"
+                  name="newPwd"
+                  rules={[
+                    { required: true, message: "Please enter a new password!" },
+                    {
+                      min: 8,
+                      max: 50,
+                      message: "Password must be between 8 and 50 characters",
+                    },
+                  ]}
+                >
+                  <Input.Password placeholder="Enter new password" />
+                </Form.Item>
+                <Form.Item
+                  label="Confirm Password"
+                  name="confirmPwd"
+                  dependencies={["newPwd"]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please confirm your new password!",
+                    },
+                    {
+                      min: 8,
+                      max: 50,
+                      message: "Password must be between 8 and 50 characters",
+                    },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue("newPwd") === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Password confirmation does not match!")
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password placeholder="Confirm new password" />
+                </Form.Item>
+              </div>
+              <Button htmlType="submit" className="profile-save-btn">
+                Update Password
+              </Button>
+            </Form>
+          </div>
+        </TabPane>
 
-      <div className="profile-section profile-password-section">
-        <h3 className="profile-password-title">Change Password</h3>
-        <Form
-          form={pwdForm}
-          layout="vertical"
-          className="profile-password-form"
-          onFinish={handlePwdChange}
+        <TabPane
+          tab={
+            <span>
+              <StarOutlined /> Feedback{" "}
+              {eligibleFeedbackCount > 0 && (
+                <Badge count={eligibleFeedbackCount} offset={[10, 0]} />
+              )}
+            </span>
+          }
+          key="feedback"
         >
-          <div className="profile-info-row">
-            <Form.Item
-              label="Current Password"
-              name="currentPwd"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your current password!",
-                },
-                {
-                  min: 8,
-                  max: 50,
-                  message: "Password must be between 8 and 50 characters",
-                },
-              ]}
-            >
-              <Input.Password placeholder="Enter current password" />
-            </Form.Item>
-            <Form.Item
-              label="New Password"
-              name="newPwd"
-              rules={[
-                { required: true, message: "Please enter a new password!" },
-                {
-                  min: 8,
-                  max: 50,
-                  message: "Password must be between 8 and 50 characters",
-                },
-              ]}
-            >
-              <Input.Password placeholder="Enter new password" />
-            </Form.Item>
-            <Form.Item
-              label="Confirm Password"
-              name="confirmPwd"
-              dependencies={["newPwd"]}
-              rules={[
-                {
-                  required: true,
-                  message: "Please confirm your new password!",
-                },
-                {
-                  min: 8,
-                  max: 50,
-                  message: "Password must be between 8 and 50 characters",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("newPwd") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("Password confirmation does not match!")
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password placeholder="Confirm new password" />
-            </Form.Item>
-          </div>
-          <Button htmlType="submit" className="profile-save-btn">
-            Update Password
-          </Button>
-        </Form>
-      </div>
+          <Feedback />
+        </TabPane>
 
-      <div className="profile-section profile-history-section">
-        <div className="profile-history-header">
-          <span className="profile-history-title">Recent Transactions</span>
-          <Dropdown
-            menu={{ items: sortMenuItems, onClick: handleMenuClick }}
-            trigger={["click"]}
-          >
-            <Button className="sort-btn" style={{ marginLeft: 12 }}>
-              Sort <DownOutlined />
-            </Button>
-          </Dropdown>
-        </div>
-        <Table
-          columns={columns}
-          dataSource={sortedHistoryData}
-          loading={historyLoading}
-          pagination={{
-            current: historyPage,
-            pageSize: historyPageSize,
-            total: historyTotal,
-            showSizeChanger: false,
-            onChange: (page, pageSize) => {
-              setHistoryPage(page);
-              setHistoryPageSize(pageSize);
-            },
-          }}
-          className="profile-history-table"
-          rowKey="key"
-        />
-        <div className="profile-history-footer">
-          <Button className="profile-history-btn" onClick={handleViewHistory}>
-            See All History
-          </Button>
-        </div>
-      </div>
+        <TabPane
+          tab={
+            <span>
+              <CommentOutlined /> Transactions
+            </span>
+          }
+          key="history"
+        >
+          <div className="profile-section profile-history-section">
+            <div className="profile-history-header">
+              <span className="profile-history-title">Recent Transactions</span>
+              <Dropdown
+                menu={{ items: sortMenuItems, onClick: handleMenuClick }}
+                trigger={["click"]}
+              >
+                <Button className="sort-btn" style={{ marginLeft: 12 }}>
+                  Sort <DownOutlined />
+                </Button>
+              </Dropdown>
+            </div>
+            <Table
+              columns={columns}
+              dataSource={sortedHistoryData}
+              loading={historyLoading}
+              pagination={{
+                current: historyPage,
+                pageSize: historyPageSize,
+                total: historyTotal,
+                showSizeChanger: false,
+                onChange: (page, pageSize) => {
+                  setHistoryPage(page);
+                  setHistoryPageSize(pageSize);
+                },
+              }}
+              className="profile-history-table"
+              rowKey="key"
+              onRow={(record) => ({
+                onClick: () => {
+                  setSelectedTransaction(record);
+                  setTransactionModalVisible(true);
+                },
+              })}
+            />
+            <Modal
+              title={<span>Transaction Details</span>}
+              open={transactionModalVisible}
+              onCancel={() => setTransactionModalVisible(false)}
+              footer={[
+                <Button key="close" onClick={() => setTransactionModalVisible(false)}>
+                  Close
+                </Button>,
+              ]}
+              width={windowWidth < 500 ? '90vw' : windowWidth < 768 ? 350 : 500}
+              bodyStyle={{ padding: windowWidth < 500 ? '8px' : '16px' }}
+            >
+              {selectedTransaction && (
+                <div style={{ padding: '16px' }}>
+                  <div style={{ marginBottom: 12 }}><strong>Day:</strong> {selectedTransaction.date}</div>
+                  <div style={{ marginBottom: 12 }}><strong>Movie:</strong> {selectedTransaction.movie}</div>
+                  <div style={{ marginBottom: 12 }}><strong>Grand Total:</strong> {selectedTransaction.grandTotal ? selectedTransaction.grandTotal.toLocaleString('vi-VN') + ' ₫' : ''}</div>
+                  <div style={{ marginBottom: 12 }}><strong>Tickets:</strong> {selectedTransaction.tickets}</div>
+                  <div style={{ marginBottom: 12 }}><strong>Status:</strong> <Tag>{selectedTransaction.status}</Tag></div>
+                  <div style={{ marginBottom: 12 }}><strong>Feedback:</strong> {
+                    (() => {
+                      if (selectedTransaction.status !== 'PAID') {
+                        return <span>Not eligible</span>;
+                      }
+                      const feedback = userFeedbacks.find(f => f.invoiceId === selectedTransaction.invoiceId && f.feedbackId);
+                      if (feedback) {
+                        return (
+                          <span>
+                            <Rate disabled value={feedback.rating} allowHalf />
+                            <span style={{ marginLeft: 8 }}>({feedback.rating}/5)</span>
+                            <div style={{ marginTop: 4 }}>{feedback.comment}</div>
+                            <Button
+                              type="default"
+                              icon={<CommentOutlined />}
+                              style={{ marginTop: 8, color: '#ffd700', background: 'rgba(255, 215, 0, 0.15)', border: 'none' }}
+                              onClick={() => {
+                                setSelectedFeedback(feedback);
+                                setViewFeedbackModalVisible(true);
+                              }}
+                            >
+                              View Feedback
+                            </Button>
+                          </span>
+                        );
+                      } else {
+                        return (
+                          <Button
+                            type="primary"
+                            icon={<StarOutlined />}
+                            style={{ marginTop: 8, color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', border: 'none' }}
+                            onClick={() => {
+                              setSelectedInvoice(selectedTransaction);
+                              setModalVisible(true);
+                            }}
+                          >
+                            Add Feedback
+                          </Button>
+                        );
+                      }
+                    })()
+                  }</div>
+                </div>
+              )}
+            </Modal>
+            <div className="profile-history-footer">
+              <Button className="profile-history-btn" onClick={handleViewHistory}>
+                See All History
+              </Button>
+            </div>
+            <FeedbackModal
+              visible={modalVisible}
+              onCancel={() => {
+                setModalVisible(false);
+                setSelectedInvoice(null);
+              }}
+              onSubmit={handleSubmitFeedback}
+              invoice={selectedInvoice}
+            />
+            <Modal
+              title={
+                <Space style={{ flexWrap: 'wrap', rowGap: 4 }}>
+                  <CommentOutlined />
+                  <span style={{ fontSize: windowWidth < 500 ? 16 : 20 }}>View Feedback</span>
+                  {selectedFeedback && (
+                    <Text type="secondary" style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff' }}>
+                      for "{selectedFeedback.movieName}"
+                    </Text>
+                  )}
+                </Space>
+              }
+              open={viewFeedbackModalVisible}
+              onCancel={() => setViewFeedbackModalVisible(false)}
+              footer={[
+                <Button key="close" onClick={() => setViewFeedbackModalVisible(false)} style={{ width: windowWidth < 500 ? '100%' : undefined }}>
+                  Close
+                </Button>,
+              ]}
+              width={windowWidth < 500 ? '95vw' : windowWidth < 768 ? 350 : 600}
+              bodyStyle={{ padding: windowWidth < 500 ? '12px' : '20px' }}
+              className="feedback-modal"
+              confirmLoading={viewFeedbackLoading}
+            >
+              {selectedFeedback && (
+                <div className="feedback-details" style={{
+                  padding: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: windowWidth < 500 ? 10 : 16,
+                  fontSize: windowWidth < 500 ? 13 : 16,
+                  wordBreak: 'break-word',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Rating:</Text>
+                    <Rate disabled value={selectedFeedback.rating} allowHalf style={{ fontSize: windowWidth < 500 ? 18 : 22 }} />
+                    <Text style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff' }}>({selectedFeedback.rating}/5)</Text>
+                  </div>
+                  <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Comment:</Text>
+                    <div style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginTop: 2, whiteSpace: 'pre-line' }}>{selectedFeedback.comment}</div>
+                  </div>
+                  <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Seats:</Text>
+                    <Text style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginLeft: 4 }}>{selectedFeedback.seat}</Text>
+                  </div>
+                  <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Show Time:</Text>
+                    <Text style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginLeft: 4 }}>
+                      {new Date(selectedFeedback.scheduleShowTime).toLocaleString("vi-VN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                  </div>
+                  <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Created:</Text>
+                    <Text style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginLeft: 4 }}>
+                      {new Date(selectedFeedback.createdDate).toLocaleDateString("vi-VN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                  </div>
+                  {selectedFeedback.updatedDate &&
+                    selectedFeedback.updatedDate !== selectedFeedback.createdDate && (
+                      <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
+                        <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, minWidth: 70 }}>Updated:</Text>
+                        <Text style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginLeft: 4 }}>
+                          {new Date(selectedFeedback.updatedDate).toLocaleDateString("vi-VN", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </Text>
+                      </div>
+                    )}
+                </div>
+              )}
+            </Modal>
+          </div>
+        </TabPane>
+      </Tabs>
     </div>
   );
 };

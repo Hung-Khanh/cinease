@@ -18,6 +18,7 @@ const mockMovie = {
   movieNameEnglish: 'Test Movie',
   posterImageUrl: 'test-poster.jpg',
   dates: ['2025-07-17', '2025-07-18'],
+  duration: 120,
 };
 
 const mockShowtimes = [
@@ -53,7 +54,7 @@ describe('SelectShowtime', () => {
   it('renders loading state then movie info', async () => {
     fetch.mockImplementation((url) => {
       if (url.includes('/public/movies')) {
-        return Promise.resolve({ ok: true, json: async () => [mockMovie] });
+        return Promise.resolve({ ok: true, json: async () => mockMovie });
       }
       if (url.includes('/public/showtimes')) {
         return Promise.resolve({ ok: true, json: async () => mockShowtimes });
@@ -61,7 +62,9 @@ describe('SelectShowtime', () => {
       return Promise.resolve({ ok: false, json: async () => ({}) });
     });
     renderComponent();
-    expect(screen.getByText(/Đang tải thông tin phim/i)).toBeInTheDocument();
+    // Kiểm tra loading text thực tế
+    expect(screen.getByText(/Loading showtimes/i)).toBeInTheDocument();
+    // Movie title có thể bị chia nhỏ, dùng matcher function
     await waitFor(() => expect(screen.getByText('Test Movie')).toBeInTheDocument());
     expect(screen.getByAltText('Test Movie')).toBeInTheDocument();
   });
@@ -69,7 +72,7 @@ describe('SelectShowtime', () => {
   it('shows date and time buttons after loading', async () => {
     fetch.mockImplementation((url) => {
       if (url.includes('/public/movies')) {
-        return Promise.resolve({ ok: true, json: async () => [mockMovie] });
+        return Promise.resolve({ ok: true, json: async () => mockMovie });
       }
       if (url.includes('/public/showtimes')) {
         return Promise.resolve({ ok: true, json: async () => mockShowtimes });
@@ -77,16 +80,24 @@ describe('SelectShowtime', () => {
       return Promise.resolve({ ok: false, json: async () => ({}) });
     });
     renderComponent();
-    await waitFor(() => expect(screen.getByText('Test Movie')).toBeInTheDocument());
-    expect(screen.getByText('2025-07-17')).toBeInTheDocument();
-    expect(screen.getByText('2025-07-18')).toBeInTheDocument();
-    // Click vào ngày để hiện nút thời gian
-    fireEvent.click(screen.getByText('2025-07-17'));
+    // Dùng matcher function để tìm tiêu đề phim (có thể bị chia nhỏ)
+    await waitFor(() => expect(screen.getByText((content, node) => {
+      const hasText = (node) => node.textContent && node.textContent.replace(/\s+/g, ' ').trim() === 'Test Movie';
+      const nodeHasText = hasText(node);
+      const childrenDontHaveText = Array.from(node?.children || []).every(child => !hasText(child));
+      return nodeHasText && childrenDontHaveText;
+    })).toBeInTheDocument());
+    // Kiểm tra nút ngày dựa vào số ngày (17, 18)
+    expect(screen.getByText('17')).toBeInTheDocument();
+    expect(screen.getByText('18')).toBeInTheDocument();
+    // Click vào nút ngày đầu tiên
+    fireEvent.click(screen.getByText('17'));
     await waitFor(() => {
       expect(screen.getByText('10:00')).toBeInTheDocument();
       expect(screen.getByText('14:00')).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByText('2025-07-18'));
+    // Click vào nút ngày thứ hai
+    fireEvent.click(screen.getByText('18'));
     await waitFor(() => {
       expect(screen.getByText('16:00')).toBeInTheDocument();
     });
@@ -95,23 +106,36 @@ describe('SelectShowtime', () => {
   it('shows warning if SELECT SEAT is clicked without date/time', async () => {
     fetch.mockImplementation((url) => {
       if (url.includes('/public/movies')) {
-        return Promise.resolve({ ok: true, json: async () => [mockMovie] });
+        return Promise.resolve({ ok: true, json: async () => mockMovie });
       }
       if (url.includes('/public/showtimes')) {
         return Promise.resolve({ ok: true, json: async () => mockShowtimes });
       }
       return Promise.resolve({ ok: false, json: async () => ({}) });
     });
+    // Mock window.alert vì component dùng alert thay vì antd.message.warning
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { });
+    // Đảm bảo không có ngày/giờ nào được chọn mặc định
+    window.localStorage.setItem('showtimeSelection_123', JSON.stringify({ selectedDate: '', selectedTime: '', selectedScheduleId: null }));
     renderComponent();
-    await waitFor(() => expect(screen.getByText('Test Movie')).toBeInTheDocument());
-    fireEvent.click(screen.getByText('SELECT SEAT'));
-    expect(require('antd').message.warning).toHaveBeenCalledWith('Please select both date and time');
+    await waitFor(() => expect(screen.getByText((content, node) => {
+      const hasText = (node) => node.textContent && node.textContent.replace(/\s+/g, ' ').trim() === 'Test Movie';
+      const nodeHasText = hasText(node);
+      const childrenDontHaveText = Array.from(node?.children || []).every(child => !hasText(child));
+      return nodeHasText && childrenDontHaveText;
+    })).toBeInTheDocument());
+    // Chọn ngày đầu tiên (nút '17')
+    fireEvent.click(screen.getByText('17'));
+    // Không chọn giờ, kiểm tra nút Select Seats bị disabled
+    const selectSeatBtn = screen.getByTestId('select-seat-btn');
+    expect(selectSeatBtn).toBeDisabled();
+    alertSpy.mockRestore();
   });
 
   it('navigates to seat select page when date and time are selected', async () => {
     fetch.mockImplementation((url) => {
       if (url.includes('/public/movies')) {
-        return Promise.resolve({ ok: true, json: async () => [mockMovie] });
+        return Promise.resolve({ ok: true, json: async () => mockMovie });
       }
       if (url.includes('/public/showtimes')) {
         return Promise.resolve({ ok: true, json: async () => mockShowtimes });
@@ -119,10 +143,18 @@ describe('SelectShowtime', () => {
       return Promise.resolve({ ok: false, json: async () => ({}) });
     });
     renderComponent();
-    await waitFor(() => expect(screen.getByText('Test Movie')).toBeInTheDocument());
-    fireEvent.click(screen.getByRole('button', { name: /2025-07-17/ }));
-    fireEvent.click(screen.getByRole('button', { name: /10:00/ }));
-    fireEvent.click(screen.getByText('SELECT SEAT'));
+    await waitFor(() => expect(screen.getByText((content, node) => {
+      const hasText = (node) => node.textContent && node.textContent.replace(/\s+/g, ' ').trim() === 'Test Movie';
+      const nodeHasText = hasText(node);
+      const childrenDontHaveText = Array.from(node?.children || []).every(child => !hasText(child));
+      return nodeHasText && childrenDontHaveText;
+    })).toBeInTheDocument());
+    // Click ngày đầu tiên (nút có text '17')
+    fireEvent.click(screen.getByText('17'));
+    // Click giờ đầu tiên (nút có text '10:00')
+    fireEvent.click(screen.getByText('10:00'));
+    // Click nút chọn ghế
+    fireEvent.click(screen.getByText('Select Seats'));
     await waitFor(() => expect(screen.getByText('SeatSelectPage')).toBeInTheDocument());
   });
 });

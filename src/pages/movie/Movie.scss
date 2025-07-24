@@ -44,8 +44,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   padding-bottom: 30px;
 }
 
-.movie-title {
-  font-size: 2rem;
+.movie-title-search {
   font-weight: 600;
   margin: 0px 16px 0px 16px;
   color: $text-light;
@@ -217,8 +216,7 @@ $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   color: $text-light;
 }
 
-.movie-title {
-  font-size: 1.1rem;
+.movie-title-now {
   font-weight: 600;
   color: $text-light;
   white-space: nowrap;

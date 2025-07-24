@@ -66,7 +66,7 @@ describe("TicketInformation component", () => {
       expect(screen.getByText("Test Movie")).toBeInTheDocument();
       expect(screen.getByText(/A1, A2/)).toBeInTheDocument();
       expect(screen.getByText("20/07/2025")).toBeInTheDocument();
-      expect(screen.getByText("19:00:00")).toBeInTheDocument();
+      expect(screen.getByText(/7:00:00 PM/)).toBeInTheDocument();
       expect(screen.getByText("Confirm")).toBeInTheDocument();
     });
   });

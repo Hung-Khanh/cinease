@@ -37,7 +37,7 @@ describe('PaymentSuccess', () => {
     grandTotal: 200000,
     status: 'SUCCESS',
   };
-  const movieData = [{ largeImage: 'movie-poster.jpg' }];
+  const movieData = [{ posterImageUrl: 'movie-poster.jpg' }];
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,6 +56,8 @@ describe('PaymentSuccess', () => {
       }
       return Promise.resolve({ ok: false });
     });
+    // Mock window.alert để tránh lỗi jsdom
+    window.alert = jest.fn();
   });
 
   it('renders ticket info after fetch', async () => {
@@ -65,16 +67,20 @@ describe('PaymentSuccess', () => {
       </MemoryRouter>
     );
     await waitFor(() => {
-      expect(screen.getByText('Ticket')).toBeInTheDocument();
+      expect(screen.getByText('CINEMA TICKET')).toBeInTheDocument();
       expect(screen.getByText('Spiderman')).toBeInTheDocument();
       expect(screen.getByText('Room 1')).toBeInTheDocument();
-      expect(screen.getByText('Mon, 26 May')).toBeInTheDocument();
-      expect(screen.getByText('A1, A2')).toBeInTheDocument();
+      // Kiểm tra ngày tháng đúng định dạng fullDate
+      expect(screen.getByText('Monday, May 26, 2025')).toBeInTheDocument();
+      // Kiểm tra từng ghế riêng lẻ
+      expect(screen.getByText('A1')).toBeInTheDocument();
+      expect(screen.getByText('A2')).toBeInTheDocument();
       expect(screen.getByText('15:40')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
       expect(screen.getByText('200,000 VND')).toBeInTheDocument();
       expect(screen.getByText('SUCCESS')).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: /movie poster/i })).toHaveAttribute('src', 'movie-poster.jpg');
+      // Kiểm tra poster
+      expect(screen.getAllByRole('img', { name: /spiderman/i })[0]).toHaveAttribute('src', 'movie-poster.jpg');
     });
   });
 
@@ -84,9 +90,13 @@ describe('PaymentSuccess', () => {
         <PaymentSuccess />
       </MemoryRouter>
     );
-    await waitFor(() => screen.getByText('Back to Home page'));
-    fireEvent.click(screen.getByText('Back to Home page'));
-    expect(mockNavigate).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      // Tìm nút về trang chủ theo text thực tế
+      const btn = screen.getByRole('button', { name: /back to home/i });
+      expect(btn).toBeInTheDocument();
+      fireEvent.click(btn);
+      expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
   });
 
   it('shows loading when ticketData is null', () => {
@@ -96,6 +106,7 @@ describe('PaymentSuccess', () => {
         <PaymentSuccess />
       </MemoryRouter>
     );
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // Dùng matcher phù hợp với UI thực tế
+    expect(screen.getByText(/Loading your ticket/i)).toBeInTheDocument();
   });
 });
