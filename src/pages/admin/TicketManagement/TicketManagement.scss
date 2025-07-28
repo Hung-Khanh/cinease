@@ -1,0 +1,304 @@
+$primary-bg: #0a181f;
+$secondary-bg: #1a3a2a;
+$text-color: #ffffff;
+$green-accent: #27ae60;
+$hover-color: #2ecc71;
+$bright-green: #0c9550;
+$input-bg: rgba(102, 136, 102, 0.2);
+$input-border: rgba(102, 136, 102, 0.5);
+$dark-input-bg: rgba(0, 50, 50, 0.4);
+$cyan-border: rgba(0, 188, 212, 0.3);
+$cyan-hover: rgba(0, 188, 212, 0.6);
+$danger-color: #e74c3c;
+$view-color: #3498db;
+
+.ticket-management-container {
+  background-color: $primary-bg;
+  color: $text-color;
+  padding: 24px;
+  min-height: 100vh;
+
+  .ticket-management-header {
+    margin-bottom: 24px;
+
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 16px;
+      align-items: center;
+
+      .filter-dropdowns {
+        display: flex;
+        gap: 12px;
+        margin-right: auto;
+
+        .ant-input {
+          background-color: $input-bg !important;
+          border-color: $green-accent !important;
+          color: $text-color !important;
+
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+          }
+
+          &:hover,
+          &:focus {
+            border-color: $hover-color !important;
+          }
+        }
+
+        .ant-select {
+          .ant-select-selector {
+            background-color: $input-bg !important;
+            border-color: $green-accent !important;
+            color: $text-color !important;
+
+            .ant-select-selection-item {
+              color: $text-color !important;
+            }
+
+            .ant-select-selection-placeholder {
+              color: rgba(255, 255, 255, 0.6) !important;
+            }
+          }
+
+          &:hover,
+          &.ant-select-focused {
+            .ant-select-selector {
+              border-color: $hover-color !important;
+            }
+          }
+        }
+
+        .ant-select-dropdown {
+          background-color: $secondary-bg !important;
+
+          .ant-select-item {
+            color: $text-color !important;
+            background-color: $secondary-bg !important;
+
+            &:hover,
+            &.ant-select-item-selected {
+              background-color: $input-bg !important;
+              color: $hover-color !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .ant-table-ticket {
+    background-color: $secondary-bg !important;
+
+    .ant-table-thead > tr > th {
+      background-color: $secondary-bg !important;
+      color: $text-color !important;
+      border-bottom: 1px solid $green-accent !important;
+      font-weight: 600;
+
+      &::before {
+        display: none !important;
+      }
+    }
+
+    .ant-table-tbody > tr {
+      background-color: $secondary-bg !important;
+      color: $text-color !important;
+
+      &:hover,
+      &:hover > td {
+        background-color: $secondary-bg !important;
+      }
+
+      > td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: $text-color !important;
+      }
+    }
+  }
+
+  .pagination-btn-ticket {
+    margin: 0 12px;
+    padding: 4x 15px;
+    border-radius: 4px;
+    color: $text-color !important;
+
+    a {
+      color: $text-color !important;
+    }
+    &.prev-btn {
+      background-color: #0c9550;
+      margin-right: 10px;
+    }
+
+    &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
+      margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
+      }
+    }
+  }
+
+  .action-buttons {
+    justify-content: flex-start;
+
+    display: flex;
+    gap: 8px;
+
+    .view-btn {
+      color: $view-color !important;
+
+      &:hover {
+        color: lighten($view-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .edit-btn {
+      color: $green-accent !important;
+
+      &:hover {
+        color: $hover-color !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .delete-btn {
+      color: $danger-color !important;
+
+      &:hover {
+        color: lighten($danger-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+  }
+
+  .pagination-btn {
+    margin: 0 5px;
+    padding: 4px 15px;
+    border-radius: 4px;
+
+    &.prev-btn {
+      margin-right: 10px;
+    }
+
+    &.next-btn {
+      margin-left: 10px;
+    }
+  }
+}
+
+.ant-modal-wrap,
+.ant-modal-mask + .ant-modal-wrap {
+  .ticket-details-modal {
+    .ant-modal {
+      max-width: 600px !important;
+      width: 95% !important;
+
+      .ant-modal-content {
+        background: linear-gradient(
+          180deg,
+          rgba(10, 24, 31, 0.9) 0%,
+          rgba(26, 58, 42, 0.9) 100%
+        ) !important;
+        border: 2px solid $bright-green !important;
+        border-radius: 8px !important;
+        box-shadow: 0 15px 50px rgba(0, 188, 212, 0.3) !important;
+        padding: 0 !important;
+      }
+
+      .ant-modal-header {
+        background: transparent !important;
+        border-bottom: 1px solid $cyan-border !important;
+        border-radius: 6px 6px 0 0 !important;
+        padding: 20px 24px 16px 24px !important;
+        margin-bottom: 0 !important;
+
+        .ant-modal-title {
+          color: $text-color !important;
+          font-size: 20px !important;
+          font-weight: 600 !important;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+        }
+      }
+
+      .ant-modal-close {
+        color: $text-color !important;
+        font-size: 18px !important;
+        top: 18px !important;
+        right: 20px !important;
+        width: 28px !important;
+        height: 28px !important;
+
+        &:hover {
+          color: $bright-green !important;
+          background-color: rgba(0, 188, 212, 0.1) !important;
+          border-radius: 4px !important;
+        }
+
+        .ant-modal-close-x {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 100% !important;
+          height: 100% !important;
+          font-size: 18px !important;
+          color: inherit !important;
+          line-height: 1 !important;
+        }
+      }
+
+      .ant-modal-body {
+        background: transparent !important;
+        padding: 0 24px 24px 24px !important;
+        color: $text-color !important;
+      }
+
+      .ant-modal-footer {
+        display: none !important;
+      }
+    }
+  }
+}
+
+.ticket-details-modal {
+  .ant-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .ticket-details-content {
+    .ticket-detail-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .ticket-detail-label {
+        flex: 0 0 150px;
+        color: $bright-green;
+        font-weight: 600;
+        margin-right: 20px;
+      }
+
+      .ticket-detail-value {
+        flex: 1;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+.ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+}

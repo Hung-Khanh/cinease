@@ -1,0 +1,295 @@
+.shp-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a3c34 0%, #000000 100%);
+  padding: 24px;
+  color: #fff;
+  font-family: "Arial", sans-serif;
+
+  .shp-content {
+    max-width: 1280px; // Increased max-width slightly for modern displays
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 48px); // Account for padding
+
+    h1 {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      line-height: 1.2;
+
+      @media (max-width: 1024px) {
+        font-size: 40px;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 768px) {
+        font-size: 32px;
+        margin-bottom: 16px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .shp-carousel-wrapper {
+      width: 100%;
+      margin-top: 24px;
+      padding: 0 40px 40px 0;
+
+      .shp-movie-carousel {
+        width: 100%;
+        visibility: visible;
+        padding: 0 40px;
+
+        .shp-carousel-slide {
+          padding: 12px;
+          box-sizing: border-box;
+          margin: 16px 0;
+
+          @media (max-width: 1024px) {
+            padding: 8px;
+          }
+
+          @media (max-width: 768px) {
+            padding: 6px;
+          }
+
+          @media (max-width: 480px) {
+            padding: 4px;
+          }
+        }
+
+        .shp-movie-card {
+          width: 100%;
+          height: auto;
+          min-height: 360px;
+          text-align: center;
+          display: flex !important;
+          flex-direction: column;
+          border-radius: 8px;
+          overflow: hidden;
+          transition: transform 0.3s ease;
+          margin-bottom: 30px;
+          &:hover {
+            transform: translateY(-4px);
+          }
+
+          @media (max-width: 1280px) {
+            min-height: 340px;
+          }
+
+          @media (max-width: 1024px) {
+            min-height: 320px;
+          }
+
+          @media (max-width: 768px) {
+            min-height: 300px;
+          }
+
+          @media (max-width: 576px) {
+            min-height: 280px;
+          }
+
+          @media (max-width: 480px) {
+            min-height: 260px;
+          }
+
+          .ant-card-cover {
+            margin: 0;
+            padding: 0;
+            flex: 1;
+          }
+
+          .shp-movie-poster {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px 8px 0 0;
+            display: block;
+
+            @media (max-width: 1280px) {
+              height: 320px;
+            }
+
+            @media (max-width: 1024px) {
+              height: 280px;
+            }
+
+            @media (max-width: 768px) {
+              height: 240px;
+            }
+
+            @media (max-width: 576px) {
+              height: 200px;
+            }
+
+            @media (max-width: 480px) {
+              height: 180px;
+            }
+          }
+
+          .ant-card-body {
+            padding: 30px;
+            flex: 0 0 auto;
+
+            @media (max-width: 1024px) {
+              padding: 20px;
+            }
+
+            @media (max-width: 768px) {
+              padding: 16px;
+            }
+
+            @media (max-width: 576px) {
+              padding: 12px;
+            }
+
+            @media (max-width: 480px) {
+              padding: 8px;
+            }
+          }
+
+          .ant-card-meta-title {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+
+            @media (max-width: 768px) {
+              font-size: 14px;
+            }
+
+            @media (max-width: 576px) {
+              font-size: 13px;
+            }
+
+            @media (max-width: 480px) {
+              font-size: 12px;
+            }
+          }
+
+          .shp-book-button {
+            background-color: #0c9550;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            @media (max-width: 768px) {
+              padding: 10px;
+              font-size: 14px;
+            }
+
+            @media (max-width: 576px) {
+              padding: 8px;
+              font-size: 13px;
+            }
+
+            @media (max-width: 480px) {
+              padding: 6px;
+              font-size: 12px;
+            }
+
+            &:hover {
+              background-color: #044824;
+            }
+          }
+        }
+
+        .ant-carousel .slick-prev,
+        .ant-carousel .slick-next {
+          color: #fff;
+          font-size: 28px;
+          z-index: 1;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.3s ease;
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.7);
+          }
+
+          @media (max-width: 1024px) {
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+          }
+
+          @media (max-width: 768px) {
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+          }
+
+          @media (max-width: 576px) {
+            font-size: 18px;
+            width: 28px;
+            height: 28px;
+          }
+        }
+
+        .ant-carousel .slick-prev {
+          left: 16px;
+
+          @media (max-width: 1024px) {
+            left: 12px;
+          }
+
+          @media (max-width: 768px) {
+            left: 8px;
+          }
+
+          @media (max-width: 576px) {
+            left: 4px;
+          }
+        }
+
+        .ant-carousel .slick-next {
+          right: 16px;
+
+          @media (max-width: 1024px) {
+            right: 12px;
+          }
+
+          @media (max-width: 768px) {
+            right: 8px;
+          }
+
+          @media (max-width: 576px) {
+            right: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1024px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
+}

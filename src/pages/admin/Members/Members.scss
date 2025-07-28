@@ -1,0 +1,326 @@
+// ===== COLOR VARIABLES =====
+$primary-bg: #0a181f;
+$secondary-bg: #1a3a2a;
+$text-color: #ffffff;
+$green-accent: #27ae60;
+$hover-color: #2ecc71;
+$bright-green: #0c9550;
+$input-bg: rgba(102, 136, 102, 0.2);
+$input-border: rgba(102, 136, 102, 0.5);
+$dark-input-bg: rgba(0, 50, 50, 0.4);
+$cyan-border: rgba(0, 188, 212, 0.3);
+$cyan-hover: rgba(0, 188, 212, 0.6);
+$danger-color: #e74c3c;
+$view-color: #3498db;
+
+// ===== MAIN CONTAINER =====
+.members-container {
+  background-color: $primary-bg;
+  color: $text-color;
+  padding: 24px;
+  min-height: 100vh;
+
+  // ===== HEADER SECTION =====
+  .members-header {
+    margin-bottom: 24px;
+
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      // Filter Dropdowns
+      .filter-dropdowns {
+        display: flex;
+        gap: 12px;
+
+        .ant-input {
+          background-color: $input-bg !important;
+          border-color: $green-accent !important;
+          color: $text-color !important;
+
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+          }
+
+          &:hover,
+          &:focus {
+            border-color: $hover-color !important;
+          }
+        }
+      }
+
+      // Add Member Button
+      .add-member-btn {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
+        color: $text-color !important;
+
+        &:hover,
+        &:focus {
+          background-color: $hover-color !important;
+          border-color: $hover-color !important;
+          color: $text-color !important;
+        }
+      }
+    }
+  }
+
+  // ===== TABLE STYLING =====
+  .ant-table-member {
+    background-color: $secondary-bg !important;
+
+    .ant-table-thead > tr > th {
+      background-color: $secondary-bg !important;
+      color: $text-color !important;
+      border-bottom: 1px solid $green-accent !important;
+      font-weight: 600;
+
+      &::before {
+        display: none !important;
+      }
+    }
+
+    .ant-table-tbody > tr {
+      background-color: $secondary-bg !important;
+      color: $text-color !important;
+
+      &:hover,
+      &:hover > td {
+        background-color: $secondary-bg !important;
+      }
+
+      > td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: $text-color !important;
+      }
+    }
+  }
+
+  .pagination-btn-member {
+    margin: 0 12px;
+    padding: 4x 15px;
+    border-radius: 4px;
+    color: $text-color !important;
+
+    a {
+      color: $text-color !important;
+    }
+    &.prev-btn {
+      background-color: #0c9550;
+      margin-right: 10px;
+    }
+
+    &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
+      margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
+      }
+    }
+  }
+  // ===== ACTION BUTTONS =====
+  .action-buttons {
+    justify-content: flex-start;
+    display: flex;
+    gap: 8px;
+
+    .view-btn {
+      color: $view-color !important;
+
+      &:hover {
+        color: lighten($view-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .edit-btn {
+      color: $green-accent !important;
+
+      &:hover {
+        color: $hover-color !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .delete-btn {
+      color: $danger-color !important;
+
+      &:hover {
+        color: lighten($danger-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
+  }
+}
+
+// ===== MEMBER FORM =====
+.member-modal .member-form {
+  .ant-form-item {
+    margin-bottom: 20px !important;
+
+    .ant-form-item-label > label {
+      color: $bright-green !important;
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      margin-bottom: 8px !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+      &::after {
+        display: none !important;
+      }
+    }
+
+    // Base Input Styles
+    .ant-input,
+    .ant-input-affix-wrapper,
+    .ant-select .ant-select-selector,
+    .ant-picker {
+      background: $dark-input-bg !important;
+      border: 1px solid $cyan-border !important;
+      color: $text-color !important;
+      border-radius: 6px !important;
+      padding: 12px 16px !important;
+      font-size: 14px !important;
+      transition: all 0.3s ease !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+
+      &:hover {
+        border-color: $cyan-hover !important;
+        background: rgba(0, 60, 60, 0.5) !important;
+        box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15) !important;
+      }
+
+      &:focus,
+      &.ant-input-focused {
+        border-color: $bright-green !important;
+        box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2) !important;
+        background: rgba(0, 60, 60, 0.6) !important;
+        outline: none !important;
+      }
+    }
+  }
+
+  // Submit Button
+  .submit-btn {
+    background: $bright-green !important;
+    border: none !important;
+    color: $text-color !important;
+    height: 48px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4) !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    width: 100% !important;
+
+    &:hover {
+      background: $bright-green !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5) !important;
+    }
+
+    &:focus,
+    &:active {
+      background: $bright-green !important;
+      transform: translateY(0) !important;
+      box-shadow: 0 2px 10px rgba(0, 188, 212, 0.3) !important;
+    }
+  }
+}
+
+// ===== MEMBER DETAILS MODAL =====
+.member-details-modal {
+  .ant-modal-header {
+    background-color: $secondary-bg !important;
+    border-bottom: 1px solid $green-accent !important;
+
+    .ant-modal-title {
+      color: $text-color !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  .member-details-content {
+    border-radius: 8px;
+    padding: 20px;
+
+    .member-detail-row {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      padding: 12px 0;
+
+      &:last-child {
+        border-bottom: none !important;
+      }
+
+      .member-detail-label {
+        width: 40%;
+        color: $bright-green !important;
+        font-weight: 600 !important;
+        opacity: 0.8;
+        text-align: left;
+        padding-right: 16px;
+      }
+
+      .member-detail-value {
+        width: 60%;
+        text-align: left;
+        color: $text-color !important;
+      }
+    }
+  }
+}
+
+// ===== DELETE CONFIRMATION MODAL =====
+.delete-confirmation-modal {
+  .delete-confirmation-content {
+    text-align: center;
+    padding: 20px;
+
+    .member-title {
+      font-weight: bold;
+      color: $text-color;
+      margin: 10px 0;
+    }
+
+    .warning-text {
+      color: $danger-color;
+      margin-bottom: 20px;
+    }
+
+    .delete-confirmation-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+
+      .cancel-btn {
+        background-color: transparent;
+        color: $text-color;
+        border-color: $text-color;
+      }
+
+      .confirm-delete-btn {
+        background-color: $danger-color;
+        color: $text-color;
+        border: none;
+
+        &:hover {
+          background-color: lighten($danger-color, 10%);
+        }
+      }
+    }
+  }
+}

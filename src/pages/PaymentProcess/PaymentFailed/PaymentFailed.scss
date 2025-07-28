@@ -1,0 +1,84 @@
+.payment-failed-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
+  font-family: "Arial", sans-serif;
+  color: white;
+}
+
+/* Left side - poster */
+.poster-section {
+  text-align: center;
+
+  .movie-poster {
+    width: 220px;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .poster-title {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1rem;
+  }
+}
+
+/* Right side - info */
+.failed-info {
+  background: linear-gradient(180deg, #0a181f 0%, #0a181f 60%, #1a3a2a 100%);
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  .failed-header {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+
+  .info-group {
+    margin-bottom: 1.2rem;
+
+    .info-label {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .info-value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  .error-note {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 2rem 0 1.5rem;
+    color: red;
+  }
+
+  .payment-btn {
+    display: block;
+    margin: 0 auto;
+    background-color: #18a558;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #12914b;
+    }
+  }
+}

@@ -1,0 +1,615 @@
+.tix-info-main {
+  position: relative;
+  min-height: 100vh;
+  background-image: url("../../../assets/bigbackground.png");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #fff;
+
+  .tix-back-btn {
+    background: none;
+    border: 2px solid #0c9550;
+    color: #0c9550;
+    font-size: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50px;
+    top: 200px;
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover {
+      background-color: #0c9550;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+    }
+  }
+
+  .tix-info-content {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    justify-content: center;
+    width: 900px;
+    padding: 0 15px 50px 50px;
+  }
+
+  .tix-info-card {
+    border-radius: 20px;
+    padding: 450px;
+    height: 170px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-direction: row;
+    background: rgb(0, 0, 1);
+  }
+
+  .tix-poster-container {
+    .tix-movie-poster {
+      width: 350px;
+      height: 550px;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+  }
+
+  .tix-detail-chosen {
+    margin-bottom: 15px;
+    display: grid;
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 8px;
+
+    .ant-dropdown {
+      padding: 20px;
+    }
+  }
+
+  .tix-details-section {
+    flex: 1;
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .tix-detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+
+      &.tix-voucher-search {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 400px;
+        position: relative;
+        padding-left: 60px;
+
+        span.text {
+          font-weight: 500;
+          color: #fff;
+        }
+
+        .ant-input-search {
+          font-size: 14px;
+          border-radius: 4px;
+          transition: border-color 0.3s;
+          width: 100%;
+
+          .ant-input {
+            padding: 8px;
+          }
+
+          .ant-input:focus,
+          .ant-input:hover {
+            outline: none;
+            color: #000;
+          }
+        }
+
+        .tix-voucher-list {
+          list-style: linear-gradient(200deg, cyan, black);
+          display: block;
+          padding: 0;
+          margin: 0;
+          margin-top: 9px;
+          max-height: 150px;
+          overflow-y: auto;
+          width: 100%;
+          position: absolute;
+          z-index: 10;
+          ul {
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+
+            li {
+              padding: 8px 12px;
+              cursor: pointer;
+              font-size: 14px;
+              color: #333;
+              transition: background-color 0.2s;
+              border: none;
+            }
+
+            li:hover {
+              background-color: #4a4949;
+            }
+
+            li.tix-voucher-selected {
+              background-color: #e6f7ff;
+              color: #1890ff;
+              font-weight: 500;
+            }
+          }
+        }
+        &.tix-has-vouchers {
+          display: block;
+        }
+      }
+
+      &.tix-type-selection {
+        flex-direction: column;
+        padding-left: 60px;
+        width: 400px;
+
+        .ant-btn {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          text-align: left;
+          padding: 0 16px;
+        }
+
+        .ant-btn .ant-space {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+        }
+      }
+
+      &.tix-payment-method {
+        flex-direction: column;
+        gap: 10px;
+        width: 400px;
+        padding-left: 60px;
+
+        .ant-btn {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          text-align: left;
+          padding: 0 16px;
+        }
+
+        .ant-btn .ant-space {
+          width: 100%;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center;
+          margin: 100px !important;
+        }
+      }
+
+      &.tix-transaction {
+        flex-direction: column;
+        gap: 5px;
+
+        .tix-transaction-details {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          padding-left: 20px;
+
+          div:nth-child(odd) {
+            font-weight: bold;
+          }
+          div:nth-child(even) {
+            text-align: right;
+          }
+        }
+      }
+
+      &.tix-total {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+
+      &.tix-phone-input {
+        button {
+          width: 100%;
+          padding: 10px;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+    }
+
+    .tix-note {
+      font-size: 12px;
+      color: #ccc;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .tix-purchase-btn {
+      width: 500px;
+      margin-left: 0px;
+      padding: 10px;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 7px;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #218838;
+      }
+    }
+  }
+
+  .tix-type-note {
+    font-size: 14px;
+    color: #dbd8d8;
+    margin: 10px;
+    padding-left: 300px;
+  }
+
+  .tix-infor-button {
+    display: flex;
+    justify-content: center;
+  }
+
+  .tix-infor-modal-button {
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #0a7b42 !important;
+    }
+  }
+  @media (max-width: 414px) {
+    .tix-info-content {
+      width: 100% !important;
+      grid-template-columns: 1fr !important;
+      padding: 0 2px 10px 2px !important;
+    }
+    .tix-info-card {
+      padding: 5px !important;
+      gap: 8px !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    .tix-poster-container .tix-movie-poster {
+      width: 100px !important;
+      height: 150px !important;
+    }
+    .tix-details-section h2 {
+      font-size: 15px !important;
+      margin-bottom: 8px !important;
+    }
+    .tix-detail-row,
+    .tix-detail-chosen {
+      font-size: 11px !important;
+      padding: 5px 0 !important;
+      width: 100% !important;
+      flex-direction: column !important;
+      gap: 4px !important;
+    }
+    .tix-type-note {
+      font-size: 10px !important;
+      margin: 2px 0 !important;
+      padding-left: 0 !important;
+      text-align: center !important;
+    }
+    .tix-back-btn {
+      font-size: 14px !important;
+      top: 5px !important;
+      left: 5px !important;
+      padding: 4px !important;
+    }
+    .tix-purchase-btn {
+      font-size: 12px !important;
+      padding: 6px !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+    }
+    .tix-infor-modal-button {
+      font-size: 12px !important;
+      padding: 6px 0 !important;
+    }
+  }
+  @media (max-width: 768px) {
+    .tix-info-main {
+      height: 120px;
+      .tix-info-card {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        display: block;
+      }
+
+      .tix-poster-container {
+        position: relative;
+        margin-top: 50px;
+
+        .tix-movie-poster {
+          width: 150px;
+          height: 225px;
+        }
+      }
+
+      .tix-details-section {
+        h2 {
+          font-size: 20px;
+        }
+
+        .tix-detail-row {
+          font-size: 14px;
+
+          &.tix-voucher-search,
+          &.tix-type-selection,
+          &.tix-payment-method {
+            width: 100%;
+            padding-left: 0;
+          }
+
+          &.tix-purchase-btn {
+            width: 100%;
+            margin-left: 0;
+          }
+        }
+
+        .tix-total {
+          font-size: 18px;
+        }
+      }
+
+      .tix-back-btn {
+        font-size: 20px;
+        top: 15px;
+        left: 15px;
+      }
+
+      .tix-type-note {
+        padding-left: 0;
+        text-align: center;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px;
+
+    .tix-info-content {
+      padding: 0 10px;
+    }
+
+    .tix-info-card {
+      padding: 10px;
+      gap: 15px;
+    }
+
+    .tix-poster-container {
+      .tix-movie-poster {
+        width: 120px;
+        height: 180px;
+      }
+    }
+
+    .tix-details-section {
+      h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      .tix-detail-row {
+        font-size: 12px;
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px;
+
+        &.tix-transaction {
+          .tix-transaction-details {
+            padding-left: 10px;
+          }
+        }
+
+        &.tix-voucher-search,
+        &.tix-type-selection,
+        &.tix-payment-method {
+          width: 100%;
+          padding-left: 0;
+        }
+      }
+
+      .tix-total {
+        font-size: 16px;
+      }
+
+      .tix-note {
+        font-size: 10px;
+      }
+
+      .tix-purchase-btn {
+        font-size: 14px;
+        padding: 8px;
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    .tix-back-btn {
+      font-size: 18px;
+      top: 10px;
+      left: 10px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .tix-info-content {
+    width: 100%;
+    grid-template-columns: 1fr;
+    padding: 0 10px 30px 10px;
+  }
+  .tix-info-card {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    height: auto;
+  }
+  .tix-poster-container .tix-movie-poster {
+    width: 220px;
+    height: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tix-info-main {
+    padding: 10px;
+  }
+  .tix-info-content {
+    width: 100%;
+    grid-template-columns: 1fr;
+    padding: 0 5px 20px 5px;
+  }
+  .tix-info-card {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+    width: 100%;
+    height: auto;
+  }
+  .tix-poster-container .tix-movie-poster {
+    width: 150px;
+    height: 225px;
+  }
+  .tix-details-section h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .tix-detail-row,
+  .tix-detail-chosen {
+    font-size: 13px;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 0;
+    width: 100% !important;
+    padding-left: 0 !important;
+  }
+  .tix-type-note {
+    font-size: 12px;
+    margin: 5px 0;
+    padding-left: 0;
+    text-align: center;
+  }
+  .tix-back-btn {
+    font-size: 18px;
+    top: 10px;
+    left: 10px;
+    padding: 7px;
+  }
+  .tix-purchase-btn {
+    font-size: 14px;
+    padding: 8px;
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .tix-info-main {
+    padding: 5px;
+  }
+  .tix-info-content {
+    padding: 0 2px;
+  }
+  .tix-info-card {
+    padding: 5px;
+    gap: 8px;
+  }
+  .tix-poster-container .tix-movie-poster {
+    width: 100px;
+    height: 150px;
+  }
+  .tix-details-section h2 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .tix-detail-row,
+  .tix-detail-chosen {
+    font-size: 11px;
+    padding: 5px 0;
+  }
+  .tix-type-note {
+    font-size: 10px;
+    margin: 2px 0;
+  }
+  .tix-back-btn {
+    font-size: 14px;
+    top: 5px;
+    left: 5px;
+    padding: 4px;
+  }
+  .tix-purchase-btn {
+    font-size: 12px;
+    padding: 6px;
+    width: 100%;
+    margin-left: 0;
+  }
+  .tix-infor-modal-button {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+}
+
+@media (max-width: 350px) {
+  .tix-poster-container .tix-movie-poster {
+    width: 70px;
+    height: 100px;
+  }
+  .tix-details-section h2 {
+    font-size: 12px;
+  }
+  .tix-type-note {
+    font-size: 8px;
+  }
+}

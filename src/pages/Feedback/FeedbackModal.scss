@@ -1,0 +1,140 @@
+.feedback-modal {
+  .ant-modal-title {
+    font-size: 20px;
+    color: #ffffff;
+  }
+
+  .ant-form-item-label {
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .ant-rate {
+    color: #f39c12; // Color for rating stars
+  }
+
+  @media (max-width: 576px) {
+    .feedback-modal-actions .ant-btn {
+      margin: 0 -25px 0 0 !important;
+      width: 100%;
+    }
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 8px;
+
+    &:focus {
+      border-color: #f39c12;
+      box-shadow: 0 0 0 2px rgba(243, 156, 18, 0.2);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .feedback-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+
+    .ant-btn {
+      border-radius: 8px;
+      margin-left: 10px;
+
+      &.ant-btn-primary {
+        background: #27ae60;
+        border-color: #27ae60;
+
+        &:hover {
+          background: #2ecc71;
+        }
+      }
+    }
+  }
+}
+
+.feedback-card {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  margin: 10px 0;
+  color: #ffffff;
+
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .movie-icon {
+      color: #f39c12;
+      margin-right: 8px;
+    }
+
+    .movie-title {
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .feedback-rating {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+
+      .rating-text {
+        margin-left: 4px;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .feedback-comment {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .comment-icon {
+      color: #f39c12;
+      margin-right: 4px;
+    }
+  }
+
+  .feedback-date {
+    display: flex;
+    align-items: center;
+
+    .date-icon {
+      color: #f39c12;
+      margin-right: 4px;
+    }
+
+    .date-text {
+      color: #b0b0b0;
+    }
+  }
+
+  .ant-card-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    .ant-btn {
+      color: #ffffff;
+
+      &:hover {
+        color: #f39c12;
+      }
+
+      &.danger {
+        color: #ff4d4f;
+
+        &:hover {
+          color: #ff7875;
+        }
+      }
+    }
+  }
+}
