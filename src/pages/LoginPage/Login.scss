@@ -53,6 +53,31 @@
       position: absolute;
       top: 0;
       height: 100%;
+
+      // Đảm bảo text đã chọn trong dropdown giới tính là màu đen
+      .ant-select-single .ant-select-selection-item {
+        color: #000 !important;
+      }
+
+      // Đảm bảo text trong dropdown menu cũng màu đen
+      .ant-select-dropdown .ant-select-item-option-content {
+        color: #000 !important;
+      }
+
+      // Đảm bảo tất cả placeholder trong input của form đăng ký đều màu đen
+      input::placeholder,
+      .ant-input-password input::placeholder,
+      .ant-select-selection-placeholder {
+        color: #000 !important;
+        opacity: 1 !important;
+      }
+
+      input:focus::placeholder,
+      .ant-input-password input:focus::placeholder {
+        color: #000 !important;
+        opacity: 1 !important;
+      }
+
       transition: all 0.6s ease-in-out;
       width: 50%;
       display: flex;

@@ -36,7 +36,7 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   }
 
   return (
-    <div className={`admin-sidebar ${isVisible ? "visible" : "hidden"}`}>
+    <div className={`admin-sidebar ${isVisible ? "visible" : "hidden"}`} role="complementary">
       <div className="sidebar-logo">
         <img src={logo || "/placeholder.svg"} alt="Cinease Logo" className="logo-image" />
       </div>

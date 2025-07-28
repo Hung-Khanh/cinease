@@ -97,8 +97,9 @@ const Header = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token"); 
     setUser(null);
     setNotifications([]);
     setShowDropdown(false);
@@ -142,35 +143,35 @@ const handleLogout = () => {
 
         {/* Bell Icon + Notification */}
         <div className="notification-icon" onClick={toggleNotifications}>
-          <BellOutlined style={{ fontSize: 20, color: "#fff", cursor: "pointer" }} />
+          <BellOutlined data-testid="bell-icon" style={{ fontSize: 20, color: "#fff", cursor: "pointer" }} />
           {unreadCount > 0 && (
             <span className="notification-badge">{unreadCount}</span>
           )}
           {showNotifications && (
             <div className="notification-dropdown">
-  {notifications.length === 0 ? (
-    <div className="notification-empty">Không có thông báo</div>
-  ) : (
-    notifications.map((n) => (
-      <div
-        key={n.id}
-        className={`notification-item ${!n.read ? "unread" : ""}`}
-        onClick={() => {
-          setShowNotifications(false);
-          navigate(`/payment-success?invoiceId=${n.invoiceId}`);
-        }}
-      >
-        <div className="notification-item-icon">🎬</div>
-        <div className="notification-text">
-          <div className="notification-title">
-            Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
-          </div>
-          {n.time && <div className="notification-time">{n.time}</div>}
-        </div>
-      </div>
-    ))
-  )}
-</div>
+              {notifications.length === 0 ? (
+                <div className="notification-empty">Không có thông báo</div>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`notification-item ${!n.read ? "unread" : ""}`}
+                    onClick={() => {
+                      setShowNotifications(false);
+                      navigate(`/payment-success?invoiceId=${n.invoiceId}`);
+                    }}
+                  >
+                    <div className="notification-item-icon">🎬</div>
+                    <div className="notification-text">
+                      <div className="notification-title">
+                        Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
+                      </div>
+                      {n.time && <div className="notification-time">{n.time}</div>}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
 
           )}
         </div>
@@ -183,17 +184,18 @@ const handleLogout = () => {
                 <img
                   src={getUserAvatar()}
                   alt="avatar"
+                  aria-label="avatar"
                   style={{
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
                     objectFit: "cover",
                     border: "2px solid #fff",
-background: "#222",
+                    background: "#222",
                   }}
                 />
               ) : (
-                <UserOutlined style={{ fontSize: 24, color: "#fff" }} />
+                <UserOutlined aria-label="avatar" style={{ fontSize: 24, color: "#fff" }} />
               )}
             </div>
             {showDropdown && (

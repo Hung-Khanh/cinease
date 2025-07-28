@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Link } from "react-router-dom"
@@ -27,26 +25,21 @@ const DescriptionMovie = () => {
   const { movieId } = useParams()
   const token = localStorage.getItem("token")
 
-  // Update time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
-
   const fetchMovieDetails = async () => {
     try {
       setIsLoading(true)
       setError(null)
 
+      const headers = {
+        Accept: "application/json",
+        "ngrok-skip-browser-warning": "true",
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
       const response = await fetch(`${apiUrl}/public/movies/details/${movieId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
-      })
+        headers,
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -159,11 +152,6 @@ const DescriptionMovie = () => {
       <div className="cinema-bg">
         <div className="bg-gradient"></div>
         <div className="bg-pattern"></div>
-        <div className="floating-particles">
-          {[...Array(25)].map((_, i) => (
-            <div key={i} className={`particle particle-${i + 1}`}></div>
-          ))}
-        </div>
       </div>
 
       {/* Hero Section with Movie Backdrop */}
@@ -181,9 +169,9 @@ const DescriptionMovie = () => {
             <FaArrowLeft />
             <span>Back</span>
           </button>
-          <div className="nav-time">
+          {/* <div className="nav-time">
             <span className="time-value">{formatTime(currentTime)}</span>
-          </div>
+          </div> */}
         </nav>
 
         {/* Movie Content */}
@@ -200,7 +188,7 @@ const DescriptionMovie = () => {
                   />
                   <div className="poster-glow"></div>
                 </div>
-                
+
               </div>
             </div>
 
@@ -264,11 +252,23 @@ const DescriptionMovie = () => {
                 )}
 
                 {isMovieReleased && (
-                  <Link to={`/select-showtime/${movieId}`} state={{ movieId: movie.movieId }} className="ticket-btn">
-                    <FaTicketAlt className="btn-icon" />
-                    <span className="btn-text">Book Tickets</span>
-                    <div className="btn-glow"></div>
-                  </Link>
+                  token ? (
+                    <Link to={`/select-showtime/${movieId}`} state={{ movieId: movie.movieId }} className="ticket-btn">
+                      <FaTicketAlt className="btn-icon" />
+                      <span className="btn-text">Book Tickets</span>
+                      <div className="btn-glow"></div>
+                    </Link>
+                  ) : (
+                    <button
+                      className="ticket-btn"
+                      type="button"
+                      onClick={() => navigate("/login")}
+                    >
+                      <FaTicketAlt className="btn-icon" />
+                      <span className="btn-text">Book Tickets</span>
+                      <div className="btn-glow"></div>
+                    </button>
+                  )
                 )}
               </div>
             </div>

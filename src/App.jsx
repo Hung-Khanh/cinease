@@ -27,7 +27,7 @@ import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
 import SelectSeat from "./pages/Seat/SeatSelect.jsx";
 import Confirm from "./pages/Confirm/Confirm.jsx";
 import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
-import ProductPage from "./pages/product/Product.jsx";
+import ProductPage from "./pages/Product/Product.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
 import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
@@ -39,7 +39,8 @@ import PaymentCashSuccess from "./pages/PaymentProcess/PaymentCashSuccess/Paymen
 // Admin components
 import SideBar from "./component/Admin/SideBar/SideBar.jsx";
 import AdminHeader from "./component/Admin/Header/Header.jsx";
-import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx"; // Corrected casing in file name
+import ScrollToTop from "./component/ScrollToTop.jsx";
+import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx"; 
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
@@ -241,6 +242,7 @@ function App() {
     <Provider store={store}>
       <AuthProvider>
         <Router>
+          <ScrollToTop />
           <Routes>
             <Route path="/admin/*" element={<AdminLayout />} />
             <Route path="/*" element={<Layout />} />

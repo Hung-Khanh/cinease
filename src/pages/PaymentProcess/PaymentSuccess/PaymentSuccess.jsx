@@ -24,6 +24,7 @@ const PaymentSuccess = () => {
   const [moviePoster, setMoviePoster] = useState("")
   const [currentTime, setCurrentTime] = useState(new Date())
   const [showConfetti, setShowConfetti] = useState(true)
+  const [movieDetail, setMovieDetail] = useState(null)
   const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api"
   const token = localStorage.getItem("token")
   const role = localStorage.getItem("role")
@@ -127,6 +128,7 @@ const PaymentSuccess = () => {
             const movieData = await movieResponse.json()
             if (movieData.length > 0) {
               setMoviePoster(movieData[0].posterImageUrl)
+              setMovieDetail(movieData[0])
             }
           }
         }
@@ -257,13 +259,12 @@ const PaymentSuccess = () => {
                 <div className="movie-info">
                   <div className="movie-rating">
                     <FaStar className="star-icon" />
-                    <span className="rating-value">8.5</span>
-                    <span className="rating-label">IMDb</span>
+                    <span className="rating-value">{movieDetail?.avgFeedback ? Math.round(movieDetail.avgFeedback * 10) / 10 : "N/A"}</span>
                   </div>
                   <h2 className="movie-title">{ticketData.movieName}</h2>
                   <div className="movie-meta">
-                    <span className="genre">Action • Adventure</span>
-                    <span className="duration">2h 15m</span>
+                    <span className="genre">{Array.isArray(movieDetail?.types) ? movieDetail.types.join(" • ") : (movieDetail?.types || "N/A")}</span>
+                    <span className="duration">{movieDetail?.duration ? `${movieDetail.duration} min` : "N/A"}</span>
                   </div>
                 </div>
               </div>

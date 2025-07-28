@@ -89,7 +89,6 @@ export const FeedbackModal = ({
           label={<span style={{ color: '#ff4d4f', fontWeight: 600, fontSize: windowWidth < 500 ? 13 : 16 }}>* Comment</span>}
           rules={[
             { required: true, message: "Please provide a comment!" },
-            { min: 10, message: "Comment must be at least 10 characters long" },
             { max: 500, message: "Comment cannot exceed 500 characters" },
           ]}
           style={{ marginBottom: windowWidth < 500 ? 10 : 16 }}
@@ -109,7 +108,7 @@ export const FeedbackModal = ({
               Cancel
             </Button>
             <Button type="primary" htmlType="submit" loading={loading} style={{ width: windowWidth < 500 ? '100%' : 120, fontSize: windowWidth < 500 ? 14 : 16 }}>
-              {isEdit ? "Update" : "Submit"} Feedback
+              {isEdit ? "Update" : "Submit"}
             </Button>
           </div>
         </Form.Item>

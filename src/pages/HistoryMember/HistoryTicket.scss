@@ -8,6 +8,8 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
 
     .back-btn {
       background: transparent;
