@@ -13,7 +13,7 @@ import {
   Legend
 } from 'recharts';
 import api from '../../../constants/axios';
-import './DashBoard.scss';
+import './Dashboard.scss';
 
 const Dashboard = () => {
   // State for movie revenue data
@@ -124,25 +124,25 @@ const Dashboard = () => {
     try {
       const response = await api.get('/admin/statistics/accounts');
       const data = response.data;
-      
+
       // Log raw data for debugging
       console.log('Raw Account Statistics Data:', data);
-      
+
       // Transform API data to chart format
       const total = data.totalMembers + data.totalEmployees + data.totalAdmins;
       const transformedData = [
-        { 
-          type: 'Members', 
+        {
+          type: 'Members',
           value: data.totalMembers || 0,
           total: total
         },
-        { 
-          type: 'Employees', 
+        {
+          type: 'Employees',
           value: data.totalEmployees || 0,
           total: total
         },
-        { 
-          type: 'Admins', 
+        {
+          type: 'Admins',
           value: data.totalAdmins || 0,
           total: total
         }
@@ -205,7 +205,7 @@ const Dashboard = () => {
       });
 
       const results = await Promise.all(revenuePromises);
-      
+
       // Log final results
       console.log('Daily Revenue Results:', results);
 
@@ -238,15 +238,15 @@ const Dashboard = () => {
     try {
       const response = await api.get('/admin/invoices/revenue/movie');
       const data = response.data;
-      
+
       // Log raw data for debugging
       console.log('Raw Movie Revenue Data:', data);
-      
+
       // Transform API data to match component structure
       const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
         // Ensure revenue is a number and handle potential negative values
         const parsedRevenue = Math.abs(Number(revenue));
-        
+
         // Log individual movie revenue for debugging
         console.log(`Movie: ${movieTitle}, Raw Revenue: ${revenue}, Parsed Revenue: ${parsedRevenue}`);
 
