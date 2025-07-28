@@ -134,13 +134,14 @@ const Login = () => {
       let result;
       if (!response.ok) {
         // Cố gắng lấy message từ body nếu có
+        let msg;
         try {
           const errorData = await response.json();
-          const msg = errorData?.message || `HTTP error! status: ${response.status}`;
-          message.error(msg);
+          msg = errorData?.message || `HTTP error! status: ${response.status}`;
         } catch (e) {
-          message.error(`HTTP error! status: ${response.status}`);
+          msg = `HTTP error! status: ${response.status}`;
         }
+        message.error(`Login failed: ${msg}`);
         setLoading(false);
         return;
       }

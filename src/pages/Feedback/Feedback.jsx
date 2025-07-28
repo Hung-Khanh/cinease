@@ -128,12 +128,6 @@ const Feedback = () => {
                 </List.Item>
               )}
             />
-
-            <div className="add-feedback-section">
-              <button className="add-feedback-btn secondary" onClick={handleAddFeedback}>
-                <PlusOutlined /> Add New Feedback
-              </button>
-            </div>
           </>
         )}
       </div>

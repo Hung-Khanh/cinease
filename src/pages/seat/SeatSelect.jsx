@@ -9,6 +9,8 @@ import { TbArmchair2Off } from "react-icons/tb"
 import { useSelector, useDispatch } from "react-redux"
 import { setSeatData, setSessionId, clearSeatData, clearSessionId } from "../../store/cartSlice"
 
+import { getSeats } from "../../api/seat";
+
 const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api", onBack }) => {
   const [seats, setSeats] = useState([])
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -35,7 +37,11 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     return () => clearInterval(timer)
   }, [])
 
+  // Ưu tiên lấy selectedSeats từ Redux nếu còn sessionId hợp lệ, nếu không thì lấy từ localStorage
   const getInitialSelectedSeats = () => {
+    if (existingSessionId && existingSeatData?.selectedSeats?.length > 0) {
+      return existingSeatData.selectedSeats
+    }
     const seatsFromStorage = window.localStorage.getItem("selectedSeats")
     if (seatsFromStorage) {
       try {
@@ -44,70 +50,87 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         return []
       }
     }
-    return existingSeatData?.selectedSeats || []
+    return []
   }
 
   const [selectedSeats, setSelectedSeats] = useState(getInitialSelectedSeats())
 
+  // Khi movieId hoặc scheduleId thay đổi, reset selectedSeats và localStorage
+  useEffect(() => {
+    setSelectedSeats([])
+    window.localStorage.setItem("selectedSeats", JSON.stringify([]))
+  }, [movieId, scheduleId])
+
+  // Khi mount lại, nếu Redux còn sessionId và selectedSeats thì khôi phục lại, nếu không thì lấy từ localStorage
+  useEffect(() => {
+    if (existingSessionId && existingSeatData?.selectedSeats?.length > 0) {
+      setSelectedSeats(existingSeatData.selectedSeats)
+    } else {
+      const seatsFromStorage = window.localStorage.getItem("selectedSeats")
+      if (seatsFromStorage) {
+        try {
+          setSelectedSeats(JSON.parse(seatsFromStorage))
+        } catch {
+          setSelectedSeats([])
+        }
+      }
+    }
+  }, [existingSessionId, existingSeatData])
+
+  // Persist selectedSeats to localStorage
   useEffect(() => {
     window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats))
   }, [selectedSeats])
 
   const fetchSeat = async () => {
     if (!token) {
-      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
-      navigate("/login")
-      return
+      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      navigate("/login");
+      return;
     }
-
     try {
-      const url = `${apiUrl}/public/seats?scheduleId=${scheduleId}`
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "ngrok-skip-browser-warning": "true",
-        },
-      })
+      const response = await getSeats(scheduleId);
+      const data = response.data;
+      setSeats(data);
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        if (response.status === 401) {
-          alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
-          navigate("/login")
-          return
-        }
-        if (errorData.errorCode === "SHOWTIME_NOT_FOUND") {
-          alert("Lịch chiếu không tồn tại. Vui lòng chọn lịch chiếu khác.")
-          navigate(-1)
-          return
-        }
-        throw new Error(`Failed to fetch seats: ${errorData.message || response.status}`)
+      // Nếu không còn sessionId hợp lệ, clear selectedSeats
+      if (!existingSessionId) {
+        setSelectedSeats([]);
+        window.localStorage.setItem("selectedSeats", JSON.stringify([]));
+        return;
       }
 
-      const data = await response.json()
-      setSeats(data)
-
       setSelectedSeats((prev) => {
-        const sessionSeatIds = existingSeatData?.selectedSeats || []
+        const sessionSeatIds = existingSeatData?.selectedSeats || [];
         const validSeatIds = data
           .filter((s) => {
-            const seatId = `${s.seatColumn}${s.seatRow}`
-            return s.seatStatus === "AVAILABLE" || (s.seatStatus === "HOLD" && sessionSeatIds.includes(seatId))
+            const seatId = `${s.seatColumn}${s.seatRow}`;
+            return s.seatStatus === "AVAILABLE" || (s.seatStatus === "HOLD" && sessionSeatIds.includes(seatId));
           })
-          .map((s) => `${s.seatColumn}${s.seatRow}`)
+          .map((s) => `${s.seatColumn}${s.seatRow}`);
 
-        const filtered = prev.filter((seatId) => validSeatIds.includes(seatId))
+        const filtered = prev.filter((seatId) => validSeatIds.includes(seatId));
         if (filtered.length !== prev.length) {
-          window.localStorage.setItem("selectedSeats", JSON.stringify(filtered))
+          window.localStorage.setItem("selectedSeats", JSON.stringify(filtered));
         }
-        return filtered
-      })
+        return filtered;
+      });
     } catch (error) {
-      console.error("🔥 Error in fetchSeat:", error)
-      alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`)
+      // Xử lý lỗi giống như fetch cũ
+      if (error.response && error.response.status === 401) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        navigate("/login");
+        return;
+      }
+      if (error.response && error.response.data?.errorCode === "SHOWTIME_NOT_FOUND") {
+        alert("Lịch chiếu không tồn tại. Vui lòng chọn lịch chiếu khác.");
+        navigate(-1);
+        return;
+      }
+      console.error("🔥 Error in fetchSeat:", error);
+      alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`);
     }
-  }
+  };
 
   useEffect(() => {
     const releasePreviousSeats = async () => {
@@ -330,9 +353,8 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
                 <button
                   key={seatId}
                   onClick={() => toggleSeat(seatId)}
-                  className={`seat-button ${isVip ? "vip" : ""} ${isSelected ? "selected" : ""} ${
-                    isUnavailable ? "unavailable" : ""
-                  }`}
+                  className={`seat-button ${isVip ? "vip" : ""} ${isSelected ? "selected" : ""} ${isUnavailable ? "unavailable" : ""
+                    }`}
                   disabled={isUnavailable}
                 >
                   {isUnavailable ? (
@@ -537,4 +559,4 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
   )
 }
 
-export default SeatSelect
+export default SeatSelect;

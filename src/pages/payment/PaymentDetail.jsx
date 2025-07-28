@@ -91,7 +91,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
         if (prev <= 1) {
           clearInterval(timer)
           alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.")
-          navigate("/")
+navigate("/")
           return 0
         }
         return prev - 1
@@ -138,12 +138,19 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
     }
   }
 
-  // Tự động redirect khi có paymentUrl
-  useEffect(() => {
+  // XÓA HOẶC COMMENT ĐOẠN NÀY:
+  // useEffect(() => {
+  //   if (paymentUrl) {
+  //     window.location.href = paymentUrl
+  //   }
+  // }, [paymentUrl])
+
+  // Thêm hàm xử lý khi nhấn Proceed to Pay
+  const handleProceedToPay = () => {
     if (paymentUrl) {
       window.location.href = paymentUrl
     }
-  }, [paymentUrl])
+  }
 
   if (loading)
     return (
@@ -197,7 +204,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
     {
       id: "MOMO",
       name: "MoMo",
-      icon: "/img/momo.png",
+icon: "/img/momo.png",
       description: "Mobile wallet payment",
     },
     {
@@ -283,7 +290,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           <div className="details-section">
             {/* Booking Summary */}
             <div className="info-card booking-summary">
-              <h2 className="card-title">Booking Summary</h2>
+<h2 className="card-title">Booking Summary</h2>
               <div className="summary-grid">
                 <div className="summary-item">
                   <FaTicketAlt className="summary-icon" />
@@ -346,7 +353,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
                       Promotion Discount
                     </span>
                     <span className="breakdown-value">-{discountFromPromotion?.toLocaleString()} VND</span>
-                  </div>
+</div>
                 )}
                 <div className="breakdown-item">
                   <span className="breakdown-label">Food & Drinks</span>
@@ -397,10 +404,10 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
               </button>
 
               {paymentUrl && (
-                <a href={paymentUrl} className="proceed-payment-btn">
+                <button className="proceed-payment-btn" onClick={handleProceedToPay}>
                   <span className="btn-text">Proceed to Pay</span>
                   <FaCreditCard className="btn-icon" />
-                </a>
+                </button>
               )}
 
               <div className="payment-note">

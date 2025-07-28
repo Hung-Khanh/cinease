@@ -72,7 +72,7 @@ export const FeedbackModal = ({
             { type: "number", min: 1, max: 5, message: "Rating must be between 1 and 5" },
           ]}
         >
-          <Rate allowHalf />
+          <Rate allowHalf={false} />
         </Form.Item>
 
         <Form.Item
@@ -80,7 +80,6 @@ export const FeedbackModal = ({
           label="Comment"
           rules={[
             { required: true, message: "Please provide a comment!" },
-            { min: 10, message: "Comment must be at least 10 characters long" },
             { max: 500, message: "Comment cannot exceed 500 characters" },
           ]}
         >
@@ -92,7 +91,9 @@ export const FeedbackModal = ({
           />
         </Form.Item>
 
-        <Form.Item className="feedback-modal-actions">
+        <Form.Item
+          className="feedback-modal-actions"
+        >
           <Space>
             <Button onClick={onCancel}>Cancel</Button>
             <Button type="primary" htmlType="submit" loading={loading}>
