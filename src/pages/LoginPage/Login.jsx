@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 import { Form, Input, Button, Typography, Select, Row, Col, message, Alert } from "antd"
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons"
 import "./Login.scss"
-import logo from "../../assets/Logo.png"
+import logo from "../../assets/logo.png"
 import { useAuth } from "../../constants/AuthContext"
 import { useNavigate } from "react-router-dom"
 
