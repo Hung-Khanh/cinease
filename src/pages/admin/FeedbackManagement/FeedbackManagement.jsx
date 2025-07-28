@@ -2,7 +2,7 @@ import { EyeOutlined } from "@ant-design/icons";
 import { Button, Input, message, Modal, Select, Table, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "../../../constants/axios";
-import "./Feedbackkk.css"; // Assuming you have a CSS file for styling
+import "./FeedbackManagement.scss"; // Assuming you have a CSS file for styling
 
 const FeedbackManagement = () => {
   const [feedbacks, setFeedbacks] = useState([]);

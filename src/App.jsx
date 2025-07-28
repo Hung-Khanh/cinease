@@ -49,7 +49,7 @@ import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
 import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
 import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
-import FeedbackManagement from "./pages/admin/FeedBackManagement/FeedBackManagement.jsx";
+import FeedbackManagement from "./pages/admin/FeedbackManagement/FeedbackManagement.jsx";
 // import ErrorBoundary from "./components/ErrorBoundary";
 import ErrorPage from "./pages/Error/ErrorPage.jsx";
 
