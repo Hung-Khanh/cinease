@@ -3,7 +3,7 @@ import { List, Typography, Empty, Spin, message } from "antd"
 import { StarOutlined, PlusOutlined } from "@ant-design/icons"
 import { updateFeedback, deleteFeedback, getCurrentUserFeedbacks } from "../../api/feedback"
 import { FeedbackCard, FeedbackModal } from "./FeedbackComponents"
-import "./Feedbackkkk.scss"
+import "./Feedback.scss"
 
 const { Title } = Typography
 
