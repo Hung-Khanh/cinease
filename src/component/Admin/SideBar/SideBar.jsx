@@ -66,7 +66,7 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
   };
 
   return (
-    <div className={`admin-sidebar ${isVisible ? "visible" : "hidden"}`}>
+    <div className={`admin-sidebar ${isVisible ? "visible" : "hidden"}`} role="complementary">
       <div className="sidebar-logo">
         <img src={logo} alt="Cinease Logo" className="logo-image" />
       </div>
@@ -77,9 +77,8 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`sidebar-link ${
-                  isActive(item.path) ? "active" : ""
-                }`}
+                className={`sidebar-link ${isActive(item.path) ? "active" : ""
+                  }`}
                 onClick={() => handleMenuItemClick(item.label)}
               >
                 <span className="sidebar-icon">

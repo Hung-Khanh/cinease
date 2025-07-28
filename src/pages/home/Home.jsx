@@ -165,7 +165,7 @@ const Home = () => {
   }, [heroMovies.length])
 
   const currentMovie = heroMovies[currentSlide]
-  
+
   const handleTrailerClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -231,10 +231,17 @@ const Home = () => {
                       <p className="hero-desc">{movie.desc}</p>
                       <div className="hero-actions">
                         <button
-                          className="btn btn-primary"
-                          onClick={() => navigate(`/select-showtime/${currentMovie?.id}`)}
+                            className="btn btn-primary"
+                          onClick={() => {
+                            const user = localStorage.getItem('user');
+                            if (!user) {
+                              navigate('/login');
+                            } else {
+                              navigate(`/select-showtime/${currentMovie?.id}`);
+                            }
+                          }}
                         >
-                          <span>▶</span> Buy Ticket
+                          <span>▶</span> Book Ticket
                         </button>
                         <button className="btn btn-secondary" onClick={handleTrailerClick}>
                           <span>🎬</span> Watch Trailer
@@ -272,12 +279,12 @@ const Home = () => {
           </section>
 
           {trailerVisible && (
-            <div 
+            <div
               className={`trailer-modal${trailerVisible ? ' visible' : ''}`}
               onClick={() => setTrailerVisible(null)}
             >
               <div className="trailer-container" onClick={e => e.stopPropagation()}>
-                <button 
+                <button
                   className="close-btn"
                   onClick={() => setTrailerVisible(null)}
                   aria-label="Close trailer"
@@ -291,7 +298,7 @@ const Home = () => {
                   allowFullScreen
                 />
               </div>
-              
+
             </div>
           )}
 

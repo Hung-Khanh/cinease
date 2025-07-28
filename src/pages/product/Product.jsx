@@ -278,15 +278,6 @@ const Product = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
               </div>
             </div>
 
-            {/* Cinematic Quote */}
-            <div className="cinema-quote">
-              <div className="quote-container">
-                <div className="quote-mark">"</div>
-                <p className="quote-text">Every great film should seem new every time you see it</p>
-                <div className="quote-author">— Roger Ebert</div>
-              </div>
-            </div>
-
             {/* Ambient Lights */}
             <div className="ambient-lights">
               <div className="light light-1"></div>
