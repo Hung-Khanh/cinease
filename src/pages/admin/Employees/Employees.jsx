@@ -98,6 +98,11 @@ const Employees = () => {
     },
   ];
 
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn-employees ${type}-btn`}>
+      {text}
+    </Button>
+  );
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
@@ -250,31 +255,15 @@ const Employees = () => {
             emptyText: loading ? 'Loading...' : 'No employees found'
           }}
           pagination={{
+            className: "pagination-btn-employees",
+
             pageSize: 12,
             showSizeChanger: false,
-            itemRender: (current, type, originalElement) => {
-              if (type === 'prev') {
-                return (
-                  <Button
-                    type="default"
-                    className="pagination-btn-employees prev-btn"
-                  >
-                    Previous
-                  </Button>
-                );
-              }
-              if (type === 'next') {
-                return (
-                  <Button
-                    type="default"
-                    className="pagination-btn-employees next-btn"
-                  >
-                    Next
-                  </Button>
-                );
-              }
-              return originalElement;
-            }
+             itemRender: (current, type, originalElement) => {
+            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
+            return originalElement;
+          },
           }}
         />
       );

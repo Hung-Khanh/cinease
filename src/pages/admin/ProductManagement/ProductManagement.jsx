@@ -304,6 +304,7 @@ const ProductManagement = () => {
         pagination={{
           pageSize: 12,
           showSizeChanger: false,
+          className: "pagination-btn-cinema",
           itemRender: (current, type, originalElement) => {
             if (type === "prev") {
               return (

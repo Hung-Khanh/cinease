@@ -5,9 +5,9 @@ $green-accent: #27ae60;
 $hover-color: #2ecc71;
 
 .admin-sidebar {
-  width: 250px;
+  width: 250px; // Default width for desktop
   height: 100vh;
-  background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%);
+  background: linear-gradient(180deg, rgba($primary-bg, 0.9) 0%, rgba($secondary-bg, 0.9) 100%);
   position: fixed;
   left: 0;
   top: 0;
@@ -16,8 +16,19 @@ $hover-color: #2ecc71;
   padding: 10px 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(39, 174, 96, 0.1);
+  border-right: 1px solid rgba($green-accent, 0.1);
   transition: all 0.3s ease;
+
+  // Responsive adjustments for smaller screens
+  @media (max-width: 768px) {
+    width: 200px; // Smaller width for tablets/laptops
+    padding: 5px 0;
+  }
+
+  @media (max-width: 480px) {
+    width: 180px; // Even smaller width for mobile phones
+    padding: 5px 0;
+  }
 
   &.hidden {
     width: 0;
@@ -30,15 +41,23 @@ $hover-color: #2ecc71;
   .sidebar-logo {
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
-    padding: 0 20px;
+    margin-bottom: 20px; // Slightly reduced margin
+    padding: 0 15px; // Slightly reduced padding
 
     .logo-image {
-      max-width: 150px;
+      max-width: 150px; // Smaller logo for desktop
       height: auto;
       object-fit: contain;
       transition: all 0.3s ease;
       cursor: pointer;
+
+      @media (max-width: 768px) {
+        max-width: 100px; // Even smaller on tablets
+      }
+
+      @media (max-width: 480px) {
+        max-width: 80px; // Smallest on mobile phones
+      }
 
       &:hover {
         transform: scale(1.05);
@@ -56,19 +75,25 @@ $hover-color: #2ecc71;
       margin: 0;
 
       li {
-        margin-bottom: 8px;
-        padding: 0 15px;
+        margin-bottom: 6px; // Slightly reduced margin
+        padding: 0 10px; // Slightly reduced padding
 
         .sidebar-link {
           display: flex;
           align-items: center;
           color: $text-color;
           text-decoration: none;
-          padding: 10px 12px;
+          padding: 8px 10px; // Slightly reduced padding
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
           border-radius: 8px;
+          font-size: 0.95rem; // Slightly smaller font size
+
+          @media (max-width: 480px) {
+            font-size: 0.9rem; // Even smaller on mobile
+            padding: 7px 8px;
+          }
 
           &::before {
             content: '';
@@ -77,50 +102,57 @@ $hover-color: #2ecc71;
             top: 0;
             width: 0;
             height: 100%;
-            background-color: rgba(39, 174, 96, 0.15);
+            background-color: rgba($green-accent, 0.15);
             transition: width 0.3s ease;
             z-index: -1;
           }
 
           .sidebar-icon {
-            margin-right: 15px;
+            margin-right: 12px; // Slightly reduced margin
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 24px; // Smaller icon container
+            height: 24px; // Smaller icon container
             border-radius: 6px;
             background-color: rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
 
+            @media (max-width: 480px) {
+              width: 22px;
+              height: 22px;
+              margin-right: 10px;
+            }
+
             .menu-icon {
-              width: 18px;
-              height: 18px;
+              width: 16px; // Smaller icon size
+              height: 16px; // Smaller icon size
               opacity: 0.8;
               transition: all 0.3s ease;
               filter: invert(1) brightness(1) contrast(100%);
             }
           }
 
-          .sidebar-text {
-            font-size: 12px;
+          .sidebar-label {
             font-weight: 500;
             transition: all 0.3s ease;
+            white-space: nowrap; // Prevent text wrapping
+            overflow: hidden; // Hide overflow
+            text-overflow: ellipsis; // Add ellipsis for truncated text
           }
 
           &:hover {
             transform: scale(1.02);
             color: $green-accent;
-            border-color: $green-accent;
-            box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
-            background-color: rgba(39, 174, 96, 0.1);
-
+            box-shadow: 0 0 8px rgba($green-accent, 0.3);
+            background-color: rgba($green-accent, 0.1);
+            
             &::before {
               width: 100%;
             }
 
             .sidebar-icon {
-              background-color: rgba(39, 174, 96, 0.2);
+              background-color: rgba($green-accent, 0.2);
               transform: scale(1.1);
 
               .menu-icon {
@@ -130,7 +162,7 @@ $hover-color: #2ecc71;
               }
             }
 
-            .sidebar-text {
+            .sidebar-label {
               transform: translateX(3px);
             }
           }
@@ -138,17 +170,15 @@ $hover-color: #2ecc71;
           &:focus-within {
             transform: scale(1.02);
             color: $green-accent;
-            border-color: $green-accent;
-            box-shadow: 0 0 10px rgba(39, 174, 96, 0.4);
-            background-color: rgba(39, 174, 96, 0.1);
+            box-shadow: 0 0 10px rgba($green-accent, 0.4);
+            background-color: rgba($green-accent, 0.1);
             outline: none;
           }
 
           &.active {
             background-color: $green-accent;
-            border-color: $green-accent;
             color: $text-color;
-            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+            box-shadow: 0 0 10px rgba($green-accent, 0.5);
 
             .sidebar-icon {
               background-color: rgba(255, 255, 255, 0.2);
@@ -172,13 +202,13 @@ $hover-color: #2ecc71;
   .sidebar-stars {
     display: flex;
     justify-content: center;
-    padding: 15px 0;
-    margin-bottom: 20px;
+    padding: 10px 0; // Slightly reduced padding
+    margin-bottom: 15px; // Slightly reduced margin
 
     .star {
       color: $green-accent;
-      font-size: 1.2rem;
-      margin: 0 5px;
+      font-size: 1rem; // Slightly smaller star size
+      margin: 0 4px; // Slightly reduced margin
       transition: transform 0.3s ease;
 
       &:hover {
@@ -186,4 +216,4 @@ $hover-color: #2ecc71;
       }
     }
   }
-} 
+}
