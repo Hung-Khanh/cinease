@@ -752,10 +752,12 @@ const Profile = () => {
               dataSource={sortedHistoryData}
               loading={historyLoading}
               pagination={{
+                className: "profile-history-pagination",
                 current: historyPage,
                 pageSize: historyPageSize,
                 total: historyTotal,
                 showSizeChanger: false,
+                
                 onChange: (page, pageSize) => {
                   setHistoryPage(page);
                   setHistoryPageSize(pageSize);

@@ -27,13 +27,10 @@ const Dashboard = () => {
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [revenueError, setRevenueError] = useState(null);
 
-  // Ticket Distribution Data (Keep existing static data)
-  const ticketDistributionData = [
-    { type: 'VIP', value: 25 },
-    { type: 'Regular', value: 40 },
-    { type: 'Couple', value: 20 },
-    { type: 'IMAX', value: 15 }
-  ];
+  // State for account statistics data
+  const [accountData, setAccountData] = useState([]);
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [accountError, setAccountError] = useState(null);
 
   // Helper function to get date range for last 7 days
   const getDateRange = () => {
@@ -83,29 +80,30 @@ const Dashboard = () => {
     return null;
   };
 
-  // Custom Tooltip for Pie Chart
-  const CustomPieTooltip = ({ active, payload }) => {
+  // Custom Tooltip for Account Pie Chart
+  const CustomAccountTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div className="chart-tooltip">
           <strong>{payload[0].payload.type}</strong><br />
-          Percentage: {payload[0].value}%
+          Count: {payload[0].value}<br />
+          Percentage: {((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}%
         </div>
       );
     }
     return null;
   };
 
-  // Custom Label for Pie Chart
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, index }) => {
+  // Custom Label for Account Pie Chart
+  const renderAccountLabel = ({ cx, cy, midAngle, outerRadius, index, value, total }) => {
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 10;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const percentage = ((value / total) * 100).toFixed(1);
 
     return (
       <text
-      
         x={x}
         y={y}
         fill="white"
@@ -113,9 +111,60 @@ const Dashboard = () => {
         dominantBaseline="central"
         fontSize="12"
       >
-        {ticketDistributionData[index].type}
+        {accountData[index]?.type} ({percentage}%)
       </text>
     );
+  };
+
+  // Fetch account statistics from API
+  const fetchAccountStatistics = async () => {
+    setAccountLoading(true);
+    setAccountError(null);
+
+    try {
+      const response = await api.get('/admin/statistics/accounts');
+      const data = response.data;
+      
+      // Log raw data for debugging
+      console.log('Raw Account Statistics Data:', data);
+      
+      // Transform API data to chart format
+      const total = data.totalMembers + data.totalEmployees + data.totalAdmins;
+      const transformedData = [
+        { 
+          type: 'Members', 
+          value: data.totalMembers || 0,
+          total: total
+        },
+        { 
+          type: 'Employees', 
+          value: data.totalEmployees || 0,
+          total: total
+        },
+        { 
+          type: 'Admins', 
+          value: data.totalAdmins || 0,
+          total: total
+        }
+      ].filter(item => item.value > 0); // Only show categories with values > 0
+
+      // Log transformed data
+      console.log('Transformed Account Data:', transformedData);
+
+      setAccountData(transformedData);
+    } catch (error) {
+      console.error('Error fetching account statistics:', error);
+      setAccountError(error.message);
+
+      // Fallback to mock data on error
+      setAccountData([
+        { type: 'Members', value: 150, total: 200 },
+        { type: 'Employees', value: 45, total: 200 },
+        { type: 'Admins', value: 5, total: 200 }
+      ]);
+    } finally {
+      setAccountLoading(false);
+    }
   };
 
   // Fetch daily revenue data from API
@@ -246,6 +295,7 @@ const Dashboard = () => {
   useEffect(() => {
     fetchMovieRevenue();
     fetchDailyRevenue();
+    fetchAccountStatistics();
   }, []);
 
   // Determine movies to display
@@ -262,8 +312,8 @@ const Dashboard = () => {
     })}`;
   };
 
-  // Custom colors for charts
-  const COLORS = ['#00E676', '#2ecc71', '#3498db', '#e67e22'];
+  // Custom colors for charts (updated for account types)
+  const COLORS = ['#00E676', '#3498db', '#e67e22'];
 
   return (
     <div className="dashboard-container">
@@ -302,27 +352,44 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Ticket Type Distribution Chart */}
+        {/* Account Statistics Chart */}
         <div className="chart-card pie-chart">
-          <div className="chart-card-title">Ticket Type Distribution</div>
+          <div className="chart-card-title">
+            Account Statistics
+            {accountLoading && <span className="loading-indicator"> (Loading...)</span>}
+            {accountError && (
+              <button
+                className="retry-button"
+                onClick={fetchAccountStatistics}
+                title="Retry loading data"
+              >
+                🔄 Retry
+              </button>
+            )}
+          </div>
+          {accountError && (
+            <div className="error-message">
+              <p>⚠️ Failed to load account statistics: {accountError}</p>
+            </div>
+          )}
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={ticketDistributionData}
+                  data={accountData}
                   innerRadius="60%"
                   outerRadius="80%"
                   fill="#8884d8"
                   paddingAngle={5}
                   dataKey="value"
-                  label={renderCustomizedLabel}
+                  label={renderAccountLabel}
                   labelLine={false}
                 >
-                  {ticketDistributionData.map((entry, index) => (
+                  {accountData.map((entry, index) => (
                     <Cell key={`cell-${entry.type}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomPieTooltip />} />
+                <Tooltip content={<CustomAccountTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>

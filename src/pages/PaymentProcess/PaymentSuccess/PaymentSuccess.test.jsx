@@ -77,7 +77,7 @@ describe('PaymentSuccess', () => {
       expect(screen.getByText('A2')).toBeInTheDocument();
       expect(screen.getByText('15:40')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
-      expect(screen.getByText('200,000 VND')).toBeInTheDocument();
+      expect(screen.getByText('200.000 VND')).toBeInTheDocument();
       expect(screen.getByText('SUCCESS')).toBeInTheDocument();
       // Kiểm tra poster
       expect(screen.getAllByRole('img', { name: /spiderman/i })[0]).toHaveAttribute('src', 'movie-poster.jpg');

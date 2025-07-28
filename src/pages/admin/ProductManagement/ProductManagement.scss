@@ -163,21 +163,29 @@ $danger-color: #e74c3c;
     }
   }
   .pagination-btn-product {
-    margin: 0 12px;
-    padding: 4px 15px;
+     margin: 0 12px;
+    padding: 4x 15px;
     border-radius: 4px;
-
+    color: $text-color !important;
+    
+    a{
+      color: $text-color !important;
+    }
     &.prev-btn {
+      background-color: #0c9550;
       margin-right: 10px;
-      &:hover {
-        border-color: $green-accent !important;
-      }
-      
     }
 
     &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
       margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
       &:hover {
+        background-color: $green-accent !important;
         border-color: $green-accent !important;
       }
     }

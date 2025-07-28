@@ -12,13 +12,13 @@ $cyan-hover: rgba(0, 188, 212, 0.6);
 $danger-color: #e74c3c;
 $view-color: #3498db;
 
-.ticket-management-container {
+.feedback-management-container {
   background-color: $primary-bg;
   color: $text-color;
   padding: 24px;
   min-height: 100vh;
 
-  .ticket-management-header {
+  .feedback-management-header {
     margin-bottom: 24px;
 
     .header-actions {
@@ -89,7 +89,7 @@ $view-color: #3498db;
     }
   }
 
-  .ant-table-ticket {
+  .ant-table-feedback {
     background-color: $secondary-bg !important;
 
     .ant-table-thead > tr > th {
@@ -118,14 +118,24 @@ $view-color: #3498db;
       }
     }
 
+    .ant-rate {
+      .ant-rate-star {
+        margin-right: 2px;
+        
+        .ant-rate-star-first,
+        .ant-rate-star-second {
+          color: #ffd700 !important;
+        }
+      }
+    }
   }
   
-  .pagination-btn-ticket{
-    margin: 0 12px;
+  .pagination-btn-feedback{
+     margin: 0 12px;
     padding: 4x 15px;
     border-radius: 4px;
     color: $text-color !important;
-
+    
     a{
       color: $text-color !important;
     }
@@ -198,7 +208,7 @@ $view-color: #3498db;
 
 .ant-modal-wrap,
 .ant-modal-mask + .ant-modal-wrap {
-  .ticket-details-modal {
+  .feedback-details-modal {
     .ant-modal {
       max-width: 600px !important;
       width: 95% !important;
@@ -265,29 +275,64 @@ $view-color: #3498db;
   }
 }
 
-.ticket-details-modal {
+.feedback-details-modal {
   .ant-modal-body {
     max-height: 70vh;
     overflow-y: auto;
   }
 
-  .ticket-details-content {
-    .ticket-detail-row {
+  .feedback-details-content {
+    .feedback-detail-row {
       display: flex;
       align-items: center;
       padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-      .ticket-detail-label {
+      .feedback-detail-label {
         flex: 0 0 150px;
         color: $bright-green;
         font-weight: 600;
         margin-right: 20px;
       }
 
-      .ticket-detail-value {
+      .feedback-detail-value {
         flex: 1;
         word-break: break-word;
+        
+        .ant-rate {
+          .ant-rate-star {
+            .ant-rate-star-first,
+            .ant-rate-star-second {
+              color: #ffd700 !important;
+            }
+          }
+        }
+        
+        .ant-tag {
+          &.ant-tag-green {
+            background-color: rgba(39, 174, 96, 0.2) !important;
+            border-color: $green-accent !important;
+            color: $hover-color !important;
+          }
+          
+          &.ant-tag-red {
+            background-color: rgba(231, 76, 60, 0.2) !important;
+            border-color: $danger-color !important;
+            color: lighten($danger-color, 10%) !important;
+          }
+          
+          &.ant-tag-orange {
+            background-color: rgba(243, 156, 18, 0.2) !important;
+            border-color: #f39c12 !important;
+            color: #f1c40f !important;
+          }
+          
+          &.ant-tag-blue {
+            background-color: rgba(52, 152, 219, 0.2) !important;
+            border-color: $view-color !important;
+            color: lighten($view-color, 10%) !important;
+          }
+        }
       }
     }
   }

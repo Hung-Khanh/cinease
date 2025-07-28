@@ -336,6 +336,7 @@ const CinemaRooms = () => {
         }}
         pagination={{
           pageSize: 12,
+          className: "pagination-btn-cinema",
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
             if (type === "prev") return createPaginationButton("prev", "Previous");
