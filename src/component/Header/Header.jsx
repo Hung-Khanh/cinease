@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { UserOutlined, BellOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import "./Header.scss";
+import logo from "../../../assets/logo.png"
 
 const MAX_NOTIFICATIONS = 20;
 
@@ -131,7 +132,7 @@ const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"}>
-          <img src="/src/assets/logo.png" alt="logo" className="logo" />
+        <img src={logo || "/placeholder.svg"} alt="Cinease Logo" className="logo-image" />
         </Link>
 
         <nav className="nav-links">
