@@ -68,7 +68,7 @@ $view-color: #3498db;
   }
 
   // ===== TABLE STYLING =====
-  .ant-table-member{
+  .ant-table-member {
     background-color: $secondary-bg !important;
 
     .ant-table-thead > tr > th {
@@ -104,7 +104,7 @@ $view-color: #3498db;
     border-radius: 4px;
     color: $text-color !important;
 
-    a{
+    a {
       color: $text-color !important;
     }
     &.prev-btn {
@@ -128,6 +128,7 @@ $view-color: #3498db;
   }
   // ===== ACTION BUTTONS =====
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 

@@ -1,20 +1,17 @@
-import React, { useEffect, useState, useMemo } from "react";
 import {
-  Table,
-  Input,
-  Button,
-  Modal,
-  message,
-  InputNumber,
-  Select
-} from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
   EyeOutlined
 } from "@ant-design/icons";
-import "./TicketManagement.scss";
+import {
+  Button,
+  Input,
+  Modal,
+  Select,
+  Table,
+  message
+} from "antd";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from '../../../constants/axios';
+import "./TicketManagement.scss";
 
 const TicketManagement = () => {
   const [tickets, setTickets] = useState([]);

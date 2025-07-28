@@ -4,7 +4,7 @@ $secondary-bg: #1a3a2a;
 $text-color: #ffffff;
 $green-accent: #27ae60;
 $hover-color: #2ecc71;
-$bright-green: #0C9550;
+$bright-green: #0c9550;
 $input-bg: rgba(102, 136, 102, 0.2);
 $input-border: rgba(102, 136, 102, 0.5);
 $dark-input-bg: rgba(0, 50, 50, 0.4);
@@ -38,7 +38,7 @@ $danger-color: #e74c3c;
           background-color: $input-bg !important;
           border-color: $green-accent !important;
           color: $text-color !important;
-          
+
           &::placeholder {
             color: rgba(255, 255, 255, 0.6) !important;
           }
@@ -62,7 +62,7 @@ $danger-color: #e74c3c;
         border-radius: 6px;
         font-weight: 600;
         transition: all 0.3s ease;
-    
+
         &:hover,
         &:focus {
           background-color: $hover-color !important;
@@ -102,7 +102,6 @@ $danger-color: #e74c3c;
         color: $text-color !important;
       }
     }
-
   }
   .pagination-btn-employees {
     margin: 0 12px;
@@ -110,7 +109,7 @@ $danger-color: #e74c3c;
     border-radius: 4px;
     color: $text-color !important;
 
-    a{
+    a {
       color: $text-color !important;
     }
     &.prev-btn {
@@ -134,6 +133,7 @@ $danger-color: #e74c3c;
   }
   // ===== ACTION BUTTONS =====
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 
@@ -166,7 +166,11 @@ $danger-color: #e74c3c;
       width: 95% !important;
 
       .ant-modal-content {
-        background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%) !important;
+        background: linear-gradient(
+          180deg,
+          rgba(10, 24, 31, 0.9) 0%,
+          rgba(26, 58, 42, 0.9) 100%
+        ) !important;
         border: 2px solid $bright-green !important;
         border-radius: 8px !important;
         box-shadow: 0 15px 50px rgba(0, 188, 212, 0.3) !important;
@@ -195,7 +199,7 @@ $danger-color: #e74c3c;
         right: 20px !important;
         width: 28px !important;
         height: 28px !important;
-        
+
         &:hover {
           color: $bright-green !important;
           background-color: rgba(0, 188, 212, 0.1) !important;
@@ -318,7 +322,7 @@ $danger-color: #e74c3c;
 
       .ant-picker-input > input {
         color: $text-color !important;
-        
+
         &::placeholder {
           color: rgba(255, 255, 255, 0.6) !important;
         }
@@ -415,7 +419,11 @@ $danger-color: #e74c3c;
 // ===== DELETE CONFIRMATION MODAL =====
 .delete-confirmation-modal {
   .ant-modal-content {
-    background: linear-gradient(180deg, rgba(10, 24, 31, 0.9) 0%, rgba(26, 58, 42, 0.9) 100%) !important;
+    background: linear-gradient(
+      180deg,
+      rgba(10, 24, 31, 0.9) 0%,
+      rgba(26, 58, 42, 0.9) 100%
+    ) !important;
     border: 2px solid $bright-green !important;
     border-radius: 8px !important;
     box-shadow: 0 15px 50px rgba(0, 188, 212, 0.3) !important;
@@ -437,7 +445,7 @@ $danger-color: #e74c3c;
 
     .ant-modal-close {
       color: $text-color !important;
-      
+
       &:hover {
         color: $bright-green !important;
         background-color: rgba(0, 188, 212, 0.1) !important;

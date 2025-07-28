@@ -136,6 +136,7 @@ $danger-color: #e74c3c;
 
   // ===== ACTION BUTTONS =====
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 

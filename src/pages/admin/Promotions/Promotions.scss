@@ -96,7 +96,7 @@ $bright-green: #0c9550;
     }
   }
 
-  .pagination-btn-promotion{
+  .pagination-btn-promotion {
     margin: 0 12px;
     padding: 4px 15px;
     border-radius: 4px;
@@ -104,9 +104,8 @@ $bright-green: #0c9550;
     &.prev-btn {
       margin-right: 10px;
       &:hover {
-        border-color: $green-accent !important; 
+        border-color: $green-accent !important;
       }
-      
     }
 
     &.next-btn {
@@ -119,6 +118,7 @@ $bright-green: #0c9550;
 
   // Action Buttons
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 

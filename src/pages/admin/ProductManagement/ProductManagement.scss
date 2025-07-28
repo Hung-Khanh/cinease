@@ -192,6 +192,7 @@ $danger-color: #e74c3c;
   }
 
 .action-buttons {
+  justify-content: flex-start;
   display: flex;
   gap: 8px;
 

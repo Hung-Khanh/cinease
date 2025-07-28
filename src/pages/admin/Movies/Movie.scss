@@ -158,7 +158,7 @@ $view-color: #3498db;
   // Action Buttons Section
   .action-buttons {
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
     gap: 4px;
 
     .ant-btn-link {
