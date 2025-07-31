@@ -850,6 +850,10 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  margin-left: 60px;
 
   .download-btn,
   .home-btn {
@@ -944,15 +948,6 @@
     gap: 1rem;
   }
 
-  .action-buttons {
-    flex-direction: column;
-
-    .download-btn,
-    .home-btn {
-      width: 100%;
-      justify-content: center;
-    }
-  }
 }
 
 @media (max-width: 480px) {
@@ -987,16 +982,6 @@
 
     .movie-info .movie-title {
       font-size: 1.5rem;
-    }
-  }
-
-  .action-buttons {
-    flex-direction: column;
-
-    .download-btn,
-    .home-btn {
-      width: 100%;
-      justify-content: center;
     }
   }
 }
