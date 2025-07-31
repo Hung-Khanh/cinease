@@ -199,7 +199,7 @@ const Employees = () => {
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        await api.delete(`/admin/employee/${employeeToDelete.key}`);
+        await api.delete(`/admin/employee/disable/${employeeToDelete.key}`);
 
         // Refresh the employees list
         await fetchEmployees(true);

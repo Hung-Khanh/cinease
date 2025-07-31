@@ -86,29 +86,27 @@ const Members = () => {
       if (checked) {
         // Kích hoạt
         await api.put(`/admin/members/${memberId}/activate`);
-        setMembers(prevMembers =>
-          prevMembers.map(member =>
-            member.key === memberId
-              ? { ...member, status: true }
-              : member
+        setMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member.key === memberId ? { ...member, status: true } : member
           )
         );
         message.success("Member activated successfully", 1.5);
       } else {
         // Hủy kích hoạt
         await api.delete(`/admin/members/${memberId}/deactivate`);
-        setMembers(prevMembers =>
-          prevMembers.map(member =>
-            member.key === memberId
-              ? { ...member, status: false }
-              : member
+        setMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member.key === memberId ? { ...member, status: false } : member
           )
         );
         message.success("Member deactivated successfully", 1.5);
       }
     } catch (error) {
       message.error(
-        `Failed to update member status: ${error.response?.data || error.message}`,
+        `Failed to update member status: ${
+          error.response?.data || error.message
+        }`,
         1.5
       );
     }
@@ -195,7 +193,7 @@ const Members = () => {
     },
   ];
 
-   const createPaginationButton = (type, text) => (
+  const createPaginationButton = (type, text) => (
     <Button type="default" className={`pagination-btn-member ${type}-btn`}>
       {text}
     </Button>
@@ -239,10 +237,16 @@ const Members = () => {
   // Delete Member Handler
   const handleDelete = (record) => {
     try {
+      if (!record || !record.key) {
+        message.error("Dữ liệu thành viên không hợp lệ!");
+        return;
+      }
+
       setMemberToDelete(record);
       setDeleteConfirmationVisible(true);
-    } catch {
-      message.error("Failed to show delete confirmation");
+    } catch (error) {
+      console.error("Error showing delete confirmation:", error);
+      message.error("Không thể hiển thị hộp thoại xác nhận xóa!");
     }
   };
 
@@ -251,15 +255,30 @@ const Members = () => {
     setLoading(true);
     try {
       const response = await api.delete(
-        `/admin/members/delete/${memberToDelete.key}`
+        `/admin/members/${memberToDelete.key}/permanent`
       );
 
-      message.success(response.data, 1.5);
+      // Hiển thị toast thành công
+      message.success(response.data || "Xóa thành viên thành công!", 1.5);
       setDeleteConfirmationVisible(false);
-      await Promise.resolve();
-      fetchMembers();
+      await fetchMembers(); // Không cần Promise.resolve()
     } catch (error) {
-      message.error(error.response?.data || "Failed to delete member", 1.5);
+      console.error("Delete member error:", error); // Log lỗi để debug
+      setDeleteConfirmationVisible(false);
+
+      // Xử lý các loại lỗi khác nhau và hiển thị toast tương ứng
+      if (error.response?.status === 403) {
+        message.error(error.response.data.message, 2);
+      } else if (error.response?.data?.code === 1108) {
+        message.error(error.response.data.message, 2);
+      } else if (error.response?.status === 404) {
+        message.error(error.response.data.message, 2);
+      } else if (error.response?.status >= 500) {
+        message.error(error.response.data.message, 2);
+      } else if (!navigator.onLine) {
+        message.error(error.response.data.message, 2);
+      } 
+      await fetchMembers();
     } finally {
       setLoading(false);
     }
@@ -268,6 +287,7 @@ const Members = () => {
   // Cancel Delete
   const cancelDelete = () => {
     setDeleteConfirmationVisible(false);
+    setMemberToDelete(null); // Clear member data khi cancel
   };
 
   return (
@@ -298,7 +318,8 @@ const Members = () => {
           showSizeChanger: false,
           className: "pagination-btn-member",
           itemRender: (current, type, originalElement) => {
-            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "prev")
+              return createPaginationButton("prev", "Previous");
             if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
@@ -318,7 +339,7 @@ const Members = () => {
         className="member-modal"
         width={600}
         centered
-         styles={{
+        styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
       >
