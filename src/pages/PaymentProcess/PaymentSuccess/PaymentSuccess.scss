@@ -846,13 +846,10 @@
 }
 
 // Action Buttons
-.action-buttons-payment {
-.action-buttons-payment {
+.action-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  align-items: center;
-  width: 100%;
 
   .download-btn,
   .home-btn {
@@ -947,6 +944,15 @@
     gap: 1rem;
   }
 
+  .action-buttons {
+    flex-direction: column;
+
+    .download-btn,
+    .home-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 @media (max-width: 480px) {
@@ -983,6 +989,16 @@
       font-size: 1.5rem;
     }
   }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .download-btn,
+    .home-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 .movie-poster-success {
@@ -992,5 +1008,4 @@
   border-radius: 10px;
   display: block;
   margin: 0 auto;
-}
 }
