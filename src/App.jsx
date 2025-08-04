@@ -9,7 +9,7 @@ import {
 import { AuthProvider } from "./constants/AuthProvider";
 import { store } from "./store/store";
 
-import Footer from "./component/footer/Footer.jsx";
+import Footer from "./component/Footer/Footer.jsx";
 import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
 import Confirm from "./pages/confirm/Confirm.jsx";
 import DescriptionMovie from "./pages/descriptionMovie/descriptionMovie.jsx";
