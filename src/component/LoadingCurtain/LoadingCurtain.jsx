@@ -38,7 +38,7 @@ const LoadingCurtain = ({ isLoading, onAnimationComplete }) => {
                             ))}
                         </div>
                     </div>
-                    <h1 className="cinema-title">CINESE</h1>
+                    <h1 className="cinema-title">CINEASE</h1>
                 </div>
 
             </div>
