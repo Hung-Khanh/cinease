@@ -284,13 +284,13 @@ const Home = () => {
               onClick={() => setTrailerVisible(null)}
             >
               <div className="trailer-container" onClick={e => e.stopPropagation()}>
-                <button
+                {/* <button
                   className="close-btn"
                   onClick={() => setTrailerVisible(null)}
                   aria-label="Close trailer"
                 >
                   ✕
-                </button>
+                </button> */}
                 <iframe
                   src={trailerVisible}
                   title="Movie Trailer"

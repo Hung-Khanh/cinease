@@ -1,6 +1,8 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Table, Upload, Select } from "antd";
+import { Button, Form, Input, Modal, Table, Upload, Select, Switch } from "antd";
 import { useState, useEffect, useMemo } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./ProductManagement.scss";
 import axios from '../../../constants/axios';
 
@@ -15,6 +17,24 @@ const ProductManagement = () => {
   const [form] = Form.useForm();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+
+  // Common API handler with toast
+  const handleApiCall = async (apiCall, successMessage, errorMessage) => {
+    setLoading(true);
+    try {
+      const response = await apiCall();
+      if (successMessage) {
+        toast.success(successMessage);
+      }
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || errorMessage || error.message;
+      toast.error(errorMsg);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Helper function to format price in Vietnamese dong
   const formatPrice = (price) => {
@@ -47,13 +67,38 @@ const ProductManagement = () => {
       setProducts(formattedProducts);
 
       if (showSuccessMessage) {
-        message.success("Products list fetched successfully", 1.5);
+        toast.success("Products list fetched successfully!");
       }
     } catch (error) {
-      message.error(`Failed to fetch products: ${error.response?.data?.message || error.message}`, 1.5);
+      const errorMessage = `Failed to fetch products: ${error.response?.data?.message || error.message}`;
+      toast.error(errorMessage);
       setProducts([]); // Ensure empty array on error
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle Product Status Toggle
+  const handleStatusToggle = async (productId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+      
+      await handleApiCall(
+        () => axios.put(`/admin/products/${productId}/status?status=${newStatus}`),
+        `Product ${newStatus === 'ACTIVE' ? 'activated' : 'deactivated'} successfully!`
+      );
+
+      // Update local state
+      setProducts(prevProducts => 
+        prevProducts.map(product => 
+          product.key === productId.toString() 
+            ? { ...product, status: newStatus } 
+            : product
+        )
+      );
+    } catch (error) {
+      // Error already handled in handleApiCall
+      console.error('Status toggle error:', error);
     }
   };
 
@@ -121,6 +166,18 @@ const ProductManagement = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      render: (status, record) => (
+        <div className="status-column">
+          <Switch
+            checked={status === 'ACTIVE'}
+            onChange={() => handleStatusToggle(record.key, status)}
+            size="small"
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+            className="status-switch"
+          />
+        </div>
+      ),
     },
     {
       title: "Action",
@@ -162,23 +219,24 @@ const ProductManagement = () => {
       setProductToDelete(record);
       setDeleteConfirmationVisible(true);
     } catch (error) {
-      message.error("Failed to show delete confirmation");
+      toast.error("Failed to show delete confirmation");
     }
   };
 
   // Confirm Delete Product
   const confirmDelete = async () => {
-    setLoading(true);
     try {
-      await axios.delete(`/admin/products/${productToDelete.key}`);
+      await handleApiCall(
+        () => axios.delete(`/admin/products/${productToDelete.key}`),
+        null,
+        "Failed to delete product"
+      );
 
-      message.success("Product deleted successfully", 1.5);
+      toast.success("Product deleted successfully!");
       setDeleteConfirmationVisible(false);
       await fetchProducts();
     } catch (error) {
-      message.error(`Failed to delete product: ${error.response?.data?.message || error.message}`, 1.5);
-    } finally {
-      setLoading(false);
+      // Error already handled in handleApiCall
     }
   };
 
@@ -189,7 +247,6 @@ const ProductManagement = () => {
 
   // Update Product Handler
   const handleUpdateProduct = async (values) => {
-    setLoading(true);
     try {
       const formData = new FormData();
 
@@ -208,28 +265,29 @@ const ProductManagement = () => {
         formData.append('image', imageFile);
       }
 
-      const response = await axios.put(`/admin/products/${editingKey}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await handleApiCall(
+        () => axios.put(`/admin/products/${editingKey}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }),
+        null,
+        "Failed to update product"
+      );
 
-      message.success("Product updated successfully", 1.5);
+      toast.success("Product updated successfully!");
       setIsModalVisible(false);
       setEditingKey(null);
       form.resetFields();
       setImageFile(null);
       fetchProducts();
     } catch (error) {
-      message.error(`Failed to update product: ${error.response?.data?.message || error.message}`, 1.5);
-    } finally {
-      setLoading(false);
+      // Error already handled in handleApiCall
     }
   };
 
   // Add new method for handling product addition
   const handleAddProduct = async (values) => {
-    setLoading(true);
     try {
       const formData = new FormData();
       
@@ -249,21 +307,23 @@ const ProductManagement = () => {
         formData.append('image', imageFile);
       }
 
-      const response = await axios.post('/admin/products', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await handleApiCall(
+        () => axios.post('/admin/products', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }),
+        null,
+        "Failed to add product"
+      );
 
-      message.success("Product added successfully", 1.5);
+      toast.success("Product added successfully!");
       setIsAddModalVisible(false);
       form.resetFields();
       setImageFile(null);
       fetchProducts();
     } catch (error) {
-      message.error(`Failed to add product: ${error.response?.data?.message || error.message}`, 1.5);
-    } finally {
-      setLoading(false);
+      // Error already handled in handleApiCall
     }
   };
 
@@ -338,9 +398,6 @@ const ProductManagement = () => {
         className="product-modal"
         width={600}
         centered
-        styles={{
-          body: { maxHeight: "70vh", overflowY: "auto" },
-        }}
       >
         <Form
           form={form}
@@ -436,17 +493,6 @@ const ProductManagement = () => {
           >
             <Input type="number" min={0} placeholder="Enter product stock quantity" />
           </Form.Item>
-
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[
-              { required: true, message: "Please select product status!" },
-            ]}
-          >
-            <Input placeholder="Enter product status (ACTIVE/INACTIVE)" />
-          </Form.Item>
-
           <Form.Item>
             <Button
               type="primary"
@@ -625,12 +671,12 @@ const ProductManagement = () => {
                 const isLt2M = file.size / 1024 / 1024 < 2;
 
                 if (!isImage) {
-                  message.error("You can only upload image files!");
+                  toast.error("You can only upload image files!");
                   return false;
                 }
 
                 if (!isLt2M) {
-                  message.error("Image must be smaller than 2MB!");
+                  toast.error("Image must be smaller than 2MB!");
                   return false;
                 }
 
@@ -661,6 +707,9 @@ const ProductManagement = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };

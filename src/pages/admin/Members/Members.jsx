@@ -1,6 +1,8 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Switch, Table } from "antd";
+import { Button, Form, Input, Modal, Switch, Table } from "antd";
 import { useEffect, useMemo, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "../../../constants/axios";
 import "./Members.scss";
 
@@ -45,10 +47,16 @@ const Members = () => {
       setMembers(formattedMembers);
 
       if (showSuccessMessage) {
-        message.success("Members list fetched successfully", 1.5);
+        toast.success("Members list fetched successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
       }
     } catch (error) {
-      message.error(`Failed to fetch members: ${error.message}`, 1.5);
+      toast.error(`Failed to fetch members: ${error.message}`, {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setMembers([]); // Ensure empty array on error
     } finally {
       setLoading(false);
@@ -74,7 +82,10 @@ const Members = () => {
 
       setIsDetailModalVisible(true);
     } catch (error) {
-      message.error(`Failed to fetch member details: ${error.message}`, 1.5);
+      toast.error(`Failed to fetch member details: ${error.message}`, {
+        position: "top-right",
+        autoClose: 1500,
+      });
     } finally {
       setLoading(false);
     }
@@ -91,7 +102,10 @@ const Members = () => {
             member.key === memberId ? { ...member, status: true } : member
           )
         );
-        message.success("Member activated successfully", 1.5);
+        toast.success("Member activated successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
       } else {
         // Hủy kích hoạt
         await api.delete(`/admin/members/${memberId}/deactivate`);
@@ -100,14 +114,20 @@ const Members = () => {
             member.key === memberId ? { ...member, status: false } : member
           )
         );
-        message.success("Member deactivated successfully", 1.5);
+        toast.success("Member deactivated successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
       }
     } catch (error) {
-      message.error(
+      toast.error(
         `Failed to update member status: ${
           error.response?.data || error.message
         }`,
-        1.5
+        {
+          position: "top-right",
+          autoClose: 1500,
+        }
       );
     }
   };
@@ -219,15 +239,21 @@ const Members = () => {
         status: values.status,
       });
 
-      message.success("Member updated successfully", 1.5);
+      toast.success("Member updated successfully", {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setIsModalVisible(false);
       setEditingKey(null);
       form.resetFields();
       fetchMembers();
     } catch (error) {
-      message.error(
+      toast.error(
         `Failed to update member: ${error.response?.data || error.message}`,
-        1.5
+        {
+          position: "top-right",
+          autoClose: 1500,
+        }
       );
     } finally {
       setLoading(false);
@@ -238,7 +264,7 @@ const Members = () => {
   const handleDelete = (record) => {
     try {
       if (!record || !record.key) {
-        message.error("Dữ liệu thành viên không hợp lệ!");
+        toast.error("Dữ liệu thành viên không hợp lệ!");
         return;
       }
 
@@ -246,7 +272,7 @@ const Members = () => {
       setDeleteConfirmationVisible(true);
     } catch (error) {
       console.error("Error showing delete confirmation:", error);
-      message.error("Không thể hiển thị hộp thoại xác nhận xóa!");
+      toast.error("Không thể hiển thị hộp thoại xác nhận xóa!");
     }
   };
 
@@ -259,7 +285,10 @@ const Members = () => {
       );
 
       // Hiển thị toast thành công
-      message.success(response.data || "Xóa thành viên thành công!", 1.5);
+      toast.success(response.data || "Xóa thành viên thành công!", {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setDeleteConfirmationVisible(false);
       await fetchMembers(); // Không cần Promise.resolve()
     } catch (error) {
@@ -268,15 +297,30 @@ const Members = () => {
 
       // Xử lý các loại lỗi khác nhau và hiển thị toast tương ứng
       if (error.response?.status === 403) {
-        message.error(error.response.data.message, 2);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
       } else if (error.response?.data?.code === 1108) {
-        message.error(error.response.data.message, 2);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
       } else if (error.response?.status === 404) {
-        message.error(error.response.data.message, 2);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
       } else if (error.response?.status >= 500) {
-        message.error(error.response.data.message, 2);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
       } else if (!navigator.onLine) {
-        message.error(error.response.data.message, 2);
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
       } 
       await fetchMembers();
     } finally {
@@ -512,6 +556,7 @@ const Members = () => {
           </div>
         </div>
       </Modal>
+      <ToastContainer />
     </div>
   );
 };

@@ -1,6 +1,8 @@
-import { EyeOutlined } from "@ant-design/icons";
-import { Button, Input, message, Modal, Select, Table, Tag } from "antd";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { Button, Input, Modal, Select, Table } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "../../../constants/axios";
 import "./FeedbackManagement.scss"; // Assuming you have a CSS file for styling
 
@@ -17,6 +19,10 @@ const FeedbackManagement = () => {
   const [accountInfo, setAccountInfo] = useState({ username: '', fullName: '' });
   const [accountLoading, setAccountLoading] = useState(false);
 
+  // State for delete confirmation
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState(null);
+
   // State for pagination 
   const [pagination, setPagination] = useState({
     current: 1,
@@ -24,22 +30,23 @@ const FeedbackManagement = () => {
     total: 0
   });
 
-  // Optimize message handling
-  const showSuccessMessage = React.useCallback((content, duration = 2) => {
-    message.success({
-      content,
-      duration,
-      key: "feedback-operation-success",
-    });
-  }, []);
-
-  const showErrorMessage = React.useCallback((content, duration = 3) => {
-    message.error({
-      content,
-      duration,
-      key: "feedback-operation-error",
-    });
-  }, []);
+  // Common API handler with toast
+  const handleApiCall = async (apiCall, successMessage, errorMessage) => {
+    setLoading(true);
+    try {
+      const response = await apiCall();
+      if (successMessage) {
+        toast.success(successMessage);
+      }
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data || errorMessage || error.message;
+      toast.error(errorMsg);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Fetch Feedbacks with search and sort functionality
   const fetchFeedbacks = async (page = 0, searchTerm = "", sortBy = sortField, sortDir = sortDirection) => {
@@ -170,7 +177,7 @@ const FeedbackManagement = () => {
         errorMessage = error.message || 'An unexpected error occurred';
       }
       
-      showErrorMessage(errorMessage, 3);
+      toast.error(errorMessage);
       
       // Set empty state on error
       setFeedbacks([]);
@@ -181,6 +188,23 @@ const FeedbackManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Confirm delete feedback
+  const confirmDeleteFeedback = async () => {
+    try {
+      const response = await handleApiCall(
+        () => axios.delete(`/admin/feedback/${feedbackToDelete.key}`),
+        null,
+        "Failed to delete feedback"
+      );
+
+      toast.success("Feedback deleted successfully!");
+      setDeleteConfirmationVisible(false);
+      fetchFeedbacks(); // Refresh the list
+    } catch (error) {
+      // Error already handled in handleApiCall
     }
   };
 
@@ -300,6 +324,16 @@ const FeedbackManagement = () => {
               }
             }}
           />
+          <Button
+            type="link"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              setFeedbackToDelete(record);
+              setDeleteConfirmationVisible(true);
+            }}
+          >
+          </Button>
         </div>
       ),
     },
@@ -469,6 +503,40 @@ const FeedbackManagement = () => {
           </div>
         )}
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Confirm Deletion"
+        open={deleteConfirmationVisible}
+        onCancel={() => setDeleteConfirmationVisible(false)}
+        footer={null}
+        className="feedback-modal delete-confirmation-modal"
+        width={400}
+        centered
+      >
+        <div className="delete-confirmation-content">
+          <p>Are you sure you want to delete the feedback:</p>
+          <h3 className="feedback-title">{feedbackToDelete?.movieName}</h3>
+          <p className="warning-text">This action cannot be undone.</p>
+          <div className="delete-confirmation-actions">
+            <Button onClick={() => setDeleteConfirmationVisible(false)} className="cancel-btn">
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              danger
+              onClick={confirmDeleteFeedback}
+              className="confirm-delete-btn"
+              loading={loading}
+            > 
+              Confirm Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
