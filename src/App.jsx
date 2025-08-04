@@ -44,7 +44,6 @@ import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx";
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
-<<<<<<<<< Temporary merge branch 1
 import Employees from "./pages/admin/Employees/Employees.jsx";
 import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
 import Members from "./pages/admin/Members/Members.jsx";
