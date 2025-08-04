@@ -133,9 +133,10 @@ $view-color: #3498db;
     border-radius: 4px;
     color: $text-color !important;
 
-    a{
+    a {
       color: $text-color !important;
     }
+
     &.prev-btn {
       background-color: #0c9550;
       margin-right: 10px;
@@ -155,6 +156,7 @@ $view-color: #3498db;
       }
     }
   }
+
   // Action Buttons Section
   .action-buttons {
     display: flex;
@@ -203,7 +205,7 @@ $view-color: #3498db;
     }
 
     .add-schedule-btn-icon {
-      color: yellowgreen !important; // Consider using a variable instead of hardcoded yellow
+      color: yellowgreen !important;
 
       &:hover,
       &:focus {
@@ -212,8 +214,9 @@ $view-color: #3498db;
       }
     }
 
-    .view-schedules-btn { // New style for view schedules button
-      color: #87CEEB !important; // A light blue/sky blue color
+    .view-schedules-btn {
+      color: #87CEEB !important;
+
       &:hover,
       &:focus {
         color: lighten(#87CEEB, 10%) !important;

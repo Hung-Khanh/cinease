@@ -6,17 +6,34 @@ $green-accent: #27ae60;
 $input-bg: rgba(255, 255, 255, 0.1);
 
 // New variables for enhanced modern look
-$border-light: rgba(255, 255, 255, 0.2); // Lighter border for subtle separation
-$border-dark: rgba(0, 0, 0, 0.3); // Darker border for depth
-$shadow-light: rgba(0, 0, 0, 0.25); // Light shadow for subtle lift
-$shadow-deep: rgba(0, 0, 0, 0.5); // Deeper shadow for "wow" effect
-$hover-bg-light: rgba(255, 255, 255, 0.05); // Light hover background
-$hover-bg-accent: rgba($green-accent, 0.15); // Accent hover background
-$error-badge-bg: #e74c3c; // Red for notification badge
+$border-light: rgba(255, 255, 255, 0.2);
+$border-dark: rgba(0, 0, 0, 0.3);
+$shadow-light: rgba(0, 0, 0, 0.25);
+$shadow-deep: rgba(0, 0, 0, 0.5);
+$hover-bg-light: rgba(255, 255, 255, 0.05);
+$hover-bg-accent: rgba($green-accent, 0.15);
+$error-badge-bg: #e74c3c;
+
+// Breakpoints
+$mobile-breakpoint: 768px;
+$tablet-breakpoint: 1024px;
 
 // Mixin for smooth transitions
 @mixin transition($properties...) {
   transition: $properties 0.3s ease-in-out;
+}
+
+// Responsive mixins
+@mixin mobile {
+  @media (max-width: #{$mobile-breakpoint - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: $mobile-breakpoint) {
+    @content;
+  }
 }
 
 // Keyframe for fade-in animation
@@ -25,10 +42,19 @@ $error-badge-bg: #e74c3c; // Red for notification badge
     opacity: 0;
     transform: translateY(-10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Slide in animation for mobile menu
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 
@@ -38,12 +64,10 @@ $error-badge-bg: #e74c3c; // Red for notification badge
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba($error-badge-bg, 0.7);
   }
-
   70% {
     transform: scale(1.1);
     box-shadow: 0 0 0 10px rgba($error-badge-bg, 0);
   }
-
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba($error-badge-bg, 0);
@@ -59,6 +83,9 @@ $error-badge-bg: #e74c3c; // Red for notification badge
   z-index: 1000;
   width: 100%;
 
+  @include mobile {
+    padding: 12px 16px;
+  }
 
   .header-container {
     display: flex;
@@ -72,16 +99,24 @@ $error-badge-bg: #e74c3c; // Red for notification badge
       filter: drop-shadow(0 2px 8px $green-accent);
       transition: transform 0.2s;
 
+      @include mobile {
+        width: 80px;
+        height: 56px;
+      }
+
       &:hover {
         transform: scale(1.07) rotate(-2deg);
       }
     }
 
+    // Desktop Navigation - FIXED: Remove margin-left and use flex for proper alignment
     .nav-links {
       display: flex;
       gap: 50px;
-      margin-left: 50px;
       align-items: center;
+      flex: 1; // Take available space
+      justify-content: flex-start; // Align to start
+      margin-left: 50px; // Keep some spacing from logo
 
       a {
         text-decoration: none;
@@ -97,6 +132,14 @@ $error-badge-bg: #e74c3c; // Red for notification badge
       }
     }
 
+    // Desktop Right Section
+    .desktop-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-shrink: 0; // Prevent shrinking
+    }
+
     .notification-icon {
       color: $text-color;
       background-color: $input-bg;
@@ -110,8 +153,6 @@ $error-badge-bg: #e74c3c; // Red for notification badge
       justify-content: center;
       border: 1px solid rgba(255, 255, 255, 0.2);
       font-size: 1.2rem;
-      margin-left: auto;
-      margin-right: 15px;
       position: relative;
 
       &:hover,
@@ -133,6 +174,7 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         padding: 2px 5px;
         border-radius: 50%;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        animation: pulse 2s infinite;
       }
 
       .notification-dropdown {
@@ -151,6 +193,11 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         border: 1px solid #e0e0e0;
         animation: fadeIn 0.2s ease-in-out;
         font-family: 'Inter', sans-serif;
+
+        @include mobile {
+          width: 280px;
+          right: -140px;
+        }
       }
 
       .notification-item {
@@ -161,15 +208,16 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         font-size: 14px;
         line-height: 1.4;
         transition: background-color 0.2s ease;
-      }
+        cursor: pointer;
 
-      .notification-item:hover {
-        background-color: #f9f9f9;
-      }
+        &:hover {
+          background-color: #f9f9f9;
+        }
 
-      .notification-item.unread {
-        background-color: #f0f6ff;
-        font-weight: 600;
+        &.unread {
+          background-color: #f0f6ff;
+          font-weight: 600;
+        }
       }
 
       .notification-item-icon {
@@ -197,9 +245,9 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         color: #666;
         font-size: 14px;
       }
-
     }
 
+    // Auth Links
     .auth-links {
       display: flex;
       align-items: center;
@@ -225,6 +273,7 @@ $error-badge-bg: #e74c3c; // Red for notification badge
       }
     }
 
+    // User Avatar Container
     .user-avatar-container {
       position: relative;
 
@@ -269,6 +318,7 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         z-index: 1000;
         overflow: hidden;
         border-radius: 8px;
+        animation: fadeIn 0.2s ease-in-out;
 
         .dropdown-item {
           padding: 12px 16px;
@@ -288,17 +338,245 @@ $error-badge-bg: #e74c3c; // Red for notification badge
         }
       }
     }
+
+    // Mobile Hamburger Menu
+    .hamburger-menu {
+      background-color: $input-bg;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background-color: rgba($green-accent, 0.1);
+        border-color: $green-accent;
+        transform: scale(1.1);
+      }
+    }
+
+    // Responsive Classes
+    .desktop-only {
+      @include mobile {
+        display: none !important;
+      }
+    }
+
+    .mobile-only {
+      display: none;
+
+      @include mobile {
+        display: flex;
+      }
+    }
+  }
+
+  // Mobile Menu Overlay
+  .mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+
+    .mobile-menu-content {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(180deg, $primary-bg 0%, $secondary-bg 100%);
+      padding: 0 0 30px;
+      animation: slideInRight 0.3s ease-out;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+      overflow-y: auto;
+    }
+
+    .mobile-menu-header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .mobile-close-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        background-color: $input-bg;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+
+        &:hover {
+          background-color: rgba($error-badge-bg, 0.1);
+          border-color: $error-badge-bg;
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      padding: 24px 24px;
+      margin-bottom: 40px;
+
+      a {
+        text-decoration: none;
+        color: $text-color;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+          color: $green-accent;
+          padding-left: 10px;
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .mobile-user-section {
+      padding: 0 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 24px;
+      margin-top: auto;
+
+      .mobile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+
+        &:hover {
+          background-color: rgba($green-accent, 0.1);
+          padding-left: 10px;
+        }
+
+        .mobile-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: $input-bg;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-username {
+          color: $text-color;
+          font-weight: bold;
+          font-size: 16px;
+        }
+      }
+
+      .mobile-notifications {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        position: relative;
+
+        &:hover {
+          background-color: rgba($green-accent, 0.1);
+          padding-left: 10px;
+        }
+
+        span {
+          color: $text-color;
+          font-weight: bold;
+          font-size: 16px;
+        }
+
+        .mobile-notification-badge {
+          background: $error-badge-bg;
+          color: white;
+          font-size: 10px;
+          padding: 2px 6px;
+          border-radius: 50%;
+          margin-left: auto;
+          animation: pulse 2s infinite;
+        }
+      }
+
+      .mobile-logout {
+        padding: 16px 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+
+        &:hover {
+          background-color: rgba(231, 76, 60, 0.1);
+          padding-left: 10px;
+        }
+
+        span {
+          font-weight: bold;
+          font-size: 16px;
+        }
+      }
+    }
+
+    .mobile-auth {
+      padding: 0 24px;
+      margin-top: auto;
+
+      .mobile-login-btn {
+        display: block;
+        text-align: center;
+        padding: 12px 24px;
+        background: $green-accent;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: lighten($green-accent, 8%);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba($green-accent, 0.4);
+        }
+      }
+    }
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
+// Additional responsive adjustments
+@media (max-width: 480px) {
+  .header {
+    .mobile-menu .mobile-menu-content {
+      width: 100vw;
+      right: 0;
+    }
   }
 }
