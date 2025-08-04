@@ -211,6 +211,7 @@ const ProductManagement = () => {
       quantity: record.stockQuantity // Rename for form consistency
     });
     setIsModalVisible(true);
+    setImageFile(null); // Reset image file when editing
   };
 
   // Delete Product Handler
@@ -393,6 +394,7 @@ const ProductManagement = () => {
           setIsModalVisible(false);
           setEditingKey(null);
           form.resetFields();
+          setImageFile(null); // Reset image file when canceling
         }}
         footer={null}
         className="product-modal"
@@ -493,6 +495,28 @@ const ProductManagement = () => {
           >
             <Input type="number" min={0} placeholder="Enter product stock quantity" />
           </Form.Item>
+
+          <Form.Item
+            label="Product Image"
+            required={false}
+          >
+            <Upload
+              accept="image/*"
+              beforeUpload={(file) => {
+                setImageFile(file);
+                return false; // Prevent auto upload
+              }}
+              fileList={imageFile ? [imageFile] : []}
+              onRemove={() => setImageFile(null)}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>Upload Product Image</Button>
+            </Upload>
+            {imageFile && <div style={{ marginTop: 8 }}>Selected: {imageFile.name}</div>}
+          </Form.Item>
+
+          
+
           <Form.Item>
             <Button
               type="primary"
