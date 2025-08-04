@@ -472,7 +472,7 @@ const Employees = () => {
       </Modal>
 
       <Modal
-        title="Confirm Delete"
+        title="Confirm Disable Employee"
         open={deleteConfirmationVisible}
         onOk={confirmDelete}
         onCancel={cancelDelete}
@@ -484,7 +484,7 @@ const Employees = () => {
         width={500}
       >
         <div className="delete-confirmation-content">
-          <p>Are you sure you want to delete the employee?</p>
+          <p>Are you sure you want to disable the employee?</p>
           <p className="movie-title">{employeeToDelete?.fullName}</p>
           <p className="warning-text">This action cannot be undone.</p>
 
@@ -499,7 +499,7 @@ const Employees = () => {
               className="confirm-delete-btn"
               onClick={confirmDelete}
             >
-              Delete Employee
+              Disable Employee
             </Button>
           </div>
         </div>

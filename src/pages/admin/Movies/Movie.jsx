@@ -11,6 +11,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   CalendarOutlined,
+  TagOutlined
 } from "@ant-design/icons"
 
 import {
@@ -108,6 +109,7 @@ const Movie = () => {
   const [isViewSchedulesModalVisible, setIsViewSchedulesModalVisible] = useState(false)
   const [isAddScheduleModalVisible, setIsAddScheduleModalVisible] = useState(false)
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false)
+  const [isAddTypeModalVisible, setIsAddTypeModalVisible] = useState(false) // New state for add type modal
 
   // Form and Edit States
   const [form] = Form.useForm()
@@ -167,6 +169,26 @@ const Movie = () => {
       setMovieTypes(formattedTypes)
     } catch (error) {
       showErrorMessage(`Failed to fetch movie types: ${error.response?.data?.message || error.message}`)
+    }
+  }
+  const handleAddMovieType = async (values) => {
+    try {
+      setUploading(true)
+      const response = await axios.post("/employee/types", {
+        typeName: values.typeName
+      })
+      
+      if (response.data) {
+        showSuccessMessage(`Movie type "${values.typeName}" added successfully!`, 2)
+        await fetchMovieTypes() // Refresh the movie types list
+        setIsAddTypeModalVisible(false)
+        addTypeForm.resetFields()
+      }
+    } catch (error) {
+      console.error("Error adding movie type:", error)
+      showErrorMessage(`Failed to add movie type: ${error.response?.data?.message || error.message}`, 3)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -768,6 +790,8 @@ const Movie = () => {
       : true,
   )
 
+  const [addTypeForm] = Form.useForm()
+
   return (
     <div className="movies-container">
       {/* Header Section */}
@@ -781,20 +805,30 @@ const Movie = () => {
               style={{ width: 200, marginRight: 10 }}
             />
           </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setIsModalVisible(true)
-              setIsEditing(false)
-              setPosterFile(null)
-              setBannerFile(null)
-              form.resetFields()
-            }}
-            className="add-movie-btn"
-          >
-            Add New Movie
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setIsModalVisible(true)
+                setIsEditing(false)
+                setPosterFile(null)
+                setBannerFile(null)
+                form.resetFields()
+              }}
+              className="add-movie-btn"
+            >
+              Add New Movie
+            </Button>
+            <Button
+              type="default"
+              icon={<TagOutlined />}
+              onClick={() => setIsAddTypeModalVisible(true)}
+              className="add-movie-type-btn"
+            >
+              Add Movie Type
+            </Button>
+          </Space>
         </div>
       </div>
 
@@ -1332,6 +1366,58 @@ const Movie = () => {
         ) : (
           <p className="no-schedules-message">No schedules found for this movie.</p>
         )}
+      </Modal>
+
+      {/* Add Movie Type Modal */}
+      <Modal
+        title="Add New Movie Type"
+        open={isAddTypeModalVisible}
+        onCancel={() => {
+          setIsAddTypeModalVisible(false)
+          addTypeForm.resetFields()
+        }}
+        footer={null}
+        className="movie-modal add-type-modal"
+        width={400}
+        centered
+      >
+        <Form
+          form={addTypeForm}
+          layout="vertical"
+          onFinish={handleAddMovieType}
+          className="movie-form add-type-form"
+        >
+          <Form.Item
+            name="typeName"
+            label="Movie Type Name"
+            rules={[
+              { 
+                required: true, 
+                message: "Please enter movie type name" 
+              },
+              {
+                validator: async (_, value) => {
+                  if (value && value.trim().length === 0) {
+                    throw new Error("Movie type name cannot be empty")
+                  }
+                }
+              }
+            ]}
+          >
+            <Input placeholder="Enter movie type name" />
+          </Form.Item>
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              block 
+              className="submit-btn" 
+              loading={uploading}
+            >
+              Add Movie Type
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   )
