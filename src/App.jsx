@@ -50,6 +50,9 @@ import FeedbackManagement from "./pages/admin/FeedbackManagement/FeedbackManagem
 import ErrorPage from "./pages/Error/ErrorPage.jsx";
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
+import Header from "./component/Header/Header.jsx";
+import Promotions from "./pages/admin/Promotions/Promotions.jsx";
+
 function AdminRoutes() {
   return (
     <Routes>
