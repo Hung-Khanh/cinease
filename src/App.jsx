@@ -1,59 +1,59 @@
+import { useState } from "react";
+import { Provider } from "react-redux";
 import {
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
   useLocation,
 } from "react-router-dom";
 import { AuthProvider } from "./constants/AuthProvider";
-import React, { useState } from "react";
 import { store } from "./store/store";
-import { Provider } from "react-redux";
 
 // ...existing code...
 import Footer from "./component/footer/Footer.jsx";
-import Header from "./component/header/Header.jsx";
-import LoginPage from "./pages/loginPage/Login.jsx";
-import StaffHomePage from "./pages/staff/jsx/sHomePage.jsx";
-import HomePage from "./pages/home/Home.jsx";
-import Movie from "./pages/movie/Movie.jsx";
-import DateTimeSelection from "./pages/staff/jsx/dateTimeSelection.jsx";
-import SeatSelection from "./pages/staff/jsx/seatSelection.jsx";
-import TicketInformation from "./pages/staff/jsx/ticketInformation.jsx";
-import Profile from "./pages/profile/Profile.jsx";
+import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
+import Confirm from "./pages/confirm/Confirm.jsx";
 import DescriptionMovie from "./pages/descriptionMovie/descriptionMovie.jsx";
+import HistoryTicket from "./pages/historyMember/historyTicket.jsx";
+import HomePage from "./pages/home/Home.jsx";
+import LoginPage from "./pages/loginPage/Login.jsx";
+import Movie from "./pages/movie/Movie.jsx";
+import PaymentDetail from "./pages/payment/paymentDetail.jsx";
+import PaymentCashSuccess from "./pages/paymentProcess/paymentCashSuccess/paymentCashSuccess.jsx";
 import PaymentFailed from "./pages/paymentProcess/paymentFailed/paymentFailed.jsx";
 import PaymentSuccess from "./pages/paymentProcess/paymentSuccess/paymentSuccess.jsx";
-import SelectShowtime from "./pages/selectShowtime/selectShowtime.jsx";
-import SelectSeat from "./pages/seat/seatSelect.jsx";
-import Confirm from "./pages/confirm/Confirm.jsx";
-import PaymentDetail from "./pages/payment/paymentDetail.jsx";
-import ProductPage from "./pages/product/Product.jsx";
-import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
-import ConfirmPurchase from "./pages/staff/jsx/confirmPurchase.jsx";
-import HistoryTicket from "./pages/historyMember/historyTicket.jsx";
+import RedirectPayment from "./pages/paymentProcess/redirectPayment/redirectPayment.jsx";
 import UserPaymentFailed from "./pages/paymentProcess/userPaymentFailed/userPaymentFailed.jsx";
 import UserPaymentSuccess from "./pages/paymentProcess/userPaymentSuccess/userPaymentSuccess.jsx";
-import RedirectPayment from "./pages/paymentProcess/redirectPayment/redirectPayment.jsx";
+import ProductPage from "./pages/product/Product.jsx";
+import Profile from "./pages/profile/Profile.jsx";
+import SelectSeat from "./pages/seat/seatSelect.jsx";
+import SelectShowtime from "./pages/selectShowtime/selectShowtime.jsx";
+import ConfirmPurchase from "./pages/staff/jsx/confirmPurchase.jsx";
+import DateTimeSelection from "./pages/staff/jsx/dateTimeSelection.jsx";
 import PhoneInput from "./pages/staff/jsx/inputPhoneNumber.jsx";
-import PaymentCashSuccess from "./pages/paymentProcess/paymentCashSuccess/paymentCashSuccess.jsx";
+import SeatSelection from "./pages/staff/jsx/seatSelection.jsx";
+import StaffHomePage from "./pages/staff/jsx/sHomePage.jsx";
+import TicketInformation from "./pages/staff/jsx/ticketInformation.jsx";
 // ...existing code...
-import SideBar from "./component/admin/sideBar/sideBar.jsx";
-import AdminHeader from "./component/admin/header/Header.jsx";
-import ScrollToTop from "./component/scrollToTop.jsx";
-import Dashboard from "./pages/admin/dashBoard/dashBoard.jsx";
-import Promotions from "./pages/admin/promotions/promotions.jsx";
-import AdminMovies from "./pages/admin/movies/Movie.jsx";
 import backgroundImage from "./assets/bigbackground.png";
-import Employees from "./pages/admin/employees/Employees.jsx";
+import AdminHeader from "./component/admin/header/Header.jsx";
+import SideBar from "./component/admin/sideBar/sideBar.jsx";
+import ScrollToTop from "./component/scrollToTop.jsx";
 import CinemaRooms from "./pages/admin/cinemaRoom/cinemaRoom.jsx";
+import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx";
 import Members from "./pages/admin/members/Members.jsx";
-import TicketManagement from "./pages/admin/ticketManagement/ticketManagement.jsx";
+import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import ProductManagement from "./pages/admin/productManagement/productManagement.jsx";
+import Promotions from "./pages/admin/promotions/promotions.jsx";
+import TicketManagement from "./pages/admin/ticketManagement/ticketManagement.jsx";
 // import ErrorBoundary from "./components/errorBoundary";
 import ErrorPage from "./pages/error/errorPage.jsx";
 
-import CinemaSeating from "./pages/staff/jsx/testSeatSelection.jsx";
 import FeedbackManagement from "./pages/admin/FeedBackManagement/FeedBackManagement.jsx";
+import CinemaSeating from "./pages/staff/jsx/testSeatSelection.jsx";
+import Employees from "./pages/admin/Employees/Employees.jsx";
+import Header from "./component/Header/Header.jsx";
 function AdminRoutes() {
   return (
     <Routes>
