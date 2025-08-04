@@ -11,6 +11,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   CalendarOutlined,
+  TagOutlined
 } from "@ant-design/icons"
 
 import {
@@ -27,8 +28,10 @@ import {
   TimePicker,
   Tooltip,
   Upload,
+  Switch
 } from "antd"
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import dayjs from "dayjs"
 import React, { useEffect, useState } from "react"
 import axios from "../../../constants/axios"
@@ -108,6 +111,7 @@ const Movie = () => {
   const [isViewSchedulesModalVisible, setIsViewSchedulesModalVisible] = useState(false)
   const [isAddScheduleModalVisible, setIsAddScheduleModalVisible] = useState(false)
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false)
+  const [isAddTypeModalVisible, setIsAddTypeModalVisible] = useState(false) // New state for add type modal
 
   // Form and Edit States
   const [form] = Form.useForm()
@@ -128,18 +132,26 @@ const Movie = () => {
 
   // Message Handlers
   const showSuccessMessage = React.useCallback((content, duration = 2) => {
-    message.success({
-      content,
-      duration,
-      key: "movie-operation-success",
+    toast.success(content, {
+      position: "top-right",
+      autoClose: duration * 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
     })
   }, [])
 
   const showErrorMessage = React.useCallback((content, duration = 3) => {
-    message.error({
-      content,
-      duration,
-      key: "movie-operation-error",
+    toast.error(content, {
+      position: "top-right",
+      autoClose: duration * 1000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
     })
   }, [])
 
@@ -166,7 +178,28 @@ const Movie = () => {
       }))
       setMovieTypes(formattedTypes)
     } catch (error) {
-      showErrorMessage(`Failed to fetch movie types: ${error.response?.data?.message || error.message}`)
+      console.error("Error fetching movie types:", error)
+      showErrorMessage(error.response?.data?.message || error.message)
+    }
+  }
+  const handleAddMovieType = async (values) => {
+    try {
+      setUploading(true)
+      const response = await axios.post("/employee/types", {
+        typeName: values.typeName
+      })
+      
+      if (response.data) {
+        showSuccessMessage(`Movie type "${values.typeName}" added successfully!`, 2)
+        await fetchMovieTypes() // Refresh the movie types list
+        setIsAddTypeModalVisible(false)
+        addTypeForm.resetFields()
+      }
+    } catch (error) {
+      console.error("Error adding movie type:", error)
+      showErrorMessage(error.response?.data?.message || error.message)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -175,7 +208,7 @@ const Movie = () => {
       const response = await axios.get("/admin/cinema-room/list")
       setCinemaRooms(response.data)
     } catch (error) {
-      showErrorMessage(`Failed to fetch cinema rooms: ${error.response?.data?.message || error.message}`)
+      showErrorMessage(error.response?.data?.message || error.message)
     }
   }
 
@@ -183,6 +216,20 @@ const Movie = () => {
     setLoading(true)
     try {
       const response = await axios.get("/admin/movies/list")
+      
+      // Log the full response to see the status and other details
+      console.log("Full Movies List API Response:", {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+        data: response.data
+      })
+
+      // Check for specific status conditions if needed
+      if (response.status !== 200) {
+        throw new Error(`Unexpected response status: ${response.status}`)
+      }
+
       const result = response.data
       const formattedMovies = result.map((movie) => {
         const movieTypes = Array.isArray(movie.types) ? movie.types : movie.types ? [movie.types] : []
@@ -203,14 +250,28 @@ const Movie = () => {
           cinemaRoom: movie.cinemaRoomId,
           trailerUrl: movie.trailerUrl,
           types: movieTypes,
+          // Ensure status is properly set, defaulting to 'INACTIVE' if not provided
+          status: movie.status || 'INACTIVE'
         }
       })
+      
       setMovies(formattedMovies)
+      
       if (showSuccessMessage) {
         showSuccessMessage("Movies fetched successfully", 1.5)
       }
+
+      // Log formatted movies with their statuses
+      console.log("Formatted Movies with Statuses:", formattedMovies.map(movie => ({
+        name: movie.movieNameEnglish,
+        status: movie.status
+      })))
     } catch (error) {
-      showErrorMessage(`Failed to fetch movies: ${error.response?.data?.message || error.message}`, 1.5)
+      console.error("Full error in fetchMovies:", {
+        message: error.message,
+        response: error.response
+      })
+      showErrorMessage(error.response?.data?.message || error.message)
     } finally {
       setLoading(false)
     }
@@ -268,7 +329,7 @@ const Movie = () => {
       return formattedMovie
     } catch (error) {
       console.error("Full error in fetchMovieDetails:", error)
-      showErrorMessage(`Failed to fetch movie details: ${error.response?.data?.message || error.message}`)
+      showErrorMessage(error.response?.data?.message || error.message)
       return null
     }
   }
@@ -285,7 +346,7 @@ const Movie = () => {
         console.error("Error response data:", error.response.data)
         console.error("Error response status:", error.response.status)
       }
-      showErrorMessage(`Failed to fetch movie schedules: ${error.response?.data?.message || error.message}`)
+      showErrorMessage(error.response?.data?.message || error.message)
       return []
     }
   }
@@ -296,7 +357,6 @@ const Movie = () => {
     try {
       const movieDetails = await fetchMovieDetails(record.key)
       if (!movieDetails) {
-        showErrorMessage("Failed to fetch movie details for editing")
         return
       }
 
@@ -333,7 +393,7 @@ const Movie = () => {
       setIsModalVisible(true)
     } catch (error) {
       console.error("Error in handleEdit:", error)
-      showErrorMessage(`Error preparing movie for edit: ${error.message}`)
+      showErrorMessage(error.response?.data?.message || error.message)
     }
   }
 
@@ -342,7 +402,7 @@ const Movie = () => {
       setUploading(true)
 
       if (!values.cinemaRoom) {
-        message.error("Please select a cinema room")
+        showErrorMessage("Please select a cinema room")
         setUploading(false)
         return
       }
@@ -460,8 +520,7 @@ const Movie = () => {
     } catch (error) {
       console.error("Full submission error:", error)
       showErrorMessage(
-        `Failed to ${isEditing ? "update" : "add"} movie: ${error.response?.data?.message || error.message}`,
-        3,
+        error.response?.data?.message || error.message
       )
     } finally {
       setUploading(false)
@@ -482,7 +541,7 @@ const Movie = () => {
         setDeleteConfirmationVisible(false)
         setMovieToDelete(null)
       } catch (error) {
-        showErrorMessage(`Failed to delete movie: ${error.response?.data?.message || error.message}`, 3)
+        showErrorMessage(error.response?.data?.message || error.message)
       }
     }
   }
@@ -580,17 +639,47 @@ const Movie = () => {
             showErrorMessage("Schedule time is out of the movie's valid date range", 4)
             break
           default:
-            showErrorMessage(`Failed to add schedule: ${errorMessage || error.message}`, 3)
+            showErrorMessage(errorMessage || error.message)
         }
       } else {
-        showErrorMessage(`Failed to add schedule: ${error.message}`, 3)
+        showErrorMessage(error.message)
       }
       return false
     }
   }
 
+  // Add new function for handling movie status toggle
+  const handleMovieStatusToggle = async (movieId, checked) => {
+    try {
+      if (checked) {
+        // Activate movie
+        await axios.post(`/admin/movies/${movieId}/activate`)
+        setMovies((prevMovies) =>
+          prevMovies.map((movie) =>
+            movie.key === movieId.toString() ? { ...movie, status: 'ACTIVE' } : movie
+          )
+        )
+        showSuccessMessage("Movie activated successfully", 1.5)
+      } else {
+        // Inactivate movie
+        await axios.post(`/admin/movies/${movieId}/inactivate`)
+        setMovies((prevMovies) =>
+          prevMovies.map((movie) =>
+            movie.key === movieId.toString() ? { ...movie, status: 'INACTIVE' } : movie
+          )
+        )
+        showSuccessMessage("Movie inactivated successfully", 1.5)
+      }
+    } catch (error) {
+      console.error("Error toggling movie status:", error)
+      showErrorMessage(
+        error.response?.data?.message || error.message
+      )
+    }
+  }
+
   // Table Columns Configuration
-  const columns = [
+  const columns = [ 
     {
       title: "Movie Name (EN)",
       dataIndex: "movieNameEnglish",
@@ -725,6 +814,23 @@ const Movie = () => {
         ),
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status, record) => (
+        <div className="status-column">
+          <Switch
+            checked={status === 'ACTIVE'}
+            onChange={(checked) => handleMovieStatusToggle(record.key, checked)}
+            size="small"
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+            className="status-switch"
+          />
+        </div>
+      ),
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -768,6 +874,8 @@ const Movie = () => {
       : true,
   )
 
+  const [addTypeForm] = Form.useForm()
+
   return (
     <div className="movies-container">
       {/* Header Section */}
@@ -781,20 +889,30 @@ const Movie = () => {
               style={{ width: 200, marginRight: 10 }}
             />
           </div>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setIsModalVisible(true)
-              setIsEditing(false)
-              setPosterFile(null)
-              setBannerFile(null)
-              form.resetFields()
-            }}
-            className="add-movie-btn"
-          >
-            Add New Movie
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setIsModalVisible(true)
+                setIsEditing(false)
+                setPosterFile(null)
+                setBannerFile(null)
+                form.resetFields()
+              }}
+              className="add-movie-btn"
+            >
+              Add New Movie
+            </Button>
+            <Button
+              type="default"
+              icon={<TagOutlined />}
+              onClick={() => setIsAddTypeModalVisible(true)}
+              className="add-movie-type-btn"
+            >
+              Add Movie Type
+            </Button>
+          </Space>
         </div>
       </div>
 
@@ -808,7 +926,7 @@ const Movie = () => {
           emptyText: "No movies found",
         }}
         pagination={{
-          pageSize: 12,
+          pageSize: 6,
           className: "pagination-btn-movie",
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
@@ -1333,6 +1451,59 @@ const Movie = () => {
           <p className="no-schedules-message">No schedules found for this movie.</p>
         )}
       </Modal>
+
+      {/* Add Movie Type Modal */}
+      <Modal
+        title="Add New Movie Type"
+        open={isAddTypeModalVisible}
+        onCancel={() => {
+          setIsAddTypeModalVisible(false)
+          addTypeForm.resetFields()
+        }}
+        footer={null}
+        className="movie-modal add-type-modal"
+        width={400}
+        centered
+      >
+        <Form
+          form={addTypeForm}
+          layout="vertical"
+          onFinish={handleAddMovieType}
+          className="movie-form add-type-form"
+        >
+          <Form.Item
+            name="typeName"
+            label="Movie Type Name"
+            rules={[
+              { 
+                required: true, 
+                message: "Please enter movie type name" 
+              },
+              {
+                validator: async (_, value) => {
+                  if (value && value.trim().length === 0) {
+                    throw new Error("Movie type name cannot be empty")
+                  }
+                }
+              }
+            ]}
+          >
+            <Input placeholder="Enter movie type name" />
+          </Form.Item>
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              block 
+              className="submit-btn" 
+              loading={uploading}
+            >
+              Add Movie Type
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <ToastContainer />
     </div>
   )
 }

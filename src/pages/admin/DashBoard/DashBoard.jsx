@@ -12,6 +12,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
+
 import api from '../../../constants/axios';
 import './Dashboard.scss';
 
