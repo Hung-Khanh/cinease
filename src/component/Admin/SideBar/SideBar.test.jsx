@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import SideBar from "./SideBar";
+import SideBar from "../SideBar";
 
 jest.mock("../../../assets/logo.png", () => "logo.png");
 jest.mock("../../../assets/admin-logo/dashboard-icon.svg", () => "dashboard-icon.svg");
