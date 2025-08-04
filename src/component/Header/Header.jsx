@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { UserOutlined, BellOutlined, MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
 import "./Header.scss";
-
+import logo from "../../assets/logo.png";
 const MAX_NOTIFICATIONS = 20;
 
 const getNotificationsByUser = (userName) => {
@@ -157,7 +157,11 @@ const Header = () => {
       <div className="header-container">
         {/* Logo */}
         <Link to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"}>
-          <img src="/src/assets/logo.png" alt="logo" className="logo" />
+           <img
+            src={logo || "/placeholder.svg"}
+            alt="Cinease Logo"
+            className="logo"
+          />
         </Link>
 
         {/* Desktop Navigation */}
