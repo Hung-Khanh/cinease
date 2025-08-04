@@ -153,17 +153,6 @@ const Home = () => {
     }
   }
 
-  // Auto-slide effect for hero section
-  useEffect(() => {
-    if (heroMovies.length === 0) return
-
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroMovies.length)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [heroMovies.length])
-
   const currentMovie = heroMovies[currentSlide]
 
   const handleTrailerClick = (e) => {
@@ -175,34 +164,48 @@ const Home = () => {
   }
 
   const CustomCarousel = ({ children, itemsPerView = 5 }) => {
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const totalItems = children.length
-    const maxIndex = Math.max(0, totalItems - itemsPerView)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const totalItems = children.length
+  const maxIndex = Math.max(0, totalItems - itemsPerView)
 
     return (
-      <div className="custom-carousel">
-        <button
-          className="carousel-btn prev"
-          onClick={() => setCurrentIndex(Math.max(currentIndex - 1, 0))}
-          disabled={currentIndex === 0}
+    <div className="custom-carousel">
+      <button
+        className="carousel-btn prev"
+        onClick={() => setCurrentIndex(Math.max(currentIndex - 1, 0))}
+        disabled={currentIndex === 0}
+      >
+        ❮
+      </button>
+      <div className="carousel-container">
+        <div
+          className="carousel-track"
+          style={{
+            width: `${(totalItems / itemsPerView) * 100}%`,
+            transform: `translateX(-${(currentIndex * 100) / totalItems}%)`
+          }}
         >
-          ❮
-        </button>
-        <div className="carousel-container">
-          <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}>
-            {children}
-          </div>
+          {children.map((child, index) => (
+            <div
+              key={index}
+              className="carousel-item"
+              style={{ width: `${100 / totalItems}%` }}
+            >
+              {child}
+            </div>
+          ))}
         </div>
-        <button
-          className="carousel-btn next"
-          onClick={() => setCurrentIndex(Math.min(currentIndex + 1, maxIndex))}
-          disabled={currentIndex >= maxIndex}
-        >
-          ❯
-        </button>
       </div>
-    )
-  }
+      <button
+        className="carousel-btn next"
+        onClick={() => setCurrentIndex(Math.min(currentIndex + 1, maxIndex))}
+        disabled={currentIndex >= maxIndex}
+      >
+        ❯
+      </button>
+    </div>
+  )
+}
 
   return (
     <>
@@ -284,13 +287,13 @@ const Home = () => {
               onClick={() => setTrailerVisible(null)}
             >
               <div className="trailer-container" onClick={e => e.stopPropagation()}>
-                {/* <button
+                <button
                   className="close-btn"
                   onClick={() => setTrailerVisible(null)}
                   aria-label="Close trailer"
                 >
                   ✕
-                </button> */}
+                </button>
                 <iframe
                   src={trailerVisible}
                   title="Movie Trailer"
