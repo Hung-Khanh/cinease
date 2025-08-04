@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { getSeats } from "../../../api/seat";
 import { postSelectedSeats } from "../../../api/staff";
 import { StaffGetPromotions } from "../../../api/promotion";
-import { Modal, Button, Card, Flex, Dropdown, Space } from "antd";
+import { Modal, Button, Card, Flex, Dropdown, Space, message } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 const SeatSelect = ({ onBack }) => {
@@ -200,7 +200,13 @@ const SeatSelect = ({ onBack }) => {
   };
 
   const showModal = () => {
-    setIsModalVisible(true);
+    if (selectedSeats.length === 0) {
+      alert("Vui lòng chọn ít nhất một ghế trước khi thanh toán.");
+      setIsModalVisible(false);
+      return;
+    } else {
+      setIsModalVisible(true);
+    }
   };
 
   const handleCancel = () => {
@@ -244,7 +250,7 @@ const SeatSelect = ({ onBack }) => {
 
   return (
     <div className="seat-selection-wrapper">
-      <button className="back-button" onClick={handleBack}>
+      <button className="dts-back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
       <div className="seat-selection-container">
@@ -417,11 +423,7 @@ const SeatSelect = ({ onBack }) => {
             <p className="value">{selectedTime || "N/A"}</p>
           </div>
 
-          <button
-            className="checkout-button"
-            onClick={showModal}
-            disabled={selectedSeats.length === 0}
-          >
+          <button className="checkout-button" onClick={showModal}>
             Checkout
           </button>
           <Modal
