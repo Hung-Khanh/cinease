@@ -35,10 +35,10 @@ const Login = () => {
     password: "",
     repeatPassword: "",
     fullName: "",
-    dob: "",
-    sex: "",
-    cardNumber: "",
-    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    identityCard: "",
+    phoneNumber: "",
     address: "",
   });
   const [error, setError] = useState(""); // Lỗi từ server (chỉ cho form đăng ký)
@@ -50,10 +50,10 @@ const Login = () => {
       password: false,
       repeatPassword: false,
       fullName: false,
-      dob: false,
-      sex: false,
-      cardNumber: false,
-      phone: false,
+      dateOfBirth: false,
+      gender: false,
+      identityCard: false,
+      phoneNumber: false,
       address: false,
     },
   }); // Lỗi validation cho từng trường
@@ -257,11 +257,12 @@ const Login = () => {
     else if (values.password !== values.repeatPassword)
       newErrors.repeatPassword = true;
     if (!values.fullName) newErrors.fullName = true;
-    if (!values.dob) newErrors.dob = true;
-    if (!values.sex) newErrors.sex = true;
-    if (!values.cardNumber) newErrors.cardNumber = true;
-    if (!values.phone) newErrors.phone = true;
-    else if (!/^\d{10,}$/.test(values.phone)) newErrors.phone = true;
+    if (!values.dateOfBirth) newErrors.dateOfBirth = true;
+    if (!values.gender) newErrors.gender = true;
+    if (!values.identityCard) newErrors.identityCard = true;
+    if (!values.phoneNumber) newErrors.phoneNumber = true;
+    else if (!/^\d{10,}$/.test(values.phoneNumber))
+      newErrors.phoneNumber = true;
     if (!values.address) newErrors.address = true;
 
     if (Object.keys(newErrors).length > 0) {
@@ -388,7 +389,10 @@ const Login = () => {
           )}
           <Form
             name="register_form"
-            onFinish={handleRegisterSubmit}
+            onFinish={(values) => {
+              // Merge values with registerData to ensure all fields are present
+              handleRegisterSubmit({ ...registerData, ...values });
+            }}
             className="register-form compact"
             initialValues={registerData}
           >
@@ -491,56 +495,49 @@ const Login = () => {
               <Col span={12}>
                 <Form.Item
                   label="Date of Birth"
-                  name="dob"
+                  name="dateOfBirth"
                   labelCol={{ span: 24 }}
                   wrapperCol={{ span: 24 }}
                 >
                   <Input
-                    data-testid="register-dob"
+                    data-testid="register-dateOfBirth"
                     type="date"
-                    status={errors.register.dob ? "error" : ""}
+                    status={errors.register.dateOfBirth ? "error" : ""}
                     placeholder={
-                      errors.register.dob
+                      errors.register.dateOfBirth
                         ? "Please select your date of birth!"
                         : "Select date of birth"
                     }
-                    name="dob"
-                    value={registerData.dob}
+                    name="dateOfBirth"
+                    value={registerData.dateOfBirth}
                     onChange={handleRegisterInputChange}
                     size="medium"
-                    className={errors.register.dob ? "error-input" : ""}
+                    className={errors.register.dateOfBirth ? "error-input" : ""}
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   label="Sex"
-                  name="sex"
+                  name="gender"
                   labelCol={{ span: 24 }}
                   wrapperCol={{ span: 24 }}
                 >
                   <Select
-                    data-testid="register-sex"
-                    status={errors.register.sex ? "error" : ""}
+                    data-testid="register-gender"
+                    status={errors.register.gender ? "error" : ""}
                     placeholder={
-                      errors.register.sex
+                      errors.register.gender
                         ? "Please select your sex!"
                         : "Select sex"
                     }
-                    name="sex"
-                    value={registerData.sex}
-                    onChange={(value) =>
-                      handleRegisterInputChange({
-                        target: { name: "sex", value },
-                      })
-                    }
                     size="medium"
                     style={{ width: "100%" }}
-                    className={errors.register.sex ? "error-input" : ""}
+                    className={errors.register.gender ? "error-input" : ""}
                   >
-                    <Select.Option value="male">Male</Select.Option>
-                    <Select.Option value="female">Female</Select.Option>
-                    <Select.Option value="other">Other</Select.Option>
+                    <Select.Option value="MALE">Male</Select.Option>
+                    <Select.Option value="FEMALE">Female</Select.Option>
+                    <Select.Option value="OTHER">Other</Select.Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -570,46 +567,46 @@ const Login = () => {
             </Form.Item>
             <Form.Item
               label="Identity Card"
-              name="cardNumber"
+              name="identityCard"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
             >
               <Input
-                data-testid="register-cardNumber"
-                status={errors.register.cardNumber ? "error" : ""}
+                data-testid="register-identityCard"
+                status={errors.register.identityCard ? "error" : ""}
                 placeholder={
-                  errors.register.cardNumber
+                  errors.register.identityCard
                     ? "Please input your Identity Card Number!"
                     : "Enter Identity Card Number"
                 }
-                name="cardNumber"
-                value={registerData.cardNumber}
+                name="identityCard"
+                value={registerData.identityCard}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={errors.register.cardNumber ? "error-input" : ""}
+                className={errors.register.identityCard ? "error-input" : ""}
               />
             </Form.Item>
             <Form.Item
               label="Phone Number"
-              name="phone"
+              name="phoneNumber"
               labelCol={{ span: 24 }}
               wrapperCol={{ span: 24 }}
             >
               <Input
-                data-testid="register-phone"
-                status={errors.register.phone ? "error" : ""}
+                data-testid="register-phoneNumber"
+                status={errors.register.phoneNumber ? "error" : ""}
                 placeholder={
-                  errors.register.phone
-                    ? registerData.phone
+                  errors.register.phoneNumber
+                    ? registerData.phoneNumber
                       ? "Please enter a valid phone number!"
                       : "Please input your Phone Number!"
                     : "Enter Your Phone Number"
                 }
-                name="phone"
-                value={registerData.phone}
+                name="phoneNumber"
+                value={registerData.phoneNumber}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={errors.register.phone ? "error-input" : ""}
+                className={errors.register.phoneNumber ? "error-input" : ""}
               />
             </Form.Item>
             <Form.Item

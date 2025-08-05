@@ -11,7 +11,7 @@ describe("LoadingCurtain", () => {
 
     it("renders curtain and logo when loading", () => {
         const { container } = render(<LoadingCurtain isLoading={true} />);
-        expect(screen.getByText("CINESE")).toBeInTheDocument();
+        expect(screen.getByText("CINEASE")).toBeInTheDocument();
         expect(container.querySelector('.loading-curtain-container')).toBeTruthy();
         expect(container.querySelector('.curtain-left')).toBeTruthy();
         expect(container.querySelector('.curtain-right')).toBeTruthy();
@@ -23,17 +23,17 @@ describe("LoadingCurtain", () => {
             <LoadingCurtain isLoading={true} onAnimationComplete={onAnimationComplete} />
         );
         // Still visible while loading
-        expect(screen.getByText("CINESE")).toBeInTheDocument();
+        expect(screen.getByText("CINEASE")).toBeInTheDocument();
         // Switch to not loading
         rerender(<LoadingCurtain isLoading={false} onAnimationComplete={onAnimationComplete} />);
         // Animation starts
-        expect(screen.getByText("CINESE")).toBeInTheDocument();
+        expect(screen.getByText("CINEASE")).toBeInTheDocument();
         // Fast-forward timer
         act(() => {
             jest.advanceTimersByTime(1500);
         });
         // Should be hidden
-        expect(screen.queryByText("CINESE")).toBeNull();
+        expect(screen.queryByText("CINEASE")).toBeNull();
         expect(onAnimationComplete).toHaveBeenCalled();
     });
 
@@ -44,7 +44,7 @@ describe("LoadingCurtain", () => {
             jest.advanceTimersByTime(1500);
         });
         // Should be hidden
-        expect(screen.queryByText("CINESE")).toBeNull();
+        expect(screen.queryByText("CINEASE")).toBeNull();
     });
 });
 

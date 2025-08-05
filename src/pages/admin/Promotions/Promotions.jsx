@@ -1,6 +1,7 @@
 import {
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -25,6 +26,8 @@ const Promotions = () => {
   const [loading, setLoading] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -84,6 +87,11 @@ const Promotions = () => {
     fetchPromotions();
   }, []);
 
+  // Handle view promotion details
+  const handleViewDetails = (record) => {
+    setSelectedPromotion(record);
+    setIsDetailModalVisible(true);
+  };
 
   const columns = [
     {
@@ -119,14 +127,12 @@ const Promotions = () => {
       dataIndex: "startTime",
       key: "startTime",
       render: (date) => new Date(date).toLocaleString(),
-
     },
     {
       title: "End Time",
       dataIndex: "endTime",
       key: "endTime",
       render: (date) => new Date(date).toLocaleString(),
-
     },
     {
       title: "Discount Level",
@@ -134,15 +140,16 @@ const Promotions = () => {
       key: "discountLevel",
     },
     {
-      title: "Details",
-      dataIndex: "details",
-      key: "details",
-    },
-    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <div className="action-buttons">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            className="view-btn"
+            onClick={() => handleViewDetails(record)}
+          />
           <Button
             type="link"
             icon={<EditOutlined />}
@@ -317,13 +324,13 @@ const Promotions = () => {
 
       <Table
         columns={columns}
-        dataSource={promotions}
+        dataSource={filteredPromotions}
         loading={loading}
         className="ant-table-promotion"
         locale={{ 
           emptyText: 'No promotions found' 
         }}
-         pagination={{
+        pagination={{
           pageSize: 12,
           className: "pagination-btn-cinema",
           showSizeChanger: false,
@@ -551,6 +558,50 @@ const Promotions = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Promotion Details Modal */}
+      <Modal
+        title="Promotion Details"
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
+        footer={null}
+        className="promotion-details-modal"
+        width={500}
+        centered
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
+      >
+        {selectedPromotion && (
+          <div className="promotion-details-content">
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Title:</div>
+              <div className="promotion-detail-value">{selectedPromotion.title}</div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Start Time:</div>
+              <div className="promotion-detail-value">
+                {dayjs(selectedPromotion.startTime).format('YYYY-MM-DD HH:mm')}
+              </div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">End Time:</div>
+              <div className="promotion-detail-value">
+                {dayjs(selectedPromotion.endTime).format('YYYY-MM-DD HH:mm')}
+              </div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Discount Level:</div>
+              <div className="promotion-detail-value">{selectedPromotion.discountLevel}</div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Details:</div>
+              <div className="promotion-detail-value">{selectedPromotion.details}</div>
+            </div>
+            
+          </div>
+        )}
       </Modal>
     </div>
   );

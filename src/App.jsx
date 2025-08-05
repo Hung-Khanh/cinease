@@ -9,51 +9,50 @@ import {
 import { AuthProvider } from "./constants/AuthProvider";
 import { store } from "./store/store";
 
-// ...existing code...
-import Footer from "./component/footer/Footer.jsx";
-import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
-import Confirm from "./pages/confirm/Confirm.jsx";
-import DescriptionMovie from "./pages/descriptionMovie/descriptionMovie.jsx";
-import HistoryTicket from "./pages/historyMember/historyTicket.jsx";
-import HomePage from "./pages/home/Home.jsx";
-import LoginPage from "./pages/loginPage/Login.jsx";
-import Movie from "./pages/movie/Movie.jsx";
-import PaymentDetail from "./pages/payment/paymentDetail.jsx";
-import PaymentCashSuccess from "./pages/paymentProcess/paymentCashSuccess/paymentCashSuccess.jsx";
-import PaymentFailed from "./pages/paymentProcess/paymentFailed/paymentFailed.jsx";
-import PaymentSuccess from "./pages/paymentProcess/paymentSuccess/paymentSuccess.jsx";
-import RedirectPayment from "./pages/paymentProcess/redirectPayment/redirectPayment.jsx";
-import UserPaymentFailed from "./pages/paymentProcess/userPaymentFailed/userPaymentFailed.jsx";
-import UserPaymentSuccess from "./pages/paymentProcess/userPaymentSuccess/userPaymentSuccess.jsx";
-import ProductPage from "./pages/product/Product.jsx";
-import Profile from "./pages/profile/Profile.jsx";
-import SelectSeat from "./pages/seat/seatSelect.jsx";
-import SelectShowtime from "./pages/selectShowtime/selectShowtime.jsx";
-import ConfirmPurchase from "./pages/staff/jsx/confirmPurchase.jsx";
-import DateTimeSelection from "./pages/staff/jsx/dateTimeSelection.jsx";
-import PhoneInput from "./pages/staff/jsx/inputPhoneNumber.jsx";
-import SeatSelection from "./pages/staff/jsx/seatSelection.jsx";
-import StaffHomePage from "./pages/staff/jsx/sHomePage.jsx";
-import TicketInformation from "./pages/staff/jsx/ticketInformation.jsx";
-// ...existing code...
-import backgroundImage from "./assets/bigbackground.png";
-import AdminHeader from "./component/admin/header/Header.jsx";
-import SideBar from "./component/admin/sideBar/sideBar.jsx";
-import ScrollToTop from "./component/scrollToTop.jsx";
-import CinemaRooms from "./pages/admin/cinemaRoom/cinemaRoom.jsx";
-import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx";
-import Members from "./pages/admin/members/Members.jsx";
-import AdminMovies from "./pages/admin/Movies/Movie.jsx";
-import ProductManagement from "./pages/admin/productManagement/productManagement.jsx";
-import Promotions from "./pages/admin/promotions/promotions.jsx";
-import TicketManagement from "./pages/admin/ticketManagement/ticketManagement.jsx";
-// import ErrorBoundary from "./components/errorBoundary";
-import ErrorPage from "./pages/error/errorPage.jsx";
-
-import FeedbackManagement from "./pages/admin/FeedBackManagement/FeedBackManagement.jsx";
-import CinemaSeating from "./pages/staff/jsx/testSeatSelection.jsx";
-import Employees from "./pages/admin/Employees/Employees.jsx";
+// Components và Pages
+import Footer from "./component/Footer/Footer.jsx";
 import Header from "./component/Header/Header.jsx";
+import ForgotPassword from "./forgotPassword/forgotPassword.jsx";
+import Confirm from "./pages/Confirm/Confirm.jsx";
+import DescriptionMovie from "./pages/DescriptionMovie/DescriptionMovie.jsx";
+import HistoryTicket from "./pages/HistoryMember/HistoryTicket.jsx";
+import HomePage from "./pages/Home/Home.jsx";
+import LoginPage from "./pages/LoginPage/Login.jsx";
+import Movie from "./pages/Movie/Movie.jsx";
+import PaymentDetail from "./pages/Payment/PaymentDetail.jsx";
+import PaymentCashSuccess from "./pages/PaymentProcess/PaymentCashSuccess/PaymentCashSuccess.jsx";
+import PaymentFailed from "./pages/PaymentProcess/PaymentFailed/PaymentFailed.jsx";
+import PaymentSuccess from "./pages/PaymentProcess/PaymentSuccess/PaymentSuccess.jsx";
+import RedirectPayment from "./pages/PaymentProcess/RedirectPayment/RedirectPayment.jsx";
+import UserPaymentFailed from "./pages/PaymentProcess/UserPaymentFailed/UserPaymentFailed.jsx";
+import UserPaymentSuccess from "./pages/PaymentProcess/UserPaymentSuccess/UserPaymentSuccess.jsx";
+import ProductPage from "./pages/Product/Product.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
+import SelectSeat from "./pages/Seat/SeatSelect.jsx";
+import SelectShowtime from "./pages/SelectShowtime/SelectShowtime.jsx";
+import ConfirmPurchase from "./pages/Staff/JSX/ConfirmPurchase.jsx";
+import DateTimeSelection from "./pages/Staff/JSX/DateTimeSelection.jsx";
+import PhoneInput from "./pages/Staff/JSX/InputPhoneNumber.jsx";
+import SeatSelection from "./pages/Staff/JSX/SeatSelection.jsx";
+import StaffHomePage from "./pages/Staff/JSX/SHomePage.jsx";
+import TicketInformation from "./pages/Staff/JSX/TicketInformation.jsx";
+// Admin components
+import backgroundImage from "./assets/bigbackground.png";
+import AdminHeader from "./component/Admin/Header/Header.jsx";
+import SideBar from "./component/Admin/SideBar/SideBar.jsx";
+import ScrollToTop from "./component/ScrollToTop.jsx";
+import CinemaRooms from "./pages/admin/CinemaRoom/CinemaRoom.jsx";
+import Dashboard from "./pages/admin/DashBoard/DashBoard.jsx";
+import Employees from "./pages/admin/Employees/Employees.jsx";
+import FeedbackManagement from "./pages/admin/FeedbackManagement/FeedbackManagement.jsx";
+import Members from "./pages/admin/Members/Members.jsx";
+import AdminMovies from "./pages/admin/Movies/Movie.jsx";
+import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
+import Promotions from "./pages/admin/Promotions/Promotions.jsx";
+import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
+import ErrorPage from "./pages/Error/ErrorPage.jsx";
+
+import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
 function AdminRoutes() {
   return (
     <Routes>
@@ -132,8 +131,34 @@ function AdminLayout() {
   );
 }
 
+import { useEffect } from "react";
+import { getUserInfo } from "./api/user";
+import { useAuth } from "./constants/AuthContext";
+
 function Layout() {
   const location = useLocation();
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    let ignore = false;
+    const checkStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return; // Không gọi API nếu chưa đăng nhập
+      try {
+        const res = await getUserInfo();
+        const user = res?.data || res?.data?.data;
+        if (user && user.status === "INACTIVE") {
+          logout && logout();
+          localStorage.removeItem("user");
+          window.location.replace("/login");
+        }
+      } catch (e) {
+        // Optionally handle errors
+      }
+    };
+    checkStatus();
+    return () => { ignore = true; };
+  }, [location, logout]);
   const isLoginRegister = location.pathname.startsWith("/login");
   const role = localStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";
