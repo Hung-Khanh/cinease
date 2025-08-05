@@ -1,6 +1,7 @@
 import {
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -25,6 +26,8 @@ const Promotions = () => {
   const [loading, setLoading] = useState(false);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -33,11 +36,9 @@ const Promotions = () => {
     useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
 
-  // Add pagination state
-  const [historyPage, setHistoryPage] = useState(1);
-  const [historyPageSize, setHistoryPageSize] = useState(10);
-  const [historyTotal, setHistoryTotal] = useState(0);
 
+  // State for file upload
+  const [imageFile, setImageFile] = useState(null);
   // Memoized filtered promotions
   const filteredPromotions = useMemo(() => {
     if (!searchTerm) return promotions;
@@ -67,7 +68,6 @@ const Promotions = () => {
       });
 
       setPromotions(formattedPromotions);
-      setHistoryTotal(formattedPromotions.length);
 
       if (showSuccessMessage) {
         message.success(
@@ -87,12 +87,11 @@ const Promotions = () => {
     fetchPromotions();
   }, []);
 
-  // Paginated promotions
-  const paginatedPromotions = useMemo(() => {
-    const startIndex = (historyPage - 1) * historyPageSize;
-    const endIndex = startIndex + historyPageSize;
-    return filteredPromotions.slice(startIndex, endIndex);
-  }, [filteredPromotions, historyPage, historyPageSize]);
+  // Handle view promotion details
+  const handleViewDetails = (record) => {
+    setSelectedPromotion(record);
+    setIsDetailModalVisible(true);
+  };
 
   const columns = [
     {
@@ -128,14 +127,12 @@ const Promotions = () => {
       dataIndex: "startTime",
       key: "startTime",
       render: (date) => new Date(date).toLocaleString(),
-
     },
     {
       title: "End Time",
       dataIndex: "endTime",
       key: "endTime",
       render: (date) => new Date(date).toLocaleString(),
-
     },
     {
       title: "Discount Level",
@@ -143,15 +140,16 @@ const Promotions = () => {
       key: "discountLevel",
     },
     {
-      title: "Details",
-      dataIndex: "details",
-      key: "details",
-    },
-    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <div className="action-buttons">
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            className="view-btn"
+            onClick={() => handleViewDetails(record)}
+          />
           <Button
             type="link"
             icon={<EditOutlined />}
@@ -169,6 +167,11 @@ const Promotions = () => {
     },
   ];
 
+     const createPaginationButton = (type, text) => (
+        <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
+          {text}
+        </Button>
+      );
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
@@ -215,17 +218,21 @@ const Promotions = () => {
     try {
       // Format dates to match the API's expected format
       const formatDate = (date) =>
-        date ? dayjs(date).format("YYYY-MM-DD HH:mm") : null;
+        date ? dayjs(date).format("YYYY-MM-DDTHH:mm") : null;
 
-      const requestBody = {
-        ...(isEditing ? { promotionId: parseInt(editingKey) } : {}),
-        title: values.title,
-        startTime: formatDate(values.startTime),
-        endTime: formatDate(values.endTime),
-        discountLevel: parseInt(values.discountLevel),
-        detail: values.details,
-        image: values.image || null,
-      };
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("startTime", formatDate(values.startTime));
+      formData.append("endTime", formatDate(values.endTime));
+      formData.append("discountLevel", parseInt(values.discountLevel));
+      formData.append("detail", values.details);
+      if (imageFile) {
+        formData.append("imageFile", imageFile);
+      }
+      if (isEditing) {
+        formData.append("promotionId", parseInt(editingKey));
+      }
 
       const url = isEditing
         ? `/admin/promotions/${editingKey}`
@@ -234,7 +241,10 @@ const Promotions = () => {
       const response = await axios({
         method: isEditing ? 'put' : 'post',
         url: url,
-        data: requestBody,
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       // Refresh the promotions list
@@ -251,6 +261,7 @@ const Promotions = () => {
       setIsModalVisible(false);
       setIsEditing(false);
       setEditingKey(null);
+      setImageFile(null);
       form.resetFields();
     } catch (error) {
       message.error(
@@ -313,36 +324,19 @@ const Promotions = () => {
 
       <Table
         columns={columns}
-        dataSource={paginatedPromotions}
+        dataSource={filteredPromotions}
         loading={loading}
         className="ant-table-promotion"
         locale={{ 
           emptyText: 'No promotions found' 
         }}
         pagination={{
-          current: historyPage,
-          pageSize: historyPageSize,
-          total: historyTotal,
+          pageSize: 12,
+          className: "pagination-btn-cinema",
           showSizeChanger: false,
-          onChange: (page, pageSize) => {
-            setHistoryPage(page);
-            setHistoryPageSize(pageSize);
-          },
           itemRender: (current, type, originalElement) => {
-            if (type === "prev") {
-              return (
-                <Button type="default" className="pagination-btn-promotion prev-btn">
-                  Previous
-                </Button>
-              );
-            }
-            if (type === "next") {
-              return (
-                <Button type="default" className="pagination-btn-promotion next-btn">
-                  Next
-                </Button>
-              );
-            }
+            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
         }}
@@ -505,22 +499,22 @@ const Promotions = () => {
           </Form.Item>
 
           <Form.Item
-            name="image"
-            label="Promotion Image URL"
-            rules={[
-              {
-                type: "url",
-                message: "Please enter a valid image URL",
-                validateTrigger: ["onChange", "onBlur"],
-              },
-            ]}
-            hasFeedback
+            label="Promotion Image"
+            required={false}
           >
-            <Input
-              placeholder="Enter image URL"
-              className="custom-input"
-              prefix={<UploadOutlined />}
-            />
+            <Upload
+              accept="image/*"
+              beforeUpload={(file) => {
+                setImageFile(file);
+                return false; // Prevent auto upload
+              }}
+              fileList={imageFile ? [imageFile] : []}
+              onRemove={() => setImageFile(null)}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>Upload Promotion Image</Button>
+            </Upload>
+            {imageFile && <div style={{ marginTop: 8 }}>Selected: {imageFile.name}</div>}
           </Form.Item>
 
           <Form.Item>
@@ -564,6 +558,50 @@ const Promotions = () => {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Promotion Details Modal */}
+      <Modal
+        title="Promotion Details"
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
+        footer={null}
+        className="promotion-details-modal"
+        width={500}
+        centered
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
+      >
+        {selectedPromotion && (
+          <div className="promotion-details-content">
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Title:</div>
+              <div className="promotion-detail-value">{selectedPromotion.title}</div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Start Time:</div>
+              <div className="promotion-detail-value">
+                {dayjs(selectedPromotion.startTime).format('YYYY-MM-DD HH:mm')}
+              </div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">End Time:</div>
+              <div className="promotion-detail-value">
+                {dayjs(selectedPromotion.endTime).format('YYYY-MM-DD HH:mm')}
+              </div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Discount Level:</div>
+              <div className="promotion-detail-value">{selectedPromotion.discountLevel}</div>
+            </div>
+            <div className="promotion-detail-row">
+              <div className="promotion-detail-label">Details:</div>
+              <div className="promotion-detail-value">{selectedPromotion.details}</div>
+            </div>
+            
+          </div>
+        )}
       </Modal>
     </div>
   );

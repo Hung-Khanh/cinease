@@ -318,7 +318,6 @@ $danger-red: #ff4757;
     position: relative;
     display: flex;
     align-items: center;
-    gap: 20px;
 
     .carousel-btn {
       background: rgba(0, 255, 136, 0.2);
@@ -640,20 +639,24 @@ $danger-red: #ff4757;
       }
     }
 
-    .movie-card {
-      flex: 0 0 calc(50% - 10px);
-      min-width: 160px;
+    // Tablet: Hiển thị đúng 3 card trên 1 hàng
+    .custom-carousel .carousel-track {
+      gap: 20px;
+      display: flex;
     }
-
-    .coming-soon-card {
-      flex: 0 0 calc(50% - 10px);
-      min-width: 180px;
-    }
-
+    .movie-card,
+    .coming-soon-card,
     .promo-card {
-      flex: 0 0 calc(100% - 0px);
+      flex: 0 0 calc(33.333% - 14px);
+      min-width: 0;
+      max-width: calc(33.333% - 14px);
+      box-sizing: border-box;
     }
-
+    .custom-carousel .carousel-item {
+      width: calc(100% / 3) !important;
+      min-width: 0;
+      box-sizing: border-box;
+    }
     .custom-carousel .carousel-btn {
       width: 35px;
       height: 35px;

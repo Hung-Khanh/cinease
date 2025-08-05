@@ -1,36 +1,47 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { Form, Input, Button, Typography, Select, Row, Col, message, Alert } from "antd"
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons"
-import "./Login.scss"
-import logo from "../../assets/Logo.png"
-import { useAuth } from "../../constants/AuthContext"
-import { useNavigate } from "react-router-dom"
-
-const { Title, Text } = Typography
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  Select,
+  Row,
+  Col,
+  message,
+  Alert,
+} from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import "./Login.scss";
+import logo from "../../assets/logo.png";
+import { useAuth } from "../../constants/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const { Title, Text } = Typography;
 
 const Login = () => {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api"
-  const [isRegister, setIsRegister] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [loginData, setLoginData] = useState({ username: "", password: "" })
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const [isRegister, setIsRegister] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [registerData, setRegisterData] = useState({
     username: "",
     email: "",
     password: "",
     repeatPassword: "",
     fullName: "",
-    dob: "",
-    sex: "",
-    cardNumber: "",
-    phone: "",
+    dateOfBirth: "",
+    gender: "",
+    identityCard: "",
+    phoneNumber: "",
     address: "",
-  })
-  const [error, setError] = useState("") // Lỗi từ server (chỉ cho form đăng ký)
+  });
+  const [error, setError] = useState(""); // Lỗi từ server (chỉ cho form đăng ký)
   const [errors, setErrors] = useState({
     login: { username: false, password: false },
     register: {
@@ -39,17 +50,17 @@ const Login = () => {
       password: false,
       repeatPassword: false,
       fullName: false,
-      dob: false,
-      sex: false,
-      cardNumber: false,
-      phone: false,
+      dateOfBirth: false,
+      gender: false,
+      identityCard: false,
+      phoneNumber: false,
       address: false,
     },
-  }) // Lỗi validation cho từng trường
+  }); // Lỗi validation cho từng trường
 
   const toggleForm = () => {
-    setIsRegister(!isRegister)
-    setError("")
+    setIsRegister(!isRegister);
+    setError("");
     setErrors({
       login: { username: false, password: false },
       register: {
@@ -64,15 +75,15 @@ const Login = () => {
         phone: false,
         address: false,
       },
-    }) // Reset lỗi khi chuyển form
-  }
+    }); // Reset lỗi khi chuyển form
+  };
 
   const handleLoginInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setLoginData((prevData) => ({
       ...prevData,
       [name]: value,
-    }))
+    }));
     // Xóa lỗi của trường khi người dùng nhập
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -80,15 +91,15 @@ const Login = () => {
         ...prevErrors.login,
         [name]: false,
       },
-    }))
-  }
+    }));
+  };
 
   const handleRegisterInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setRegisterData((prevData) => ({
       ...prevData,
       [name]: value,
-    }))
+    }));
     // Xóa lỗi của trường khi người dùng nhập
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -96,28 +107,28 @@ const Login = () => {
         ...prevErrors.register,
         [name]: false,
       },
-    }))
-  }
+    }));
+  };
 
   const handleLoginSubmit = async (values) => {
-    setLoading(true)
+    setLoading(true);
     setErrors((prevErrors) => ({
       ...prevErrors,
       login: { username: false, password: false },
-    }))
+    }));
 
     // Kiểm tra validation thủ công
-    const newErrors = { username: false, password: false }
-    if (!values.username) newErrors.username = true
-    if (!values.password) newErrors.password = true
+    const newErrors = { username: false, password: false };
+    if (!values.username) newErrors.username = true;
+    if (!values.password) newErrors.password = true;
 
     if (newErrors.username || newErrors.password) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         login: newErrors,
-      }))
-      setLoading(false)
-      return // Ngăn gửi request nếu có lỗi
+      }));
+      setLoading(false);
+      return; // Ngăn gửi request nếu có lỗi
     }
 
     try {
@@ -129,7 +140,7 @@ const Login = () => {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(values),
-      })
+      });
 
       let result;
       if (!response.ok) {
@@ -147,72 +158,78 @@ const Login = () => {
       }
 
       result = await response.json();
-      console.log("🔐 Login successful, role:", result.role)
-      message.success("Login successful!")
+      console.log("🔐 Login successful, role:", result.role);
+      message.success("Login successful!");
 
       // Lưu tạm token để gọi API lấy profile
-      localStorage.setItem("user", JSON.stringify({ token: result.token, role: result.role }))
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ token: result.token, role: result.role })
+      );
 
       // Gọi API lấy thông tin user đầy đủ
       try {
-        const profileRes = await fetch("https://legally-actual-mollusk.ngrok-free.app/api/member/account", {
-          headers: {
-            Authorization: `Bearer ${result.token}`,
-            "ngrok-skip-browser-warning": "true",
-          },
-        })
+        const profileRes = await fetch(
+          "https://legally-actual-mollusk.ngrok-free.app/api/member/account",
+          {
+            headers: {
+              Authorization: `Bearer ${result.token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
         if (profileRes.ok) {
-          const profileData = await profileRes.json()
+          const profileData = await profileRes.json();
           localStorage.setItem(
             "user",
             JSON.stringify({
               ...profileData,
               token: result.token,
               role: result.role,
-            }),
-          )
+            })
+          );
         }
       } catch (e) {
-        console.error("Error fetching profile:", e)
+        console.error("Error fetching profile:", e);
       }
 
       login({
         token: result.token,
         role: result.role,
-      })
+      });
 
       // Set login success flag for curtain animation (only for regular users going to home)
       if (result.role !== "ADMIN" && result.role !== "EMPLOYEE") {
-        console.log("🎭 Setting loginSuccess flag for curtain animation")
-        localStorage.setItem("loginSuccess", "true")
+        console.log("🎭 Setting loginSuccess flag for curtain animation");
+        localStorage.setItem("loginSuccess", "true");
       } else {
-        console.log("👨‍💼 Admin/Employee login - no curtain needed")
+        console.log("👨‍💼 Admin/Employee login - no curtain needed");
       }
 
       // Navigate based on role with slight delay for message to show
       setTimeout(() => {
         if (result.role === "ADMIN") {
-          console.log("🔧 Navigating to admin dashboard")
-          navigate("/admin/dashboard")
+          console.log("🔧 Navigating to admin dashboard");
+          navigate("/admin/dashboard");
         } else if (result.role === "EMPLOYEE") {
-          console.log("👨‍💼 Navigating to staff homepage")
-          navigate("/staffHomePage")
+          console.log("👨‍💼 Navigating to staff homepage");
+          navigate("/staffHomePage");
         } else {
-          console.log("🏠 Navigating to home with curtain")
-          navigate("/") // This will trigger the curtain animation
+          console.log("🏠 Navigating to home with curtain");
+          navigate("/"); // This will trigger the curtain animation
         }
-      }, 500)
+      }, 500);
     } catch (error) {
-      console.error("Error during login:", error.message)
-      message.error(`Login failed: ${error.message}`)
+      console.error("Error during login:", error.message);
+      toast.error(`Login failed: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleRegisterSubmit = async (values) => {
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
     setErrors((prevErrors) => ({
       ...prevErrors,
       register: {
@@ -227,31 +244,34 @@ const Login = () => {
         phone: false,
         address: false,
       },
-    }))
+    }));
 
     // Kiểm tra validation thủ công
-    const newErrors = {}
-    if (!values.username) newErrors.username = true
-    if (!values.email) newErrors.email = true
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) newErrors.email = true
-    if (!values.password) newErrors.password = true
-    if (!values.repeatPassword) newErrors.repeatPassword = true
-    else if (values.password !== values.repeatPassword) newErrors.repeatPassword = true
-    if (!values.fullName) newErrors.fullName = true
-    if (!values.dob) newErrors.dob = true
-    if (!values.sex) newErrors.sex = true
-    if (!values.cardNumber) newErrors.cardNumber = true
-    if (!values.phone) newErrors.phone = true
-    else if (!/^\d{10,}$/.test(values.phone)) newErrors.phone = true
-    if (!values.address) newErrors.address = true
+    const newErrors = {};
+    if (!values.username) newErrors.username = true;
+    if (!values.email) newErrors.email = true;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
+      newErrors.email = true;
+    if (!values.password) newErrors.password = true;
+    if (!values.repeatPassword) newErrors.repeatPassword = true;
+    else if (values.password !== values.repeatPassword)
+      newErrors.repeatPassword = true;
+    if (!values.fullName) newErrors.fullName = true;
+    if (!values.dateOfBirth) newErrors.dateOfBirth = true;
+    if (!values.gender) newErrors.gender = true;
+    if (!values.identityCard) newErrors.identityCard = true;
+    if (!values.phoneNumber) newErrors.phoneNumber = true;
+    else if (!/^\d{10,}$/.test(values.phoneNumber))
+      newErrors.phoneNumber = true;
+    if (!values.address) newErrors.address = true;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         register: newErrors,
-      }))
-      setLoading(false)
-      return // Ngăn gửi request nếu có lỗi
+      }));
+      setLoading(false);
+      return; // Ngăn gửi request nếu có lỗi
     }
 
     try {
@@ -263,58 +283,89 @@ const Login = () => {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify(values),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json()
-      message.success("Registration successful!")
-      console.log("Register response:", result)
-      setIsRegister(false)
+      const result = await response.json();
+      toast.success("Registration successful!");
+      console.log("Register response:", result);
+      setIsRegister(false);
     } catch (error) {
-      console.error("Error during registration:", error.message)
-      setError(`Registration failed: ${error.message}`)
+      console.error("Error during registration:", error.message);
+      setError(`Registration failed: ${error.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="login-page">
       <div className={`container ${isRegister ? "active" : ""}`}>
         {/* Login Form Section */}
         <div className="form-container login-form-section">
-          <Form name="login_form" onFinish={handleLoginSubmit} className="login-form" initialValues={loginData}>
+          <Form
+            name="login_form"
+            onFinish={handleLoginSubmit}
+            className="login-form"
+            initialValues={loginData}
+          >
             <Title level={2} className="login-title">
               Login to your account
             </Title>
-            <Form.Item label="Username" name="username" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Username"
+              name="username"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
                 data-testid="login-username"
                 status={errors.login.username ? "error" : ""}
-                placeholder={errors.login.username ? "Please input your username!" : "Enter username"}
+                placeholder={
+                  errors.login.username
+                    ? "Please input your username!"
+                    : "Enter username"
+                }
                 name="username"
                 value={loginData.username}
                 onChange={handleLoginInputChange}
                 className={errors.login.username ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item label="Password" name="password" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Password"
+              name="password"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input.Password
                 data-testid="login-password"
                 status={errors.login.password ? "error" : ""}
-                placeholder={errors.login.password ? "Please input your password!" : "Enter password"}
+                placeholder={
+                  errors.login.password
+                    ? "Please input your password!"
+                    : "Enter password"
+                }
                 name="password"
                 value={loginData.password}
                 onChange={handleLoginInputChange}
-                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
                 className={errors.login.password ? "error-input" : ""}
               />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" block className="login-button" loading={loading}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                className="login-button"
+                loading={loading}
+              >
                 Login now
               </Button>
             </Form.Item>
@@ -328,21 +379,40 @@ const Login = () => {
 
         {/* Register Form Section */}
         <div className="form-container register-form-section">
-          {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form
             name="register_form"
-            onFinish={handleRegisterSubmit}
+            onFinish={(values) => {
+              // Merge values with registerData to ensure all fields are present
+              handleRegisterSubmit({ ...registerData, ...values });
+            }}
             className="register-form compact"
             initialValues={registerData}
           >
             <Title level={3} className="register-title">
               Create your account
             </Title>
-            <Form.Item label="Username" name="username" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Username"
+              name="username"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
                 data-testid="register-username"
                 status={errors.register.username ? "error" : ""}
-                placeholder={errors.register.username ? "Please input your username!" : "Enter username"}
+                placeholder={
+                  errors.register.username
+                    ? "Please input your username!"
+                    : "Enter username"
+                }
                 name="username"
                 value={registerData.username}
                 onChange={handleRegisterInputChange}
@@ -363,7 +433,11 @@ const Login = () => {
                     <Input.Password
                       data-testid="register-password"
                       status={errors.register.password ? "error" : ""}
-                      placeholder={errors.register.password ? "Please input your password!" : "Enter password"}
+                      placeholder={
+                        errors.register.password
+                          ? "Please input your password!"
+                          : "Enter password"
+                      }
                       name="password"
                       value={registerData.password}
                       onChange={handleRegisterInputChange}
@@ -388,17 +462,28 @@ const Login = () => {
                       value={registerData.repeatPassword}
                       onChange={handleRegisterInputChange}
                       size="small"
-                      className={errors.register.repeatPassword ? "error-input" : ""}
+                      className={
+                        errors.register.repeatPassword ? "error-input" : ""
+                      }
                     />
                   </Form.Item>
                 </Col>
               </Row>
             </Form.Item>
-            <Form.Item label="Full Name" name="fullName" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Full Name"
+              name="fullName"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
                 data-testid="register-fullname"
                 status={errors.register.fullName ? "error" : ""}
-                placeholder={errors.register.fullName ? "Please enter your full name!" : "Enter your full name"}
+                placeholder={
+                  errors.register.fullName
+                    ? "Please enter your full name!"
+                    : "Enter your full name"
+                }
                 name="fullName"
                 value={registerData.fullName}
                 onChange={handleRegisterInputChange}
@@ -408,45 +493,61 @@ const Login = () => {
             </Form.Item>
             <Row gutter={8}>
               <Col span={12}>
-                <Form.Item label="Date of Birth" name="dob" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+                <Form.Item
+                  label="Date of Birth"
+                  name="dateOfBirth"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                >
                   <Input
-                    data-testid="register-dob"
+                    data-testid="register-dateOfBirth"
                     type="date"
-                    status={errors.register.dob ? "error" : ""}
-                    placeholder={errors.register.dob ? "Please select your date of birth!" : "Select date of birth"}
-                    name="dob"
-                    value={registerData.dob}
+                    status={errors.register.dateOfBirth ? "error" : ""}
+                    placeholder={
+                      errors.register.dateOfBirth
+                        ? "Please select your date of birth!"
+                        : "Select date of birth"
+                    }
+                    name="dateOfBirth"
+                    value={registerData.dateOfBirth}
                     onChange={handleRegisterInputChange}
                     size="medium"
-                    className={errors.register.dob ? "error-input" : ""}
+                    className={errors.register.dateOfBirth ? "error-input" : ""}
                   />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="Sex" name="sex" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+                <Form.Item
+                  label="Sex"
+                  name="gender"
+                  labelCol={{ span: 24 }}
+                  wrapperCol={{ span: 24 }}
+                >
                   <Select
-                    data-testid="register-sex"
-                    status={errors.register.sex ? "error" : ""}
-                    placeholder={errors.register.sex ? "Please select your sex!" : "Select sex"}
-                    name="sex"
-                    value={registerData.sex}
-                    onChange={(value) =>
-                      handleRegisterInputChange({
-                        target: { name: "sex", value },
-                      })
+                    data-testid="register-gender"
+                    status={errors.register.gender ? "error" : ""}
+                    placeholder={
+                      errors.register.gender
+                        ? "Please select your sex!"
+                        : "Select sex"
                     }
                     size="medium"
                     style={{ width: "100%" }}
-                    className={errors.register.sex ? "error-input" : ""}
+                    className={errors.register.gender ? "error-input" : ""}
                   >
-                    <Select.Option value="male">Male</Select.Option>
-                    <Select.Option value="female">Female</Select.Option>
-                    <Select.Option value="other">Other</Select.Option>
+                    <Select.Option value="MALE">Male</Select.Option>
+                    <Select.Option value="FEMALE">Female</Select.Option>
+                    <Select.Option value="OTHER">Other</Select.Option>
                   </Select>
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label="Email" name="email" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Email"
+              name="email"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
                 data-testid="register-email"
                 status={errors.register.email ? "error" : ""}
@@ -464,43 +565,64 @@ const Login = () => {
                 className={errors.register.email ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item label="Identity Card" name="cardNumber" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Identity Card"
+              name="identityCard"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
-                data-testid="register-cardNumber"
-                status={errors.register.cardNumber ? "error" : ""}
+                data-testid="register-identityCard"
+                status={errors.register.identityCard ? "error" : ""}
                 placeholder={
-                  errors.register.cardNumber ? "Please input your Identity Card Number!" : "Enter Identity Card Number"
+                  errors.register.identityCard
+                    ? "Please input your Identity Card Number!"
+                    : "Enter Identity Card Number"
                 }
-                name="cardNumber"
-                value={registerData.cardNumber}
+                name="identityCard"
+                value={registerData.identityCard}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={errors.register.cardNumber ? "error-input" : ""}
+                className={errors.register.identityCard ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item label="Phone Number" name="phone" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Phone Number"
+              name="phoneNumber"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
-                data-testid="register-phone"
-                status={errors.register.phone ? "error" : ""}
+                data-testid="register-phoneNumber"
+                status={errors.register.phoneNumber ? "error" : ""}
                 placeholder={
-                  errors.register.phone
-                    ? registerData.phone
+                  errors.register.phoneNumber
+                    ? registerData.phoneNumber
                       ? "Please enter a valid phone number!"
                       : "Please input your Phone Number!"
                     : "Enter Your Phone Number"
                 }
-                name="phone"
-                value={registerData.phone}
+                name="phoneNumber"
+                value={registerData.phoneNumber}
                 onChange={handleRegisterInputChange}
                 size="small"
-                className={errors.register.phone ? "error-input" : ""}
+                className={errors.register.phoneNumber ? "error-input" : ""}
               />
             </Form.Item>
-            <Form.Item label="Address" name="address" labelCol={{ span: 24 }} wrapperCol={{ span: 24 }}>
+            <Form.Item
+              label="Address"
+              name="address"
+              labelCol={{ span: 24 }}
+              wrapperCol={{ span: 24 }}
+            >
               <Input
                 data-testid="register-address"
                 status={errors.register.address ? "error" : ""}
-                placeholder={errors.register.address ? "Please input your Address!" : "Enter Your Address"}
+                placeholder={
+                  errors.register.address
+                    ? "Please input your Address!"
+                    : "Enter Your Address"
+                }
                 name="address"
                 value={registerData.address}
                 onChange={handleRegisterInputChange}
@@ -536,7 +658,12 @@ const Login = () => {
               </div>
               <div className="register-section">
                 <Text className="register-text">Already have an account?</Text>
-                <Button type="primary" className="register-button" id="register" onClick={toggleForm}>
+                <Button
+                  type="primary"
+                  className="register-button"
+                  id="register"
+                  onClick={toggleForm}
+                >
                   LOGIN HERE
                 </Button>
               </div>
@@ -552,7 +679,12 @@ const Login = () => {
               </div>
               <div className="register-section">
                 <Text className="register-text">Don't have an account?</Text>
-                <Button type="primary" className="login-button" id="login" onClick={toggleForm}>
+                <Button
+                  type="primary"
+                  className="login-button"
+                  id="login"
+                  onClick={toggleForm}
+                >
                   Register Here
                 </Button>
               </div>
@@ -560,8 +692,9 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

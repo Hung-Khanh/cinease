@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { DeleteOutlined, EditOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Table, message } from 'antd';
+import { Button, Form, Input, Modal, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import api from '../../../constants/axios';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import './Employees.scss';
 
 const Employees = () => {
@@ -35,7 +37,8 @@ const Employees = () => {
 
       setEmployees(formattedEmployees);
     } catch (error) {
-      message.error(`Failed to fetch employees: ${error.message}`, 3);
+      const errorMessage = error.response?.data?.message || 'Failed to fetch employees';
+      toast.error(errorMessage);
       setEmployees([]); // Ensure employees is an empty array on error
     } finally {
       setLoading(false);
@@ -98,6 +101,11 @@ const Employees = () => {
     },
   ];
 
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn-employees ${type}-btn`}>
+      {text}
+    </Button>
+  );
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
@@ -131,7 +139,7 @@ const Employees = () => {
       setDeleteConfirmationVisible(true);
     } catch (error) {
       console.error('Error in delete confirmation:', error);
-      message.error('Failed to show delete confirmation');
+      toast.error('Failed to show delete confirmation');
     }
   };
 
@@ -179,7 +187,7 @@ const Employees = () => {
       await fetchEmployees(true);
 
       // Show success message
-      message.success(`Employee ${isEditing ? 'updated' : 'added'} successfully!`, 3);
+      toast.success(`Employee ${isEditing ? 'updated' : 'added'} successfully!`);
 
       // Reset modal and form
       setIsModalVisible(false);
@@ -187,26 +195,26 @@ const Employees = () => {
       setEditingKey(null);
       form.resetFields();
     } catch (error) {
-      message.error(`Failed to ${isEditing ? 'update' : 'add'} employee: ${error.response?.data || error.message}`, 3);
+      toast.error(`Failed to ${isEditing ? 'update' : 'add'} employee: ${error.response?.data || error.message}`);
     }
   };
 
   const confirmDelete = async () => {
     if (employeeToDelete) {
       try {
-        await api.delete(`/admin/employee/${employeeToDelete.key}`);
+        await api.delete(`/admin/employee/disable/${employeeToDelete.key}`);
 
         // Refresh the employees list
         await fetchEmployees(true);
 
         // Specific delete success toast
-        message.success(`Employee "${employeeToDelete.fullName}" deleted successfully`, 2);
+        toast.success(`Employee "${employeeToDelete.fullName}" disabled successfully`);
 
         // Hide the delete confirmation modal
         setDeleteConfirmationVisible(false);
         setEmployeeToDelete(null);
       } catch (error) {
-        message.error(`Failed to delete employee: ${error.response?.data || error.message}`, 3);
+        toast.error(`Failed to delete employee: ${error.response?.data || error.message}`);
       }
     }
   };
@@ -250,31 +258,15 @@ const Employees = () => {
             emptyText: loading ? 'Loading...' : 'No employees found'
           }}
           pagination={{
+            className: "pagination-btn-employees",
+
             pageSize: 12,
             showSizeChanger: false,
-            itemRender: (current, type, originalElement) => {
-              if (type === 'prev') {
-                return (
-                  <Button
-                    type="default"
-                    className="pagination-btn-employees prev-btn"
-                  >
-                    Previous
-                  </Button>
-                );
-              }
-              if (type === 'next') {
-                return (
-                  <Button
-                    type="default"
-                    className="pagination-btn-employees next-btn"
-                  >
-                    Next
-                  </Button>
-                );
-              }
-              return originalElement;
-            }
+             itemRender: (current, type, originalElement) => {
+            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
+            return originalElement;
+          },
           }}
         />
       );
@@ -483,7 +475,7 @@ const Employees = () => {
       </Modal>
 
       <Modal
-        title="Confirm Delete"
+        title="Confirm Disable Employee"
         open={deleteConfirmationVisible}
         onOk={confirmDelete}
         onCancel={cancelDelete}
@@ -495,7 +487,7 @@ const Employees = () => {
         width={500}
       >
         <div className="delete-confirmation-content">
-          <p>Are you sure you want to delete the employee?</p>
+          <p>Are you sure you want to disable the employee?</p>
           <p className="movie-title">{employeeToDelete?.fullName}</p>
           <p className="warning-text">This action cannot be undone.</p>
 
@@ -510,11 +502,13 @@ const Employees = () => {
               className="confirm-delete-btn"
               onClick={confirmDelete}
             >
-              Delete Employee
+              Disable Employee
             </Button>
           </div>
         </div>
       </Modal>
+
+      <ToastContainer />
     </div>
   );
 };

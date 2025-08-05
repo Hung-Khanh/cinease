@@ -1,7 +1,9 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Table } from "antd";
-import { useState, useEffect, useMemo } from "react";
-import api from '../../../constants/axios';
+import { Button, Form, Input, Modal, Switch, Table } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import api from "../../../constants/axios";
 import "./Members.scss";
 
 const Members = () => {
@@ -11,7 +13,8 @@ const Members = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
-  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] =
+    useState(false);
   const [memberToDelete, setMemberToDelete] = useState(null);
   const [memberDetails, setMemberDetails] = useState(null);
   const [form] = Form.useForm();
@@ -20,30 +23,40 @@ const Members = () => {
   const fetchMembers = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const response = await api.get('/admin/members');
-      
+      const response = await api.get("/admin/members");
+
       // Handle response with content array
       const membersData = response.data.content || response.data;
-  
+
       // Ensure each member has a unique key and all required properties
       const formattedMembers = membersData.map((member) => ({
-        key: member.memberId ? member.memberId.toString() : Math.random().toString(),
-        fullName: member.fullName || 'N/A',
-        identityCard: member.identityCard || 'N/A',
-        email: member.email || 'N/A',
-        phoneNumber: member.phoneNumber || 'N/A',
-        address: member.address || 'N/A',
+        key: member.memberId
+          ? member.memberId.toString()
+          : Math.random().toString(),
+        fullName: member.fullName || "N/A",
+        identityCard: member.identityCard || "N/A",
+        email: member.email || "N/A",
+        phoneNumber: member.phoneNumber || "N/A",
+        address: member.address || "N/A",
         point: member.point !== undefined ? member.point : 0,
-        membershipLevel: member.membershipLevel || 'N/A'
+        membershipLevel: member.membershipLevel || "N/A",
+        username: member.username || "N/A",
+        status: member.status === "ACTIVE" || member.status === true, // Chuyển status string sang boolean
       }));
 
       setMembers(formattedMembers);
 
       if (showSuccessMessage) {
-        message.success("Members list fetched successfully", 1.5);
+        toast.success("Members list fetched successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
       }
     } catch (error) {
-      message.error(`Failed to fetch members: ${error.message}`, 1.5);
+      toast.error(`Failed to fetch members: ${error.message}`, {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setMembers([]); // Ensure empty array on error
     } finally {
       setLoading(false);
@@ -55,23 +68,67 @@ const Members = () => {
     setLoading(true);
     try {
       const response = await api.get(`/admin/members/${memberId}/account`);
-      
-      // Format the details
+
       setMemberDetails({
-        fullName: response.data.fullName || 'N/A',
-        dateOfBirth: response.data.dateOfBirth || 'N/A',
-        gender: response.data.gender || 'N/A',
-        email: response.data.email || 'N/A',
-        identityCard: response.data.identityCard || 'N/A',
-        phoneNumber: response.data.phoneNumber || 'N/A',
-        address: response.data.address || 'N/A'
+        fullName: response.data.fullName || "N/A",
+        dateOfBirth: response.data.dateOfBirth || "N/A",
+        gender: response.data.gender || "N/A",
+        email: response.data.email || "N/A",
+        identityCard: response.data.identityCard || "N/A",
+        phoneNumber: response.data.phoneNumber || "N/A",
+        address: response.data.address || "N/A",
+        username: response.data.username || "N/A",
       });
 
       setIsDetailModalVisible(true);
     } catch (error) {
-      message.error(`Failed to fetch member details: ${error.message}`, 1.5);
+      toast.error(`Failed to fetch member details: ${error.message}`, {
+        position: "top-right",
+        autoClose: 1500,
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Toggle Member Status
+  const handleStatusToggle = async (memberId, checked) => {
+    try {
+      if (checked) {
+        // Kích hoạt
+        await api.put(`/admin/members/${memberId}/activate`);
+        setMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member.key === memberId ? { ...member, status: true } : member
+          )
+        );
+        toast.success("Member activated successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
+      } else {
+        // Hủy kích hoạt
+        await api.delete(`/admin/members/${memberId}/deactivate`);
+        setMembers((prevMembers) =>
+          prevMembers.map((member) =>
+            member.key === memberId ? { ...member, status: false } : member
+          )
+        );
+        toast.success("Member deactivated successfully", {
+          position: "top-right",
+          autoClose: 1500,
+        });
+      }
+    } catch (error) {
+      toast.error(
+        `Failed to update member status: ${
+          error.response?.data || error.message
+        }`,
+        {
+          position: "top-right",
+          autoClose: 1500,
+        }
+      );
     }
   };
 
@@ -85,11 +142,12 @@ const Members = () => {
     if (!searchTerm) return members;
 
     const searchTermLower = searchTerm.toLowerCase();
-    return members.filter(member =>
-      member.fullName.toLowerCase().includes(searchTermLower) ||
-      member.email.toLowerCase().includes(searchTermLower) ||
-      member.phoneNumber.toLowerCase().includes(searchTermLower) ||
-      member.identityCard.toLowerCase().includes(searchTermLower)
+    return members.filter(
+      (member) =>
+        member.fullName.toLowerCase().includes(searchTermLower) ||
+        member.email.toLowerCase().includes(searchTermLower) ||
+        member.phoneNumber.toLowerCase().includes(searchTermLower) ||
+        member.identityCard.toLowerCase().includes(searchTermLower)
     );
   }, [members, searchTerm]);
 
@@ -101,24 +159,31 @@ const Members = () => {
       key: "fullName",
     },
     {
-      title: "Identity Card",
-      dataIndex: "identityCard",
-      key: "identityCard",
-    },
-    {
       title: "Email",
       dataIndex: "email",
       key: "email",
     },
     {
-      title: "Phone Number",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
-    },
-    {
       title: "Address",
       dataIndex: "address",
       key: "address",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status, record) => (
+        <div className="status-column">
+          <Switch
+            checked={status}
+            onChange={(checked) => handleStatusToggle(record.key, checked)}
+            size="small"
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+            className="status-switch"
+          />
+        </div>
+      ),
     },
     {
       title: "Action",
@@ -148,6 +213,11 @@ const Members = () => {
     },
   ];
 
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn-member ${type}-btn`}>
+      {text}
+    </Button>
+  );
   // Edit Member Handler
   const handleEdit = (record) => {
     form.resetFields();
@@ -165,16 +235,26 @@ const Members = () => {
         identityCard: values.identityCard,
         email: values.email,
         phoneNumber: values.phoneNumber,
-        address: values.address
+        address: values.address,
+        status: values.status,
       });
 
-      message.success("Member updated successfully", 1.5);
+      toast.success("Member updated successfully", {
+        position: "top-right",
+        autoClose: 1500,
+      });
       setIsModalVisible(false);
       setEditingKey(null);
       form.resetFields();
       fetchMembers();
     } catch (error) {
-      message.error(`Failed to update member: ${error.response?.data || error.message}`, 1.5);
+      toast.error(
+        `Failed to update member: ${error.response?.data || error.message}`,
+        {
+          position: "top-right",
+          autoClose: 1500,
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -183,10 +263,16 @@ const Members = () => {
   // Delete Member Handler
   const handleDelete = (record) => {
     try {
+      if (!record || !record.key) {
+        toast.error("Dữ liệu thành viên không hợp lệ!");
+        return;
+      }
+
       setMemberToDelete(record);
       setDeleteConfirmationVisible(true);
-    } catch {
-      message.error("Failed to show delete confirmation");
+    } catch (error) {
+      console.error("Error showing delete confirmation:", error);
+      toast.error("Không thể hiển thị hộp thoại xác nhận xóa!");
     }
   };
 
@@ -194,17 +280,49 @@ const Members = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      const response = await api.delete(`/admin/members/delete/${memberToDelete.key}`);
-
-      message.success(response.data, 1.5);
-      setDeleteConfirmationVisible(false);
-      await Promise.resolve();
-      fetchMembers();
-    } catch (error) {
-      message.error(
-        error.response?.data || "Failed to delete member",
-        1.5
+      const response = await api.delete(
+        `/admin/members/${memberToDelete.key}/permanent`
       );
+
+      // Hiển thị toast thành công
+      toast.success(response.data || "Xóa thành viên thành công!", {
+        position: "top-right",
+        autoClose: 1500,
+      });
+      setDeleteConfirmationVisible(false);
+      await fetchMembers(); // Không cần Promise.resolve()
+    } catch (error) {
+      console.error("Delete member error:", error); // Log lỗi để debug
+      setDeleteConfirmationVisible(false);
+
+      // Xử lý các loại lỗi khác nhau và hiển thị toast tương ứng
+      if (error.response?.status === 403) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else if (error.response?.data?.code === 1108) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else if (error.response?.status === 404) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else if (error.response?.status >= 500) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else if (!navigator.onLine) {
+        toast.error(error.response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } 
+      await fetchMembers();
     } finally {
       setLoading(false);
     }
@@ -213,6 +331,7 @@ const Members = () => {
   // Cancel Delete
   const cancelDelete = () => {
     setDeleteConfirmationVisible(false);
+    setMemberToDelete(null); // Clear member data khi cancel
   };
 
   return (
@@ -235,27 +354,17 @@ const Members = () => {
         dataSource={filteredMembers}
         loading={loading}
         className="ant-table-member"
-        locale={{ 
-          emptyText: 'No members found' 
+        locale={{
+          emptyText: "No members found",
         }}
         pagination={{
           pageSize: 12,
           showSizeChanger: false,
+          className: "pagination-btn-member",
           itemRender: (current, type, originalElement) => {
-            if (type === "prev") {
-              return (
-                <Button type="default" className="pagination-btn-member prev-btn">
-                  Previous
-                </Button>
-              );
-            }
-            if (type === "next") {
-              return (
-                <Button type="default" className="pagination-btn-member next-btn">
-                  Next
-                </Button>
-              );
-            }
+            if (type === "prev")
+              return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
         }}
@@ -274,6 +383,9 @@ const Members = () => {
         className="member-modal"
         width={600}
         centered
+        styles={{
+          body: { maxHeight: "70vh", overflowY: "auto" },
+        }}
       >
         <Form
           form={form}
@@ -285,7 +397,10 @@ const Members = () => {
             name="fullName"
             label="Full Name"
             rules={[
-              { required: true, message: "Please input the member's full name!" },
+              {
+                required: true,
+                message: "Please input the member's full name!",
+              },
             ]}
           >
             <Input placeholder="Enter full name" />
@@ -295,7 +410,10 @@ const Members = () => {
             name="identityCard"
             label="Identity Card"
             rules={[
-              { required: true, message: "Please input the member's identity card!" },
+              {
+                required: true,
+                message: "Please input the member's identity card!",
+              },
             ]}
           >
             <Input placeholder="Enter identity card number" />
@@ -306,7 +424,7 @@ const Members = () => {
             label="Email"
             rules={[
               { required: true, message: "Please input the member's email!" },
-              { type: 'email', message: 'Please enter a valid email!' }
+              { type: "email", message: "Please enter a valid email!" },
             ]}
           >
             <Input placeholder="Enter email address" />
@@ -316,7 +434,10 @@ const Members = () => {
             name="phoneNumber"
             label="Phone Number"
             rules={[
-              { required: true, message: "Please input the member's phone number!" },
+              {
+                required: true,
+                message: "Please input the member's phone number!",
+              },
             ]}
           >
             <Input placeholder="Enter phone number" />
@@ -331,7 +452,6 @@ const Members = () => {
           >
             <Input placeholder="Enter address" />
           </Form.Item>
-
           <Form.Item>
             <Button
               type="primary"
@@ -359,12 +479,22 @@ const Members = () => {
         {memberDetails && (
           <div className="member-details-content">
             <div className="member-detail-row">
+              <div className="member-detail-label">Username</div>
+              <div className="member-detail-value">
+                {memberDetails.username}
+              </div>
+            </div>
+            <div className="member-detail-row">
               <div className="member-detail-label">Full Name</div>
-              <div className="member-detail-value">{memberDetails.fullName}</div>
+              <div className="member-detail-value">
+                {memberDetails.fullName}
+              </div>
             </div>
             <div className="member-detail-row">
               <div className="member-detail-label">Date of Birth</div>
-              <div className="member-detail-value">{memberDetails.dateOfBirth}</div>
+              <div className="member-detail-value">
+                {memberDetails.dateOfBirth}
+              </div>
             </div>
             <div className="member-detail-row">
               <div className="member-detail-label">Gender</div>
@@ -376,11 +506,15 @@ const Members = () => {
             </div>
             <div className="member-detail-row">
               <div className="member-detail-label">Identity Card</div>
-              <div className="member-detail-value">{memberDetails.identityCard}</div>
+              <div className="member-detail-value">
+                {memberDetails.identityCard}
+              </div>
             </div>
             <div className="member-detail-row">
               <div className="member-detail-label">Phone Number</div>
-              <div className="member-detail-value">{memberDetails.phoneNumber}</div>
+              <div className="member-detail-value">
+                {memberDetails.phoneNumber}
+              </div>
             </div>
             <div className="member-detail-row">
               <div className="member-detail-label">Address</div>
@@ -422,6 +556,7 @@ const Members = () => {
           </div>
         </div>
       </Modal>
+      <ToastContainer />
     </div>
   );
 };

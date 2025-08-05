@@ -348,7 +348,7 @@ const PaymentSuccess = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="action-buttons">
+          <div className="action-buttons-payment">
             <button className="download-btn" onClick={handleDownloadTicket}>
               <FaDownload className="btn-icon" />
               <span className="btn-text">Download Ticket</span>

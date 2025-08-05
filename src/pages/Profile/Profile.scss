@@ -5,43 +5,39 @@ $text-light: #fff;
 $text-muted: #b0b0b0;
 $card-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 $hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+$text-color: #ffffff;
+$green-accent: #27ae60;
 
 // Custom pagination for profile history table
-.profile-history-table {
-  .ant-pagination {
-    .ant-pagination-item:hover {
-      background: #27ae60;
-      color: #fff;
-      box-shadow: 0 0 8px #27ae60, 0 0 0 2px rgba(255, 255, 255, 0.2);
-      border-color: #27ae60;
+
+.profile-history-pagination{
+   margin: 0 12px;
+    padding: 4x 15px;
+    border-radius: 4px;
+    color: $text-color !important;
+
+    a{
+      color: $text-color !important;
+    }
+    &.prev-btn {
+      background-color: #0c9550;
+      margin-right: 10px;
     }
 
-    .ant-pagination-prev,
-    .ant-pagination-next {
-      .ant-pagination-item-link {
-        background: transparent;
-        border: none;
-        color: #ffffff;
-        font-size: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        transition: color 0.2s;
+    &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
+      margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
+      &:hover {
+        background-color: $green-accent !important;
+        border-color: $green-accent !important;
       }
     }
-
-    .ant-pagination-disabled .ant-pagination-item-link {
-      color: #ffffff;
-      opacity: 0.4;
-    }
-
-    .ant-pagination-item-active a {
-      color: #ffffff;
-    }
-  }
 }
-
 .profile-page {
   background: linear-gradient(180deg, #0a181f 0%, #1a3a2a 60%, #0a181f 100%);
   min-height: 100vh;

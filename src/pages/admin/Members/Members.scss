@@ -68,7 +68,7 @@ $view-color: #3498db;
   }
 
   // ===== TABLE STYLING =====
-  .ant-table-member{
+  .ant-table-member {
     background-color: $secondary-bg !important;
 
     .ant-table-thead > tr > th {
@@ -97,51 +97,38 @@ $view-color: #3498db;
       }
     }
   }
-    .ant-table-pagination {
-    .ant-pagination-item {
-      // background-color: $input-bg !important;
-      border-color: $green-accent !important;
-      &:hover {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-      }
 
-      &.ant-pagination-item-active {
-        background-color: $green-accent !important;
-        border-color: $green-accent !important;
-        &:hover {
-          background-color: $green-accent !important;
-          border-color: $green-accent !important;
-        }
-        a {
-          color: $text-color !important;
-        }
-      }
-    }
-  }
   .pagination-btn-member {
     margin: 0 12px;
-    padding: 4px 15px;
+    padding: 4x 15px;
     border-radius: 4px;
+    color: $text-color !important;
 
+    a {
+      color: $text-color !important;
+    }
     &.prev-btn {
+      background-color: #0c9550;
       margin-right: 10px;
-      &:hover {
-        border-color: $green-accent !important; 
-      }
-      
     }
 
     &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
       margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
       &:hover {
+        background-color: $green-accent !important;
         border-color: $green-accent !important;
       }
     }
-    }
-
+  }
   // ===== ACTION BUTTONS =====
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 

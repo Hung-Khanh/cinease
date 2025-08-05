@@ -10,6 +10,8 @@ $dark-input-bg: rgba(0, 50, 50, 0.4);
 $cyan-border: rgba(0, 188, 212, 0.3);
 $cyan-hover: rgba(0, 188, 212, 0.6);
 $bright-green: #0c9550;
+$view-color: #3498db;
+
 
 .promotions-container {
   background-color: $primary-bg;
@@ -96,7 +98,7 @@ $bright-green: #0c9550;
     }
   }
 
-  .pagination-btn-promotion{
+  .pagination-btn-promotion {
     margin: 0 12px;
     padding: 4px 15px;
     border-radius: 4px;
@@ -104,9 +106,8 @@ $bright-green: #0c9550;
     &.prev-btn {
       margin-right: 10px;
       &:hover {
-        border-color: $green-accent !important; 
+        border-color: $green-accent !important;
       }
-      
     }
 
     &.next-btn {
@@ -119,8 +120,17 @@ $bright-green: #0c9550;
 
   // Action Buttons
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
+    .view-btn {
+      color: $view-color !important;
+
+      &:hover {
+        color: lighten($view-color, 10%) !important;
+        background-color: transparent !important;
+      }
+    }
 
     .edit-btn {
       color: $green-accent !important;
@@ -376,8 +386,48 @@ $bright-green: #0c9550;
   }
 }
 
+.promotion-details-modal {
+  .ant-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .promotion-details-content {
+    .promotion-detail-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .promotion-detail-label {
+        flex: 0 0 150px;
+        color: $bright-green;
+        font-weight: 600;
+        margin-right: 20px;
+      }
+
+      .promotion-detail-value {
+        flex: 1;
+        word-break: break-word;
+      }
+
+      &.full-width {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .promotion-detail-label {
+          margin-bottom: 10px;
+        }
+
+        .promotion-detail-value {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
 // Enhanced form styling for the modal
-.promotion-modal {
+.promotion-modal {  
   .ant-form {
     .ant-form-item {
       margin-bottom: 20px !important;

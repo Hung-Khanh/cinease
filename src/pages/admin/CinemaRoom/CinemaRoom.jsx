@@ -1,6 +1,8 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Table } from "antd";
+import { Button, Form, Input, Modal, Table } from "antd";
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from '../../../constants/axios';
 import "./CinemaRoom.scss";
 
@@ -18,18 +20,19 @@ const CinemaRooms = () => {
   const [seatDetails, setSeatDetails] = useState([]);
   const [selectedCinemaRoom, setSelectedCinemaRoom] = useState(null);
 
-  // Common API handler
+
+  // Common API handler với toast thay vì antd message
   const handleApiCall = async (apiCall, successMessage, errorMessage) => {
     setLoading(true);
     try {
       const response = await apiCall();
       if (successMessage) {
-        message.success(successMessage, 1.5);
+        toast.success(successMessage);
       }
       return response;
     } catch (error) {
       const errorMsg = error.response?.data || errorMessage || error.message;
-      message.error(errorMsg, 1.5);
+      toast.error(errorMsg);
       throw error;
     } finally {
       setLoading(false);
@@ -79,11 +82,7 @@ const CinemaRooms = () => {
 
   const fetchCinemaRooms = async (showSuccessMessage = false) => {
     try {
-      const response = await handleApiCall(
-        () => api.get('/admin/cinema-room/list'),
-        showSuccessMessage ? "Cinema rooms fetched" : null,
-        "Failed to fetch cinema rooms"
-      );
+      const response = await api.get('/admin/cinema-room/list')
       
       const formattedRooms = response.data.map(room => ({
         key: room.cinemaRoomId.toString(),
@@ -92,15 +91,22 @@ const CinemaRooms = () => {
       }));
       
       setCinemaRooms(formattedRooms);
-    // eslint-disable-next-line no-unused-vars
+      
+      if (showSuccessMessage) {
+        toast.success("Cinema rooms fetched successfully!")
+      }
     } catch (error) {
-      // Error already handled in handleApiCall
+      const errorMessage = error.response?.data?.message || "Failed to fetch cinema rooms"
+      toast.error(errorMessage)
+      console.error("Error fetching cinema rooms:", error)
+    } finally {
+      setLoading(false)
     }
   };
 
   const handleAddCinemaRoom = async (values) => {
     if (!values.cinemaroom) {
-      message.error("Cinema room name is required", 1);
+      toast.warning("Cinema room name is required!");
       return;
     }
 
@@ -114,10 +120,6 @@ const CinemaRooms = () => {
       ...(method === 'post' && { seatQuantity: 100 })
     };
 
-    if (typeof message.destroy === 'function') {
-      message.destroy();
-    }
-
     try {
       const response = await handleApiCall(
         () => api[method](url, requestBody),
@@ -125,10 +127,9 @@ const CinemaRooms = () => {
         isEditing ? "Failed to update cinema room" : "Failed to add cinema room"
       );
 
-      message.success(response.data, 1.5);
+      toast.success((isEditing ? "Cinema room updated successfully!" : "Cinema room added successfully!"));
       closeModal('main');
       fetchCinemaRooms();
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -142,10 +143,9 @@ const CinemaRooms = () => {
         "Failed to delete cinema room"
       );
 
-      message.success(response.data, 1.5);
+      toast.success("Cinema room deleted successfully!");
       closeModal('delete');
       fetchCinemaRooms();
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -161,7 +161,6 @@ const CinemaRooms = () => {
       
       setSeatDetails(response.data);
       setSeatDetailsModalVisible(true);
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -178,9 +177,8 @@ const CinemaRooms = () => {
         "Failed to update seat type"
       );
 
-      message.success(response.data, 1.5);
+      toast.success(response.data || "Seat type updated successfully!");
       fetchSeatDetails(selectedCinemaRoom.key);
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       // Error already handled in handleApiCall
     }
@@ -300,7 +298,6 @@ const CinemaRooms = () => {
 
   useEffect(() => {
     fetchCinemaRooms();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -336,6 +333,7 @@ const CinemaRooms = () => {
         }}
         pagination={{
           pageSize: 12,
+          className: "pagination-btn-cinema",
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
             if (type === "prev") return createPaginationButton("prev", "Previous");
@@ -430,6 +428,9 @@ const CinemaRooms = () => {
         closeIcon: <span>&times;</span>,
         content: renderSeatDetails()
       })}
+
+      {/* Toast Container - giống SelectShowtime */}
+      <ToastContainer />
     </div>
   );
 };

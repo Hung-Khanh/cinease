@@ -104,16 +104,24 @@ $danger-color: #e74c3c;
     }
   }
  
+}
   .pagination-btn-cinema {
     margin: 0 12px;
     padding: 4x 15px;
     border-radius: 4px;
-
+    color: $text-color !important;
+    
+    a{
+      color: $text-color !important;
+    }
     &.prev-btn {
+      background-color: #0c9550;
       margin-right: 10px;
     }
 
     &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
       margin-left: 10px;
     }
 
@@ -128,6 +136,7 @@ $danger-color: #e74c3c;
 
   // ===== ACTION BUTTONS =====
   .action-buttons {
+    justify-content: flex-start;
     display: flex;
     gap: 8px;
 
@@ -149,7 +158,7 @@ $danger-color: #e74c3c;
       }
     }
   }
-}
+
 // ===== CINEMA ROOM FORM =====
 .cinema-room-modal .cinema-room-form {
   .ant-form-item {

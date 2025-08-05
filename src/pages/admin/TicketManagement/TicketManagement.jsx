@@ -1,20 +1,17 @@
-import React, { useEffect, useState, useMemo } from "react";
 import {
-  Table,
-  Input,
-  Button,
-  Modal,
-  message,
-  InputNumber,
-  Select
-} from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
   EyeOutlined
 } from "@ant-design/icons";
-import "./TicketManagement.scss";
+import {
+  Button,
+  Input,
+  Modal,
+  Select,
+  Table,
+  message
+} from "antd";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from '../../../constants/axios';
+import "./TicketManagement.scss";
 
 const TicketManagement = () => {
   const [tickets, setTickets] = useState([]);
@@ -212,7 +209,11 @@ const TicketManagement = () => {
       ),
     },
   ];
-
+  const createPaginationButton = (type, text) => (
+      <Button type="default" className={`pagination-btn-ticket ${type}-btn`}>
+        {text}
+      </Button>
+    );
   // Handle search, sort, and status filter
   const handleSearchAndFilter = (searchValue, field = sortField, direction = sortDirection) => {
     console.log("Handling Search and Filter:", {
@@ -225,12 +226,6 @@ const TicketManagement = () => {
     setSortDirection(direction);
     fetchTickets(0, searchValue);
   };
-
-  // Status filter options
-  const statusOptions = [
-    { value: "CANCELLED", label: "Cancelled" },
-    { value: "PAID", label: "Paid" }
-  ];
 
   return (
     <div className="ticket-management-container">
@@ -280,21 +275,10 @@ const TicketManagement = () => {
           total: pagination.total,
           current: pagination.current,
           showSizeChanger: false,
-          itemRender: (current, type, originalElement) => {
-            if (type === "prev") {
-              return (
-                <Button type="default" className="pagination-btn-ticket prev-btn">
-                  Previous
-                </Button>
-              );
-            }
-            if (type === "next") {
-              return (
-                <Button type="default" className="pagination-btn-ticket next-btn">
-                  Next
-                </Button>
-              );
-            }
+          className : "pagination-btn-ticket",
+            itemRender: (current, type, originalElement) => {
+            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
           onChange: (page) => {

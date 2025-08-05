@@ -126,22 +126,32 @@ $view-color: #3498db;
       object-fit: contain;
     }
   }
+
   .pagination-btn-movie {
     margin: 0 12px;
-    padding: 4px 15px;
+    padding: 4x 15px;
     border-radius: 4px;
+    color: $text-color !important;
+
+    a {
+      color: $text-color !important;
+    }
 
     &.prev-btn {
+      background-color: #0c9550;
       margin-right: 10px;
-      &:hover {
-        border-color: $green-accent !important; 
-      }
-      
     }
 
     &.next-btn {
+      background-color: #0c9550;
+      color: #ffffff;
       margin-left: 10px;
+    }
+
+    &.prev-btn,
+    &.next-btn {
       &:hover {
+        background-color: $green-accent !important;
         border-color: $green-accent !important;
       }
     }
@@ -150,7 +160,7 @@ $view-color: #3498db;
   // Action Buttons Section
   .action-buttons {
     display: flex;
-    align-items: center;
+    justify-content: flex-start;
     gap: 4px;
 
     .ant-btn-link {
@@ -195,11 +205,21 @@ $view-color: #3498db;
     }
 
     .add-schedule-btn-icon {
-      color: yellowgreen !important; // Consider using a variable instead of hardcoded yellow
+      color: yellowgreen !important;
 
       &:hover,
       &:focus {
         color: $hover-color !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .view-schedules-btn {
+      color: #87CEEB !important;
+
+      &:hover,
+      &:focus {
+        color: lighten(#87CEEB, 10%) !important;
         background-color: transparent !important;
       }
     }
@@ -624,7 +644,7 @@ $view-color: #3498db;
   }
 }
 
-.add-schedule-btn{
+.add-schedule-btn {
   background: rgba(0, 60, 60, 0.5) !important;
   border-color: $cyan-border !important;
   color: $text-color !important;
@@ -681,5 +701,45 @@ $view-color: #3498db;
         }
       }
     }
+  }
+}
+
+// New styles for the View Schedules Modal
+.view-schedules-modal {
+  .ant-modal-body {
+    padding: 24px !important;
+  }
+
+  .ant-table-schedule-view {
+    background-color: $secondary-bg !important;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .ant-table-thead > tr > th {
+      background-color: darken($secondary-bg, 5%) !important;
+      color: $text-color !important;
+      border-bottom: 1px solid $green-accent !important;
+    }
+
+    .ant-table-tbody > tr {
+      background-color: $secondary-bg !important;
+      color: $text-color !important;
+
+      &:hover > td {
+        background-color: lighten($secondary-bg, 5%) !important;
+      }
+
+      > td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: $text-color !important;
+      }
+    }
+  }
+
+  .no-schedules-message {
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
   }
 }
