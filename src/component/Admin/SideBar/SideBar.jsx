@@ -19,11 +19,11 @@ const SideBar = ({ isVisible = true, onMenuItemClick }) => {
 
   const adminMenuItems = [
     { path: "/admin/dashboard", icon: DashboardIcon, label: "Dashboard" },
-    { path: "/admin/employees", icon: EmployeesIcon, label: "Employees" },
-    { path: "/admin/member", icon: MemberIcon, label: "Membership" },
-    { path: "/admin/movies", icon: MoviesIcon, label: "Movies" },
-    { path: "/admin/promotions", icon: PromotionsIcon, label: "Promotions" },
-    { path: "/admin/cinema", icon: CinemaIcon, label: "Cinema Rooms" },
+    { path: "/admin/employees", icon: EmployeesIcon, label: "Employees Management" },
+    { path: "/admin/member", icon: MemberIcon, label: "Members Management" },
+    { path: "/admin/movies", icon: MoviesIcon, label: "Movies Management" },
+    { path: "/admin/promotions", icon: PromotionsIcon, label: "Promotions Management" },
+    { path: "/admin/cinema", icon: CinemaIcon, label: "Rooms Management" },
     { path: "/admin/ticket", icon: TicketIcon, label: "Tickets Management" },
     { path: "/admin/productmanagement", icon: ProductIcon, label: "Products Management" },
     { path: "/admin/feedbackmanagement", icon: FeedbackIcon, label: "Feedback Management" }, // New
