@@ -1,17 +1,18 @@
+"use client";
+
 import "../SCSS/DTS.scss";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button, message } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { FaArrowLeft } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
 
 const DateTimeSelection = ({ apiUrl, onBack }) => {
   const { movieId } = useParams();
   const navigate = useNavigate();
-
   const [showtimes, setShowtimes] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedScheduleId, setSelectedScheduleId] = useState(null); // Thêm state để lưu scheduleId
+  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [movieName, setMovieName] = useState("");
   const [movieImage, setMovieImage] = useState("");
@@ -20,11 +21,9 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   // Fetch movie name
   const fetchName = async () => {
     const token = localStorage.getItem("token");
-
     try {
       setLoading(true);
       const fullUrl = `${apiUrl}/public/movies?q=${movieId}`;
-
       const response = await fetch(fullUrl, {
         method: "GET",
         headers: {
@@ -38,7 +37,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         console.log("❌ Error response:", errorText);
         throw new Error(`Failed to fetch movie name: ${response.status}`);
       }
-
       const data = await response.json();
       const movieData = data[0];
       setMovieName(movieData?.movieNameVn);
@@ -53,10 +51,8 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   // Fetch showtimes from API
   const fetchShowtimes = async () => {
     const token = localStorage.getItem("token");
-
     try {
       const fullUrl = `${apiUrl}/public/showtimes?movieId=${movieId}`;
-
       const response = await fetch(fullUrl, {
         method: "GET",
         headers: {
@@ -65,13 +61,12 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
           "ngrok-skip-browser-warning": "true",
         },
       });
-
       const data = await response.json();
       console.log("✅ Showtimes fetched successfully:", data);
-      setShowtimes(data); // Đảm bảo showtimes là mảng
+      setShowtimes(data);
     } catch (error) {
       message.error("Không thể tải danh sách lịch chiếu");
-      setShowtimes([]); // Đặt giá trị mặc định là mảng rỗng trong trường hợp lỗi
+      setShowtimes([]);
     } finally {
       setLoading(false);
     }
@@ -112,18 +107,17 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   const formatTime = (timeString) => {
     const [hours, minutes] = timeString.split(":");
     const startTime = `${hours}:${minutes}`;
-    const endHour = parseInt(hours) + 2; // Assuming 2-hour movie duration
+    const endHour = Number.parseInt(hours) + 2;
     const endTime = `${endHour}:${minutes}`;
     return `${startTime} - ${endTime}`;
   };
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
-    setSelectedTime(null); // Reset time selection when date changes
-    setSelectedScheduleId(null); // Reset schedule ID when date changes
+    setSelectedTime(null);
+    setSelectedScheduleId(null);
   };
 
-  // Cập nhật hàm handleTimeSelect để lấy scheduleId
   const handleTimeSelect = (showtime) => {
     setSelectedTime(showtime.showTime);
     setSelectedScheduleId(showtime.scheduleId);
@@ -137,11 +131,9 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
     navigate(
       `/cinema-seating/${selectedScheduleId}/${movieName}/${selectedDate}/${selectedTime}`
     );
-
     message.success("Date and time selected successfully!");
   };
 
-  // Xử lý nút back
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -151,7 +143,19 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
   };
 
   if (loading) {
-    return <div className="dts-loading">Loading showtimes...</div>;
+    return (
+      <div className="dts-container">
+        <div className="floating-particles">
+          {[...Array(25)].map((_, i) => (
+            <div key={i} className={`particle particle-${i + 1}`}></div>
+          ))}
+        </div>
+        <div className="dts-loading">
+          <div className="loading-spinner"></div>
+          <div className="loading-text">Loading showtimes...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -160,28 +164,33 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       style={
         movieBanner
           ? {
-              backgroundImage: `linear-gradient(135deg, rgba(26,77,58,0.4) 0%, rgba(13,40,24,0.6) 100%), url(${movieBanner})`,
+              backgroundImage: `linear-gradient(135deg, rgba(10,15,13,0.8) 0%, rgba(6,78,59,0.9) 100%), url(${movieBanner})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
+              backgroundAttachment: "fixed",
             }
           : {}
       }
     >
+      {/* Floating Particles */}
+      <div className="floating-particles">
+        {[...Array(25)].map((_, i) => (
+          <div key={i} className={`particle particle-${i + 1}`}></div>
+        ))}
+      </div>
+
       <div className="dts-header">
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          className="dts-back-btn"
-          onClick={handleBack}
-        />
+        <button className="back-btn" onClick={handleBack}>
+          <FaArrowLeft />
+        </button>
         <h1 className="dts-title">{movieName}</h1>
       </div>
 
       <div className="dts-content">
         <div className="dts-poster">
           <img
-            src={movieImage}
+            src={movieImage || "/placeholder.svg"}
             alt="Movie Poster"
             className="dts-poster-image"
           />
@@ -223,7 +232,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
                     className={`dts-time-btn ${
                       selectedTime === showtime.showTime ? "selected" : ""
                     }`}
-                    onClick={() => handleTimeSelect(showtime)} // Truyền toàn bộ showtime object
+                    onClick={() => handleTimeSelect(showtime)}
                   >
                     <div className="dts-time-content">
                       <div className="dts-time-main">
@@ -246,7 +255,7 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
             onClick={handleNext}
             disabled={!selectedDate || !selectedTime || !selectedScheduleId}
           >
-            Next
+            Confirm
           </Button>
         </div>
       </div>
