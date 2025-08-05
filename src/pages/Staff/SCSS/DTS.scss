@@ -1,178 +1,172 @@
 .dts-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a4d3a 0%, #0d2818 100%);
-  color: white;
-  font-family: "Arial", sans-serif;
-  padding: 20px;
-  box-sizing: border-box;
+  background: #0a0f0d;
+  color: #ffffff;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  padding: 0;
 
-  // Mobile First Approach
-  @media (max-width: 480px) {
-    padding: 10px;
+  // Background Elements
+  &::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+      ellipse at center top,
+      rgba(16, 185, 129, 0.15) 0%,
+      rgba(6, 78, 59, 0.1) 35%,
+      rgba(10, 15, 13, 0.95) 70%,
+      #0a0f0d 100%
+    );
+    z-index: -2;
+  }
+
+  &::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(
+        circle at 25% 25%,
+        rgba(16, 185, 129, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 75% 75%,
+        rgba(6, 78, 59, 0.1) 0%,
+        transparent 50%
+      );
+    background-size: 400px 400px;
+    animation: patternFloat 20s ease-in-out infinite;
+    z-index: -1;
+  }
+
+  // Floating Particles
+  .floating-particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(16, 185, 129, 0.6);
+      border-radius: 50%;
+      animation: particleFloat 15s linear infinite;
+
+      @for $i from 1 through 25 {
+        &.particle-#{$i} {
+          left: random(100) * 1%;
+          top: random(100) * 1%;
+          animation-delay: random(15) * 1s;
+          animation-duration: (10 + random(10)) * 1s;
+        }
+      }
+    }
   }
 
   .dts-header {
+    position: relative;
+    z-index: 10;
+    padding: 2rem;
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
-    position: relative;
+    justify-content: center;
 
-    @media (max-width: 768px) {
-      margin-bottom: 20px;
-      flex-direction: column;
-      align-items: flex-start;
-      position: relative;
-    }
-
-    @media (max-width: 480px) {
-      margin-bottom: 15px;
-    }
-
-    .dts-back-btn {
-      background: none;
-      border: 2px solid #0c9550;
-      color: #0c9550;
-      font-size: 23px;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      cursor: pointer;
+    .back-btn {
+      position: fixed;
+      top: 160px;
+      left: 2rem;
+      z-index: 100;
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: absolute;
-      top: 10px;
-      left: 20px;
+      gap: 0.75rem;
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      color: #10b981;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
 
       &:hover {
-        background-color: #0c9550;
-        color: white;
-      }
-
-      @media (max-width: 768px) {
-        position: absolute;
-        left: 0;
-        top: 0;
-        transform: none;
-        width: 45px;
-        height: 45px;
-      }
-
-      @media (max-width: 480px) {
-        width: 40px;
-        height: 40px;
-        left: 5px;
-      }
-
-      .anticon {
-        font-size: 20px;
-
-        @media (max-width: 768px) {
-          font-size: 18px;
-        }
-
-        @media (max-width: 480px) {
-          font-size: 16px;
-        }
+        background: rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+        transform: translateX(-5px);
       }
     }
 
     .dts-title {
-      font-size: 32px;
-      font-weight: bold;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900;
       text-align: center;
       margin: 0;
-      flex: 1;
+      background: linear-gradient(135deg, #10b981, #34d399, #6ee7b7);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+      animation: titleGlow 3s ease-in-out infinite alternate;
       letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-
-      @media (max-width: 1024px) {
-        font-size: 28px;
-        letter-spacing: 1.5px;
-      }
-
-      @media (max-width: 768px) {
-        font-size: 24px;
-        letter-spacing: 1px;
-        padding-left: 50px;
-        text-align: left;
-        width: 100%;
-      }
-
-      @media (max-width: 480px) {
-        font-size: 20px;
-        letter-spacing: 0.5px;
-        padding-left: 45px;
-      }
-
-      @media (max-width: 360px) {
-        font-size: 18px;
-        padding-left: 40px;
-      }
     }
   }
 
   .dts-content {
-    display: flex;
-    gap: 40px;
-    max-width: 1200px;
+    padding: 2rem;
+    max-width: 1400px;
     margin: 0 auto;
-
-    @media (max-width: 1024px) {
-      gap: 30px;
-      max-width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 20px;
-      align-items: center;
-    }
-
-    @media (max-width: 480px) {
-      gap: 15px;
-    }
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
 
     .dts-poster {
       flex-shrink: 0;
-
-      @media (max-width: 768px) {
-        align-self: center;
-        order: -1;
-      }
+      position: relative;
 
       .dts-poster-image {
-        top: 140px;
-        position: relative;
-        width: 300px;
-        height: 450px;
+        width: 320px;
+        height: 480px;
         object-fit: cover;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
 
-        @media (max-width: 1024px) {
-          width: 280px;
-          height: 420px;
-          top: 100px;
+        &:hover {
+          transform: scale(1.02) translateY(-5px);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6),
+            0 0 0 1px rgba(16, 185, 129, 0.3);
         }
+      }
 
-        @media (max-width: 768px) {
-          width: 250px;
-          height: 375px;
-          top: 0;
-          position: relative;
-        }
-
-        @media (max-width: 480px) {
-          width: 200px;
-          height: 300px;
-          border-radius: 12px;
-        }
-
-        @media (max-width: 360px) {
-          width: 180px;
-          height: 270px;
-        }
+      // Glow effect around poster
+      &::before {
+        content: "";
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        right: -20px;
+        bottom: -20px;
+        background: linear-gradient(45deg, #10b981, #34d399);
+        border-radius: 30px;
+        opacity: 0.1;
+        filter: blur(20px);
+        z-index: -1;
+        animation: posterGlow 4s ease-in-out infinite;
       }
     }
 
@@ -180,309 +174,210 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 40px;
-
-      @media (max-width: 1024px) {
-        gap: 35px;
-      }
-
-      @media (max-width: 768px) {
-        gap: 30px;
-        width: 100%;
-      }
-
-      @media (max-width: 480px) {
-        gap: 25px;
-      }
+      gap: 3rem;
 
       .dts-section {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(16, 185, 129, 0.2);
+        }
+
         .dts-section-title {
-          font-size: 28px;
-          font-weight: bold;
-          margin-bottom: 20px;
-          color: white;
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+          color: #10b981;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          position: relative;
 
-          @media (max-width: 1024px) {
-            font-size: 26px;
-          }
-
-          @media (max-width: 768px) {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 15px;
-          }
-
-          @media (max-width: 480px) {
-            font-size: 22px;
-            margin-bottom: 12px;
-          }
-
-          @media (max-width: 360px) {
-            font-size: 20px;
+          &::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 2px;
           }
         }
 
-        .dts-date-grid {
-          display: flex;
-          gap: 15px;
-          flex-wrap: wrap;
-
-          @media (max-width: 768px) {
-            justify-content: center;
-            gap: 12px;
-          }
-
-          @media (max-width: 480px) {
-            gap: 10px;
-          }
-
-          .dts-date-btn {
-            background: rgba(255, 255, 255, 0.32);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 12px;
-            padding: 15px 20px;
-            height: auto;
-            min-width: 100px;
-            transition: all 0.3s ease;
-
-            @media (max-width: 768px) {
-              min-width: 90px;
-              padding: 12px 16px;
-            }
-
-            @media (max-width: 480px) {
-              min-width: 80px;
-              padding: 10px 12px;
-              border-radius: 10px;
-            }
-
-            @media (max-width: 360px) {
-              min-width: 70px;
-              padding: 8px 10px;
-            }
-
-            &:hover {
-              background: rgba(12, 149, 80, 0.2);
-              border-color: #0c9550;
-              color: white;
-            }
-
-            &.selected {
-              background: #0c9550;
-              border-color: #0c9550;
-              color: white;
-              font-weight: bold;
-            }
-
-            .dts-date-content {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 5px;
-
-              @media (max-width: 480px) {
-                gap: 3px;
-              }
-
-              .dts-date-day {
-                font-size: 16px;
-                font-weight: bold;
-
-                @media (max-width: 768px) {
-                  font-size: 15px;
-                }
-
-                @media (max-width: 480px) {
-                  font-size: 14px;
-                }
-
-                @media (max-width: 360px) {
-                  font-size: 13px;
-                }
-              }
-
-              .dts-date-weekday {
-                font-size: 14px;
-                opacity: 0.8;
-
-                @media (max-width: 768px) {
-                  font-size: 13px;
-                }
-
-                @media (max-width: 480px) {
-                  font-size: 12px;
-                }
-
-                @media (max-width: 360px) {
-                  font-size: 11px;
-                }
-              }
-            }
-          }
-        }
-
+        .dts-date-grid,
         .dts-time-grid {
           display: flex;
-          gap: 15px;
+          gap: 1rem;
           flex-wrap: wrap;
+        }
 
-          @media (max-width: 768px) {
-            justify-content: center;
-            gap: 12px;
+        .dts-date-btn,
+        .dts-time-btn {
+          background: rgba(255, 255, 255, 0.08);
+          border: 2px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          border-radius: 16px;
+          padding: 1rem 1.5rem;
+          height: auto;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(5px);
+          position: relative;
+          overflow: hidden;
+
+          &::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+              90deg,
+              transparent,
+              rgba(16, 185, 129, 0.2),
+              transparent
+            );
+            transition: left 0.5s ease;
           }
 
-          @media (max-width: 480px) {
-            gap: 10px;
+          &:hover:not(.selected) {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+
+            &::before {
+              left: 100%;
+            }
           }
 
-          .dts-time-btn {
-            background: rgba(255, 255, 255, 0.32);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+          &.selected {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
             color: white;
-            border-radius: 12px;
-            padding: 15px 25px;
-            height: auto;
-            min-width: 140px;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+
+            .dts-date-content,
+            .dts-time-content {
+              animation: selectedPulse 2s ease-in-out infinite;
+            }
+          }
+        }
+
+        .dts-date-btn {
+          min-width: 100px;
+
+          .dts-date-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 0.5rem;
 
-            @media (max-width: 1024px) {
-              min-width: 120px;
-              padding: 12px 20px;
+            .dts-date-day {
+              font-size: 1.1rem;
+              font-weight: 700;
             }
 
-            @media (max-width: 768px) {
-              min-width: 110px;
-              padding: 12px 18px;
-              font-size: 15px;
-            }
-
-            @media (max-width: 480px) {
-              min-width: 100px;
-              padding: 10px 15px;
-              font-size: 14px;
-              border-radius: 10px;
-            }
-
-            @media (max-width: 360px) {
-              min-width: 90px;
-              padding: 8px 12px;
-              font-size: 13px;
-            }
-
-            &:hover {
-              background: rgba(12, 149, 80, 0.2);
-              border-color: #0c9550;
-              color: white;
-            }
-
-            &.selected {
-              background: #0c9550;
-              border-color: #0c9550;
-              color: white;
-              font-weight: bold;
-            }
-
-            .dts-time-content {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 4px;
-
-              .dts-time-main {
-                font-weight: 600;
-              }
-
-              .dts-cinema-room {
-                font-size: 12px;
-                opacity: 0.8;
-                font-weight: normal;
-
-                @media (max-width: 480px) {
-                  font-size: 11px;
-                }
-
-                @media (max-width: 360px) {
-                  font-size: 10px;
-                }
-              }
+            .dts-date-weekday {
+              font-size: 0.9rem;
+              opacity: 0.8;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
             }
           }
+        }
 
-          .dts-time-placeholder {
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-            font-size: 16px;
+        .dts-time-btn {
+          min-width: 140px;
 
-            @media (max-width: 768px) {
-              padding: 15px;
-              font-size: 15px;
-            }
+          .dts-time-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
 
-            @media (max-width: 480px) {
-              padding: 12px;
-              font-size: 14px;
+            .dts-time-main {
+              font-size: 1.1rem;
+              font-weight: 700;
+              font-family: "Courier New", monospace;
             }
           }
+        }
+
+        .dts-time-placeholder {
+          color: rgba(255, 255, 255, 0.6);
+          font-style: italic;
+          padding: 2rem;
+          text-align: center;
+          width: 100%;
+          font-size: 1.1rem;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 12px;
+          border: 1px dashed rgba(255, 255, 255, 0.2);
         }
       }
 
       .dts-next-btn {
-        background: #0c9550;
+        background: linear-gradient(135deg, #10b981, #059669);
         border: none;
         color: white;
-        font-size: 18px;
-        font-weight: bold;
-        height: 50px;
-        border-radius: 25px;
-        margin-top: 20px;
-        transition: all 0.3s ease;
+        font-size: 1.2rem;
+        font-weight: 700;
+        height: 60px;
+        border-radius: 30px;
+        margin-top: 1rem;
+        transition: all 0.4s ease;
         text-transform: uppercase;
         letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
 
-        @media (max-width: 768px) {
-          height: 45px;
-          font-size: 16px;
-          margin-top: 15px;
-          border-radius: 22px;
-        }
-
-        @media (max-width: 480px) {
-          height: 40px;
-          font-size: 15px;
-          margin-top: 12px;
-          border-radius: 20px;
-          letter-spacing: 0.5px;
-        }
-
-        @media (max-width: 360px) {
-          height: 38px;
-          font-size: 14px;
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
+          transition: left 0.5s ease;
         }
 
         &:hover:not(:disabled) {
-          background: #044824;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(12, 149, 80, 0.4);
+          background: linear-gradient(135deg, #059669, #047857);
+          transform: translateY(-3px);
+          box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
 
-          @media (max-width: 768px) {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(12, 149, 80, 0.4);
+          &::before {
+            left: 100%;
           }
         }
 
         &:disabled {
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.1);
           color: rgba(255, 255, 255, 0.5);
           cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+
+          &::before {
+            display: none;
+          }
         }
       }
     }
@@ -490,222 +385,413 @@
 
   .dts-loading {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 50vh;
-    font-size: 18px;
-    color: white;
+    height: 60vh;
+    gap: 2rem;
 
-    @media (max-width: 768px) {
-      height: 40vh;
-      font-size: 16px;
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(16, 185, 129, 0.2);
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
 
-    @media (max-width: 480px) {
-      height: 30vh;
-      font-size: 15px;
+    .loading-text {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
     }
   }
+}
 
-  // Landscape orientation for mobile
-  @media (max-width: 768px) and (orientation: landscape) {
+// Animations
+@keyframes patternFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(1deg);
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(50px);
+    opacity: 0;
+  }
+}
+
+@keyframes titleGlow {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+  }
+  100% {
+    filter: brightness(1.2) drop-shadow(0 0 20px rgba(16, 185, 129, 0.5));
+  }
+}
+
+@keyframes posterGlow {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes selectedPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .dts-container {
     .dts-content {
-      flex-direction: row;
-      gap: 20px;
+      gap: 2rem;
 
       .dts-poster {
-        top: -500px;
-        order: 0;
-
         .dts-poster-image {
-          position: relative;
-          object-fit: cover;
-          width: 180px;
-          height: 270px;
-          border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          width: 280px;
+          height: 420px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .dts-container {
+    .dts-content {
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+
+      .dts-poster {
+        .dts-poster-image {
+          width: 250px;
+          height: 375px;
         }
       }
 
       .dts-selection {
-        gap: 20px;
+        width: 100%;
+        gap: 2rem;
 
         .dts-section {
+          padding: 1.5rem;
+
           .dts-section-title {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 1.75rem;
+            text-align: center;
           }
-
-          .dts-date-grid,
-          .dts-time-grid {
-            gap: 8px;
-          }
-
-          .dts-date-btn,
-          .dts-time-btn {
-            padding: 8px 12px;
-            min-width: 70px;
-            font-size: 13px;
-          }
-        }
-
-        .dts-next-btn {
-          height: 35px;
-          font-size: 13px;
-          margin-top: 10px;
         }
       }
     }
   }
+}
 
-  // Very small screens (< 360px)
-  @media (max-width: 320px) {
-    padding: 30px;
-
+@media (max-width: 768px) {
+  .dts-container {
     .dts-header {
-      .dts-title {
-        font-size: 16px;
-        padding-left: 35px;
+      padding: 1.5rem 1rem;
+      flex-direction: column;
+      gap: 1rem;
+
+      .back-btn {
+        position: absolute;
+        left: 1rem;
+        top: 1.5rem;
+        transform: none;
+        width: 45px;
+        height: 45px;
+        font-size: 1rem;
       }
 
-      .dts-back-btn {
-        width: 35px;
-        height: 35px;
-
-        .anticon {
-          font-size: 14px;
-        }
+      .dts-title {
+        font-size: 2rem;
+        margin-top: 2rem;
       }
     }
 
     .dts-content {
+      padding: 1rem;
+      gap: 1.5rem;
+
       .dts-poster {
         .dts-poster-image {
-          width: 160px;
+          width: 200px;
           height: 300px;
         }
       }
 
       .dts-selection {
+        gap: 1.5rem;
+
         .dts-section {
+          padding: 1rem;
+
           .dts-section-title {
-            font-size: 18px;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
           }
 
-          .dts-date-grid {
-            .dts-date-btn {
-              min-width: 60px;
-              padding: 6px 8px;
+          .dts-date-grid,
+          .dts-time-grid {
+            justify-content: center;
+            gap: 0.75rem;
+          }
 
-              .dts-date-content {
-                .dts-date-day {
-                  font-size: 12px;
-                }
+          .dts-date-btn,
+          .dts-time-btn {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+          }
 
-                .dts-date-weekday {
-                  font-size: 10px;
-                }
+          .dts-date-btn {
+            min-width: 80px;
+
+            .dts-date-content {
+              .dts-date-day {
+                font-size: 1rem;
+              }
+
+              .dts-date-weekday {
+                font-size: 0.8rem;
               }
             }
           }
 
-          .dts-time-grid {
-            .dts-time-btn {
-              min-width: 80px;
-              padding: 6px 10px;
-              font-size: 12px;
+          .dts-time-btn {
+            min-width: 120px;
+
+            .dts-time-content {
+              .dts-time-main {
+                font-size: 1rem;
+              }
             }
           }
         }
 
         .dts-next-btn {
-          height: 35px;
-          font-size: 13px;
-        }
-      }
-    }
-  }
-
-  // Large screens (> 1200px)
-  @media (min-width: 1200px) {
-    padding: 30px;
-
-    .dts-content {
-      max-width: 1300px;
-      gap: 50px;
-
-      .dts-poster {
-        .dts-poster-image {
-          width: 320px;
-          height: 500px;
-          top: 20px;
-        }
-      }
-
-      .dts-selection {
-        gap: 50px;
-
-        .dts-section {
-          .dts-section-title {
-            font-size: 30px;
-          }
-
-          .dts-date-grid {
-            gap: 18px;
-
-            .dts-date-btn {
-              min-width: 110px;
-              padding: 18px 24px;
-            }
-          }
-
-          .dts-time-grid {
-            gap: 18px;
-
-            .dts-time-btn {
-              min-width: 150px;
-              padding: 18px 30px;
-              font-size: 17px;
-            }
-          }
-        }
-
-        .dts-next-btn {
-          height: 55px;
-          font-size: 19px;
+          height: 50px;
+          font-size: 1rem;
+          border-radius: 25px;
         }
       }
     }
   }
 }
 
-// Override Ant Design button styles
+@media (max-width: 480px) {
+  .dts-container {
+    .dts-header {
+      padding: 1rem;
+
+      .back-btn {
+        left: 0.5rem;
+        top: 1rem;
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+      }
+
+      .dts-title {
+        font-size: 1.75rem;
+        margin-top: 1.5rem;
+      }
+    }
+
+    .dts-content {
+      padding: 0.5rem;
+
+      .dts-poster {
+        .dts-poster-image {
+          width: 180px;
+          height: 270px;
+          border-radius: 15px;
+        }
+      }
+
+      .dts-selection {
+        .dts-section {
+          padding: 0.75rem;
+
+          .dts-section-title {
+            font-size: 1.25rem;
+          }
+
+          .dts-date-btn,
+          .dts-time-btn {
+            padding: 0.6rem 0.8rem;
+            border-radius: 10px;
+          }
+
+          .dts-date-btn {
+            min-width: 70px;
+          }
+
+          .dts-time-btn {
+            min-width: 100px;
+          }
+        }
+
+        .dts-next-btn {
+          height: 45px;
+          font-size: 0.9rem;
+          border-radius: 22px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .dts-container {
+    .dts-content {
+      .dts-poster {
+        .dts-poster-image {
+          width: 160px;
+          height: 240px;
+        }
+      }
+
+      .dts-selection {
+        .dts-section {
+          .dts-section-title {
+            font-size: 1.1rem;
+          }
+
+          .dts-date-btn {
+            min-width: 60px;
+            padding: 0.5rem 0.6rem;
+
+            .dts-date-content {
+              .dts-date-day {
+                font-size: 0.9rem;
+              }
+
+              .dts-date-weekday {
+                font-size: 0.7rem;
+              }
+            }
+          }
+
+          .dts-time-btn {
+            min-width: 90px;
+            padding: 0.5rem 0.6rem;
+
+            .dts-time-content {
+              .dts-time-main {
+                font-size: 0.9rem;
+              }
+            }
+          }
+        }
+
+        .dts-next-btn {
+          height: 40px;
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}
+
+// Large screens optimization
+@media (min-width: 1400px) {
+  .dts-container {
+    .dts-content {
+      gap: 4rem;
+
+      .dts-poster {
+        .dts-poster-image {
+          width: 350px;
+          height: 525px;
+        }
+      }
+
+      .dts-selection {
+        gap: 3.5rem;
+
+        .dts-section {
+          padding: 2.5rem;
+
+          .dts-section-title {
+            font-size: 2.25rem;
+          }
+
+          .dts-date-grid,
+          .dts-time-grid {
+            gap: 1.25rem;
+          }
+
+          .dts-date-btn {
+            min-width: 120px;
+            padding: 1.25rem 1.75rem;
+          }
+
+          .dts-time-btn {
+            min-width: 160px;
+            padding: 1.25rem 2rem;
+          }
+        }
+
+        .dts-next-btn {
+          height: 65px;
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
+
+// Override Ant Design styles
 .ant-btn {
   &:focus {
     box-shadow: none !important;
   }
 
-  // Ensure buttons work well on touch devices
-  @media (max-width: 768px) {
-    min-height: 44px; // Apple's recommended minimum touch target
+  &:active {
+    transform: translateY(1px) !important;
   }
 }
 
-// Ensure proper scrolling on small screens
-@media (max-width: 480px) {
-  body {
-    overflow-x: hidden;
-  }
-}
-
-// High DPI screens
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .dts-container {
-    .dts-poster {
-      .dts-poster-image {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
-      }
-    }
+// Ensure proper touch targets on mobile
+@media (max-width: 768px) {
+  .ant-btn {
+    min-height: 44px;
   }
 }

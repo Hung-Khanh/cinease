@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { Modal, Input, Button, message, Space, Dropdown } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { BorderOutlined, DownOutlined } from "@ant-design/icons";
 import api from "../../../constants/axios";
 import "../SCSS/TicketIn4.scss";
 import {
@@ -12,6 +14,7 @@ import {
   confirmPayment,
 } from "../../../api/staff";
 import { useLocation } from "react-router-dom";
+
 const { Search } = Input;
 
 const TicketInformation = ({ apiUrl, onBack }) => {
@@ -34,6 +37,8 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const [promotionId, setPromotionId] = useState(null);
   const [showPromotionList, setShowPromotionList] = useState(false);
   const [memberInfor, setMemberInfor] = useState(null);
+  // Add new state for payment URL
+  const [paymentUrl, setPaymentUrl] = useState("");
   const location = useLocation();
   const memberData = location.state;
 
@@ -76,7 +81,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   const handlePurchase = async () => {
     if (isProcessing) return;
-
     try {
       setIsProcessing(true);
       const token = localStorage.getItem("token");
@@ -86,28 +90,39 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       }
 
       const confirmData = {
-        invoiceId: parseInt(invoiceId),
-        scheduleId: parseInt(scheduleId),
+        invoiceId: Number.parseInt(invoiceId),
+        scheduleId: Number.parseInt(scheduleId),
         memberId: memberData?.memberId || 0,
         ticketType: ticketType,
         paymentMethod: paymentMethod,
       };
+
       const response = await confirmPayment(confirmData);
       const data = response.data;
-      const PaymentData = {
-        paymentUrl: data?.paymentUrl,
-        totalPrice: data?.finalAmount,
-      };
-      navigate(`/confirm-purchase`, { state: PaymentData });
+
+      // Store the payment URL instead of navigating immediately
+      if (data?.paymentUrl) {
+        setPaymentUrl(data.paymentUrl);
+      }
+
+      // Keep the modal open to show the "Go to sandbox pay" button
+      // Don't navigate here anymore
     } catch (error) {
       console.error("Error in handlePurchase:", error);
       const errorMessage =
         error.response?.data?.message ||
         "Failed to confirm booking. Please try again.";
       alert(errorMessage);
-      setResponseModalVisible(true);
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  // New function to handle redirect to payment URL
+  const handleGoToSandboxPay = () => {
+    if (paymentUrl) {
+      window.location.href = paymentUrl; // Redirect to the payment URL
+      // Or use window.location.href = paymentUrl; if you want to redirect in the same tab
     }
   };
 
@@ -144,7 +159,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         setMovieImage("placeholder-image.jpg");
       }
     };
-
     fetchMovies();
   }, [movieName, apiUrl]);
 
@@ -160,6 +174,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
     if (promotionId) {
       payload.promotionId = promotionId;
     }
+
     const response = await applyDiscount(payload);
     const data = await response.data;
     setMemberInfor(data);
@@ -175,8 +190,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   };
 
   const handleCashChange = (e) => {
-    const value = parseFloat(e.target.value) || 0;
-    // Lấy tổng tiền từ memberInfor.finalPrice, nếu không có thì là 0
+    const value = Number.parseFloat(e.target.value) || 0;
     const total =
       typeof memberInfor?.finalPrice === "number" ? memberInfor.finalPrice : 0;
     const adjustedTotal = total < 0 ? 0 : total;
@@ -227,7 +241,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
 
   const handleCashPurchase = async () => {
     if (isProcessing) return;
-
     try {
       setIsProcessing(true);
       const token = localStorage.getItem("token");
@@ -237,18 +250,20 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       }
 
       const confirmData = {
-        invoiceId: parseInt(invoiceId),
-        scheduleId: parseInt(scheduleId),
+        invoiceId: Number.parseInt(invoiceId),
+        scheduleId: Number.parseInt(scheduleId),
         memberId: memberData?.memberId || 0,
         ticketType: ticketType,
         paymentMethod: paymentMethod,
       };
+
       const response = await confirmPayment(confirmData);
       const data = response.data;
       const PaymentData = {
         invoiceId: data?.invoiceId,
         totalPrice: data?.finalAmount,
       };
+
       navigate(`/payment-cash`, { state: PaymentData });
     } catch (error) {
       console.error("Error in handlePurchase:", error);
@@ -261,6 +276,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
       setIsProcessing(false);
     }
   };
+
   return (
     <div className="tix-info-main">
       <button className="tix-back-btn" onClick={handleBack}>
@@ -303,7 +319,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
             </div>
             <div className="tix-detail-chosen tix-voucher-search">
               <span>Voucher</span>
-              <Space direction="vertical" style={{ width: "100%" }}>
+              <Space
+                direction="vertical"
+                style={{ width: "100%", hover: { BorderOutlined: "#0c9550" } }}
+              >
                 <Search
                   placeholder="Search voucher by title..."
                   allowClear
@@ -336,11 +355,10 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                           : ""
                       }
                       style={{
-                        border: "1px solid #ccc",
                         margin: "3px",
                         borderRadius: "2px",
                         backgroundColor: "#fff",
-                        color: "rgb(79, 79, 79)",
+                        color: "rgba(43, 43, 43, 1)",
                         cursor: "pointer",
                         padding: "3px",
                       }}
@@ -396,12 +414,20 @@ const TicketInformation = ({ apiUrl, onBack }) => {
                 }}
                 trigger={["click"]}
               >
-                <Button size={"middle"} style={{ marginTop: "10px" }}>
+                <Button
+                  size={"middle"}
+                  style={{ marginTop: "10px", position: "relative" }}
+                >
                   <a onClick={(e) => e.preventDefault()}>
-                    <Space style={{ padding: "40px" }}>
-                      {paymentMethod}
-                      <DownOutlined />
-                    </Space>
+                    <span>{paymentMethod}</span>
+                    <DownOutlined
+                      style={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                      }}
+                    />
                   </a>
                 </Button>
               </Dropdown>
@@ -424,11 +450,13 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           </div>
         </div>
       </div>
+
       <Modal
         title="Confirm Purchase"
         open={responseModalVisible}
         onOk={() => setResponseModalVisible(false)}
         onCancel={() => setResponseModalVisible(false)}
+        footer={null} // Remove default footer to customize buttons
       >
         <p>
           <strong>Movie Name:</strong> {ticketData?.movieName || "N/A"}
@@ -438,9 +466,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         </p>
         <p>
           <strong>Time:</strong>
-          {ticketData?.scheduleShowTime
-            ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
-            : "N/A"}
+          {ticketData?.scheduleShowTime}
         </p>
         <p>
           <strong>Ticket({ticketData?.seatNumbers?.length || 0}):</strong>
@@ -455,21 +481,37 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         </p>
         <br />
         <div className="tix-infor-button">
-          <Button
-            className="tix-infor-modal-button"
-            key="Confirm"
-            type="primary"
-            block
-            style={{
-              backgroundColor: "#0c9550",
-            }}
-            onClick={handlePurchase}
-            disabled={isProcessing}
-          >
-            {isProcessing ? "Processing..." : "Purchase"}
-          </Button>
+          {!paymentUrl ? (
+            <Button
+              className="tix-infor-modal-button"
+              key="Confirm"
+              type="primary"
+              block
+              style={{
+                backgroundColor: "#0c9550",
+              }}
+              onClick={handlePurchase}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : "Purchase"}
+            </Button>
+          ) : (
+            <Button
+              className="tix-infor-modal-button"
+              key="GoToSandboxPay"
+              type="primary"
+              block
+              style={{
+                backgroundColor: "#0c9550",
+              }}
+              onClick={handleGoToSandboxPay}
+            >
+              Go to sandbox pay
+            </Button>
+          )}
         </div>
       </Modal>
+
       {/* cash modal */}
       <Modal
         title="Confirm Purchase"
@@ -477,7 +519,6 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         onOk={() => setResponseModalCashVisible(false)}
         onCancel={() => setResponseModalCashVisible(false)}
       >
-        {" "}
         <p>
           <strong>Movie Name:</strong> {ticketData?.movieName || "N/A"}
         </p>
@@ -486,9 +527,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
         </p>
         <p>
           <strong>Time:</strong>
-          {ticketData?.scheduleShowTime
-            ? new Date(ticketData.scheduleShowTime).toLocaleTimeString()
-            : "N/A"}
+          {ticketData?.scheduleShowTime}
         </p>
         <p>
           <strong>Ticket({ticketData?.seatNumbers?.length || 0}):</strong>
@@ -508,7 +547,7 @@ const TicketInformation = ({ apiUrl, onBack }) => {
           type="number"
           style={{ margin: "10px 0" }}
         />
-        <div>Change: VND {(change < 0 ? 0 : change).toLocaleString()}</div>{" "}
+        <div>Change: VND {(change < 0 ? 0 : change).toLocaleString()}</div>
         <br />
         <div className="tix-infor-button">
           <Button

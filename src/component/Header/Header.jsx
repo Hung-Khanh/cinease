@@ -1,6 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { UserOutlined, BellOutlined, MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  BellOutlined,
+  MenuOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import Cookies from "js-cookie";
 import "./Header.scss";
 import logo from "../../assets/logo.png";
@@ -82,21 +87,28 @@ const Header = () => {
     window.addEventListener("notificationUpdate", handleCustomNotification);
 
     return () => {
-      window.removeEventListener("notificationUpdate", handleCustomNotification);
+      window.removeEventListener(
+        "notificationUpdate",
+        handleCustomNotification
+      );
     };
   }, [user, loadNotifications]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showMobileMenu && !event.target.closest('.mobile-menu') && !event.target.closest('.hamburger-menu')) {
+      if (
+        showMobileMenu &&
+        !event.target.closest(".mobile-menu") &&
+        !event.target.closest(".hamburger-menu")
+      ) {
         setShowMobileMenu(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showMobileMenu]);
 
@@ -116,10 +128,10 @@ const Header = () => {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  
+
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("token"); 
+    localStorage.removeItem("token");
     setUser(null);
     setNotifications([]);
     setShowDropdown(false);
@@ -157,7 +169,7 @@ const Header = () => {
       <div className="header-container">
         {/* Logo */}
         <Link to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"}>
-           <img
+          <img
             src={logo || "/placeholder.svg"}
             alt="Cinease Logo"
             className="logo"
@@ -176,7 +188,10 @@ const Header = () => {
         <div className="desktop-right desktop-only">
           {/* Bell Icon + Notification */}
           <div className="notification-icon" onClick={toggleNotifications}>
-            <BellOutlined data-testid="bell-icon" style={{ fontSize: 20, color: "#fff", cursor: "pointer" }} />
+            <BellOutlined
+              data-testid="bell-icon"
+              style={{ fontSize: 20, color: "#fff", cursor: "pointer" }}
+            />
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
             )}
@@ -199,7 +214,9 @@ const Header = () => {
                         <div className="notification-title">
                           Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
                         </div>
-                        {n.time && <div className="notification-time">{n.time}</div>}
+                        {n.time && (
+                          <div className="notification-time">{n.time}</div>
+                        )}
                       </div>
                     </div>
                   ))
@@ -227,12 +244,18 @@ const Header = () => {
                     }}
                   />
                 ) : (
-                  <UserOutlined aria-label="avatar" style={{ fontSize: 24, color: "#fff" }} />
+                  <UserOutlined
+                    aria-label="avatar"
+                    style={{ fontSize: 24, color: "#fff" }}
+                  />
                 )}
               </div>
               {showDropdown && (
                 <div className="dropdown-menu">
-                  <div className="dropdown-item" onClick={() => navigate("/profile")}>
+                  <div
+                    className="dropdown-item"
+                    onClick={() => navigate("/profile")}
+                  >
                     Profile
                   </div>
                   <div
@@ -273,11 +296,11 @@ const Header = () => {
                   <CloseOutlined style={{ fontSize: 24, color: "#fff" }} />
                 </button>
               </div>
-              
+
               {/* Navigation Links */}
               <nav className="mobile-nav-links">
-                <Link 
-                  to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"} 
+                <Link
+                  to={user && user.role === "EMPLOYEE" ? "/staffHomePage" : "/"}
                   onClick={handleMobileNavClick}
                 >
                   Home
@@ -290,7 +313,13 @@ const Header = () => {
               {/* User Section */}
               {user ? (
                 <div className="mobile-user-section">
-                  <div className="mobile-user-info" onClick={() => { navigate("/profile"); handleMobileNavClick(); }}>
+                  <div
+                    className="mobile-user-info"
+                    onClick={() => {
+                      navigate("/profile");
+                      handleMobileNavClick();
+                    }}
+                  >
                     <div className="mobile-avatar">
                       {getUserAvatar() ? (
                         <img
@@ -311,13 +340,18 @@ const Header = () => {
                     </div>
                     <span className="mobile-username">Profile</span>
                   </div>
-                  
+
                   {/* Mobile Notifications */}
-                  <div className="mobile-notifications" onClick={toggleNotifications}>
+                  <div
+                    className="mobile-notifications"
+                    onClick={toggleNotifications}
+                  >
                     <BellOutlined style={{ fontSize: 20, color: "#fff" }} />
                     <span>Notifications</span>
                     {unreadCount > 0 && (
-                      <span className="mobile-notification-badge">{unreadCount}</span>
+                      <span className="mobile-notification-badge">
+                        {unreadCount}
+                      </span>
                     )}
                   </div>
 
@@ -327,7 +361,11 @@ const Header = () => {
                 </div>
               ) : (
                 <div className="mobile-auth">
-                  <Link to="/login" className="mobile-login-btn" onClick={handleMobileNavClick}>
+                  <Link
+                    to="/login"
+                    className="mobile-login-btn"
+                    onClick={handleMobileNavClick}
+                  >
                     Sign In
                   </Link>
                 </div>
