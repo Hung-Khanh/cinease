@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import "../SCSS/phoneNum.scss";
 import { Button, Modal } from "antd";
 import { FaArrowLeft } from "react-icons/fa";
@@ -21,13 +23,11 @@ const PhoneInput = ({ onBack }) => {
       setMessageType("error");
       return;
     }
-
-    if (phoneNumber.length < 10) {
-      setMessage("Số điện thoại phải có ít nhất 10 chữ số");
+    if (phoneNumber.length !== 10) {
+      setMessage("Số điện thoại phải có đúng 10 chữ số");
       setMessageType("error");
       return;
     }
-
     try {
       const response = await checkMember(invoiceId, phoneNumber);
       setMemberData(response.data);
@@ -37,17 +37,20 @@ const PhoneInput = ({ onBack }) => {
       console.error("Error in handleInputPhoneNumber:", error);
     }
   };
+
   const handleNextPage = () => {
     setIsModalVisible(false);
     navigate(`/ticketInformation/${invoiceId}/${scheduleId}`, {
       state: memberData,
     });
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
   const handleNumberClick = (number) => {
-    if (phoneNumber.length < 11) {
+    if (phoneNumber.length < 10) {
       setPhoneNumber((prev) => prev + number);
       setMessage("");
     }
@@ -59,18 +62,16 @@ const PhoneInput = ({ onBack }) => {
   };
 
   const formatPhoneNumber = (number) => {
-    // Loại bỏ các ký tự không phải số
     const cleaned = number.replace(/\D/g, "");
-
-    // Kiểm tra độ dài số
-    if (cleaned.length <= 4) return cleaned;
-    if (cleaned.length <= 7)
-      return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
-    return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(
-      7,
+    if (cleaned.length <= 3) return cleaned;
+    if (cleaned.length <= 6)
+      return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+    return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(
+      6,
       10
     )}`;
   };
+
   const handleBack = () => {
     if (onBack) {
       onBack();
@@ -78,19 +79,30 @@ const PhoneInput = ({ onBack }) => {
       navigate(-1);
     }
   };
+
   const handleSkip = () => {
     navigate(`/ticketInformation/${invoiceId}/${scheduleId}`);
   };
+
   return (
     <div className="phone-page">
-      <button className="dts-back-btn" onClick={handleBack}>
+      {/* Floating Particles */}
+      <div className="floating-particles">
+        {[...Array(25)].map((_, i) => (
+          <div key={i} className={`particle particle-${i + 1}`}></div>
+        ))}
+      </div>
+
+      <button className="phone-back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
+
       <div className="phone-container">
-        <h1 className="phone-title">Enter your phone number</h1>
+        <h1 className="phone-title">Enter Your Phone Number</h1>
 
         <div className="phone-display">
           <div className="input-container">
+            <TiPhone className="phone-icon" />
             <input
               type="text"
               className="phone-input"
@@ -98,9 +110,8 @@ const PhoneInput = ({ onBack }) => {
               placeholder="Your phone number"
               readOnly
             />
-            <TiPhone className="phone-icon" />
           </div>
-          <div className="phone-length">{phoneNumber.length}/11 number</div>
+          <div className="phone-length">{phoneNumber.length}/10 digits</div>
         </div>
 
         <div className="keypad">
@@ -114,7 +125,7 @@ const PhoneInput = ({ onBack }) => {
             </button>
           ))}
           <button className="key-button delete" onClick={handleDelete}>
-            DEL
+            <span>DEL</span>
           </button>
           <button
             className="key-button number"
@@ -126,7 +137,7 @@ const PhoneInput = ({ onBack }) => {
             className="key-button submit"
             onClick={handleInputPhoneNumber}
           >
-            SUBMIT
+            <span>SUBMIT</span>
           </button>
         </div>
 
@@ -139,12 +150,12 @@ const PhoneInput = ({ onBack }) => {
             {message}
           </div>
         )}
-        <div className="phone-skip-button">
-          <h2 className="phone-skip-text">No Member Phone?</h2>
+
+        <div className="phone-skip-section">
+          <h3 className="phone-skip-text">No Member Phone?</h3>
           <Button
-            className="phone-skip-butt"
+            className="phone-skip-button"
             type="primary"
-            block
             size="large"
             onClick={handleSkip}
           >
@@ -152,40 +163,42 @@ const PhoneInput = ({ onBack }) => {
           </Button>
         </div>
       </div>
+
       <Modal
         open={isModalVisible}
         onCancel={handleCancel}
-        title="Confirm your information"
+        title="Confirm Member Information"
         footer={null}
+        className="phone-modal"
       >
-        <p>
-          <strong>Phone:</strong>
-          {""}
-          {memberData?.memberPhone}
-        </p>
-        <p>
-          <strong>Name:</strong>
-          {""}
-          {memberData?.memberName}
-        </p>
-        <p>
-          <strong>Điểm tích lũy:</strong>
-          {""}
-          {memberData?.availableScore}
-        </p>
-        <p>
-          <strong>Thêm điểm:</strong>
-          {""}
-          {memberData?.estimatedEarnedScore}
-        </p>
-        <div className="out-button">
+        <div className="member-info">
+          <div className="info-row">
+            <span className="info-label">Phone:</span>
+            <span className="info-value">{memberData?.memberPhone}</span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Name:</span>
+            <span className="info-value">{memberData?.memberName}</span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Available Points:</span>
+            <span className="info-value">{memberData?.availableScore}</span>
+          </div>
+          <div className="info-row">
+            <span className="info-label">Estimated Earned:</span>
+            <span className="info-value">
+              {memberData?.estimatedEarnedScore}
+            </span>
+          </div>
+        </div>
+        <div className="modal-actions">
           <Button
-            className="modal-button"
+            className="modal-next-button"
             size="large"
             block
             onClick={handleNextPage}
           >
-            Next
+            Continue
           </Button>
         </div>
       </Modal>

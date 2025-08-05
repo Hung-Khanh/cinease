@@ -50,7 +50,6 @@ import AdminMovies from "./pages/admin/Movies/Movie.jsx";
 import ProductManagement from "./pages/admin/ProductManagement/ProductManagement.jsx";
 import Promotions from "./pages/admin/Promotions/Promotions.jsx";
 import TicketManagement from "./pages/admin/TicketManagement/TicketManagement.jsx";
-// import ErrorBoundary from "./components/ErrorBoundary";
 import ErrorPage from "./pages/Error/ErrorPage.jsx";
 
 import CinemaSeating from "./pages/Staff/JSX/TestSeatSelection.jsx";
@@ -132,8 +131,34 @@ function AdminLayout() {
   );
 }
 
+import { useEffect } from "react";
+import { getUserInfo } from "./api/user";
+import { useAuth } from "./constants/AuthContext";
+
 function Layout() {
   const location = useLocation();
+  const { logout } = useAuth();
+
+  useEffect(() => {
+    let ignore = false;
+    const checkStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return; // Không gọi API nếu chưa đăng nhập
+      try {
+        const res = await getUserInfo();
+        const user = res?.data || res?.data?.data;
+        if (user && user.status === "INACTIVE") {
+          logout && logout();
+          localStorage.removeItem("user");
+          window.location.replace("/login");
+        }
+      } catch (e) {
+        // Optionally handle errors
+      }
+    };
+    checkStatus();
+    return () => { ignore = true; };
+  }, [location, logout]);
   const isLoginRegister = location.pathname.startsWith("/login");
   const role = localStorage.getItem("role");
   const isStaff = role === "EMPLOYEE";

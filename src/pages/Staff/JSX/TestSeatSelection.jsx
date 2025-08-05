@@ -250,7 +250,7 @@ const SeatSelect = ({ onBack }) => {
 
   return (
     <div className="seat-selection-wrapper">
-      <button className="dts-back-btn" onClick={handleBack}>
+      <button className="back-btn" onClick={handleBack}>
         <FaArrowLeft />
       </button>
       <div className="seat-selection-container">
@@ -272,7 +272,7 @@ const SeatSelect = ({ onBack }) => {
           </div>
           <div className="legend-item">
             <PiArmchairFill className="cs-seat-icon cs-selected" size={36} />
-            <span>Selected</span>
+            <span>Selecteing</span>
           </div>
           <div className="legend-item">
             <TbArmchair2Off className="cs-seat-icon cs-unavailable" size={36} />
@@ -290,7 +290,7 @@ const SeatSelect = ({ onBack }) => {
             trigger={["click"]}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <Space>
+              <Space style={{ cursor: "pointer" }}>
                 {selectedCategory}
                 <DownOutlined />
               </Space>
@@ -306,6 +306,7 @@ const SeatSelect = ({ onBack }) => {
             rowGap: 50,
             columnGap: 50,
             margin: "16px",
+            cursor: "pointer",
           }}
         >
           {filteredProducts.map((product) => {
@@ -314,6 +315,7 @@ const SeatSelect = ({ onBack }) => {
               <Card
                 key={product.productId}
                 style={{
+                  cursor: "pointer",
                   width: 195,
                   height: 310,
                   borderRadius: 16,
@@ -408,7 +410,9 @@ const SeatSelect = ({ onBack }) => {
         <div className="summary bottom-bar">
           <div className="summary-item">
             <p className="label">SEAT</p>
-            <p className="value">{selectedSeats.join(", ") || "N/A"}</p>
+            <p className="value">
+              {selectedSeats.join(", ") || "No seat selected"}
+            </p>
           </div>
           <div className="summary-item">
             <p className="label">MOVIE</p>
