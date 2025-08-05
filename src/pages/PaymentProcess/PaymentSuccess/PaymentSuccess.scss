@@ -475,7 +475,7 @@
     display: flex;
     align-items: center;
     gap: 2rem;
-    margin: 0 16px;
+    padding: 2rem;
     height: 100%;
   }
 
@@ -846,12 +846,10 @@
 }
 
 // Action Buttons
-.action-buttons-payment {
+.action-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  align-items: center;
-  width: 100%;
 
   .download-btn,
   .home-btn {
@@ -946,6 +944,15 @@
     gap: 1rem;
   }
 
+  .action-buttons {
+    flex-direction: column;
+
+    .download-btn,
+    .home-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 @media (max-width: 480px) {
@@ -980,6 +987,16 @@
 
     .movie-info .movie-title {
       font-size: 1.5rem;
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+
+    .download-btn,
+    .home-btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 }
