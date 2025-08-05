@@ -15,6 +15,8 @@ import {
   FaCheckCircle,
 } from "react-icons/fa"
 import { useSelector } from "react-redux"
+import { toast, ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 import "./PaymentDetail.scss"
 
 const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" }) => {
@@ -43,14 +45,14 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   useEffect(() => {
     console.log("seatData:", seatData) // Debug Redux state
     if (!seatData || !seatData.sessionId) {
-      alert("Không tìm thấy dữ liệu đặt vé. Vui lòng chọn lại.")
+      toast.error("Booking data not found. Please select your seats again.")
       navigate("/")
       return
     }
     const fetchMovieDetails = async () => {
       try {
         if (!token) {
-          alert("Bạn chưa đăng nhập.")
+          toast.error("You are not logged in.")
           navigate("/login")
           return
         }
@@ -74,8 +76,8 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
           }))
         }
       } catch (err) {
-        console.error("❌ Lỗi lấy thông tin phim:", err)
-        alert(`Lỗi lấy thông tin phim: ${err.message}`)
+        console.error("❌ Error fetching movie details:", err)
+        toast.error(`Error fetching movie details: ${err.message}`)
       } finally {
         setLoading(false)
       }
@@ -90,8 +92,8 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.")
-navigate("/")
+          toast.error("Booking session expired. Please start again.")
+          navigate("/")
           return 0
         }
         return prev - 1
@@ -102,7 +104,7 @@ navigate("/")
 
   const handleConfirmPayment = async () => {
     if (!token) {
-      alert("Bạn chưa đăng nhập.")
+      toast.error("You are not logged in.")
       navigate("/login")
       return
     }
@@ -120,12 +122,12 @@ navigate("/")
       if (!res.ok) {
         const errorData = await res.json()
         if (errorData.errorCode === "SESSION_EXPIRED") {
-          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.")
+          toast.error("Booking session expired. Please start again.")
           navigate("/")
           return
         }
         if (errorData.errorCode === "PAYMENT_FAILED") {
-          alert("Thanh toán thất bại. Vui lòng thử lại.")
+          toast.error("Payment failed. Please try again.")
           return
         }
         throw new Error(`Failed to confirm payment: ${errorData.message || res.status}`)
@@ -133,19 +135,11 @@ navigate("/")
       const data = await res.json()
       setPaymentUrl(data.paymentUrl || null)
     } catch (err) {
-      console.error("❌ Lỗi xác nhận thanh toán:", err)
-      alert(`Lỗi xác nhận thanh toán: ${err.message}. Vui lòng thử lại.`)
+      console.error("❌ Error confirming payment:", err)
+      toast.error(`Error confirming payment: ${err.message}. Please try again.`)
     }
   }
 
-  // XÓA HOẶC COMMENT ĐOẠN NÀY:
-  // useEffect(() => {
-  //   if (paymentUrl) {
-  //     window.location.href = paymentUrl
-  //   }
-  // }, [paymentUrl])
-
-  // Thêm hàm xử lý khi nhấn Proceed to Pay
   const handleProceedToPay = () => {
     if (paymentUrl) {
       window.location.href = paymentUrl
@@ -157,6 +151,8 @@ navigate("/")
       <div className="payment-loading">
         <div className="loading-spinner"></div>
         <p>Loading payment details...</p>
+        {/* Toast container for notifications */}
+        <ToastContainer />
       </div>
     )
 
@@ -164,7 +160,8 @@ navigate("/")
     return (
       <div className="payment-error">
         <h2>Error</h2>
-        <p>Không tìm thấy thông tin đặt vé.</p>
+        <p>Booking information not found.</p>
+        <ToastContainer />
       </div>
     )
 
@@ -217,6 +214,8 @@ icon: "/img/momo.png",
 
   return (
     <div className="payment-cinema">
+      {/* Toast container for notifications */}
+      <ToastContainer />
       {/* Background Elements */}
       <div className="cinema-bg">
         <div className="bg-gradient"></div>
