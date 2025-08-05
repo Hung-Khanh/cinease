@@ -582,25 +582,6 @@ const Confirm = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api" 
                     <div className="input-decoration"></div>
                   </div>
                 </div>
-
-                {/* Ticket Type */}
-                <div className="option-group">
-                  <label className="option-label">
-                    <FaTicketAlt className="option-icon" />
-                    Ticket Type
-                  </label>
-                  <div className="ticket-type-container">
-                    <select
-                      value={ticketType}
-                      onChange={(e) => setTicketType(e.target.value)}
-                      className="ticket-select"
-                    >
-                      <option value="ADULT">Adult Ticket</option>
-                      <option value="STUDENT">Student Ticket</option>
-                    </select>
-                    <div className="select-decoration"></div>
-                  </div>
-                </div>
               </div>
             </div>
 
