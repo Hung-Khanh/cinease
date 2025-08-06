@@ -3,7 +3,7 @@ import { List, Typography, Empty, Spin } from "antd"
 import { StarOutlined, PlusOutlined } from "@ant-design/icons"
 import { updateFeedback, deleteFeedback, getCurrentUserFeedbacks } from "../../api/feedback"
 import { FeedbackCard, FeedbackModal } from "./FeedbackComponents"
-import "./feedback.scss"
+import "./Feedback.scss"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
