@@ -774,7 +774,7 @@ const Profile = () => {
                 },
               })}
             />
-            <Modal
+            {/* <Modal
               title={<span>Transaction Details</span>}
               open={transactionModalVisible}
               onCancel={() => setTransactionModalVisible(false)}
@@ -837,7 +837,7 @@ const Profile = () => {
                   }</div>
                 </div>
               )}
-            </Modal>
+            </Modal> */}
             <div className="profile-history-footer">
               <Button className="profile-history-btn" onClick={handleViewHistory}>
                 See All History
@@ -890,9 +890,13 @@ const Profile = () => {
                     <Rate disabled value={selectedFeedback.rating} allowHalf style={{ fontSize: windowWidth < 500 ? 18 : 22 }} />
                     <Text style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff' }}>({selectedFeedback.rating}/5)</Text>
                   </div>
-                  <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
-                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Comment:</Text>
-                    <div style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginTop: 2, whiteSpace: 'pre-line' }}>{selectedFeedback.comment}</div>
+                 <div style={{ display: 'flex', alignItems: 'flex-start', marginTop: windowWidth < 500 ? 2 : 4 }}>
+                    <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70, whiteSpace: 'nowrap' }}>
+                      Comment:
+                    </Text>
+                    <div style={{ fontSize: windowWidth < 500 ? 12 : 14, color: '#fffcfcff', marginTop: 2, marginLeft: 8, whiteSpace: 'pre-line' }}>
+                      {selectedFeedback.comment}
+                    </div>
                   </div>
                   <div style={{ marginTop: windowWidth < 500 ? 2 : 4 }}>
                     <Text strong style={{ fontSize: windowWidth < 500 ? 13 : 16, color: '#fffcfcff', minWidth: 70 }}>Seats:</Text>

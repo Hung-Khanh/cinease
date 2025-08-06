@@ -588,9 +588,7 @@ $danger-red: #ff4757;
     .custom-carousel.desktop .carousel-track .carousel-item {
       width: calc(33.333% - 14px); // Desktop small: 3 cards
     }
-  }
 
-  // iPad - 3 cards per view
   @media (max-width: 900px) {
     .home-content {
       padding: 0 15px;

@@ -109,9 +109,9 @@ const Feedback = () => {
               }
               image={<StarOutlined className="empty-icon" />}
             >
-              <button className="add-feedback-btn" onClick={handleAddFeedback}>
+              {/* <button className="add-feedback-btn" onClick={handleAddFeedback}>
                 <PlusOutlined /> Add Your First Feedback
-              </button>
+              </button> */}
             </Empty>
           </div>
         ) : (

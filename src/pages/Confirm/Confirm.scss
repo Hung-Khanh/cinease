@@ -840,12 +840,10 @@ $film-strip-height: 20px;
   }
   
   .score-input-container, .ticket-type-container {
-    width: 888px;
+    // max-width: 100%;
     position: relative;
-
     
     .score-input, .ticket-select {
-      width: 100%;
       padding: 1rem 1.5rem;
       background: rgba($cinema-white, 0.05);
       border: 2px solid rgba($cinema-white, 0.1);
@@ -854,8 +852,6 @@ $film-strip-height: 20px;
       font-size: 1rem;
       font-weight: 500;
       outline: none;
-      transition: all 0.3s ease;
-      
       &::placeholder {
         color: rgba($cinema-white, 0.5);
       }
