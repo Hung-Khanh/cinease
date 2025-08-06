@@ -1,14 +1,19 @@
+"use client";
+
 import { useState } from "react";
 import "./forgotPassword.scss";
 import api from "../constants/axios";
 import { message, Input, Button, Result } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import CustomPasswordInput from "../component/CustomPasswordInput/customPasswordInput";
+
 const Steps = ({ current }) => {
   const steps = [
     { title: "Email", icon: "📧" },
     { title: "OTP", icon: "🔐" },
     { title: "Mật khẩu", icon: "🗝️" },
   ];
+
   return (
     <div className="steps">
       {steps.map((step, idx) => (
@@ -34,13 +39,11 @@ const ForgotPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleEmailSent = async () => {
     if (!email) {
-      setErrors({ email: "Please enter your email" });
-      message.error("Please enter your email");
+      setErrors({ email: "Vui lòng nhập email" });
+      message.error("Vui lòng nhập email");
       return;
     }
     if (!validateEmail(email)) {
@@ -81,7 +84,6 @@ const ForgotPassword = () => {
       message.error("OTP code must be 6 digits");
       return;
     }
-
     setLoading(true);
     setErrors({});
     try {
@@ -126,6 +128,7 @@ const ForgotPassword = () => {
       setLoading(false);
     }
   };
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -178,29 +181,34 @@ const ForgotPassword = () => {
       >
         {loading ? "Sending..." : "Send OTP"}
       </Button>
-      {/* Add resend OTP and error handling */}
     </div>
   );
 
   const renderResetPassword = () => (
     <div className="form-reset-password">
       <div className="reset-password-text">Enter new password:</div>
-      <Input.Password
-        type={showPassword ? "text" : "password"}
+      <CustomPasswordInput
         placeholder="Enter new password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        error={errors.password}
+        hasError={!!errors.password}
         style={{ marginBottom: "15px" }}
       />
+      {errors.password && (
+        <div className="error-message">{errors.password}</div>
+      )}
+
       <div className="reset-password-text">Confirm new password:</div>
-      <Input.Password
-        type={showConfirmPassword ? "text" : "password"}
+      <CustomPasswordInput
         placeholder="Confirm new password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
-        error={errors.confirmPassword}
+        hasError={!!errors.confirmPassword}
       />
+      {errors.confirmPassword && (
+        <div className="error-message">{errors.confirmPassword}</div>
+      )}
+
       <Button
         onClick={handleChangePassword}
         loading={loading}
