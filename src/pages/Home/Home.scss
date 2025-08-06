@@ -34,7 +34,12 @@ $danger-red: #ff4757;
 // Main Styles
 .home {
   min-height: 100vh;
-  background: linear-gradient(135deg, $deep-black 0%, #1a2f1a 50%, $deep-black 100%);
+  background: linear-gradient(
+    135deg,
+    $deep-black 0%,
+    #1a2f1a 50%,
+    $deep-black 100%
+  );
   color: $text-white;
   overflow-x: hidden;
 
@@ -82,11 +87,13 @@ $danger-red: #ff4757;
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg,
-              rgba(10, 10, 10, 0.9) 0%,
-              rgba(10, 10, 10, 0.7) 40%,
-              rgba(10, 10, 10, 0.3) 70%,
-              transparent 100%);
+          background: linear-gradient(
+            90deg,
+            rgba(10, 10, 10, 0.9) 0%,
+            rgba(10, 10, 10, 0.7) 40%,
+            rgba(10, 10, 10, 0.3) 70%,
+            transparent 100%
+          );
           @include flex-center;
           align-items: flex-start;
           justify-content: flex-start;
@@ -366,7 +373,7 @@ $danger-red: #ff4757;
       width: calc(25% - 15px);
     }
 
-    // Tablet - 3 cards  
+    // Tablet - 3 cards
     &.tablet .carousel-track {
       gap: 10px;
     }
@@ -589,119 +596,120 @@ $danger-red: #ff4757;
       width: calc(33.333% - 14px); // Desktop small: 3 cards
     }
 
-  @media (max-width: 900px) {
-    .home-content {
-      padding: 0 15px;
-    }
-
-    .hero-section-home .hero-slider {
-      height: 50vh;
-      min-height: 400px;
-
-      .hero-overlay {
-        padding: 40px 30px;
-
-        .hero-content {
-          .hero-title {
-            font-size: 2.5rem;
-          }
-
-          .hero-desc {
-            font-size: 1rem;
-          }
-
-          .hero-actions {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        }
-      }
-    }
-
-    .custom-carousel {
-      gap: 10px;
-
-      .carousel-btn {
-        width: 35px;
-        height: 35px;
-        font-size: 16px;
+    @media (max-width: 900px) {
+      .home-content {
+        padding: 0 15px;
       }
 
-      .carousel-track {
-        gap: 15px;
-      }
+      .hero-section-home .hero-slider {
+        height: 50vh;
+        min-height: 400px;
 
-      &.tablet .carousel-track .carousel-item {
-        width: 50%; // 2 cards per view for tablet
-        flex: 0 0 50%;
-        box-sizing: border-box;
-      }
-    }
-  }
+        .hero-overlay {
+          padding: 40px 30px;
 
-  // Mobile - 1 card per view
-  @media (max-width: 600px) {
-    .hero-section-home .hero-slider {
-      height: 40vh;
-      min-height: 300px;
+          .hero-content {
+            .hero-title {
+              font-size: 2.5rem;
+            }
 
-      .hero-overlay {
-        padding: 20px;
+            .hero-desc {
+              font-size: 1rem;
+            }
 
-        .hero-content {
-          .hero-title {
-            font-size: 2rem;
-          }
-
-          .hero-desc {
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            .hero-actions {
+              flex-direction: column;
+              align-items: flex-start;
+            }
           }
         }
       }
 
-      .hero-nav {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-      }
-    }
-
-    .custom-carousel {
-      gap: 8px;
-
-      .carousel-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-      }
-
-      .carousel-track {
+      .custom-carousel {
         gap: 10px;
-      }
 
-      &.mobile .carousel-track .carousel-item {
-        width: calc(100% - 5px); // Force 1 card on mobile
+        .carousel-btn {
+          width: 35px;
+          height: 35px;
+          font-size: 16px;
+        }
+
+        .carousel-track {
+          gap: 15px;
+        }
+
+        &.tablet .carousel-track .carousel-item {
+          width: 50%; // 2 cards per view for tablet
+          flex: 0 0 50%;
+          box-sizing: border-box;
+        }
       }
     }
 
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+    // Mobile - 1 card per view
+    @media (max-width: 600px) {
+      .hero-section-home .hero-slider {
+        height: 40vh;
+        min-height: 300px;
 
-      h2 {
-        font-size: 1.5rem;
+        .hero-overlay {
+          padding: 20px;
+
+          .hero-content {
+            .hero-title {
+              font-size: 2rem;
+            }
+
+            .hero-desc {
+              font-size: 0.9rem;
+              margin-bottom: 20px;
+            }
+          }
+        }
+
+        .hero-nav {
+          width: 40px;
+          height: 40px;
+          font-size: 18px;
+        }
       }
-    }
 
-    .trailer-modal .trailer-container {
-      width: 95%;
-      margin: 0 10px;
-    }
+      .custom-carousel {
+        gap: 8px;
 
-    .movie-section {
-      margin-bottom: 40px;
+        .carousel-btn {
+          width: 30px;
+          height: 30px;
+          font-size: 14px;
+        }
+
+        .carousel-track {
+          gap: 10px;
+        }
+
+        &.mobile .carousel-track .carousel-item {
+          width: calc(100% - 5px); // Force 1 card on mobile
+        }
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .trailer-modal .trailer-container {
+        width: 95%;
+        margin: 0 10px;
+      }
+
+      .movie-section {
+        margin-bottom: 40px;
+      }
     }
   }
 }
