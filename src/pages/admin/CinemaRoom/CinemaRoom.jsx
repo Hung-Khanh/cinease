@@ -332,7 +332,7 @@ const CinemaRooms = () => {
           emptyText: 'No cinema rooms found' 
         }}
         pagination={{
-          pageSize: 12,
+          pageSize: 6,
           className: "pagination-btn-cinema",
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {

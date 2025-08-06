@@ -260,7 +260,7 @@ const Employees = () => {
           pagination={{
             className: "pagination-btn-employees",
 
-            pageSize: 12,
+            pageSize: 6,
             showSizeChanger: false,
              itemRender: (current, type, originalElement) => {
             if (type === "prev") return createPaginationButton("prev", "Previous");

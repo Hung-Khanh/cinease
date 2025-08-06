@@ -72,7 +72,7 @@ const PaymentCashSuccess = () => {
   return (
     <div className="payment-success-page">
       <div className="ticket">
-        <div className="ticket-header">Ticket</div>
+        <div className="ticket-header-cash">Ticket</div>
         <div className="poster-section">
           <img
             src={moviePoster || "https://via.placeholder.com/220x330"}

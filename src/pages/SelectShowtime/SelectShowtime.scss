@@ -932,3 +932,77 @@
   background: #6fcf97 !important;
   color: #fff !important;
 }
+
+@media (max-width: 768px) {
+  .showtime-header {
+    padding: 1.5rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    
+    .header-center {
+      .page-title {
+        font-size: 2rem;
+      }
+    }
+    
+    .header-decoration {
+      display: none;
+    }
+  }
+  
+  .selection-card {
+    padding: 1.5rem;
+    
+    .card-header {
+      .card-title {
+        font-size: 1.1rem;
+      }
+    }
+  }
+  
+  .date-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+  
+  .time-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+}
+
+@media (max-width: 425px) {
+  .showtime-header {
+    padding: 1rem;
+    
+    .back-btn {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+    }
+    
+    .header-center {
+      .page-title {
+        font-size: 1.75rem;
+      }
+    }
+  }
+  
+  .selection-card {
+    padding: 1rem;
+  }
+  
+  .date-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+  
+  .time-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+  
+  .action-section {
+    .select-seat-btn {
+      width: 100%;
+      max-width: 400px;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+  }
+}

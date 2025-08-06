@@ -250,7 +250,6 @@ const Movie = () => {
           cinemaRoom: movie.cinemaRoomId,
           trailerUrl: movie.trailerUrl,
           types: movieTypes,
-          // Ensure status is properly set, defaulting to 'INACTIVE' if not provided
           status: movie.status || 'INACTIVE'
         }
       })
@@ -407,109 +406,187 @@ const Movie = () => {
         return
       }
 
-      const types = values.types && values.types.length > 0 ? values.types : ["Romantic"]
-
-      let scheduleTimes = ""
+      // For new movie creation, keep existing logic
       if (!isEditing) {
-        scheduleTimes = values.scheduleTimes
-          ? values.scheduleTimes
-              .map(
-                (scheduleItem) => `${scheduleItem.date.format("YYYY-MM-DD")}T${scheduleItem.time.format("HH:mm:ss")}`,
-              )
-              .join(",")
-          : ""
+        const types = values.types && values.types.length > 0 ? values.types : ["Romantic"]
+
+        let scheduleTimes = ""
+        if (!isEditing) {
+          scheduleTimes = values.scheduleTimes
+            ? values.scheduleTimes
+                .map(
+                  (scheduleItem) => `${scheduleItem.date.format("YYYY-MM-DD")}T${scheduleItem.time.format("HH:mm:ss")}`,
+                )
+                .join(",")
+            : ""
+        }
+
+        const formData = new FormData()
+
+        if (posterFile) {
+          formData.append("poster", posterFile)
+        }
+        if (bannerFile) {
+          formData.append("banner", bannerFile)
+        }
+
+        const queryParams = {
+          cinemaRoomId: values.cinemaRoom,
+          typeIds: movieTypes
+            .filter((type) => values.types.includes(type.movieTypeName))
+            .map((type) => type.movieTypeId)
+            .join(","),
+        }
+
+        const requestBody = {
+          movieNameVn: values.movieNameVn,
+          movieNameEnglish: values.movieNameEnglish,
+          fromDate: values.dateRange[0].format("YYYY-MM-DD"),
+          toDate: values.dateRange[1].format("YYYY-MM-DD"),
+          actor: values.actor,
+          movieProductionCompany: values.movieProductionCompany,
+          director: values.director,
+          duration: Number.parseInt(values.duration),
+          version: values.version,
+          content: values.content,
+          trailerUrl: values.trailerUrl || "",
+          types: values.types,
+          scheduleTimes: scheduleTimes,
+        }
+
+        Object.keys(requestBody).forEach((key) => {
+          formData.append(key, requestBody[key])
+        })
+
+        const url = `/admin/movies/add`
+
+        await axios({
+          method: "post",
+          url: url,
+          data: formData,
+          params: queryParams,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+
+        await fetchMovies()
+        showSuccessMessage(`Movie "${values.movieNameVn}" added successfully!`, 3)
+
+        setIsModalVisible(false)
+        setIsEditing(false)
+        setEditingKey(null)
+        setPosterFile(null)
+        setBannerFile(null)
+        form.resetFields()
+        return
+      }
+
+      // For editing, implement selective update
+      const originalMovieDetails = await fetchMovieDetails(editingKey)
+      if (!originalMovieDetails) {
+        showErrorMessage("Failed to fetch original movie details")
+        setUploading(false)
+        return
       }
 
       const formData = new FormData()
+      const changedFields = {}
 
-      if (posterFile) {
-        formData.append("poster", posterFile)
-      }
-      if (bannerFile) {
-        formData.append("banner", bannerFile)
+      // Helper function to check if a value has changed
+      const hasChanged = (key, newValue) => {
+        // Special handling for different types of comparisons
+        if (key === 'duration') {
+          return Number.parseInt(newValue) !== originalMovieDetails[key]
+        }
+        if (key === 'types') {
+          const originalTypes = originalMovieDetails[key] || []
+          const newTypes = newValue || []
+          return JSON.stringify(originalTypes.sort()) !== JSON.stringify(newTypes.sort())
+        }
+        return newValue !== originalMovieDetails[key]
       }
 
-      const queryParams = {
-        cinemaRoomId: values.cinemaRoom,
-        typeIds: movieTypes
-          .filter((type) => values.types.includes(type.movieTypeName))
-          .map((type) => type.movieTypeId)
-          .join(","),
-      }
+      // Check and add changed fields
+      const fieldsToCheck = [
+        'movieNameVn', 
+        'movieNameEnglish', 
+        'actor', 
+        'director', 
+        'duration', 
+        'version', 
+        'content', 
+        'trailerUrl',
+        'movieProductionCompany'
+      ]
 
-      console.log("Movie Type Conversion:", {
-        selectedTypes: values.types,
-        movieTypes: movieTypes,
-        convertedTypeIds: movieTypes
-          .filter((type) => values.types.includes(type.movieTypeName))
-          .map((type) => ({
-            typeName: type.movieTypeName,
-            typeId: type.movieTypeId,
-          })),
+      fieldsToCheck.forEach(field => {
+        if (hasChanged(field, values[field])) {
+          changedFields[field] = field === 'duration' 
+            ? Number.parseInt(values[field]) 
+            : values[field]
+        }
       })
 
-      const requestBody = {
-        movieNameVn: values.movieNameVn,
-        movieNameEnglish: values.movieNameEnglish,
-        fromDate: values.dateRange[0].format("YYYY-MM-DD"),
-        toDate: values.dateRange[1].format("YYYY-MM-DD"),
-        actor: values.actor,
-        movieProductionCompany: values.movieProductionCompany,
-        director: values.director,
-        duration: Number.parseInt(values.duration),
-        version: values.version,
-        content: values.content,
-        trailerUrl: values.trailerUrl || "",
-        types: values.types,
-        scheduleTimes: scheduleTimes,
-      }
-
-      if (isEditing && editingKey) {
-        try {
-          const existingMovieDetails = await fetchMovieDetails(editingKey)
-          if (existingMovieDetails && existingMovieDetails.schedules) {
-            requestBody.scheduleTimes = existingMovieDetails.schedules
-              .map((schedule) =>
-                typeof schedule === "string"
-                  ? schedule
-                  : `${schedule.date || schedule.scheduleDate}T${schedule.time || schedule.scheduleTime}`,
-              )
-              .join(",")
-          }
-        } catch (fetchError) {
-          console.error("Error fetching existing movie details:", fetchError)
+      // Check date range
+      if (values.dateRange) {
+        const fromDate = values.dateRange[0].format("YYYY-MM-DD")
+        const toDate = values.dateRange[1].format("YYYY-MM-DD")
+        if (fromDate !== originalMovieDetails.fromDate || toDate !== originalMovieDetails.toDate) {
+          changedFields.fromDate = fromDate
+          changedFields.toDate = toDate
         }
       }
 
-      Object.keys(requestBody).forEach((key) => {
-        formData.append(key, requestBody[key])
+      // Check types
+      if (hasChanged('types', values.types)) {
+        changedFields.types = values.types
+        changedFields.typeIds = movieTypes
+          .filter((type) => values.types.includes(type.movieTypeName))
+          .map((type) => type.movieTypeId)
+          .join(",")
+      }
+
+      // Check cinema room
+      if (values.cinemaRoom !== originalMovieDetails.cinemaRoomId) {
+        changedFields.cinemaRoomId = values.cinemaRoom
+      }
+
+      // Handle file uploads
+      if (posterFile) {
+        formData.append("poster", posterFile)
+        changedFields.poster = posterFile
+      }
+      if (bannerFile) {
+        formData.append("banner", bannerFile)
+        changedFields.banner = bannerFile
+      }
+
+      // If no changes, show message and return
+      if (Object.keys(changedFields).length === 0) {
+        showSuccessMessage("No changes detected", 1)
+        setIsModalVisible(false)
+        setUploading(false)
+        return
+      }
+
+      // Add changed fields to formData
+      Object.keys(changedFields).forEach((key) => {
+        formData.append(key, changedFields[key])
       })
 
-      console.log("Movie Submission Details:", {
-        isEditing,
-        editingKey,
-        queryParams,
-        requestBody,
-        files: {
-          posterFile: posterFile ? posterFile.name : "No poster",
-          bannerFile: bannerFile ? bannerFile.name : "No banner",
-        },
-      })
-
-      const url = isEditing ? `/admin/movies/${editingKey}` : `/admin/movies/add`
-
+      // Send update request
       await axios({
-        method: isEditing ? "put" : "post",
-        url: url,
+        method: "put",
+        url: `/admin/movies/${editingKey}`,
         data: formData,
-        params: queryParams,
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
 
       await fetchMovies()
-      showSuccessMessage(`Movie "${values.movieNameVn}" ${isEditing ? "updated" : "added"} successfully!`, 3)
+      showSuccessMessage(`Movie "${values.movieNameVn}" updated successfully!`, 3)
 
       setIsModalVisible(false)
       setIsEditing(false)

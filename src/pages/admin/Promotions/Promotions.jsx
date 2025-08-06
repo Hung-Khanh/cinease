@@ -11,15 +11,16 @@ import {
   Form,
   Input,
   Modal,
-  Select,
   Table,
-  message,
   Upload,
+  message
 } from "antd";
-import React, { useState, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
+import { useEffect, useMemo, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "../../../constants/axios";
 import "./Promotions.scss";
-import axios from '../../../constants/axios';
 
 const Promotions = () => {
   const [promotions, setPromotions] = useState([]);
@@ -36,7 +37,6 @@ const Promotions = () => {
     useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
 
-
   // State for file upload
   const [imageFile, setImageFile] = useState(null);
   // Memoized filtered promotions
@@ -44,7 +44,7 @@ const Promotions = () => {
     if (!searchTerm) return promotions;
 
     const searchTermLower = searchTerm.toLowerCase();
-    return promotions.filter(promotion =>
+    return promotions.filter((promotion) =>
       promotion.title.toLowerCase().includes(searchTermLower)
     );
   }, [promotions, searchTerm]);
@@ -53,7 +53,7 @@ const Promotions = () => {
   const fetchPromotions = async (showSuccessMessage = false) => {
     setLoading(true);
     try {
-      const response = await axios.get('/public/promotions');
+      const response = await axios.get("/public/promotions");
 
       const formattedPromotions = response.data.map((promotion) => {
         return {
@@ -68,15 +68,11 @@ const Promotions = () => {
       });
 
       setPromotions(formattedPromotions);
-
-      if (showSuccessMessage) {
-        message.success(
-          `Fetched ${formattedPromotions.length} promotions successfully`,
-          1.5
-        );
-      }
     } catch (error) {
-      message.error(`Failed to fetch promotions: ${error.response?.data?.message || error.message}`, 3);
+      toast.error(
+        `Failed to fetch promotions: ${error.response?.data?.message || error.message}`,
+        3
+      );
     } finally {
       setLoading(false);
     }
@@ -167,11 +163,11 @@ const Promotions = () => {
     },
   ];
 
-     const createPaginationButton = (type, text) => (
-        <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
-          {text}
-        </Button>
-      );
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
+      {text}
+    </Button>
+  );
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
@@ -210,7 +206,7 @@ const Promotions = () => {
       setDeleteConfirmationVisible(true);
     } catch (error) {
       console.error("Error in delete confirmation:", error);
-      message.error("Failed to show delete confirmation");
+      toast.error("Failed to show delete confirmation");
     }
   };
 
@@ -239,11 +235,11 @@ const Promotions = () => {
         : `/admin/promotions`;
 
       const response = await axios({
-        method: isEditing ? 'put' : 'post',
+        method: isEditing ? "put" : "post",
         url: url,
         data: formData,
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -251,8 +247,9 @@ const Promotions = () => {
       await fetchPromotions(true);
 
       // Show success message
-      message.success(
-        `Promotion "${values.title}" ${isEditing ? "updated" : "added"
+      toast.success(
+        `Promotion "${values.title}" ${
+          isEditing ? "updated" : "added"
         } successfully!`,
         3
       );
@@ -264,8 +261,10 @@ const Promotions = () => {
       setImageFile(null);
       form.resetFields();
     } catch (error) {
-      message.error(
-        `Failed to ${isEditing ? "update" : "add"} promotion: ${error.response?.data?.message || error.message}`,
+      toast.error(
+        `Failed to ${isEditing ? "update" : "add"} promotion: ${
+          error.response?.data?.message || error.message
+        }`,
         3
       );
     }
@@ -280,7 +279,7 @@ const Promotions = () => {
         await fetchPromotions(true);
 
         // Specific delete success toast
-        message.success(
+        toast.success(
           `Promotion "${promotionToDelete.title}" deleted successfully`,
           2
         );
@@ -289,7 +288,12 @@ const Promotions = () => {
         setDeleteConfirmationVisible(false);
         setPromotionToDelete(null);
       } catch (error) {
-        message.error(`Failed to delete promotion: ${error.response?.data?.message || error.message}`, 3);
+        toast.error(
+          `Failed to delete promotion: ${
+            error.response?.data?.message || error.message
+          }`,
+          3
+        );
       }
     }
   };
@@ -327,15 +331,16 @@ const Promotions = () => {
         dataSource={filteredPromotions}
         loading={loading}
         className="ant-table-promotion"
-        locale={{ 
-          emptyText: 'No promotions found' 
+        locale={{
+          emptyText: "No promotions found",
         }}
         pagination={{
-          pageSize: 12,
+          pageSize: 6,
           className: "pagination-btn-cinema",
           showSizeChanger: false,
           itemRender: (current, type, originalElement) => {
-            if (type === "prev") return createPaginationButton("prev", "Previous");
+            if (type === "prev")
+              return createPaginationButton("prev", "Previous");
             if (type === "next") return createPaginationButton("next", "Next");
             return originalElement;
           },
@@ -498,10 +503,7 @@ const Promotions = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Promotion Image"
-            required={false}
-          >
+          <Form.Item label="Promotion Image" required={false}>
             <Upload
               accept="image/*"
               beforeUpload={(file) => {
@@ -514,7 +516,9 @@ const Promotions = () => {
             >
               <Button icon={<UploadOutlined />}>Upload Promotion Image</Button>
             </Upload>
-            {imageFile && <div style={{ marginTop: 8 }}>Selected: {imageFile.name}</div>}
+            {imageFile && (
+              <div style={{ marginTop: 8 }}>Selected: {imageFile.name}</div>
+            )}
           </Form.Item>
 
           <Form.Item>
@@ -577,32 +581,38 @@ const Promotions = () => {
           <div className="promotion-details-content">
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Title:</div>
-              <div className="promotion-detail-value">{selectedPromotion.title}</div>
+              <div className="promotion-detail-value">
+                {selectedPromotion.title}
+              </div>
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Start Time:</div>
               <div className="promotion-detail-value">
-                {dayjs(selectedPromotion.startTime).format('YYYY-MM-DD HH:mm')}
+                {dayjs(selectedPromotion.startTime).format("YYYY-MM-DD HH:mm")}
               </div>
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">End Time:</div>
               <div className="promotion-detail-value">
-                {dayjs(selectedPromotion.endTime).format('YYYY-MM-DD HH:mm')}
+                {dayjs(selectedPromotion.endTime).format("YYYY-MM-DD HH:mm")}
               </div>
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Discount Level:</div>
-              <div className="promotion-detail-value">{selectedPromotion.discountLevel}</div>
+              <div className="promotion-detail-value">
+                {selectedPromotion.discountLevel}
+              </div>
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Details:</div>
-              <div className="promotion-detail-value">{selectedPromotion.details}</div>
+              <div className="promotion-detail-value">
+                {selectedPromotion.details}
+              </div>
             </div>
-            
           </div>
         )}
       </Modal>
+      <ToastContainer />
     </div>
   );
 };

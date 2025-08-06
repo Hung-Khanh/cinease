@@ -1,59 +1,57 @@
-"use client"
+"use client";
 
-import "./PaymentSuccess.scss"
-import { useNavigate, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 import {
-  FaCheckCircle,
-  FaTicketAlt,
   FaCalendarAlt,
+  FaCheckCircle,
   FaClock,
-  FaMapMarkerAlt,
   FaCouch,
-  FaStar,
   FaHome,
-  FaDownload,
-  FaQrcode,
-} from "react-icons/fa"
-import Cookies from "js-cookie"
+  FaMapMarkerAlt,
+  FaStar,
+  FaTicketAlt,
+} from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
+import "./PaymentSuccess.scss";
 
 const PaymentSuccess = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [ticketData, setTicketData] = useState(null)
-  const [moviePoster, setMoviePoster] = useState("")
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [showConfetti, setShowConfetti] = useState(true)
-  const [movieDetail, setMovieDetail] = useState(null)
-  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api"
-  const token = localStorage.getItem("token")
-  const role = localStorage.getItem("role")
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [ticketData, setTicketData] = useState(null);
+  const [moviePoster, setMoviePoster] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showConfetti, setShowConfetti] = useState(true);
+  const [movieDetail, setMovieDetail] = useState(null);
+  const apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api";
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Hide confetti after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowConfetti(false)
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [])
+      setShowConfetti(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getQueryParam = (param) => {
-    const searchParams = new URLSearchParams(location.search)
-    return searchParams.get(param)
-  }
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get(param);
+  };
 
-  const invoiceId = getQueryParam("invoiceId")
+  const invoiceId = getQueryParam("invoiceId");
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return {
       day: date.getDate(),
       month: date.toLocaleString("default", { month: "short" }),
@@ -64,42 +62,45 @@ const PaymentSuccess = () => {
         month: "long",
         day: "numeric",
       }),
-    }
-  }
+    };
+  };
 
   const formatTime = (date) => {
     return date.toLocaleTimeString("en-US", {
       hour12: false,
       hour: "2-digit",
       minute: "2-digit",
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     const fetchTicketInformation = async () => {
-      if (!invoiceId) return
+      if (!invoiceId) return;
       try {
-        const response = await fetch(`${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`, {
-          method: "GET",
-          headers: {
-            accept: "*/*",
-            Authorization: `Bearer ${token}`,
-            "ngrok-skip-browser-warning": "true",
-          },
-        })
+        const response = await fetch(
+          `${apiUrl}/public/booking-summary?invoiceId=${invoiceId}`,
+          {
+            method: "GET",
+            headers: {
+              accept: "*/*",
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
         if (!response.ok) {
-          throw new Error(`Failed to fetch ticket details: ${response.status}`)
+          throw new Error(`Failed to fetch ticket details: ${response.status}`);
         }
-        const data = await response.json()
-        setTicketData(data)
+        const data = await response.json();
+        setTicketData(data);
 
         // === Thêm logic thông báo vào cookies ===
-        const savedUser = localStorage.getItem("user")
-        const user = savedUser ? JSON.parse(savedUser) : null
+        const savedUser = localStorage.getItem("user");
+        const user = savedUser ? JSON.parse(savedUser) : null;
         if (user?.username && data?.movieName) {
-          const cookieKey = `notifications_${user.username}`
-          const currentNoti = JSON.parse(Cookies.get(cookieKey) || "[]")
-          const existed = currentNoti.some((n) => n.invoiceId === invoiceId)
+          const cookieKey = `notifications_${user.username}`;
+          const currentNoti = JSON.parse(Cookies.get(cookieKey) || "[]");
+          const existed = currentNoti.some((n) => n.invoiceId === invoiceId);
           if (!existed) {
             const newNoti = {
               id: Date.now(),
@@ -107,39 +108,42 @@ const PaymentSuccess = () => {
               quantity: data.ticketCount,
               read: false,
               invoiceId,
-            }
-            const updatedNoti = [newNoti, ...currentNoti].slice(0, 20)
-            Cookies.set(cookieKey, JSON.stringify(updatedNoti), { expires: 7 })
-            window.dispatchEvent(new Event("notificationUpdate"))
+            };
+            const updatedNoti = [newNoti, ...currentNoti].slice(0, 20);
+            Cookies.set(cookieKey, JSON.stringify(updatedNoti), { expires: 7 });
+            window.dispatchEvent(new Event("notificationUpdate"));
           }
         }
         // === Kết thúc logic thông báo ===
 
         if (data.movieName) {
-          const movieResponse = await fetch(`${apiUrl}/public/movies?q=${encodeURIComponent(data.movieName)}`, {
-            method: "GET",
-            headers: {
-              accept: "*/*",
-              Authorization: `Bearer ${token}`,
-              "ngrok-skip-browser-warning": "true",
-            },
-          })
+          const movieResponse = await fetch(
+            `${apiUrl}/public/movies?q=${encodeURIComponent(data.movieName)}`,
+            {
+              method: "GET",
+              headers: {
+                accept: "*/*",
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            }
+          );
           if (movieResponse.ok) {
-            const movieData = await movieResponse.json()
+            const movieData = await movieResponse.json();
             if (movieData.length > 0) {
-              setMoviePoster(movieData[0].posterImageUrl)
-              setMovieDetail(movieData[0])
+              setMoviePoster(movieData[0].posterImageUrl);
+              setMovieDetail(movieData[0]);
             }
           }
         }
       } catch (error) {
-        console.error("Error in fetchTicketDetails:", error)
-        alert("Failed to load ticket details. Please try again.")
+        console.error("Error in fetchTicketDetails:", error);
+        alert("Failed to load ticket details. Please try again.");
       }
-    }
+    };
 
-    fetchTicketInformation()
-  }, [invoiceId, apiUrl, token])
+    fetchTicketInformation();
+  }, [invoiceId, apiUrl, token]);
 
   if (!ticketData)
     return (
@@ -147,18 +151,15 @@ const PaymentSuccess = () => {
         <div className="loading-spinner"></div>
         <p>Loading your ticket...</p>
       </div>
-    )
+    );
 
-  const { day, month, weekday, fullDate } = formatDate(ticketData.scheduleShowDate)
+  const { day, month, weekday, fullDate } = formatDate(
+    ticketData.scheduleShowDate
+  );
 
   const handleBackToHome = () => {
-    navigate(role === "EMPLOYEE" ? "/staffHomePage" : "/")
-  }
-
-  const handleDownloadTicket = () => {
-    // Implement download functionality
-    alert("Download functionality would be implemented here")
-  }
+    navigate(role === "EMPLOYEE" ? "/staffHomePage" : "/");
+  };
 
   return (
     <div className="success-cinema">
@@ -216,14 +217,6 @@ const PaymentSuccess = () => {
                     <span className="ticket-id">#{invoiceId}</span>
                   </div>
                 </div>
-                <div className="header-right">
-                  <div className="qr-container">
-                    <div className="qr-code">
-                      <FaQrcode className="qr-icon" />
-                    </div>
-                    <span className="qr-label">SCAN ME</span>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -233,7 +226,9 @@ const PaymentSuccess = () => {
                 <img
                   src={
                     moviePoster ||
-                    `/placeholder.svg?height=600&width=400&query=movie poster for ${ticketData.movieName || "/placeholder.svg"}`
+                    `/placeholder.svg?height=600&width=400&query=movie poster for ${
+                      ticketData.movieName || "/placeholder.svg"
+                    }`
                   }
                   alt={ticketData.movieName}
                   className="hero-bg-image"
@@ -247,7 +242,9 @@ const PaymentSuccess = () => {
                     <img
                       src={
                         moviePoster ||
-                        `/placeholder.svg?height=600&width=400&query=movie poster for ${ticketData.movieName || "/placeholder.svg"}`
+                        `/placeholder.svg?height=600&width=400&query=movie poster for ${
+                          ticketData.movieName || "/placeholder.svg"
+                        }`
                       }
                       alt={ticketData.movieName}
                       className="movie-poster-payment"
@@ -259,12 +256,24 @@ const PaymentSuccess = () => {
                 <div className="movie-info">
                   <div className="movie-rating">
                     <FaStar className="star-icon" />
-                    <span className="rating-value">{movieDetail?.avgFeedback ? Math.round(movieDetail.avgFeedback * 10) / 10 : "N/A"}</span>
+                    <span className="rating-value">
+                      {movieDetail?.avgFeedback
+                        ? Math.round(movieDetail.avgFeedback * 10) / 10
+                        : "N/A"}
+                    </span>
                   </div>
                   <h2 className="movie-title">{ticketData.movieName}</h2>
                   <div className="movie-meta">
-                    <span className="genre">{Array.isArray(movieDetail?.types) ? movieDetail.types.join(" • ") : (movieDetail?.types || "N/A")}</span>
-                    <span className="duration">{movieDetail?.duration ? `${movieDetail.duration} min` : "N/A"}</span>
+                    <span className="genre">
+                      {Array.isArray(movieDetail?.types)
+                        ? movieDetail.types.join(" • ")
+                        : movieDetail?.types || "N/A"}
+                    </span>
+                    <span className="duration">
+                      {movieDetail?.duration
+                        ? `${movieDetail.duration} min`
+                        : "N/A"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -278,7 +287,9 @@ const PaymentSuccess = () => {
                     <FaMapMarkerAlt className="info-icon" />
                     <span className="info-title">Cinema</span>
                   </div>
-                  <div className="info-value">{ticketData.cinemaRoomName || "N/A"}</div>
+                  <div className="info-value">
+                    {ticketData.cinemaRoomName || "N/A"}
+                  </div>
                 </div>
 
                 <div className="info-card">
@@ -294,7 +305,9 @@ const PaymentSuccess = () => {
                     <FaClock className="info-icon" />
                     <span className="info-title">Time</span>
                   </div>
-                  <div className="info-value">{ticketData.scheduleShowTime || "N/A"}</div>
+                  <div className="info-value">
+                    {ticketData.scheduleShowTime || "N/A"}
+                  </div>
                 </div>
 
                 <div className="info-card">
@@ -317,17 +330,25 @@ const PaymentSuccess = () => {
             <div className="ticket-summary">
               <div className="summary-row">
                 <span className="summary-label">Tickets</span>
-                <span className="summary-value">{ticketData.ticketCount || 0}</span>
+                <span className="summary-value">
+                  {ticketData.ticketCount || 0}
+                </span>
               </div>
               <div className="summary-row">
                 <span className="summary-label">Status</span>
-                <div className={`status-badge ${(ticketData.status || "PENDING").toLowerCase()}`}>
+                <div
+                  className={`status-badge ${(
+                    ticketData.status || "PENDING"
+                  ).toLowerCase()}`}
+                >
                   {ticketData.status || "PENDING"}
                 </div>
               </div>
               <div className="summary-row total-row">
                 <span className="summary-label">Total Paid</span>
-                <span className="total-amount">{ticketData.grandTotal?.toLocaleString() || 0} VND</span>
+                <span className="total-amount">
+                  {ticketData.grandTotal?.toLocaleString() || 0} VND
+                </span>
               </div>
             </div>
 
@@ -335,8 +356,12 @@ const PaymentSuccess = () => {
             <div className="ticket-footer">
               <div className="footer-pattern"></div>
               <div className="footer-content">
-                <p className="footer-text">Present this ticket at the cinema entrance</p>
-                <p className="footer-note">Valid only for the specified showtime</p>
+                <p className="footer-text">
+                  Present this ticket at the cinema entrance
+                </p>
+                <p className="footer-note">
+                  Valid only for the specified showtime
+                </p>
               </div>
             </div>
 
@@ -349,10 +374,6 @@ const PaymentSuccess = () => {
 
           {/* Action Buttons */}
           <div className="action-buttons-payment">
-            <button className="download-btn" onClick={handleDownloadTicket}>
-              <FaDownload className="btn-icon" />
-              <span className="btn-text">Download Ticket</span>
-            </button>
             <button className="home-btn" onClick={handleBackToHome}>
               <FaHome className="btn-icon" />
               <span className="btn-text">Back to Home</span>
@@ -361,7 +382,7 @@ const PaymentSuccess = () => {
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default PaymentSuccess
+export default PaymentSuccess;
