@@ -16,8 +16,8 @@ const Home = () => {
   const [comingSoonMovies, setComingSoonMovies] = useState([])
   const [promotions, setPromotions] = useState([])
   const [trailerVisible, setTrailerVisible] = useState(null)
-  const [showCurtain, setShowCurtain] = useState(false) // Changed to false initially
-  const [isLoading, setIsLoading] = useState(false) // Changed to false initially
+  const [showCurtain, setShowCurtain] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Use ref to prevent double execution
   const hasProcessedLogin = useRef(false)
@@ -163,49 +163,108 @@ const Home = () => {
     }
   }
 
-  const CustomCarousel = ({ children, itemsPerView = 5 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const totalItems = children.length
-  const maxIndex = Math.max(0, totalItems - itemsPerView)
+  // Fixed CustomCarousel with proper responsive behavior
+  const CustomCarousel = ({ children, itemsPerView = 4 }) => {
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [screenSize, setScreenSize] = useState('desktop')
+    
+    // Determine items per view based on screen size
+    useEffect(() => {
+      const handleResize = () => {
+        const width = window.innerWidth
+        if (width <= 600) {
+          setScreenSize('mobile')
+        } else if (width <= 900) {
+          setScreenSize('tablet')
+        } else {
+          setScreenSize('desktop')
+        }
+      }
+      
+      handleResize()
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
+    }, [])
+
+    // Get items per view based on screen size
+    const getItemsPerView = () => {
+      switch (screenSize) {
+        case 'mobile':
+          return 1
+        case 'tablet':
+          return 2 // Tablet now shows 2 cards
+        default:
+          return Math.min(itemsPerView, 4) // Max 4 for desktop
+      }
+    }
+
+    const currentItemsPerView = getItemsPerView()
+    const totalItems = children.length
+    const maxIndex = Math.max(0, totalItems - currentItemsPerView)
+
+    // Reset index if it's out of bounds when screen size changes
+    useEffect(() => {
+      if (currentIndex > maxIndex) {
+        setCurrentIndex(0)
+      }
+    }, [currentIndex, maxIndex])
+
+    const handlePrevious = () => {
+      setCurrentIndex(Math.max(currentIndex - 1, 0))
+    }
+
+    const handleNext = () => {
+      setCurrentIndex(Math.min(currentIndex + 1, maxIndex))
+    }
+
+    // Calculate transform based on current screen size
+    const getTransformPercentage = () => {
+      switch (screenSize) {
+        case 'mobile':
+          return currentIndex * 100
+        case 'tablet':
+          return currentIndex * 50 // 2 cards: each slide is 50%
+        default:
+          return (currentIndex * 100) / currentItemsPerView
+      }
+    }
 
     return (
-    <div className="custom-carousel">
-      <button
-        className="carousel-btn prev"
-        onClick={() => setCurrentIndex(Math.max(currentIndex - 1, 0))}
-        disabled={currentIndex === 0}
-      >
-        ❮
-      </button>
-      <div className="carousel-container">
-        <div
-          className="carousel-track"
-          style={{
-            width: `${(totalItems / itemsPerView) * 100}%`,
-            transform: `translateX(-${(currentIndex * 100) / totalItems}%)`
-          }}
+      <div className={`custom-carousel ${screenSize}`}>
+        <button
+          className="carousel-btn prev"
+          onClick={handlePrevious}
+          disabled={currentIndex === 0}
         >
-          {children.map((child, index) => (
-            <div
-              key={index}
-              className="carousel-item"
-              style={{ width: `${100 / totalItems}%` }}
-            >
-              {child}
-            </div>
-          ))}
+          ❮
+        </button>
+        <div className="carousel-container">
+          <div
+            className="carousel-track"
+            style={{
+              transform: `translateX(-${getTransformPercentage()}%)`
+            }}
+          >
+            {children.map((child, index) => (
+              <div
+                key={index}
+                className="carousel-item"
+              >
+                {child}
+              </div>
+            ))}
+          </div>
         </div>
+        <button
+          className="carousel-btn next"
+          onClick={handleNext}
+          disabled={currentIndex >= maxIndex}
+        >
+          ❯
+        </button>
       </div>
-      <button
-        className="carousel-btn next"
-        onClick={() => setCurrentIndex(Math.min(currentIndex + 1, maxIndex))}
-        disabled={currentIndex >= maxIndex}
-      >
-        ❯
-      </button>
-    </div>
-  )
-}
+    )
+  }
 
   return (
     <>
@@ -301,7 +360,6 @@ const Home = () => {
                   allowFullScreen
                 />
               </div>
-
             </div>
           )}
 
