@@ -47,7 +47,8 @@ const ForgotPassword = () => {
       return;
     }
     if (!validateEmail(email)) {
-      setErrors({ email: "Email không hợp lệ" });
+      setErrors({ email: "Invalid email address" });
+      message.error("Invalid email address");
       return;
     }
     setLoading(true);
@@ -66,7 +67,7 @@ const ForgotPassword = () => {
       );
       setCurrentStep(1);
     } catch {
-      message.error("Lỗi khi gửi email!");
+      message.error("Error sending email!");
     } finally {
       setLoading(false);
     }
@@ -74,11 +75,13 @@ const ForgotPassword = () => {
 
   const handleOTPSent = async () => {
     if (!otp) {
-      setErrors({ otp: "Vui lòng nhập mã OTP" });
+      setErrors({ otp: "Please enter OTP code" });
+      message.error("Please enter OTP code");
       return;
     }
     if (otp.length !== 6) {
-      setErrors({ otp: "Mã OTP phải có 6 chữ số" });
+      setErrors({ otp: "OTP code must be 6 digits" });
+      message.error("OTP code must be 6 digits");
       return;
     }
     setLoading(true);
@@ -87,7 +90,7 @@ const ForgotPassword = () => {
       await api.post(`/public/forgotPassword/verifyOtp/${otp}/${email}`);
       setCurrentStep(2);
     } catch {
-      message.error("Lỗi khi gửi OTP");
+      message.error("Error sending OTP");
     } finally {
       setLoading(false);
     }
@@ -96,12 +99,15 @@ const ForgotPassword = () => {
   const handleChangePassword = async () => {
     const newErrors = {};
     if (!password) {
-      newErrors.password = "Vui lòng nhập mật khẩu mới";
+      newErrors.password = "Please enter new password";
+      message.error("Please enter new password");
     }
     if (!confirmPassword) {
-      newErrors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+      newErrors.confirmPassword = "Please confirm your password";
+      message.error("Please confirm your password");
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+      newErrors.confirmPassword = "Passwords do not match";
+      message.error("Passwords do not match");
     }
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -117,7 +123,7 @@ const ForgotPassword = () => {
       });
       setCurrentStep(3);
     } catch {
-      message.error("Lỗi khi thay đổi mật khẩu");
+      message.error("Error changing password");
     } finally {
       setLoading(false);
     }
