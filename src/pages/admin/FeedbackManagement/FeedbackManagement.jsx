@@ -133,11 +133,6 @@ const FeedbackManagement = () => {
         }
       });
 
-      console.log('After client-side sorting:', sortedFeedbacks.slice(0, 3).map(item => ({
-        id: item.feedbackId,
-        movieName: item.movieName,
-        rating: item.rating
-      })));
 
       setFeedbacks(sortedFeedbacks);
 
@@ -334,11 +329,6 @@ const FeedbackManagement = () => {
 
   // Handle search, sort, and status filter
   const handleSearchAndFilter = (searchValue, field = sortField, direction = sortDirection) => {
-    console.log("Handling Search and Filter:", {
-      searchValue,
-      field,
-      direction
-    });
     setSearchTerm(searchValue);
     setSortField(field);
     setSortDirection(direction);
