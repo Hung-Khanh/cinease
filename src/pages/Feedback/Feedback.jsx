@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react"
-import { List, Typography, Empty, Spin, message } from "antd"
+import { List, Typography, Empty, Spin } from "antd"
 import { StarOutlined, PlusOutlined } from "@ant-design/icons"
 import { updateFeedback, deleteFeedback, getCurrentUserFeedbacks } from "../../api/feedback"
 import { FeedbackCard, FeedbackModal } from "./FeedbackComponents"
 import "./Feedback.scss"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const { Title } = Typography
 
@@ -21,7 +23,6 @@ const Feedback = () => {
       setUserFeedbacks(feedbacksRes.data || [])
     } catch (error) {
       console.error("Error loading feedback data:", error)
-      message.error("Failed to load feedback data")
     } finally {
       setLoading(false)
     }
@@ -31,41 +32,37 @@ const Feedback = () => {
     loadData()
   }, [])
 
-  // Handle editing existing feedback
   const handleEditFeedback = (feedback) => {
     setEditingFeedback(feedback)
     setModalVisible(true)
   }
 
-  // Submit feedback (update only)
   const handleSubmitFeedback = async (values) => {
     try {
       if (editingFeedback) {
         await updateFeedback(editingFeedback.feedbackId, values)
-        message.success("Feedback updated successfully!")
+        toast.success("Feedback updated successfully!")
       }
       setModalVisible(false)
       setEditingFeedback(null)
-      await loadData() // Reload data
+      await loadData() 
     } catch (error) {
       console.error("Error submitting feedback:", error)
-      message.error("Failed to submit feedback. Please try again.")
+      toast.error("Failed to submit feedback. Please try again.")
     }
   }
 
-  // Delete feedback
   const handleDeleteFeedback = async (feedbackId) => {
     try {
       await deleteFeedback(feedbackId)
-      message.success("Feedback deleted successfully!")
-      await loadData() // Reload data
+      toast.success("Feedback deleted successfully!")
+      await loadData() 
     } catch (error) {
       console.error("Error deleting feedback:", error)
-      message.error("Failed to delete feedback. Please try again.")
+      toast.error("Failed to delete feedback. Please try again.")
     }
   }
 
-  // Handle adding new feedback
   const handleAddFeedback = () => {
     setEditingFeedback(null)
     setModalVisible(true)
@@ -81,6 +78,7 @@ const Feedback = () => {
 
   return (
     <div className="feedback-container">
+      <ToastContainer />
       <Title level={2} className="feedback-title">
         Movie Feedback
       </Title>
