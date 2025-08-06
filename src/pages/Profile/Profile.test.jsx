@@ -118,7 +118,8 @@ describe('Profile', () => {
     fireEvent.click(screen.getByText('Save Changes'));
     await waitFor(() => {
       expect(userApi.updateUserWithImage).toHaveBeenCalled();
-      expect(message.success).toHaveBeenCalledWith('Profile updated successfully!');
+      // Kiểm tra thông báo Toastify xuất hiện trên UI
+      expect(screen.getByText('Profile updated successfully!')).toBeInTheDocument();
     });
   });
 
@@ -130,7 +131,8 @@ describe('Profile', () => {
     });
     fireEvent.click(screen.getByText('Save Changes'));
     await waitFor(() => {
-      expect(message.error).toHaveBeenCalledWith('This email is already in use by another account.');
+      // Kiểm tra thông báo Toastify xuất hiện trên UI
+      expect(screen.getByText('This email is already in use by another account.')).toBeInTheDocument();
     });
   });
 
@@ -141,7 +143,8 @@ describe('Profile', () => {
     fireEvent.change(screen.getByPlaceholderText('Confirm new password'), { target: { value: 'newpassword123' } });
     fireEvent.click(screen.getByText('Update Password'));
     await waitFor(() => {
-      expect(message.success).toHaveBeenCalledWith('Password changed successfully!');
+      // Kiểm tra thông báo Toastify xuất hiện trên UI
+      expect(screen.getByText('Password changed successfully!')).toBeInTheDocument();
     });
   });
 

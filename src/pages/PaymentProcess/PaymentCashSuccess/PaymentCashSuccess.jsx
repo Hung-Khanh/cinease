@@ -29,7 +29,6 @@ const PaymentCashSuccess = () => {
         const response = await staffBookingSummary(invoiceId);
 
         const data = await response.data;
-        console.log(response.data);
         setTicketData(data);
 
         if (data.movieName) {

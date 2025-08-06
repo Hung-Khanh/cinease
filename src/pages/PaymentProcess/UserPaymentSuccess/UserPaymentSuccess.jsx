@@ -78,7 +78,6 @@ const UserPaymentSuccess = () => {
         }
 
         const data = await response.json();
-        console.log("Booking data received:", data);
         setBookingData(data);
 
         // Try to fetch service image if service name is available

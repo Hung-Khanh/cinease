@@ -157,7 +157,7 @@ const Login = () => {
       }
 
       result = await response.json();
-      console.log("🔐 Login successful, role:", result.role);
+
       message.success("Login successful!");
 
       // Lưu tạm token để gọi API lấy profile
@@ -199,22 +199,22 @@ const Login = () => {
 
       // Set login success flag for curtain animation (only for regular users going to home)
       if (result.role !== "ADMIN" && result.role !== "EMPLOYEE") {
-        console.log("🎭 Setting loginSuccess flag for curtain animation");
+        
         localStorage.setItem("loginSuccess", "true");
       } else {
-        console.log("👨‍💼 Admin/Employee login - no curtain needed");
+        
       }
 
       // Navigate based on role with slight delay for message to show
       setTimeout(() => {
         if (result.role === "ADMIN") {
-          console.log("🔧 Navigating to admin dashboard");
+          
           navigate("/admin/dashboard");
         } else if (result.role === "EMPLOYEE") {
-          console.log("👨‍💼 Navigating to staff homepage");
+          
           navigate("/staffHomePage");
         } else {
-          console.log("🏠 Navigating to home with curtain");
+          
           navigate("/"); // This will trigger the curtain animation
         }
       }, 500);
@@ -289,8 +289,8 @@ const Login = () => {
       }
 
       const result = await response.json();
-      toast.success("Registration successful!");
-      console.log("Register response:", result);
+toast.success("Registration successful!");
+      
       setIsRegister(false);
     } catch (error) {
       console.error("Error during registration:", error.message);

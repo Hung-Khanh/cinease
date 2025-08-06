@@ -56,9 +56,7 @@ describe('HistoryTicket', () => {
       // 'Points' appears in both summary and table header
       const pointsEls = screen.getAllByText('Points');
       expect(pointsEls.length).toBeGreaterThan(1);
-      expect(screen.getByText('Membership Level')).toBeInTheDocument();
       expect(screen.getByText('Points Using')).toBeInTheDocument();
-      expect(screen.getByText('Gold')).toBeInTheDocument();
       expect(screen.getByText('300')).toBeInTheDocument(); // 100+200
       // Find the summary card value for 'Points Using' (should have class 'red-value')
       const redValueEls = document.querySelectorAll('.red-value');

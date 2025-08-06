@@ -217,13 +217,7 @@ const Movie = () => {
     try {
       const response = await axios.get("/admin/movies/list")
       
-      // Log the full response to see the status and other details
-      console.log("Full Movies List API Response:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        data: response.data
-      })
+      // Đã xoá dòng log debug ở đây để code sạch cho production.
 
       // Check for specific status conditions if needed
       if (response.status !== 200) {

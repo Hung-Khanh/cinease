@@ -34,7 +34,10 @@ describe('Promotions Page', () => {
     render(<Promotions />);
     expect(await screen.findByText('Summer Sale')).toBeInTheDocument();
     expect(screen.getByText('20%')).toBeInTheDocument();
-    expect(screen.getByText('20% off all tickets')).toBeInTheDocument();
+    // AntD table may split cell content, so check all table cells for the detail text
+    const cells = document.querySelectorAll('.ant-table-cell');
+    const foundDetail = Array.from(cells).some(cell => /20% off all tickets/i.test(cell.textContent));
+    expect(foundDetail).toBe(true);
     expect(screen.getByAltText('Promotion')).toBeInTheDocument();
   });
 

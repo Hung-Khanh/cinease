@@ -34,7 +34,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
       });
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("❌ Error response:", errorText);
         throw new Error(`Failed to fetch movie name: ${response.status}`);
       }
       const data = await response.json();
@@ -62,7 +61,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
         },
       });
       const data = await response.json();
-      console.log("✅ Showtimes fetched successfully:", data);
       setShowtimes(data);
     } catch (error) {
       message.error("Không thể tải danh sách lịch chiếu");
@@ -76,8 +74,6 @@ const DateTimeSelection = ({ apiUrl, onBack }) => {
     if (movieId && apiUrl) {
       fetchName();
       fetchShowtimes();
-    } else {
-      console.log("❌ Missing data:", { movieId, apiUrl });
     }
   }, [movieId, apiUrl]);
 

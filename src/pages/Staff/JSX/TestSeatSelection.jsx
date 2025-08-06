@@ -76,7 +76,7 @@ const SeatSelect = ({ onBack }) => {
       const data = await response.data;
       setProducts(data);
     } catch (error) {
-      console.log("Error in fetchProduct: ", error);
+      console.error("🔥 Error in fetchProduct:", error);
     }
   };
 
@@ -104,8 +104,6 @@ const SeatSelect = ({ onBack }) => {
     const scheduleSeatIds = selectedSeatsInfo
       .map((seat) => seat.scheduleSeatId)
       .filter((id) => typeof id === "number" && !isNaN(id));
-
-    console.log("scheduleSeatIds gửi lên API:", scheduleSeatIds);
 
     try {
       const response = await postSelectedSeats(

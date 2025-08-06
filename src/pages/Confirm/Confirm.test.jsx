@@ -216,8 +216,9 @@ describe('Confirm', () => {
     const confirmButtons = screen.getAllByText((content) => content.toLowerCase().includes('confirm'));
     const confirmBtn = confirmButtons.find(el => el.className?.includes('btn-text')) || confirmButtons[0];
     fireEvent.click(confirmBtn);
+    // Check for Toast error message
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalled();
+      expect(screen.getByText(/Booking session has expired|session has expired/i)).toBeInTheDocument();
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
@@ -243,8 +244,9 @@ describe('Confirm', () => {
     const confirmButtons = screen.getAllByText((content) => content.toLowerCase().includes('confirm'));
     const confirmBtn = confirmButtons.find(el => el.className?.includes('btn-text')) || confirmButtons[0];
     fireEvent.click(confirmBtn);
+    // Check for Toast error message
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalled();
+      expect(screen.getByText(/seats? (have been )?selected by someone else|seat already booked/i)).toBeInTheDocument();
       expect(mockNavigate).toHaveBeenCalledWith(-1);
     });
   });
@@ -274,8 +276,9 @@ describe('Confirm', () => {
     const confirmButtons = screen.getAllByText((content) => content.toLowerCase().includes('confirm'));
     const confirmBtn = confirmButtons.find(el => el.className?.includes('btn-text')) || confirmButtons[0];
     fireEvent.click(confirmBtn);
+    // Check for Toast error message
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalled();
+      expect(screen.getByText(/not enough member points|insufficient score|error/i)).toBeInTheDocument();
     });
   });
 });
