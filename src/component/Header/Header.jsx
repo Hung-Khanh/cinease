@@ -198,7 +198,7 @@ const Header = () => {
             {showNotifications && (
               <div className="notification-dropdown">
                 {notifications.length === 0 ? (
-                  <div className="notification-empty">Không có thông báo</div>
+                  <div className="notification-empty">No notifications</div>
                 ) : (
                   notifications.map((n) => (
                     <div
@@ -212,7 +212,7 @@ const Header = () => {
                       <div className="notification-item-icon">🎬</div>
                       <div className="notification-text">
                         <div className="notification-title">
-                          Đã đặt {n.quantity} vé phim <strong>{n.title}</strong>
+                          Booked {n.quantity} movie tickets for <strong>{n.title}</strong>
                         </div>
                         {n.time && (
                           <div className="notification-time">{n.time}</div>
