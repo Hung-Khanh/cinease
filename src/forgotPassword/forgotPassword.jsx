@@ -11,7 +11,7 @@ const Steps = ({ current }) => {
   const steps = [
     { title: "Email", icon: "📧" },
     { title: "OTP", icon: "🔐" },
-    { title: "Mật khẩu", icon: "🗝️" },
+    { title: "Password", icon: "🗝️" },
   ];
 
   return (
@@ -42,8 +42,8 @@ const ForgotPassword = () => {
 
   const handleEmailSent = async () => {
     if (!email) {
-      setErrors({ email: "Vui lòng nhập email" });
-      message.error("Vui lòng nhập email");
+      setErrors({ email: "Please enter your email" });
+      message.error("Please enter your email");
       return;
     }
     if (!validateEmail(email)) {
@@ -75,8 +75,8 @@ const ForgotPassword = () => {
 
   const handleOTPSent = async () => {
     if (!otp) {
-      setErrors({ otp: "Please enter OTP code" });
-      message.error("Please enter OTP code");
+      setErrors({ otp: "Please enter the OTP code" });
+      message.error("Please enter the OTP code");
       return;
     }
     if (otp.length !== 6) {
@@ -99,8 +99,8 @@ const ForgotPassword = () => {
   const handleChangePassword = async () => {
     const newErrors = {};
     if (!password) {
-      newErrors.password = "Please enter new password";
-      message.error("Please enter new password");
+      newErrors.password = "Please enter a new password";
+      message.error("Please enter a new password");
     }
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
@@ -138,7 +138,7 @@ const ForgotPassword = () => {
     <div className="form-mail">
       <Input
         type="email"
-        placeholder="Nhập địa chỉ email"
+        placeholder="Enter your email address"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         status={errors.email ? "error" : ""}
@@ -163,7 +163,7 @@ const ForgotPassword = () => {
       <Input.OTP
         length={6}
         formatter={(str) => str.toUpperCase()}
-        placeholder="Nhập mã OTP"
+        placeholder="Enter OTP code"
         value={otp}
         onChange={(value) => setOtp(value)}
         error={errors.otp ? "error" : ""}
@@ -228,8 +228,8 @@ const ForgotPassword = () => {
     <div className="form-success">
       <Result
         status="success"
-        title="Successfully reset password"
-        subTitle="Back to Login Page and login again!"
+        title="Password reset successfully"
+        subTitle="Go back to the Login Page and log in again!"
         extra={[
           <Button
             key="submit"
@@ -270,7 +270,7 @@ const ForgotPassword = () => {
               <div className="divider"></div>
               <div className="back-section">
                 <button className="link-button" onClick={handleBackToLogin}>
-                  ← Quay lại đăng nhập
+                  ← Back to login
                 </button>
               </div>
             </>
