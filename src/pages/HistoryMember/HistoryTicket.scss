@@ -74,9 +74,15 @@
   }
 
   .chart-card, .table-card {
-    background: #fff;
+    background: transparent;
     border-radius: 15px;
     margin-bottom: 30px;
+
+    .ant-card-body {
+      background: #fff;
+      border-radius: 15px;
+      padding: 24px;
+    }
 
     h3 {
       color: #333;

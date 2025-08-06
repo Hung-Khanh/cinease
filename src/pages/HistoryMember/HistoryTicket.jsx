@@ -247,12 +247,6 @@ const HistoryTicket = () => {
           <div className="value">{totalAddingPoints.toLocaleString()}</div>
         </Card>
         <Card className="summary-card">
-          <div>Membership Level</div>
-          <div className="value">
-            <span className="level-icon">👑</span> {membershipLevel}
-          </div>
-        </Card>
-        <Card className="summary-card">
           <div>Points Using</div>
           <div className="value red-value">{totalUsingPoints.toLocaleString()}</div>
         </Card>
