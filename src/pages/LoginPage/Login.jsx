@@ -159,7 +159,7 @@ const Login = () => {
 
       result = await response.json();
       console.log("🔐 Login successful, role:", result.role);
-      message.success("Login successful!");
+      toast.success("Login successful!");
 
       // Lưu tạm token để gọi API lấy profile
       localStorage.setItem(
