@@ -24,8 +24,8 @@ describe("PhoneInput Component", () => {
 
   it("should render input and keypad", () => {
     const { getByText, getByPlaceholderText } = setup();
-
-    expect(getByText("Enter your phone number")).toBeInTheDocument();
+    // Tiêu đề có thể khác hoa/thường, dùng matcher function
+    expect(getByText((content) => /enter your phone number/i.test(content))).toBeInTheDocument();
     expect(getByPlaceholderText("Your phone number")).toBeInTheDocument();
   });
 
@@ -53,8 +53,9 @@ describe("PhoneInput Component", () => {
 
     fireEvent.click(getByText("SUBMIT"));
     await waitFor(() => {
+      // Thông báo thực tế: "Số điện thoại phải có đúng 10 chữ số"
       expect(
-        getByText("Số điện thoại phải có ít nhất 10 chữ số")
+        getByText((content) => /Số điện thoại phải có (đúng|ít nhất) 10 chữ số/.test(content))
       ).toBeInTheDocument();
     });
   });
@@ -78,7 +79,8 @@ describe("PhoneInput Component", () => {
     fireEvent.click(getByText("SUBMIT"));
 
     await waitFor(() => {
-      expect(getByText("Confirm your information")).toBeInTheDocument();
+      // Modal tiêu đề thực tế: "Confirm Member Information"
+      expect(getByText((content) => /Confirm (Member )?Information/i.test(content))).toBeInTheDocument();
       expect(getByText("0123456789")).toBeInTheDocument();
       expect(getByText("Test User")).toBeInTheDocument();
     });

@@ -128,7 +128,6 @@ const SelectShowtime = () => {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.log("❌ Showtimes error response:", errorText)
         throw new Error(`Failed to fetch showtimes: ${response.status}`)
       }
 
@@ -217,7 +216,6 @@ const SelectShowtime = () => {
           selectedScheduleId: showtime.scheduleId,
         }),
       )
-      console.log("🎬 Selected Schedule ID:", showtime.scheduleId)
     }
   }
 

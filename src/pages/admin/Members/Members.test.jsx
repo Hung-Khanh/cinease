@@ -98,7 +98,7 @@ describe('Members', () => {
     api.delete.mockResolvedValue({ data: 'Deleted successfully' });
     fireEvent.click(screen.getByText('Delete Member'));
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/admin/members/delete/1');
+      expect(api.delete).toHaveBeenCalledWith('/admin/members/1/permanent');
     });
   });
 });

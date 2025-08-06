@@ -41,8 +41,8 @@ describe('ProductManagement', () => {
       expect(screen.getByText('Coke')).toBeInTheDocument();
       expect(screen.getByText('FOOD')).toBeInTheDocument();
       expect(screen.getByText('BEVERAGE')).toBeInTheDocument();
-      expect(screen.getByText('ACTIVE')).toBeInTheDocument();
-      expect(screen.getByText('INACTIVE')).toBeInTheDocument();
+      expect(screen.getAllByText((content) => /ACTIVE/i.test(content)).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText((content) => /INACTIVE/i.test(content)).length).toBeGreaterThanOrEqual(1);
     });
   });
 

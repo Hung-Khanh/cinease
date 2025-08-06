@@ -62,7 +62,7 @@ const Promotions = () => {
           startTime: promotion.startTime,
           endTime: promotion.endTime,
           discountLevel: `${promotion.discountLevel}%`,
-          details: promotion.detail || "No details available",
+          detail: promotion.detail || "No details available",
           image: promotion.image || null,
         };
       });
@@ -123,6 +123,11 @@ const Promotions = () => {
         record.title.toLowerCase().includes(value.toLowerCase()),
     },
     {
+      title: "Promotion Details",
+      dataIndex: "detail",
+      key: "detail",
+    },
+    {
       title: "Start Time",
       dataIndex: "startTime",
       key: "startTime",
@@ -167,11 +172,11 @@ const Promotions = () => {
     },
   ];
 
-     const createPaginationButton = (type, text) => (
-        <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
-          {text}
-        </Button>
-      );
+  const createPaginationButton = (type, text) => (
+    <Button type="default" className={`pagination-btn-cinema ${type}-btn`}>
+      {text}
+    </Button>
+  );
   const handleEdit = (record) => {
     // Reset the form
     form.resetFields();
@@ -186,7 +191,7 @@ const Promotions = () => {
         ? dayjs(record.endTime, "YYYY-MM-DD HH:mm")
         : null,
       discountLevel: record.discountLevel.replace(" VND", ""), // Remove VND for editing
-      details: record.details, // Use 'details' for form display
+      detail: record.detail, // Use 'detail' for form display
       image: record.image, // Directly use image URL
     };
 
@@ -226,7 +231,7 @@ const Promotions = () => {
       formData.append("startTime", formatDate(values.startTime));
       formData.append("endTime", formatDate(values.endTime));
       formData.append("discountLevel", parseInt(values.discountLevel));
-      formData.append("detail", values.details);
+      formData.append("detail", values.detail);
       if (imageFile) {
         formData.append("imageFile", imageFile);
       }
@@ -327,8 +332,8 @@ const Promotions = () => {
         dataSource={filteredPromotions}
         loading={loading}
         className="ant-table-promotion"
-        locale={{ 
-          emptyText: 'No promotions found' 
+        locale={{
+          emptyText: 'No promotions found'
         }}
         pagination={{
           pageSize: 12,
@@ -480,7 +485,7 @@ const Promotions = () => {
           </Form.Item>
 
           <Form.Item
-            name="details"
+            name="detail"
             label="Promotion Details"
             rules={[
               {
@@ -597,9 +602,9 @@ const Promotions = () => {
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Details:</div>
-              <div className="promotion-detail-value">{selectedPromotion.details}</div>
+              <div className="promotion-detail-value">{selectedPromotion.detail}</div>
             </div>
-            
+
           </div>
         )}
       </Modal>

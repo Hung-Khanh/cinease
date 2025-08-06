@@ -69,14 +69,12 @@ const TicketInformation = ({ apiUrl, onBack }) => {
   const onSearch = (value) => {
     setSearchPromotion(value);
     setShowPromotionList(!!value);
-    console.log("Search value:", value, "Show list:", !!value);
   };
 
   const handleSelectPromotion = (selectedId, title) => {
     setPromotionId(selectedId);
     setSearchPromotion(title);
     setShowPromotionList(false);
-    console.log("Selected:", title, "ID:", selectedId);
   };
 
   const handlePurchase = async () => {

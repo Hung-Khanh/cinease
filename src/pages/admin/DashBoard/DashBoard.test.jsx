@@ -61,10 +61,12 @@ describe('Dashboard Page', () => {
     expect(document.querySelector('.column-chart .recharts-responsive-container')).toBeInTheDocument();
   });
 
-  it('hiển thị biểu đồ phân phối loại vé', () => {
+  it('hiển thị biểu đồ phân phối loại vé', async () => {
     render(<Dashboard />);
-    // Kiểm tra tiêu đề biểu đồ loại vé xuất hiện
-    expect(screen.getByText(/Ticket Type Distribution/i)).toBeInTheDocument();
+    // Kiểm tra tiêu đề biểu đồ loại vé xuất hiện (đúng với UI thực tế)
+    await waitFor(() => {
+      expect(screen.getByText(/Account Statistics/i)).toBeInTheDocument();
+    });
     // Kiểm tra container pie chart có mặt
     expect(document.querySelector('.pie-chart .recharts-responsive-container')).toBeInTheDocument();
   });

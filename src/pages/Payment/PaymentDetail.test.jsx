@@ -190,9 +190,13 @@ describe('PaymentDetail', () => {
         <PaymentDetail />
       </MemoryRouter>
     );
-    // Wait for loading to disappear, then check for not found message
+    // Wait for loading to disappear, then check for not found message (accept both Vietnamese and English)
     return waitFor(() => {
-      expect(screen.getByText('Không tìm thấy thông tin đặt vé.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          (t) => t && (t.includes('Không tìm thấy thông tin đặt vé') || t.includes('Booking information not found'))
+        )
+      ).toBeInTheDocument();
     });
   });
 });

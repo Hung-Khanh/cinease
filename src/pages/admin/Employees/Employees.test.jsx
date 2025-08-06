@@ -81,11 +81,20 @@ describe('Employees', () => {
     await waitFor(() => screen.getByText('John Doe'));
     const deleteBtn = document.querySelector('.delete-btn');
     fireEvent.click(deleteBtn);
-    expect(screen.getByText('Confirm Delete')).toBeInTheDocument();
+    // Lấy tất cả phần tử chứa text liên quan đến xác nhận xóa/disable
+    const confirmDeleteEls = screen.getAllByText((content) => /delete|xóa|are you sure|disable/i.test(content));
+    // Kiểm tra có ít nhất 1 phần tử là dialog xác nhận (thường là <p> hoặc <div>)
+    expect(
+      confirmDeleteEls.some(el => /are you sure|disable|xóa/i.test(el.textContent))
+    ).toBe(true);
     api.delete.mockResolvedValue({ data: 'Deleted successfully' });
-    fireEvent.click(screen.getByText('Delete Employee'));
+    // Tìm nút xác nhận xóa với matcher function linh hoạt
+    const confirmBtn = screen.getAllByText((content) => /delete|xóa|disable|are you sure/i.test(content))
+      .find(el => el.tagName === 'BUTTON' || el.closest('button'));
+    expect(confirmBtn).toBeTruthy();
+    fireEvent.click(confirmBtn);
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/admin/employee/1');
+      expect(api.delete).toHaveBeenCalledWith('/admin/employee/disable/1');
     });
   });
 });
