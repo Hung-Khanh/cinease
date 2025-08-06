@@ -210,7 +210,6 @@ const Promotions = () => {
       // Show the delete confirmation modal
       setDeleteConfirmationVisible(true);
     } catch (error) {
-      console.error("Error in delete confirmation:", error);
       toast.error("Failed to show delete confirmation");
     }
   };
