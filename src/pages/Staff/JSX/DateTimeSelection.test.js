@@ -21,33 +21,26 @@ beforeEach(() => {
       });
     }
     if (url.includes("/public/showtimes")) {
+      // Trả về mảng showtimes trực tiếp
       return Promise.resolve({
         ok: true,
-        json: async () => ({
-          movies: [
-            {
-              id: 1,
-              title: "Avatar",
-              showtimes: [
-                {
-                  scheduleId: 101,
-                  showDate: "2025-07-20",
-                  showTime: "10:00",
-                },
-                {
-                  scheduleId: 102,
-                  showDate: "2025-07-20",
-                  showTime: "13:00",
-                },
-                {
-                  scheduleId: 103,
-                  showDate: "2025-07-21",
-                  showTime: "12:00",
-                },
-              ],
-            },
-          ],
-        }),
+        json: async () => [
+          {
+            scheduleId: 101,
+            showDate: "2025-07-20",
+            showTime: "10:00",
+          },
+          {
+            scheduleId: 102,
+            showDate: "2025-07-20",
+            showTime: "13:00",
+          },
+          {
+            scheduleId: 103,
+            showDate: "2025-07-21",
+            showTime: "12:00",
+          },
+        ],
       });
     }
   });
@@ -74,7 +67,7 @@ function renderWithRoute() {
 }
 
 describe("DateTimeSelection", () => {
-  test("hiển thị phim và disable nút Next khi chưa chọn gì", async () => {
+  test("hiển thị phim và disable nút Confirm khi chưa chọn gì", async () => {
     renderWithRoute();
 
     // Chờ văn bản "Avatar" xuất hiện
@@ -82,9 +75,9 @@ describe("DateTimeSelection", () => {
       expect(screen.getByText("Avatar")).toBeInTheDocument();
     });
 
-    // Kiểm tra nút Next bị vô hiệu hóa
-    const nextButton = screen.getByRole("button", { name: "Next" });
-    expect(nextButton).toBeDisabled();
+    // Kiểm tra nút Confirm bị vô hiệu hóa
+    const confirmButton = screen.getByRole("button", { name: "Confirm" });
+    expect(confirmButton).toBeDisabled();
   });
 
   test("chọn ngày và giờ chiếu thành công", async () => {
@@ -97,9 +90,9 @@ describe("DateTimeSelection", () => {
 
     // Tìm nút ngày đầu tiên thay vì tìm "20 Tháng 7"
     const dateButtons = await screen.findAllByRole("button");
-const dateButton = dateButtons.find(btn => btn.textContent.includes("Jul"));
-expect(dateButton).toBeDefined(); // Ensure button is found
-fireEvent.click(dateButton);
+    const dateButton = dateButtons.find(btn => btn.textContent.includes("Jul"));
+    expect(dateButton).toBeDefined(); // Ensure button is found
+    fireEvent.click(dateButton);
     expect(dateButton).toBeInTheDocument();
     fireEvent.click(dateButton);
     expect(dateButton).toHaveClass("selected");
@@ -112,8 +105,8 @@ fireEvent.click(dateButton);
     const timeButton = screen.getByText(/10:00/);
     fireEvent.click(timeButton);
 
-    // Kiểm tra nút Next được bật
-    const nextButton = screen.getByRole("button", { name: "Next" });
-    expect(nextButton).toBeEnabled();
+    // Kiểm tra nút Confirm được bật
+    const confirmButton = screen.getByRole("button", { name: "Confirm" });
+    expect(confirmButton).toBeEnabled();
   });
 });

@@ -64,13 +64,6 @@ const Dashboard = () => {
   // Custom Tooltip for Bar Chart
   const CustomBarTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      // Log tooltip data for debugging
-      console.log('Daily Revenue Tooltip Data:', {
-        label,
-        rawValue: payload[0].value,
-        formattedValue: formatCurrency(payload[0].value)
-      });
-
       return (
         <div className="chart-tooltip bar-tooltip">
           <strong>{label}</strong><br />
@@ -126,9 +119,6 @@ const Dashboard = () => {
       const response = await api.get('/admin/statistics/accounts');
       const data = response.data;
 
-      // Log raw data for debugging
-      console.log('Raw Account Statistics Data:', data);
-
       // Transform API data to chart format
       const total = data.totalMembers + data.totalEmployees + data.totalAdmins;
       const transformedData = [
@@ -148,9 +138,6 @@ const Dashboard = () => {
           total: total
         }
       ].filter(item => item.value > 0); // Only show categories with values > 0
-
-      // Log transformed data
-      console.log('Transformed Account Data:', transformedData);
 
       setAccountData(transformedData);
     } catch (error) {
@@ -184,12 +171,6 @@ const Dashboard = () => {
             }
           });
 
-          // Log raw response for each date
-          console.log(`Daily Revenue for ${date}:`, {
-            rawResponse: response.data,
-            parsedValue: Number(response.data)
-          });
-
           return {
             date,
             day: getDayName(date),
@@ -208,7 +189,7 @@ const Dashboard = () => {
       const results = await Promise.all(revenuePromises);
 
       // Log final results
-      console.log('Daily Revenue Results:', results);
+
 
       setRevenueData(results);
 
@@ -241,7 +222,7 @@ const Dashboard = () => {
       const data = response.data;
 
       // Log raw data for debugging
-      console.log('Raw Movie Revenue Data:', data);
+
 
       // Transform API data to match component structure
       const transformedData = Object.entries(data).map(([movieTitle, revenue]) => {
@@ -249,7 +230,7 @@ const Dashboard = () => {
         const parsedRevenue = Math.abs(Number(revenue));
 
         // Log individual movie revenue for debugging
-        console.log(`Movie: ${movieTitle}, Raw Revenue: ${revenue}, Parsed Revenue: ${parsedRevenue}`);
+
 
         // Generate capacity percentage based on relative revenue
         const capacity = Math.min(95, Math.max(30, Math.floor((parsedRevenue / Math.max(...Object.values(data).map(Number))) * 100)));
@@ -262,7 +243,7 @@ const Dashboard = () => {
       }).sort((a, b) => b.revenue - a.revenue); // Sort by revenue descending
 
       // Log transformed data
-      console.log('Transformed Movie Revenue Data:', transformedData);
+
 
       setMovieRevenueData(transformedData);
     } catch (error) {

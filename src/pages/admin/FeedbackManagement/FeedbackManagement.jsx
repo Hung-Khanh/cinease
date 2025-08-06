@@ -66,19 +66,6 @@ const FeedbackManagement = () => {
 
       const response = await axios.get('/admin/feedback', { params });
 
-      // Add comprehensive error checking for response structure
-      console.log('API Response:', response.data); // Debug log
-      console.log('Sort Parameters Sent:', params); // Debug log - see what we sent
-      
-      // Log the first few items to check if sorting worked
-      if (response.data?.content && response.data.content.length > 0) {
-        console.log('First 3 items after sorting:', response.data.content.slice(0, 3).map(item => ({
-          id: item.feedbackId,
-          movieName: item.movieName,
-          rating: item.rating
-        })));
-      }
-
       // Check if response.data exists and has the expected structure
       if (!response.data) {
         throw new Error('No data received from server');

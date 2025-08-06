@@ -21,7 +21,7 @@ describe("Admin Header", () => {
                 <Header />
             </MemoryRouter>
         );
-        expect(screen.getByAltText("logo")).toBeInTheDocument();
+        expect(screen.getByAltText("Cinease Logo")).toBeInTheDocument();
         expect(screen.getByText("Home")).toBeInTheDocument();
         expect(screen.getByText("Movies")).toBeInTheDocument();
     });

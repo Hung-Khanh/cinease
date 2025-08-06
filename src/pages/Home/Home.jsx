@@ -23,14 +23,14 @@ const Home = () => {
   const hasProcessedLogin = useRef(false)
 
   const handleCurtainAnimationComplete = () => {
-    console.log("✅ Curtain animation completed")
+    
     setShowCurtain(false)
   }
 
   useEffect(() => {
     // Prevent double execution
     if (hasProcessedLogin.current) {
-      console.log("🚫 Already processed login, skipping...")
+      
       return
     }
 
@@ -38,7 +38,7 @@ const Home = () => {
     const loginSuccess = localStorage.getItem("loginSuccess")
     const isFromLogin = loginSuccess === "true"
 
-    console.log("🔍 Checking login status:", { loginSuccess, isFromLogin })
+    
 
     // Mark as processed
     hasProcessedLogin.current = true
@@ -46,17 +46,17 @@ const Home = () => {
     // Clear the flag immediately
     if (loginSuccess) {
       localStorage.removeItem("loginSuccess")
-      console.log("🧹 Cleared loginSuccess flag")
+      
     }
 
     // Determine if we should show curtain
     if (isFromLogin) {
-      console.log("🎭 Fresh login detected - showing curtain")
+      
       setShowCurtain(true)
       setIsLoading(true)
       fetchAllDataWithCurtain()
     } else {
-      console.log("🔄 Normal page load - no curtain")
+      
       setShowCurtain(false)
       setIsLoading(false)
       fetchAllDataNormal()
@@ -64,7 +64,7 @@ const Home = () => {
   }, [])
 
   const fetchAllDataWithCurtain = async () => {
-    console.log("🎪 Fetching data with curtain animation")
+    
     try {
       // Minimum loading time for curtain animation
       const minLoadingTime = new Promise((resolve) => setTimeout(resolve, 1200))
@@ -73,7 +73,7 @@ const Home = () => {
 
       // Start curtain opening animation
       setTimeout(() => {
-        console.log("🎬 Starting curtain opening")
+        
         setIsLoading(false) // This triggers the curtain opening
       }, 300)
     } catch (error) {
@@ -85,7 +85,7 @@ const Home = () => {
   }
 
   const fetchAllDataNormal = async () => {
-    console.log("📊 Fetching data normally (no curtain)")
+    
     try {
       await Promise.all([fetchMovies(), fetchComing(), fetchPromo()])
     } catch (error) {

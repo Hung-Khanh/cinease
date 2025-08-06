@@ -46,7 +46,7 @@ const SeatSelection = ({ apiUrl, onBack }) => {
       const data = await response.data;
       setProducts(data);
     } catch (error) {
-      console.log("Error in fetchProduct: ", error);
+      console.error("Error in fetchProduct:", error); 
     }
   };
 
@@ -54,8 +54,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
     if (scheduleId && apiUrl) {
       fetchSeat();
       fetchProduct();
-    } else {
-      console.log("❌ Missing data:", { scheduleId, apiUrl });
     }
   }, [scheduleId, apiUrl]);
 
@@ -149,7 +147,6 @@ const SeatSelection = ({ apiUrl, onBack }) => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("❌ Error response from select-seats:", errorText);
         throw new Error(`Failed to select seats: ${response.status}`);
       }
 

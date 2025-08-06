@@ -126,9 +126,9 @@ describe('SelectShowtime', () => {
     })).toBeInTheDocument());
     // Chọn ngày đầu tiên (nút '17')
     fireEvent.click(screen.getByText('17'));
-    // Không chọn giờ, kiểm tra nút Select Seats bị disabled
+    // Không chọn giờ, kiểm tra nút Select Seats có class inactive (không disabled thực sự)
     const selectSeatBtn = screen.getByTestId('select-seat-btn');
-    expect(selectSeatBtn).toBeDisabled();
+    expect(selectSeatBtn.classList.contains('inactive')).toBe(true);
     alertSpy.mockRestore();
   });
 

@@ -62,7 +62,7 @@ const Promotions = () => {
           startTime: promotion.startTime,
           endTime: promotion.endTime,
           discountLevel: `${promotion.discountLevel}%`,
-          details: promotion.detail || "No details available",
+          detail: promotion.detail || "No details available",
           image: promotion.image || null,
         };
       });
@@ -117,6 +117,11 @@ const Promotions = () => {
       filteredValue: [searchTerm],
       onFilter: (value, record) =>
         record.title.toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+      title: "Promotion Details",
+      dataIndex: "detail",
+      key: "detail",
     },
     {
       title: "Start Time",
@@ -182,7 +187,7 @@ const Promotions = () => {
         ? dayjs(record.endTime, "YYYY-MM-DD HH:mm")
         : null,
       discountLevel: record.discountLevel.replace(" VND", ""), // Remove VND for editing
-      details: record.details, // Use 'details' for form display
+      detail: record.detail, // Use 'detail' for form display
       image: record.image, // Directly use image URL
     };
 
@@ -222,7 +227,7 @@ const Promotions = () => {
       formData.append("startTime", formatDate(values.startTime));
       formData.append("endTime", formatDate(values.endTime));
       formData.append("discountLevel", parseInt(values.discountLevel));
-      formData.append("detail", values.details);
+      formData.append("detail", values.detail);
       if (imageFile) {
         formData.append("imageFile", imageFile);
       }
@@ -331,8 +336,8 @@ const Promotions = () => {
         dataSource={filteredPromotions}
         loading={loading}
         className="ant-table-promotion"
-        locale={{
-          emptyText: "No promotions found",
+        locale={{ 
+          emptyText: 'No promotions found' 
         }}
         pagination={{
           pageSize: 6,
@@ -485,7 +490,7 @@ const Promotions = () => {
           </Form.Item>
 
           <Form.Item
-            name="details"
+            name="detail"
             label="Promotion Details"
             rules={[
               {
@@ -605,10 +610,9 @@ const Promotions = () => {
             </div>
             <div className="promotion-detail-row">
               <div className="promotion-detail-label">Details:</div>
-              <div className="promotion-detail-value">
-                {selectedPromotion.details}
-              </div>
+              <div className="promotion-detail-value">{selectedPromotion.details}</div>
             </div>
+            
           </div>
         )}
       </Modal>
