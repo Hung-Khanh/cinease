@@ -43,7 +43,7 @@ const PaymentDetail = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app
   }, [])
 
   useEffect(() => {
-    console.log("seatData:", seatData) // Debug Redux state
+    
     if (!seatData || !seatData.sessionId) {
       toast.error("Booking data not found. Please select your seats again.")
       navigate("/")
