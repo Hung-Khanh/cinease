@@ -178,7 +178,6 @@ const Movie = () => {
       }))
       setMovieTypes(formattedTypes)
     } catch (error) {
-      console.error("Error fetching movie types:", error)
       showErrorMessage(error.response?.data?.message || error.message)
     }
   }
@@ -196,7 +195,6 @@ const Movie = () => {
         addTypeForm.resetFields()
       }
     } catch (error) {
-      console.error("Error adding movie type:", error)
       showErrorMessage(error.response?.data?.message || error.message)
     } finally {
       setUploading(false)
@@ -254,16 +252,7 @@ const Movie = () => {
         showSuccessMessage("Movies fetched successfully", 1.5)
       }
 
-      // Log formatted movies with their statuses
-      console.log("Formatted Movies with Statuses:", formattedMovies.map(movie => ({
-        name: movie.movieNameEnglish,
-        status: movie.status
-      })))
     } catch (error) {
-      console.error("Full error in fetchMovies:", {
-        message: error.message,
-        response: error.response
-      })
       showErrorMessage(error.response?.data?.message || error.message)
     } finally {
       setLoading(false)
@@ -275,7 +264,6 @@ const Movie = () => {
       const response = await axios.get(`/admin/movies/details/${movieId}`)
       const result = response.data
 
-      console.log("Raw Movie Details:", { movieId, rawResult: result })
 
       const formattedMovie = {
         ...result,
@@ -285,7 +273,6 @@ const Movie = () => {
         scheduleTimes: result.schedules
           ? result.schedules.reduce((acc, schedule) => {
               try {
-                console.log("Processing schedule:", schedule)
                 let processedSchedule
                 if (typeof schedule === "string") {
                   const [date, time] = schedule.split("T")
@@ -307,21 +294,15 @@ const Movie = () => {
                 console.warn("Unprocessable schedule format:", schedule)
                 return acc
               } catch (error) {
-                console.error("Error processing schedule:", { schedule, error: error.message })
                 return acc
               }
             }, [])
           : [],
       }
 
-      console.log("Formatted Movie Details for Editing:", {
-        originalSchedules: result.schedules,
-        formattedScheduleTimes: formattedMovie.scheduleTimes,
-      })
 
       return formattedMovie
     } catch (error) {
-      console.error("Full error in fetchMovieDetails:", error)
       showErrorMessage(error.response?.data?.message || error.message)
       return null
     }
@@ -329,16 +310,9 @@ const Movie = () => {
 
   const fetchMovieSchedules = async (movieId) => {
     try {
-      console.log(`Fetching schedules for movie ID: ${movieId}`)
       const response = await axios.get(`/admin/movie-schedules/movie/${movieId}`)
-      console.log("Raw schedules API response:", response.data)
       return response.data.result || []
     } catch (error) {
-      console.error("Error fetching movie schedules:", error)
-      if (error.response) {
-        console.error("Error response data:", error.response.data)
-        console.error("Error response status:", error.response.status)
-      }
       showErrorMessage(error.response?.data?.message || error.message)
       return []
     }
@@ -376,8 +350,6 @@ const Movie = () => {
         movieProductionCompany: movieDetails.movieProductionCompany || null,
       }
 
-      console.log("Edit Record Preparation:", { record, movieDetails, editRecord })
-
       setEditingKey(record.key)
       form.setFieldsValue(editRecord)
       setPosterFile(null)
@@ -385,7 +357,6 @@ const Movie = () => {
       setIsEditing(true)
       setIsModalVisible(true)
     } catch (error) {
-      console.error("Error in handleEdit:", error)
       showErrorMessage(error.response?.data?.message || error.message)
     }
   }
@@ -589,7 +560,6 @@ const Movie = () => {
       setBannerFile(null)
       form.resetFields()
     } catch (error) {
-      console.error("Full submission error:", error)
       showErrorMessage(
         error.response?.data?.message || error.message
       )
@@ -663,12 +633,6 @@ const Movie = () => {
         scheduleTime: scheduleTime.format("YYYY-MM-DD HH:mm"),
       }
 
-      console.log("Schedule Creation Request:", {
-        url: "/admin/movie-schedules",
-        data: scheduleData,
-        movieId: parsedMovieId,
-        scheduleTime: scheduleTime.format("YYYY-MM-DD HH:mm"),
-      })
 
       const response = await axios.post("/admin/movie-schedules", scheduleData, {
         headers: {
@@ -686,21 +650,6 @@ const Movie = () => {
       await fetchMovies()
       return true
     } catch (error) {
-      console.error("Error adding movie schedule:", error)
-
-      if (error.response) {
-        console.error("Full Error Response:", {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers,
-        })
-
-        console.error("Detailed Error Breakdown:", {
-          errorCode: error.response.data?.code,
-          errorMessage: error.response.data?.message,
-          errorDetails: error.response.data?.details,
-        })
-      }
 
       if (error.response && error.response.data) {
         const errorCode = error.response.data.code
@@ -742,7 +691,6 @@ const Movie = () => {
         showSuccessMessage("Movie inactivated successfully", 1.5)
       }
     } catch (error) {
-      console.error("Error toggling movie status:", error)
       showErrorMessage(
         error.response?.data?.message || error.message
       )
@@ -1499,7 +1447,6 @@ const Movie = () => {
         {selectedMovieSchedules.length > 0 ? (
           <Table
             dataSource={selectedMovieSchedules.map((schedule) => {
-              console.log("Processing schedule for table:", schedule)
               return {
                 key: schedule.id,
                 scheduleTime: schedule.scheduleTime,
