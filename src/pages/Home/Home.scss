@@ -18,6 +18,7 @@ $danger-red: #ff4757;
 
 @mixin card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
@@ -47,7 +48,7 @@ $danger-red: #ff4757;
   .hero-section-home {
     margin-bottom: 60px;
     margin-top: 40px;
-    
+
     .hero-slider {
       position: relative;
       height: 70vh;
@@ -81,13 +82,11 @@ $danger-red: #ff4757;
           left: 0;
           width: 100%;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            rgba(10, 10, 10, 0.9) 0%,
-            rgba(10, 10, 10, 0.7) 40%,
-            rgba(10, 10, 10, 0.3) 70%,
-            transparent 100%
-          );
+          background: linear-gradient(90deg,
+              rgba(10, 10, 10, 0.9) 0%,
+              rgba(10, 10, 10, 0.7) 40%,
+              rgba(10, 10, 10, 0.3) 70%,
+              transparent 100%);
           @include flex-center;
           align-items: flex-start;
           justify-content: flex-start;
@@ -313,11 +312,12 @@ $danger-red: #ff4757;
     }
   }
 
-  // Custom Carousel
+  // Custom Carousel - Fixed for responsive
   .custom-carousel {
     position: relative;
     display: flex;
     align-items: center;
+    gap: 15px;
 
     .carousel-btn {
       background: rgba(0, 255, 136, 0.2);
@@ -330,6 +330,7 @@ $danger-red: #ff4757;
       cursor: pointer;
       transition: all 0.3s ease;
       flex-shrink: 0;
+      z-index: 2;
 
       &:hover:not(:disabled) {
         background: $primary-green;
@@ -340,14 +341,6 @@ $danger-red: #ff4757;
       &:disabled {
         opacity: 0.3;
         cursor: not-allowed;
-      }
-
-      &.prev {
-        order: -1;
-      }
-
-      &.next {
-        order: 1;
       }
     }
 
@@ -360,21 +353,56 @@ $danger-red: #ff4757;
         display: flex;
         transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         gap: 20px;
+
+        .carousel-item {
+          flex-shrink: 0;
+          box-sizing: border-box;
+        }
       }
+    }
+
+    // Desktop default - 4 cards
+    &.desktop .carousel-track .carousel-item {
+      width: calc(25% - 15px);
+    }
+
+    // Tablet - 3 cards  
+    &.tablet .carousel-track {
+      gap: 10px;
+    }
+
+    &.tablet .carousel-track .carousel-item {
+      width: 50%;
+      flex: 0 0 50%;
+      box-sizing: border-box;
+    }
+
+    // Mobile - 1 card
+    &.mobile .carousel-track {
+      gap: 0;
+    }
+
+    &.mobile .carousel-track .carousel-item {
+      width: 100%;
+      flex: 0 0 100%;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
     }
   }
 
   // Movie Cards
-  .movie-card {
-    flex: 0 0 calc(25% - 15px);
-    min-width: 220px;
+  .movie-card,
+  .coming-soon-card {
+    width: 100%;
     background: $card-black;
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     @include card-hover;
 
-    .movie-poster {
+    .movie-poster,
+    .coming-poster {
       position: relative;
       aspect-ratio: 2/3;
       overflow: hidden;
@@ -411,6 +439,19 @@ $danger-red: #ff4757;
         }
       }
 
+      .coming-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: $danger-red;
+        color: $text-white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
+      }
+
       &:hover {
         img {
           transform: scale(1.1);
@@ -426,10 +467,12 @@ $danger-red: #ff4757;
       }
     }
 
-    .movie-info {
+    .movie-info,
+    .coming-info {
       padding: 15px;
 
-      .movie-title {
+      .movie-title,
+      .coming-title {
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 8px;
@@ -456,12 +499,20 @@ $danger-red: #ff4757;
         }
       }
 
-      .movie-meta {
+      .release-date {
+        color: $text-gray;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .movie-meta,
+      .coming-genres {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
 
-        span {
+        span,
+        .genre-tag {
           background: rgba(0, 255, 136, 0.1);
           color: $primary-green;
           padding: 2px 8px;
@@ -473,77 +524,9 @@ $danger-red: #ff4757;
     }
   }
 
-  // Coming Soon Cards
-  .coming-soon-card {
-    flex: 0 0 calc(25% - 15px);
-    min-width: 220px;
-    background: $card-black;
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    @include card-hover;
-
-    .coming-poster {
-      position: relative;
-      aspect-ratio: 2/3;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .coming-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: $danger-red;
-        color: $text-white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
-      }
-    }
-
-    .coming-info {
-      padding: 15px;
-
-      .coming-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: $text-white;
-      }
-
-      .release-date {
-        color: $text-gray;
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-      }
-
-      .coming-genres {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-
-        .genre-tag {
-          background: rgba(29, 161, 242, 0.1);
-          color: $accent-blue;
-          padding: 2px 8px;
-          border-radius: 4px;
-          font-size: 0.8rem;
-          border: 1px solid rgba(29, 161, 242, 0.2);
-        }
-      }
-    }
-  }
-
   // Promo Cards
   .promo-card {
-    flex: 0 0 calc(33.333% - 14px);
-    min-width: 280px;
+    width: 100%;
     background: $card-black;
     border-radius: 12px;
     overflow: hidden;
@@ -582,6 +565,7 @@ $danger-red: #ff4757;
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -592,24 +576,21 @@ $danger-red: #ff4757;
       opacity: 0;
       transform: translateX(-50px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
     }
   }
 
-  // Responsive Design
+  // Responsive Design - Simplified and Fixed
   @media (max-width: 1200px) {
-    .movie-card {
-      flex: 0 0 calc(33.333% - 14px);
-      min-width: 200px;
-    }
-    
-    .coming-soon-card {
-      flex: 0 0 calc(33.333% - 14px);
+    .custom-carousel.desktop .carousel-track .carousel-item {
+      width: calc(33.333% - 14px); // Desktop small: 3 cards
     }
   }
 
+  // iPad - 3 cards per view
   @media (max-width: 900px) {
     .home-content {
       padding: 0 15px;
@@ -639,31 +620,28 @@ $danger-red: #ff4757;
       }
     }
 
-    // Tablet: Hiển thị đúng 3 card trên 1 hàng
-    .custom-carousel .carousel-track {
-      gap: 20px;
-      display: flex;
-    }
-    .movie-card,
-    .coming-soon-card,
-    .promo-card {
-      flex: 0 0 calc(33.333% - 14px);
-      min-width: 0;
-      max-width: calc(33.333% - 14px);
-      box-sizing: border-box;
-    }
-    .custom-carousel .carousel-item {
-      width: calc(100% / 3) !important;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-    .custom-carousel .carousel-btn {
-      width: 35px;
-      height: 35px;
-      font-size: 16px;
+    .custom-carousel {
+      gap: 10px;
+
+      .carousel-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+      }
+
+      .carousel-track {
+        gap: 15px;
+      }
+
+      &.tablet .carousel-track .carousel-item {
+        width: 50%; // 2 cards per view for tablet
+        flex: 0 0 50%;
+        box-sizing: border-box;
+      }
     }
   }
 
+  // Mobile - 1 card per view
   @media (max-width: 600px) {
     .hero-section-home .hero-slider {
       height: 40vh;
@@ -691,9 +669,22 @@ $danger-red: #ff4757;
       }
     }
 
-    .movie-card,
-    .coming-soon-card {
-      flex: 0 0 calc(100% - 0px);
+    .custom-carousel {
+      gap: 8px;
+
+      .carousel-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+
+      .carousel-track {
+        gap: 10px;
+      }
+
+      &.mobile .carousel-track .carousel-item {
+        width: calc(100% - 5px); // Force 1 card on mobile
+      }
     }
 
     .section-header {
@@ -710,6 +701,9 @@ $danger-red: #ff4757;
       width: 95%;
       margin: 0 10px;
     }
+
+    .movie-section {
+      margin-bottom: 40px;
+    }
   }
-  
 }

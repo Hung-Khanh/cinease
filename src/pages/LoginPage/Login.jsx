@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -20,6 +19,7 @@ import { useAuth } from "../../constants/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const { Title, Text } = Typography;
 
 const Login = () => {
@@ -121,7 +121,6 @@ const Login = () => {
     const newErrors = { username: false, password: false };
     if (!values.username) newErrors.username = true;
     if (!values.password) newErrors.password = true;
-
     if (newErrors.username || newErrors.password) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -303,6 +302,13 @@ const Login = () => {
 
   return (
     <div className="login-page">
+      <div className="background-overlay"></div>
+      <div className="floating-elements">
+        <div className="floating-circle circle-1"></div>
+        <div className="floating-circle circle-2"></div>
+        <div className="floating-circle circle-3"></div>
+      </div>
+      
       <div className={`container ${isRegister ? "active" : ""}`}>
         {/* Login Form Section */}
         <div className="form-container login-form-section">
@@ -431,41 +437,39 @@ const Login = () => {
                 <Col span={12}>
                   <Form.Item name="password" style={{ marginBottom: 0 }}>
                     <Input.Password
-                      data-testid="register-password"
-                      status={errors.register.password ? "error" : ""}
-                      placeholder={
-                        errors.register.password
-                          ? "Please input your password!"
-                          : "Enter password"
-                      }
-                      name="password"
-                      value={registerData.password}
-                      onChange={handleRegisterInputChange}
-                      size="small"
-                      className={errors.register.password ? "error-input" : ""}
-                    />
+  data-testid="register-password"
+  status={errors.register.password ? "error" : ""}
+  placeholder={
+    errors.register.password
+      ? "Please input your password!"
+      : "Enter password"
+  }
+  name="password"
+  value={registerData.password}
+  onChange={handleRegisterInputChange}
+  iconRender={(visible) => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+  className={errors.register.password ? "error-input" : ""}
+/>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="repeatPassword" style={{ marginBottom: 0 }}>
                     <Input.Password
-                      data-testid="register-repeat-password"
-                      status={errors.register.repeatPassword ? "error" : ""}
-                      placeholder={
-                        errors.register.repeatPassword
-                          ? registerData.password && registerData.repeatPassword
-                            ? "Passwords do not match!"
-                            : "Please confirm your password!"
-                          : "Confirm password"
-                      }
-                      name="repeatPassword"
-                      value={registerData.repeatPassword}
-                      onChange={handleRegisterInputChange}
-                      size="small"
-                      className={
-                        errors.register.repeatPassword ? "error-input" : ""
-                      }
-                    />
+  data-testid="register-repeat-password"
+  status={errors.register.repeatPassword ? "error" : ""}
+  placeholder={
+    errors.register.repeatPassword
+      ? registerData.password && registerData.repeatPassword
+        ? "Passwords do not match!"
+        : "Please confirm your password!"
+      : "Confirm password"
+  }
+  name="repeatPassword"
+  value={registerData.repeatPassword}
+  onChange={handleRegisterInputChange}
+  iconRender={(visible) => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+  className={errors.register.repeatPassword ? "error-input" : ""}
+/>
                   </Form.Item>
                 </Col>
               </Row>
