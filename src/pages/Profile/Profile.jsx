@@ -4,7 +4,6 @@ import {
   Button,
   Form,
   Table,
-  message,
   Upload,
   Tag,
   Dropdown,
@@ -27,6 +26,8 @@ import {
 import { getCurrentUserFeedbacks, submitFeedbackForInvoice, getCurrentUserFeedbackForInvoice } from "../../api/feedback";
 import { FeedbackModal } from "../Feedback/FeedbackModal.jsx";
 import Feedback from "../Feedback/Feedback";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -61,7 +62,7 @@ const Profile = () => {
       const response = await getCurrentUserFeedbackForInvoice(invoiceId);
       return response.data;
     } catch (error) {
-      message.error("Failed to fetch feedback. Please try again.");
+      toast.error("Failed to fetch feedback. Please try again.");
       return null;
     } finally {
       setViewFeedbackLoading(false);
@@ -146,7 +147,7 @@ const Profile = () => {
         rating: values.rating,
         comment: values.comment,
       });
-      message.success("Feedback added successfully!");
+      toast.success("Feedback added successfully!");
       setModalVisible(false);
       setSelectedInvoice(null);
       const response = await getCurrentUserFeedbacks();
@@ -156,7 +157,7 @@ const Profile = () => {
       );
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      message.error("Failed to submit feedback. Please try again.");
+      toast.error("Failed to submit feedback. Please try again.");
     }
   };
 
@@ -349,7 +350,7 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error fetching user info:", error);
-      message.error("Cannot fetch user info. Please check API or login again.");
+      toast.error("Cannot fetch user info. Please check API or login again.");
     }
   }, [form]);
 
@@ -392,7 +393,7 @@ const Profile = () => {
       }
 
       const response = await updateUserWithImage(formData);
-      message.success("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       setAvatarFile(null);
       await fetchUserInfo();
 
@@ -425,7 +426,7 @@ const Profile = () => {
             errorMessage = error.response.data.message || errorMessage;
         }
       }
-      message.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -435,17 +436,17 @@ const Profile = () => {
     const { currentPwd, newPwd, confirmPwd } = values;
 
     if (!currentPwd || !newPwd || !confirmPwd) {
-      message.error("Please fill in all password fields!");
+      toast.error("Please fill in all password fields!");
       return;
     }
 
     if (newPwd.length < 8) {
-      message.error("New password must be at least 8 characters!");
+      toast.error("New password must be at least 8 characters!");
       return;
     }
 
     if (newPwd !== confirmPwd) {
-      message.error("Password confirmation does not match!");
+      toast.error("Password confirmation does not match!");
       return;
     }
 
@@ -480,7 +481,7 @@ const Profile = () => {
       formData.append("account", accountBlob);
 
       await updateUserWithImage(formData);
-      message.success("Password changed successfully!");
+      toast.success("Password changed successfully!");
       pwdForm.resetFields();
     } catch (error) {
       console.error("Password change error:", error);
@@ -497,12 +498,13 @@ const Profile = () => {
             errorMessage = error.response.data.message || errorMessage;
         }
       }
-      message.error(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   return (
     <div className="profile-page">
+      <ToastContainer />
       <h2 className="profile-title">Profile</h2>
       <Tabs
         activeKey={activeTab}
@@ -530,11 +532,11 @@ const Profile = () => {
                 showUploadList={false}
                 beforeUpload={(file) => {
                   if (!file.type.startsWith("image/")) {
-                    message.error("Please select an image file");
+                    toast.error("Please select an image file");
                     return false;
                   }
                   if (file.size > 5 * 1024 * 1024) {
-                    message.error("File size should be less than 5MB");
+                    toast.error("File size should be less than 5MB");
                     return false;
                   }
                   setPreviewAvatar(URL.createObjectURL(file));

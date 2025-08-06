@@ -927,6 +927,12 @@
   }
 }
 
+// Toastify Custom Styles
+.Toastify__toast {
+  background: #6fcf97 !important;
+  color: #fff !important;
+}
+
 @media (max-width: 768px) {
   .showtime-header {
     padding: 1.5rem 1rem;

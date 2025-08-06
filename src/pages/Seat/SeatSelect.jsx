@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import "./SeatSelect.scss"
 import { FaArrowLeft, FaTicketAlt, FaCalendarAlt, FaClock, FaCouch } from "react-icons/fa"
@@ -8,8 +6,9 @@ import { PiArmchair, PiArmchairFill, PiArmchairDuotone } from "react-icons/pi"
 import { TbArmchair2Off } from "react-icons/tb"
 import { useSelector, useDispatch } from "react-redux"
 import { setSeatData, setSessionId, clearSeatData, clearSessionId } from "../../store/cartSlice"
-
 import { getSeats } from "../../api/seat";
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/api", onBack }) => {
   const [seats, setSeats] = useState([])
@@ -29,7 +28,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
   const scheduleId = bookingInfo.scheduleId || paramScheduleId
 
-  // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date())
@@ -37,7 +35,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     return () => clearInterval(timer)
   }, [])
 
-  // Ưu tiên lấy selectedSeats từ Redux nếu còn sessionId hợp lệ, nếu không thì lấy từ localStorage
   const getInitialSelectedSeats = () => {
     if (existingSessionId && existingSeatData?.selectedSeats?.length > 0) {
       return existingSeatData.selectedSeats
@@ -55,13 +52,11 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
   const [selectedSeats, setSelectedSeats] = useState(getInitialSelectedSeats())
 
-  // Khi movieId hoặc scheduleId thay đổi, reset selectedSeats và localStorage
   useEffect(() => {
     setSelectedSeats([])
     window.localStorage.setItem("selectedSeats", JSON.stringify([]))
   }, [movieId, scheduleId])
 
-  // Khi mount lại, nếu Redux còn sessionId và selectedSeats thì khôi phục lại, nếu không thì lấy từ localStorage
   useEffect(() => {
     if (existingSessionId && existingSeatData?.selectedSeats?.length > 0) {
       setSelectedSeats(existingSeatData.selectedSeats)
@@ -77,14 +72,19 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
     }
   }, [existingSessionId, existingSeatData])
 
-  // Persist selectedSeats to localStorage
+
   useEffect(() => {
     window.localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats))
   }, [selectedSeats])
 
   const fetchSeat = async () => {
     if (!token) {
-      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      toast.error("You are not logged in or your session has expired. Please log in again.", {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "colored",
+        toastStyle: { background: "#eb5757", color: "#fff" },
+      });
       navigate("/login");
       return;
     }
@@ -93,7 +93,6 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       const data = response.data;
       setSeats(data);
 
-      // Nếu không còn sessionId hợp lệ, clear selectedSeats
       if (!existingSessionId) {
         setSelectedSeats([]);
         window.localStorage.setItem("selectedSeats", JSON.stringify([]));
@@ -116,19 +115,33 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         return filtered;
       });
     } catch (error) {
-      // Xử lý lỗi giống như fetch cũ
       if (error.response && error.response.status === 401) {
-        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        toast.error("Session expired. Please log in again.", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "colored",
+          toastStyle: { background: "#eb5757", color: "#fff" },
+        });
         navigate("/login");
         return;
       }
       if (error.response && error.response.data?.errorCode === "SHOWTIME_NOT_FOUND") {
-        alert("Lịch chiếu không tồn tại. Vui lòng chọn lịch chiếu khác.");
+        toast.error("Showtime not found. Please select another showtime.", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "colored",
+          toastStyle: { background: "#eb5757", color: "#fff" },
+        });
         navigate(-1);
         return;
       }
       console.error("🔥 Error in fetchSeat:", error);
-      alert(`Lỗi khi tải danh sách ghế: ${error.message}. Vui lòng thử lại.`);
+      toast.error(`Error loading seat list: ${error.message}. Please try again.`, {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "colored",
+        toastStyle: { background: "#eb5757", color: "#fff" },
+      });
     }
   };
 
@@ -154,7 +167,12 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
           if (!response.ok) {
             const errorData = await response.json()
             if (errorData.errorCode === "SESSION_EXPIRED") {
-              alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.")
+              toast.error("Booking session expired. Please start again.", {
+                position: "top-center",
+                autoClose: 2000,
+                theme: "colored",
+                toastStyle: { background: "#eb5757", color: "#fff" },
+              });
               dispatch(clearSeatData())
               dispatch(clearSessionId())
               window.localStorage.removeItem("selectedSeats")
@@ -181,6 +199,12 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         } catch (error) {
           console.error("🔥 Error releasing previous seats:", error)
           if (error.message.includes("SESSION_EXPIRED")) {
+            toast.error("Booking session expired. Please start again.", {
+              position: "top-center",
+              autoClose: 2000,
+              theme: "colored",
+              toastStyle: { background: "#eb5757", color: "#fff" },
+            });
             dispatch(clearSeatData())
             dispatch(clearSessionId())
             window.localStorage.removeItem("selectedSeats")
@@ -211,7 +235,12 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
         return prev.filter((s) => s !== seatId)
       }
       if (prev.length >= 8) {
-        alert("Bạn chỉ có thể chọn tối đa 8 ghế.")
+        toast.warn("You can select up to 8 seats only.", {
+          position: "top-center",
+          autoClose: 2000,
+          theme: "colored",
+          toastStyle: { background: "#f2c94c", color: "#fff" },
+        });
         return prev
       }
       return [...prev, seatId]
@@ -220,13 +249,28 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
 
   const handleCheckout = async () => {
     if (!token) {
-      alert("Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
+      toast.error("You are not logged in or your session has expired. Please log in again.", {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "colored",
+        toastStyle: { background: "#eb5757", color: "#fff" },
+      });
       navigate("/login")
       return
     }
 
     if (selectedSeats.length === 0) {
-      alert("Vui lòng chọn ít nhất một ghế.")
+      toast.warn("Please choose at least one seat.", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        toastStyle: { background: "#6fcf97", color: "#fff" },
+      })
       return
     }
 
@@ -254,20 +298,40 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       if (!response.ok) {
         const errorData = await response.json()
         if (errorData.errorCode === "SEAT_ALREADY_BOOKED") {
-          alert("Một hoặc nhiều ghế đã được chọn bởi người khác. Vui lòng chọn lại.")
+          toast.error("One or more seats have been selected by someone else. Please select again.", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "colored",
+            toastStyle: { background: "#eb5757", color: "#fff" },
+          });
           fetchSeat()
           return
         }
         if (errorData.errorCode === "SEAT_LIMIT_EXCEEDED") {
-          alert("Bạn không thể chọn quá 8 ghế.")
+          toast.warn("You cannot select more than 8 seats.", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "colored",
+            toastStyle: { background: "#f2c94c", color: "#fff" },
+          });
           return
         }
         if (errorData.errorCode === "SEAT_GAP_VIOLATION") {
-          alert("Lựa chọn ghế không hợp lệ: không được để lại khoảng trống một ghế.")
+          toast.warn("Invalid seat selection: do not leave a single empty seat gap.", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "colored",
+            toastStyle: { background: "#f2c94c", color: "#fff" },
+          });
           return
         }
         if (errorData.errorCode === "SESSION_EXPIRED") {
-          alert("Phiên đặt vé đã hết hạn. Vui lòng bắt đầu lại.")
+          toast.error("Booking session expired. Please start again.", {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "colored",
+            toastStyle: { background: "#eb5757", color: "#fff" },
+          });
           dispatch(clearSeatData())
           dispatch(clearSessionId())
           window.localStorage.removeItem("selectedSeats")
@@ -313,7 +377,12 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
       })
     } catch (error) {
       console.error("🔥 Error in handleCheckout:", error)
-      alert(`Lỗi khi chọn ghế: ${error.message}. Vui lòng thử lại.`)
+      toast.error(`Error selecting seats: ${error.message}. Please try again.`, {
+        position: "top-center",
+        autoClose: 2000,
+        theme: "colored",
+        toastStyle: { background: "#eb5757", color: "#fff" },
+      });
     }
   }
 
@@ -538,12 +607,12 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
             </div>
           )}
 
+
           {/* Action Button */}
           <div className="action-section">
             <button
               className={`checkout-btn ${selectedSeats.length > 0 ? "active" : "inactive"}`}
               onClick={handleCheckout}
-              disabled={selectedSeats.length === 0}
             >
               <span className="btn-text">
                 {selectedSeats.length > 0
@@ -555,6 +624,17 @@ const SeatSelect = ({ apiUrl = "https://legally-actual-mollusk.ngrok-free.app/ap
           </div>
         </div>
       </main>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+        toastStyle={{ background: "#6fcf97", color: "#fff" }} 
+      />
     </div>
   )
 }

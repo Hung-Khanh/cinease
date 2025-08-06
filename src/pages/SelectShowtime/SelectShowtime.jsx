@@ -15,6 +15,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom"
 import { useDispatch } from "react-redux"
 import { setBookingInfo } from "../../store/tempBookingSlice"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const SelectShowtime = () => {
   const navigate = useNavigate()
@@ -463,9 +465,30 @@ const SelectShowtime = () => {
                 className={`select-seat-btn ${selectedDate && selectedTime ? "active" : "inactive"}`}
                 data-testid="select-seat-btn"
                 onClick={() => {
-                  if (!selectedDate || !selectedTime) {
-                    console.log('ALERT_TRIGGERED', selectedDate, selectedTime);
-                    alert("Please select both date and time")
+                  if (!selectedDate && !selectedTime) {
+                    toast.warn("Please choose date and time!", {
+                      position: "top-center",
+                      autoClose: 2000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: "colored",
+                    })
+                    return
+                  }
+                  if (selectedDate && !selectedTime) {
+                    toast.warn("Please choose time!", {
+                      position: "top-center",
+                      autoClose: 2000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: "colored",
+                    })
                     return
                   }
                   dispatch(
@@ -487,7 +510,6 @@ const SelectShowtime = () => {
                   )
                   navigate(`/seat-select/${movieId}/${selectedScheduleId}`)
                 }}
-                disabled={!selectedDate || !selectedTime}
               >
                 <FaTicketAlt className="btn-icon" />
                 <span className="btn-text">Select Seats</span>
@@ -518,6 +540,7 @@ const SelectShowtime = () => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   )
 }
