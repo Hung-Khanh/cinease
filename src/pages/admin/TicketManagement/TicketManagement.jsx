@@ -49,20 +49,28 @@ const TicketManagement = () => {
   }, []);
 
   // Fetch Tickets with search and sort functionality
-  const fetchTickets = async (page = 0, searchTerm = "") => {
+  const fetchTickets = async (page = 0, searchTerm = "", sortBy = sortField, sortDir = sortDirection) => {
     setLoading(true);
     try {
       const params = {
         page: page,
         size: 12,
-        sortBy: sortField,
-        sortDir: sortDirection,
+        sortBy: sortBy,
+        sortDir: sortDir, // Use the current sortDirection state
       };
       
       // Add search parameter if provided
       if (searchTerm) {
         params.search = searchTerm;
       }
+
+      // Debug logging
+      console.log('Fetching tickets with params:', {
+        page,
+        searchTerm,
+        sortBy,
+        sortDir
+      });
 
       const response = await axios.get('/admin/invoices', { params });
 
@@ -219,12 +227,27 @@ const TicketManagement = () => {
     console.log("Handling Search and Filter:", {
       searchValue,
       field,
-      direction
+      direction,
+      currentSortField: sortField,
+      currentSortDirection: sortDirection
     });
+    
+    // Update states
     setSearchTerm(searchValue);
-    setSortField(field);
-    setSortDirection(direction);
-    fetchTickets(0, searchValue);
+    
+    // If field changes, reset to ascending
+    if (field !== sortField) {
+      console.log("Changing sort field to:", field);
+      setSortField(field);
+      setSortDirection('asc');
+      fetchTickets(0, searchValue, field, 'asc');
+    } else {
+      // If same field is selected, use the provided direction
+      console.log("Sorting same field with direction:", direction);
+      setSortField(field);
+      setSortDirection(direction);
+      fetchTickets(0, searchValue, field, direction);
+    }
   };
 
   return (

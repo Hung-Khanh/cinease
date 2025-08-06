@@ -10,6 +10,7 @@ const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
@@ -109,15 +110,27 @@ const ProductManagement = () => {
 
   // Memoized filtered products for performance
   const filteredProducts = useMemo(() => {
-    if (!searchTerm) return products;
+    let result = products;
 
-    const searchTermLower = searchTerm.toLowerCase();
-    return products.filter(product =>
-      product.productName.toLowerCase().includes(searchTermLower) ||
-      product.category.toLowerCase().includes(searchTermLower) ||
-      product.price.toString().includes(searchTermLower)
-    );
-  }, [products, searchTerm]);
+    // Filter by category if selected
+    if (categoryFilter) {
+      result = result.filter(product => 
+        product.category === categoryFilter
+      );
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
+      result = result.filter(product =>
+        product.productName.toLowerCase().includes(searchTermLower) ||
+        product.category.toLowerCase().includes(searchTermLower) ||
+        product.price.toString().includes(searchTermLower)
+      );
+    }
+
+    return result;
+  }, [products, searchTerm, categoryFilter]);
 
   // Columns for the Products Table
   const columns = [
@@ -338,6 +351,18 @@ const ProductManagement = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 300, marginRight: 10 }}
+            />
+            <Select
+              placeholder="Filter by Category"
+              style={{ width: 200, marginRight: 10 }}
+              allowClear
+              value={categoryFilter}
+              onChange={(value) => setCategoryFilter(value)}
+              options={[
+                { value: 'FOOD', label: 'Food' },
+                { value: 'BEVERAGE', label: 'Beverage' },
+                { value: 'COMBO', label: 'Combo' }
+              ]}
             />
           </div>
           <Button

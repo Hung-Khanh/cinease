@@ -358,7 +358,7 @@ const Members = () => {
           emptyText: "No members found",
         }}
         pagination={{
-          pageSize: 12,
+          pageSize: 6,
           showSizeChanger: false,
           className: "pagination-btn-member",
           itemRender: (current, type, originalElement) => {
