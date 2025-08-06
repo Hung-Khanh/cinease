@@ -1,28 +1,77 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
 
+// Enhanced responsive mixins
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 769px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
+
+@mixin small-mobile {
+  @media (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin extra-small {
+  @media (max-width: 320px) {
+    @content;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .login-page {
   font-family: "Montserrat", poppins, sans-serif;
   background-image: url("../../assets/bigbackground.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   min-height: 100vh;
   margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  overflow-x: hidden;
 
-  & {
-    padding: 20px;
+  // Enhanced background overlay
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 0;
   }
 
-  box-sizing: border-box;
+  // Floating decorative elements
 
   .container {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
     border-radius: 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     position: relative;
     overflow: hidden;
     width: 100%;
@@ -32,38 +81,49 @@
     display: flex;
     align-items: stretch;
     justify-content: space-between;
+    z-index: 10;
+    animation: fadeIn 0.8s ease-out;
 
-    @media (max-width: 768px) {
-      width: 95%;
-      max-width: none;
-      min-height: 100vh;
-      border-radius: 10px;
-      flex-direction: column;
-      height: auto;
+    // Enhanced responsive breakpoints
+    @include tablet {
+      max-width: 900px;
+      min-height: 650px;
     }
 
-    @media (max-width: 480px) {
+    @include mobile {
+      width: 95%;
+      max-width: none;
+      min-height: auto;
+      border-radius: 16px;
+      flex-direction: column;
+      height: auto;
+      margin: 10px;
+    }
+
+    @include small-mobile {
       width: 100%;
-      border-radius: 0;
+      border-radius: 12px;
+      margin: 5px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    @include extra-small {
+      border-radius: 8px;
       min-height: 100vh;
-      box-shadow: none;
     }
 
     .form-container {
       position: absolute;
       top: 0;
       height: 100%;
-
       // Đảm bảo text đã chọn trong dropdown giới tính là màu đen
       .ant-select-single .ant-select-selection-item {
         color: #000 !important;
       }
-
       // Đảm bảo text trong dropdown menu cũng màu đen
       .ant-select-dropdown .ant-select-item-option-content {
         color: #000 !important;
       }
-
       // Đảm bảo tất cả placeholder trong input của form đăng ký đều màu đen
       input::placeholder,
       .ant-input-password input::placeholder,
@@ -71,35 +131,39 @@
         color: #000 !important;
         opacity: 1 !important;
       }
-
       input:focus::placeholder,
       .ant-input-password input:focus::placeholder {
         color: #000 !important;
         opacity: 1 !important;
       }
-
       transition: all 0.6s ease-in-out;
       width: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-
-      & {
-        padding: 20px;
-      }
-
+      padding: 20px;
       box-sizing: border-box;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        padding: 25px;
+      }
+
+      @include mobile {
         width: 100%;
         height: auto;
         min-height: 60vh;
-        padding: 15px;
+        padding: 20px;
+        position: relative;
       }
 
-      @media (max-width: 480px) {
-        padding: 10px;
+      @include small-mobile {
+        padding: 15px;
         min-height: 50vh;
+      }
+
+      @include extra-small {
+        padding: 10px;
+        min-height: 45vh;
       }
     }
 
@@ -108,7 +172,7 @@
       z-index: 2;
       opacity: 1;
 
-      @media (max-width: 768px) {
+      @include mobile {
         display: block;
       }
     }
@@ -118,7 +182,7 @@
       opacity: 0;
       z-index: 1;
 
-      @media (max-width: 768px) {
+      @include mobile {
         transform: none;
         display: none !important;
       }
@@ -129,7 +193,7 @@
       opacity: 0;
       z-index: 1;
 
-      @media (max-width: 768px) {
+      @include mobile {
         display: none !important;
       }
     }
@@ -140,7 +204,7 @@
       z-index: 2;
       animation: move 0.6s;
 
-      @media (max-width: 768px) {
+      @include mobile {
         transform: none !important;
         display: block !important;
         animation: none;
@@ -149,13 +213,11 @@
     }
 
     @keyframes move {
-
       0%,
       49.99% {
         opacity: 0;
         z-index: 1;
       }
-
       50%,
       100% {
         opacity: 1;
@@ -171,7 +233,7 @@
       height: 100%;
       overflow: hidden;
       transition: all 0.6s ease-in-out;
-      z-index: 10 !important;
+      z-index: 100 !important;
       background-image: url("../../assets/background.png");
       background-size: cover;
       background-position: center;
@@ -179,25 +241,30 @@
       align-items: center;
       justify-content: center;
 
-      @media (max-width: 768px) {
+      @include mobile {
         position: relative;
         left: 0;
         width: 100%;
         height: 40vh;
-        min-height: 200px;
+        min-height: 250px;
         order: -1;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
+        height: 35vh;
+        min-height: 200px;
+      }
+
+      @include extra-small {
         height: 30vh;
-        min-height: 150px;
+        min-height: 180px;
       }
     }
 
     &.active .toggle-container {
       transform: translateX(-100%);
 
-      @media (max-width: 768px) {
+      @include mobile {
         transform: none !important;
       }
     }
@@ -210,7 +277,7 @@
       transform: translateX(0);
       transition: all 0.6s ease-in-out;
 
-      @media (max-width: 768px) {
+      @include mobile {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -220,7 +287,7 @@
     &.active .toggle {
       transform: translateX(50%);
 
-      @media (max-width: 768px) {
+      @include mobile {
         transform: none !important;
       }
     }
@@ -239,18 +306,22 @@
       transform: translateX(0);
       transition: all 0.6s ease-in-out;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        padding: 20px 60px;
+      }
+
+      @include mobile {
         position: relative;
         width: 100%;
-
-        & {
-          padding: 20px;
-        }
-
+        padding: 20px;
         height: auto;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
+        padding: 15px;
+      }
+
+      @include extra-small {
         padding: 10px;
       }
     }
@@ -259,7 +330,7 @@
       right: 250px;
       transform: translateX(-200%);
 
-      @media (max-width: 768px) {
+      @include mobile {
         right: 0;
         transform: none !important;
         display: none !important;
@@ -269,7 +340,7 @@
     &.active .toggle-left {
       transform: translateX(0);
 
-      @media (max-width: 768px) {
+      @include mobile {
         display: flex !important;
         transform: none !important;
       }
@@ -279,7 +350,7 @@
       right: 0;
       transform: translateX(0);
 
-      @media (max-width: 768px) {
+      @include mobile {
         right: 0;
         display: flex !important;
       }
@@ -288,7 +359,7 @@
     &.active .toggle-right {
       transform: translateX(200%);
 
-      @media (max-width: 768px) {
+      @include mobile {
         display: none !important;
         transform: none !important;
       }
@@ -298,14 +369,25 @@
     .register-title {
       margin-bottom: 15px;
       font-size: 24px;
+      color: #1a1a1a;
+      font-weight: 700;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        font-size: 22px;
+      }
+
+      @include mobile {
         font-size: 20px;
+        margin-bottom: 12px;
+      }
+
+      @include small-mobile {
+        font-size: 18px;
         margin-bottom: 10px;
       }
 
-      @media (max-width: 480px) {
-        font-size: 18px;
+      @include extra-small {
+        font-size: 16px;
       }
     }
 
@@ -314,13 +396,23 @@
         padding-bottom: 20px;
         font-size: 20px;
 
-        @media (max-width: 768px) {
+        @include tablet {
+          font-size: 18px;
+          padding-bottom: 15px;
+        }
+
+        @include mobile {
           font-size: 16px;
           padding-bottom: 10px;
         }
 
-        @media (max-width: 480px) {
+        @include small-mobile {
           font-size: 14px;
+          padding-bottom: 8px;
+        }
+
+        @include extra-small {
+          font-size: 13px;
           padding-bottom: 5px;
         }
       }
@@ -328,31 +420,40 @@
       .ant-form-item {
         margin-bottom: 20px;
 
-        @media (max-width: 768px) {
-          margin-bottom: 8px;
+        @include mobile {
+          margin-bottom: 15px;
+        }
+
+        @include small-mobile {
+          margin-bottom: 12px;
+        }
+
+        @include extra-small {
+          margin-bottom: 10px;
         }
       }
 
-      & {
-        padding: 20px;
-      }
-
-      & {
-        width: 200%;
-      }
-
+      padding: 20px;
+      width: 200%;
       display: flex;
       flex-direction: column;
       align-items: center;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        padding: 18px;
+        width: 180%;
+      }
+
+      @include mobile {
         padding: 15px;
-        border: none;
-        border-radius: 0;
         width: 100%;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
+        padding: 12px;
+      }
+
+      @include extra-small {
         padding: 10px;
       }
 
@@ -360,12 +461,10 @@
       .error-input {
         border: 2px solid #ff4d4f !important;
         background-color: #fff2f0 !important;
-
         &:focus {
           border: 2px solid #ff4d4f !important;
           box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
         }
-
         &::placeholder {
           color: #ff4d4f !important;
           font-style: italic;
@@ -377,28 +476,23 @@
         background-color: #fff2f0 !important;
         display: flex;
         align-items: center;
-
         &:focus {
           border: 2px solid #ff4d4f !important;
           box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
         }
-
         .ant-input {
           border: none !important;
           background-color: transparent !important;
           flex: 1;
-
           &:focus {
             border: none !important;
             box-shadow: none !important;
           }
-
           &::placeholder {
             color: #ff4d4f !important;
             font-style: italic;
           }
         }
-
         .ant-input-suffix {
           border: none !important;
           background-color: transparent !important;
@@ -414,25 +508,33 @@
         padding-bottom: 0;
         font-size: 12px;
 
-        @media (max-width: 768px) {
+        @include mobile {
           font-size: 12px;
           padding-bottom: 2px;
         }
 
-        @media (max-width: 480px) {
+        @include small-mobile {
           font-size: 11px;
+        }
+
+        @include extra-small {
+          font-size: 10px;
         }
       }
 
       .ant-form-item {
         margin-bottom: 0px;
 
-        @media (max-width: 768px) {
-          margin-bottom: 5px;
+        @include mobile {
+          margin-bottom: 8px;
         }
 
-        @media (max-width: 480px) {
-          margin-bottom: 3px;
+        @include small-mobile {
+          margin-bottom: 6px;
+        }
+
+        @include extra-small {
+          margin-bottom: 4px;
         }
       }
 
@@ -440,12 +542,10 @@
       .error-input {
         border: 2px solid #ff4d4f !important;
         background-color: #fff2f0 !important;
-
         &:focus {
           border: 2px solid #ff4d4f !important;
           box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
         }
-
         &::placeholder {
           color: #ff4d4f !important;
           font-style: italic;
@@ -459,12 +559,10 @@
       .ant-select.error-input .ant-select-selector {
         border: 2px solid #ff4d4f !important;
         background-color: #fff2f0 !important;
-
         &:focus {
           border: 2px solid #ff4d4f !important;
           box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
         }
-
         .ant-select-selection-placeholder {
           color: #ff4d4f !important;
           font-style: italic;
@@ -476,28 +574,23 @@
         background-color: #fff2f0 !important;
         display: flex;
         align-items: center;
-
         &:focus {
           border: 2px solid #ff4d4f !important;
           box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
         }
-
         .ant-input {
           border: none !important;
           background-color: transparent !important;
           flex: 1;
-
           &:focus {
             border: none !important;
             box-shadow: none !important;
           }
-
           &::placeholder {
             color: #ff4d4f !important;
             font-style: italic;
           }
         }
-
         .ant-input-suffix {
           border: none !important;
           background-color: transparent !important;
@@ -511,15 +604,22 @@
       padding: 0px;
       width: 100%;
 
-      @media (max-width: 768px) {
+      @include mobile {
         padding: 10px;
         border-radius: 0;
+      }
+
+      @include small-mobile {
+        padding: 8px;
+      }
+
+      @include extra-small {
+        padding: 5px;
       }
 
       .password-section-wrapper {
         .ant-form-item {
           margin-bottom: 0 !important;
-
           .ant-row {
             margin-bottom: 0 !important;
           }
@@ -530,12 +630,16 @@
     .register-form.compact {
       padding: 15px;
 
-      @media (max-width: 768px) {
+      @include mobile {
+        padding: 12px;
+      }
+
+      @include small-mobile {
         padding: 10px;
       }
 
-      @media (max-width: 480px) {
-        padding: 5px;
+      @include extra-small {
+        padding: 8px;
       }
     }
 
@@ -545,26 +649,44 @@
       border-color: #0c9550;
       font-size: 20px;
       padding: 6px 20px;
-      border-radius: 4px;
+      border-radius: 8px;
       font-weight: 600;
       letter-spacing: 0.3px;
       text-transform: uppercase;
       margin-top: 6px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(12, 149, 80, 0.3);
 
-      @media (max-width: 768px) {
-        font-size: 12px;
-        padding: 8px 24px;
+      @include tablet {
+        font-size: 18px;
+        padding: 8px 22px;
+      }
+
+      @include mobile {
+        font-size: 16px;
+        padding: 10px 24px;
         margin-top: 10px;
       }
 
-      @media (max-width: 480px) {
-        font-size: 11px;
-        padding: 6px 20px;
+      @include small-mobile {
+        font-size: 14px;
+        padding: 8px 20px;
+      }
+
+      @include extra-small {
+        font-size: 12px;
+        padding: 6px 18px;
       }
 
       &:hover {
         background-color: #044824 !important;
         border-color: #044824 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(12, 149, 80, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
       }
     }
 
@@ -572,9 +694,19 @@
       padding: 5px 15px;
       font-size: 17px;
 
-      @media (max-width: 768px) {
+      @include mobile {
         padding: 8px 20px;
-        font-size: 11px;
+        font-size: 14px;
+      }
+
+      @include small-mobile {
+        padding: 6px 18px;
+        font-size: 13px;
+      }
+
+      @include extra-small {
+        padding: 5px 15px;
+        font-size: 12px;
       }
     }
 
@@ -588,15 +720,32 @@
       margin-top: -40px;
       margin-right: 62px;
       cursor: pointer;
+      transition: all 0.3s ease;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        width: 250px;
+        margin-bottom: 18px;
+        margin-top: -30px;
+        margin-right: 40px;
+      }
+
+      @include mobile {
         width: 200px;
         margin: 0 auto 15px;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
         width: 150px;
+        margin-bottom: 12px;
+      }
+
+      @include extra-small {
+        width: 120px;
         margin-bottom: 10px;
+      }
+
+      &:hover {
+        transform: scale(1.05);
       }
     }
 
@@ -604,15 +753,16 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-
-      & {
-        width: 200%;
-      }
-
+      width: 200%;
       justify-content: center;
       margin-right: 80px;
 
-      @media (max-width: 768px) {
+      @include tablet {
+        width: 180%;
+        margin-right: 60px;
+      }
+
+      @include mobile {
         width: 100%;
         margin: 0;
       }
@@ -623,16 +773,27 @@
       color: #fff;
       white-space: nowrap;
       display: inline-block;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
-      @media (max-width: 768px) {
+      @include tablet {
+        font-size: 18px;
+      }
+
+      @include mobile {
         font-size: 16px;
         white-space: normal;
         text-align: center;
         margin-bottom: 10px;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
         font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      @include extra-small {
+        font-size: 13px;
+        margin-bottom: 6px;
       }
     }
 
@@ -640,12 +801,16 @@
       width: 100%;
       height: 69px;
 
-      @media (max-width: 768px) {
+      @include mobile {
         height: auto;
         min-height: 60px;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
+        min-height: 55px;
+      }
+
+      @include extra-small {
         min-height: 50px;
       }
     }
@@ -654,7 +819,8 @@
     .login-form .ant-input-password,
     .login-form .ant-input-affix-wrapper.ant-input-password,
     .login-form .ant-select-selector {
-      transition: border 0.2s, box-shadow 0.2s;
+      transition: all 0.3s ease;
+      border-radius: 8px;
     }
 
     .login-form .ant-input:focus {
@@ -682,22 +848,30 @@
       margin: 4px 0;
       padding: 6px 10px;
       font-size: 11px;
-      border-radius: 4px;
+      border-radius: 6px;
       width: 100%;
       outline: none;
       height: 30px;
       display: flex;
       align-items: center;
+      transition: all 0.3s ease;
 
-      @media (max-width: 768px) {
+      @include mobile {
         font-size: 14px;
         height: 35px;
         padding: 8px 12px;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
         font-size: 13px;
         height: 32px;
+        padding: 6px 10px;
+      }
+
+      @include extra-small {
+        font-size: 12px;
+        height: 30px;
+        padding: 5px 8px;
       }
 
       &:focus {
@@ -715,8 +889,16 @@
       display: flex;
       align-items: center;
 
-      @media (max-width: 768px) {
+      @include mobile {
         font-size: 16px;
+      }
+
+      @include small-mobile {
+        font-size: 15px;
+      }
+
+      @include extra-small {
+        font-size: 14px;
       }
     }
 
@@ -731,16 +913,28 @@
       margin: 2px !important;
       align-items: center;
 
-      @media (max-width: 768px) {
+      @include mobile {
         margin: 4px !important;
+      }
+
+      @include small-mobile {
+        margin: 3px !important;
+      }
+
+      @include extra-small {
+        margin: 2px !important;
       }
     }
 
     .ant-col {
       padding: 0 !important;
 
-      @media (max-width: 480px) {
+      @include small-mobile {
         padding: 0 2px !important;
+      }
+
+      @include extra-small {
+        padding: 0 1px !important;
       }
     }
 
@@ -749,68 +943,76 @@
       border-color: #0c9550;
       font-size: 10px;
       padding: 6px 20px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-weight: 600;
       letter-spacing: 0.3px;
       text-transform: uppercase;
       margin-top: 6px;
+      transition: all 0.3s ease;
 
-      @media (max-width: 768px) {
+      @include mobile {
         font-size: 12px;
         padding: 8px 24px;
         margin-top: 10px;
       }
 
-      @media (max-width: 480px) {
+      @include small-mobile {
         font-size: 11px;
         padding: 6px 20px;
+      }
+
+      @include extra-small {
+        font-size: 10px;
+        padding: 5px 18px;
       }
 
       &:hover {
         background-color: #044824 !important;
         border-color: #044824 !important;
+        transform: translateY(-1px);
       }
     }
 
+    // Enhanced responsive for landscape orientation
     @media (max-width: 768px) and (orientation: landscape) {
       min-height: auto;
       height: auto;
-
+      
       .form-container {
         min-height: auto;
-        padding: 10px;
+        padding: 15px;
       }
-
+      
       .toggle-container {
-        height: 30vh;
-        min-height: 120px;
+        height: 35vh;
+        min-height: 150px;
       }
-
+      
       .logo {
-        width: 120px;
-        margin-bottom: 5px;
+        width: 140px;
+        margin-bottom: 8px;
       }
-
+      
       .register-text {
         font-size: 14px;
       }
     }
 
-    @media (max-width: 320px) {
-
+    // Ultra small screens
+    @include extra-small {
       .login-form,
       .register-form {
-        padding: 5px;
+        padding: 8px;
       }
-
+      
       .logo {
-        width: 120px;
+        width: 100px;
       }
-
+      
       .register-text {
         font-size: 12px;
       }
-
+      
       .login-form .ant-input,
       .login-form .ant-input-password,
       .login-form .ant-select-selector,
@@ -818,7 +1020,7 @@
       .register-form .ant-input-password,
       .register-form .ant-select-selector {
         height: 28px;
-        font-size: 12px;
+        font-size: 11px;
       }
     }
   }
@@ -837,6 +1039,7 @@
     opacity: 1 !important;
   }
 
+  // Enhanced breakpoints for larger screens
   @media (min-width: 1200px) {
     .container {
       width: 1000px;
@@ -849,6 +1052,39 @@
       width: 90%;
       max-width: 900px;
       height: 650px;
+    }
+  }
+
+  // High DPI displays
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .container {
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  // Reduced motion accessibility
+  @media (prefers-reduced-motion: reduce) {
+    .floating-elements {
+      display: none;
+    }
+    
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  // Print styles
+  @media print {
+    .floating-elements,
+    .background-overlay {
+      display: none;
+    }
+    
+    .container {
+      box-shadow: none;
+      border: 1px solid #ccc;
     }
   }
 }
